@@ -12,10 +12,10 @@ import { AppSettings } from './Types';
  * here can be used with express sessions in route controllers.
  *
  * Session variables accessible are as follows:
-    * req.session.isAuthenticated: boolean
-    * req.session.isAuthorized: boolean
-    * req.session.account: AccountInfo
-    * req.session.<resourceName>.accessToken: string
+ * req.session.isAuthenticated: boolean
+ * req.session.isAuthorized: boolean
+ * req.session.account: AccountInfo
+ * req.session.<resourceName>.accessToken: string
  */
 export declare class AuthProvider {
     urlUtils: UrlUtils;

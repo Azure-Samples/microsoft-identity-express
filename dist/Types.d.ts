@@ -38,7 +38,7 @@ export declare type Credentials = {
     clientId: string;
     tenantId: string;
     clientSecret: string;
-    clientCertificate: ClientCertificate;
+    clientCertificate?: ClientCertificate;
 };
 export declare type ClientCertificate = {
     thumbprint: string;
@@ -52,13 +52,13 @@ export declare type Settings = {
 export declare type AppSettings = {
     credentials: Credentials;
     settings: Settings;
-    resources: {
+    resources?: {
         [resource: string]: Resource;
     };
-    policies: {
+    policies?: {
         [policy: string]: Policy;
     };
-    protected: any;
+    protected?: any;
 };
 export declare type Policy = {
     authority: string;

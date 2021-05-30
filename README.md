@@ -1,6 +1,6 @@
 # MSAL Express Wrapper
 
-This project illustrates a simple wrapper around **MSAL Node** [ConfidentialClientApplication](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-node/src/client/ConfidentialClientApplication.ts) class in order to abstract routine authentication tasks such as login, logout, token acquisition, as well as utility methods to validate tokens and etc.
+This project illustrates a simple wrapper around **MSAL Node** [ConfidentialClientApplication](https://azuread.github.io/microsoft-authentication-library-for-js/ref/classes/_azure_msal_node.confidentialclientapplication.html) class in order to abstract routine authentication tasks such as login, logout, token acquisition, as well as utility methods to validate tokens and etc.
 
 Suggestions and contributions are welcome!
 
@@ -12,7 +12,7 @@ Suggestions and contributions are welcome!
 
 ## Installation
 
-```console
+```shell
     npm install
     npm run build
 ```
@@ -109,7 +109,7 @@ Simply add the `getToken` middleware before the controller that makes a call to 
 
 ```javascript
 // secure routes that call protected resources
-app.get('/profile', authProvider.isAuthenticated, authProvider.getToken, mainController.getProfilePage); // get token for this route to call web API
+app.get('/profile', authProvider.isAuthenticated, authProvider.getToken, mainController.getProfilePage);
 ```
 
 ## Remarks

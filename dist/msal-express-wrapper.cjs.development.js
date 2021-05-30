@@ -810,28 +810,28 @@ var ConfigurationUtils = function ConfigurationUtils() {};
  */
 
 ConfigurationUtils.validateAppSettings = function (config) {
-  if (!config.credentials.clientId || config.credentials.clientId === "Enter_the_Application_Id_Here") {
-    throw new Error("No clientId provided!");
+  if (!config.credentials.clientId || config.credentials.clientId === 'Enter_the_Application_Id_Here') {
+    throw new Error('No clientId provided!');
   }
 
-  if (!config.credentials.tenantId || config.credentials.tenantId === "Enter_the_Tenant_Info_Here") {
-    throw new Error("No tenantId provided!");
+  if (!config.credentials.tenantId || config.credentials.tenantId === 'Enter_the_Tenant_Info_Here') {
+    throw new Error('No tenantId provided!');
   }
 
-  if (!config.credentials.clientSecret || config.credentials.clientSecret === "Enter_the_Client_Secret_Here") {
-    throw new Error("No clientSecret provided!");
+  if (!config.credentials.clientSecret || config.credentials.clientSecret === 'Enter_the_Client_Secret_Here') {
+    throw new Error('No clientSecret provided!');
   }
 
-  if (!config.settings.redirectUri || config.settings.redirectUri === "Enter_the_Redirect_Uri_Here") {
-    throw new Error("No postLogoutRedirectUri provided!");
+  if (!config.settings.redirectUri || config.settings.redirectUri === 'Enter_the_Redirect_Uri_Here') {
+    throw new Error('No postLogoutRedirectUri provided!');
   }
 
-  if (!config.settings.postLogoutRedirectUri || config.settings.postLogoutRedirectUri === "Enter_the_Post_Logout_Redirect_Uri_Here") {
-    throw new Error("No postLogoutRedirectUri provided!");
+  if (!config.settings.postLogoutRedirectUri || config.settings.postLogoutRedirectUri === 'Enter_the_Post_Logout_Redirect_Uri_Here') {
+    throw new Error('No postLogoutRedirectUri provided!');
   }
 
-  if (!config.settings.homePageRoute || config.settings.homePageRoute === "Enter_the_Home_Page_Route_Here") {
-    throw new Error("No homePageRoute provided!");
+  if (!config.settings.homePageRoute || config.settings.homePageRoute === 'Enter_the_Home_Page_Route_Here') {
+    throw new Error('No homePageRoute provided!');
   }
 };
 /**
@@ -879,25 +879,25 @@ ConfigurationUtils.getMsalConfiguration = function (config, cachePlugin) {
  * appropriate action after redirect occurs
  */
 var AppStages = {
-  SIGN_IN: "sign_in",
-  SIGN_OUT: "sign_out",
-  ACQUIRE_TOKEN: "acquire_token"
+  SIGN_IN: 'sign_in',
+  SIGN_OUT: 'sign_out',
+  ACQUIRE_TOKEN: 'acquire_token'
 };
 /**
  * Various error constants
  */
 
 var ErrorMessages = {
-  NOT_PERMITTED: "Not permitted",
-  INVALID_TOKEN: "Invalid token",
-  CANNOT_DETERMINE_APP_STAGE: "Cannot determine application stage",
-  NONCE_MISMATCH: "Nonce does not match",
-  INTERACTION_REQUIRED: "interaction_required",
-  TOKEN_NOT_FOUND: "No token found",
-  TOKEN_NOT_DECODED: "Token cannot be decoded",
-  TOKEN_NOT_VERIFIED: "Token cannot be verified",
-  KEYS_NOT_OBTAINED: "Signing keys cannot be obtained",
-  STATE_NOT_FOUND: "State not found"
+  NOT_PERMITTED: 'Not permitted',
+  INVALID_TOKEN: 'Invalid token',
+  CANNOT_DETERMINE_APP_STAGE: 'Cannot determine application stage',
+  NONCE_MISMATCH: 'Nonce does not match',
+  INTERACTION_REQUIRED: 'interaction_required',
+  TOKEN_NOT_FOUND: 'No token found',
+  TOKEN_NOT_DECODED: 'Token cannot be decoded',
+  TOKEN_NOT_VERIFIED: 'Token cannot be verified',
+  KEYS_NOT_OBTAINED: 'Signing keys cannot be obtained',
+  STATE_NOT_FOUND: 'State not found'
 };
 
 var TokenValidator = function TokenValidator(appSettings, msalConfig) {
@@ -959,7 +959,7 @@ var TokenValidator = function TokenValidator(appSettings, msalConfig) {
                * token's tid claim for verification purposes
                */
 
-              if (_this.appSettings.credentials.tenantId === "common" || _this.appSettings.credentials.tenantId === "organizations" || _this.appSettings.credentials.tenantId === "consumers") {
+              if (_this.appSettings.credentials.tenantId === 'common' || _this.appSettings.credentials.tenantId === 'organizations' || _this.appSettings.credentials.tenantId === 'consumers') {
                 _this.appSettings.credentials.tenantId = decodedToken.payload.tid;
               }
 
@@ -1052,8 +1052,8 @@ var TokenValidator = function TokenValidator(appSettings, msalConfig) {
      */
 
     var checkIssuer = idTokenClaims['iss'].includes(_this.appSettings.credentials.tenantId) ? true : false;
-    var checkAudience = idTokenClaims["aud"] === _this.msalConfig.auth.clientId ? true : false;
-    var checkTimestamp = idTokenClaims["iat"] <= now && idTokenClaims["exp"] >= now ? true : false;
+    var checkAudience = idTokenClaims['aud'] === _this.msalConfig.auth.clientId ? true : false;
+    var checkTimestamp = idTokenClaims['iat'] <= now && idTokenClaims['exp'] >= now ? true : false;
     return checkIssuer && checkAudience && checkTimestamp;
   };
   /**
@@ -1126,7 +1126,7 @@ var TokenValidator = function TokenValidator(appSettings, msalConfig) {
      */
 
     var checkIssuer = verifiedToken['iss'].includes(_this.appSettings.credentials.tenantId) ? true : false;
-    var checkTimestamp = verifiedToken["iat"] <= now && verifiedToken["exp"] >= now ? true : false;
+    var checkTimestamp = verifiedToken['iat'] <= now && verifiedToken['exp'] >= now ? true : false;
     var checkAudience = verifiedToken['aud'] === _this.appSettings.credentials.clientId || verifiedToken['aud'] === 'api://' + _this.appSettings.credentials.clientId ? true : false;
 
     var checkScopes = _this.appSettings["protected"].find(function (item) {
@@ -1213,10 +1213,10 @@ var UrlUtils = function UrlUtils() {
  * here can be used with express sessions in route controllers.
  *
  * Session variables accessible are as follows:
-    * req.session.isAuthenticated: boolean
-    * req.session.isAuthorized: boolean
-    * req.session.account: AccountInfo
-    * req.session.<resourceName>.accessToken: string
+ * req.session.isAuthenticated: boolean
+ * req.session.isAuthorized: boolean
+ * req.session.account: AccountInfo
+ * req.session.<resourceName>.accessToken: string
  */
 
 var AuthProvider =
@@ -1243,32 +1243,32 @@ function AuthProvider(appSettings, cache) {
      */
     if (!req.session['authCodeRequest']) {
       req.session.authCodeRequest = {
-        authority: "",
+        authority: '',
         scopes: [],
         state: {},
-        redirectUri: ""
+        redirectUri: ''
       };
     }
 
     if (!req.session['tokenRequest']) {
       req.session.tokenRequest = {
-        authority: "",
+        authority: '',
         scopes: [],
-        redirectUri: "",
-        code: ""
+        redirectUri: '',
+        code: ''
       };
     } // signed-in user's account
 
 
     if (!req.session['account']) {
       req.session.account = {
-        homeAccountId: "",
-        environment: "",
-        tenantId: "",
-        username: "",
+        homeAccountId: '',
+        environment: '',
+        tenantId: '',
+        username: '',
         idTokenClaims: {}
       };
-    } // random GUID for csrf protection 
+    } // random GUID for csrf protection
 
 
     req.session.nonce = _this.cryptoProvider.createNewGuid();
@@ -1359,7 +1359,7 @@ function AuthProvider(appSettings, cache) {
 
             case 10:
               tokenResponse = _context.sent;
-              console.log("\nResponse: \n:", tokenResponse);
+              console.log('\nResponse: \n:', tokenResponse);
               _context.prev = 12;
               _context.next = 15;
               return _this.tokenValidator.validateIdToken(tokenResponse.idToken);
@@ -1413,7 +1413,7 @@ function AuthProvider(appSettings, cache) {
 
             case 35:
               _tokenResponse = _context.sent;
-              console.log("\nResponse: \n:", _tokenResponse);
+              console.log('\nResponse: \n:', _tokenResponse);
               req.session.resources[resourceName].accessToken = _tokenResponse.accessToken;
               res.status(200).redirect(state.path);
               _context.next = 45;
@@ -1482,7 +1482,7 @@ function AuthProvider(appSettings, cache) {
 
               if (!req.session[resourceName]) {
                 req.session[resourceName] = {
-                  accessToken: ""
+                  accessToken: ''
                 };
               }
 
@@ -1497,7 +1497,7 @@ function AuthProvider(appSettings, cache) {
 
             case 7:
               tokenResponse = _context2.sent;
-              console.log("\nSuccessful silent token acquisition:\n Response: \n:", tokenResponse); // In B2C scenarios, sometimes an access token is returned empty.
+              console.log('\nSuccessful silent token acquisition:\n Response: \n:', tokenResponse); // In B2C scenarios, sometimes an access token is returned empty.
               // In that case, we will acquire token interactively instead.
 
               if (!msalCommon.StringUtils.isEmpty(tokenResponse.accessToken)) {
@@ -1700,4 +1700,6 @@ function AuthProvider(appSettings, cache) {
 };
 
 exports.AuthProvider = AuthProvider;
+exports.ConfigurationUtils = ConfigurationUtils;
+exports.TokenValidator = TokenValidator;
 //# sourceMappingURL=msal-express-wrapper.cjs.development.js.map
