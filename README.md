@@ -1,6 +1,8 @@
 # MSAL Express Wrapper
 
 [![Node.js CI](https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/node.js.yml/badge.svg)](https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/node.js.yml)
+[![Code Scanning](https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/codeql.yml/badge.svg)](https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/codeql.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
@@ -10,9 +12,10 @@ Suggestions and contributions are welcome!
 
 ## Prerequisites
 
-* Node 12 LTS or higher
-* Express.js 4x or higher
-* express-session package
+* [Node](https://nodejs.org/en/) 12 LTS or higher
+* [Express.js](https://expressjs.com/) 4x or higher
+* [@azure/msal-node](https://www.npmjs.com/package/@azure/msal-node)
+* [express-session](https://www.npmjs.com/package/express-session)
 
 ## Installation
 
@@ -22,6 +25,8 @@ Suggestions and contributions are welcome!
 ```
 
 ## Getting started
+
+Check out the [demo app](./demo/README.md). Read below for how to configure it.
 
 ### Configuration
 
