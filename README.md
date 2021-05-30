@@ -7,8 +7,8 @@ Suggestions and contributions are welcome!
 ## Prerequisites
 
 * Node 12 LTS or higher
-* Express.js
-* express-session
+* Express.js 4x or higher
+* express-session package
 
 ## Installation
 
@@ -120,7 +120,7 @@ Session support in this sample is provided by the [express-session](https://www.
 
 ### Persistent caching
 
-MSAL Node has an in-memory cache by default. This sample also features a persistent cache plugin in order to save the cache to disk. This plugin is not meant to be production-ready. As such, you might want to implement persistent caching using a 3rd party library like [redis](https://redis.io/).
+MSAL Node has an in-memory cache by default. The demo app also features a persistent cache plugin in order to save the cache to disk. This plugin is not meant to be production-ready. As such, you might want to implement persistent caching using a 3rd party library like [redis](https://redis.io/).
 
 ## Resources
 
