@@ -5,6 +5,7 @@
     "entryPoints": [
       "src/index.ts"
     ],
+    "excludeExternals": true,
     "out": "docs",
     "readme": "./README.md"
   },

@@ -1,5 +1,9 @@
 # MSAL Express Wrapper
 
+[![Node.js CI](https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/node.js.yml/badge.svg)](https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/node.js.yml)
+
+---
+
 This project illustrates a simple wrapper around **MSAL Node** [ConfidentialClientApplication](https://azuread.github.io/microsoft-authentication-library-for-js/ref/classes/_azure_msal_node.confidentialclientapplication.html) class in order to abstract routine authentication tasks such as login, logout, token acquisition, as well as utility methods to validate tokens and etc.
 
 Suggestions and contributions are welcome!
