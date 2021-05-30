@@ -53,7 +53,7 @@ export type Credentials = {
     clientId: string,
     tenantId: string,
     clientSecret: string,
-    clientCertificate: ClientCertificate,
+    clientCertificate?: ClientCertificate,
 }
 
 export type ClientCertificate = {
@@ -70,13 +70,13 @@ export type Settings = {
 export type AppSettings = {
     credentials: Credentials,
     settings: Settings,
-    resources: {
+    resources?: {
         [resource: string]: Resource
     },
-    policies: {
+    policies?: {
         [policy: string]: Policy,
     },
-    protected: any,
+    protected?: any,
 }
 
 export type Policy = {
