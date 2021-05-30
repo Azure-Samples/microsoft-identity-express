@@ -1,0 +1,235 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>msal-express-wrapper</title>
+	<meta name="description" content="Documentation for msal-express-wrapper">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+	<script async src="assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">msal-express-wrapper</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<h1>msal-express-wrapper</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<a href="#msal-express-wrapper" id="msal-express-wrapper" style="color: inherit; text-decoration: none;">
+					<h1>MSAL Express Wrapper</h1>
+				</a>
+				<p>This project illustrates a simple wrapper around <strong>MSAL Node</strong> <a href="https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-node/src/client/ConfidentialClientApplication.ts">ConfidentialClientApplication</a> class in order to abstract routine authentication tasks such as login, logout, token acquisition, as well as utility methods to validate tokens and etc.</p>
+				<p>Suggestions and contributions are welcome!</p>
+				<a href="#prerequisites" id="prerequisites" style="color: inherit; text-decoration: none;">
+					<h2>Prerequisites</h2>
+				</a>
+				<ul>
+					<li>Node 12 LTS or higher</li>
+					<li>Express.js 4x or higher</li>
+					<li>express-session package</li>
+				</ul>
+				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+					<h2>Installation</h2>
+				</a>
+				<pre><code class="language-shell"><span style="color: #000000">    npm install</span>
+<span style="color: #000000">    npm run build</span>
+</code></pre>
+				<a href="#getting-started" id="getting-started" style="color: inherit; text-decoration: none;">
+					<h2>Getting started</h2>
+				</a>
+				<a href="#configuration" id="configuration" style="color: inherit; text-decoration: none;">
+					<h3>Configuration</h3>
+				</a>
+				<ol>
+					<li>Initialize the wrapper in your app by providing a settings file in JSON. The file looks like the following:</li>
+				</ol>
+				<pre><code class="language-JSON"><span style="color: #000000">    {</span>
+<span style="color: #000000">        </span><span style="color: #0451A5">&quot;credentials&quot;</span><span style="color: #000000">: {</span>
+<span style="color: #000000">            </span><span style="color: #0451A5">&quot;clientId&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;CLIENT_ID&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #0451A5">&quot;tenantId&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;TENANT_ID&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #0451A5">&quot;clientSecret&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;CLIENT_SECRET&quot;</span>
+<span style="color: #000000">        },</span>
+<span style="color: #000000">        </span><span style="color: #0451A5">&quot;settings&quot;</span><span style="color: #000000">: {</span>
+<span style="color: #000000">            </span><span style="color: #0451A5">&quot;homePageRoute&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;/home&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #0451A5">&quot;redirectUri&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;http://localhost:4000/redirect&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #0451A5">&quot;postLogoutRedirectUri&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;http://localhost:4000&quot;</span>
+<span style="color: #000000">        }</span>
+<span style="color: #000000">    }</span>
+</code></pre>
+				<blockquote>
+					<p>:information_source: For <code>redirectUri</code> and <code>postLogoutRedirectUri</code>, you can simply enter the path component of the URI instead of the full URI. For example, instead of <code>http://localhost:4000/redirect</code>, you can simply enter <code>/redirect</code>. This may come in handy in deployment scenarios.</p>
+				</blockquote>
+				<ol>
+					<li>Add the web API endpoints you would like to call under <strong>resources</strong>:</li>
+				</ol>
+				<pre><code class="language-JSON"><span style="color: #000000">    {</span>
+<span style="color: #000000">        </span><span style="color: #008000">// ...</span>
+<span style="color: #000000">        </span><span style="color: #0451A5">&quot;resources&quot;</span><span style="color: #000000">: {</span>
+<span style="color: #000000">            </span><span style="color: #0451A5">&quot;graphAPI&quot;</span><span style="color: #000000">: {</span>
+<span style="color: #000000">                </span><span style="color: #0451A5">&quot;callingPageRoute&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;/profile&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">                </span><span style="color: #0451A5">&quot;endpoint&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;https://graph.microsoft.com/v1.0/me&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">                </span><span style="color: #0451A5">&quot;scopes&quot;</span><span style="color: #000000">: [</span><span style="color: #A31515">&quot;user.read&quot;</span><span style="color: #000000">]</span>
+<span style="color: #000000">            },</span>
+<span style="color: #000000">        }</span>
+<span style="color: #000000">    }</span>
+</code></pre>
+				<ol>
+					<li>If you are authenticating with <strong>Azure AD B2C</strong>, user-flows and/or policies should be provided as well:</li>
+				</ol>
+				<pre><code class="language-JSON"><span style="color: #000000">    {</span>
+<span style="color: #000000">        </span><span style="color: #008000">// ...</span>
+<span style="color: #000000">        </span><span style="color: #0451A5">&quot;policies&quot;</span><span style="color: #000000">: {</span>
+<span style="color: #000000">            </span><span style="color: #0451A5">&quot;signUpSignIn&quot;</span><span style="color: #000000">: {</span>
+<span style="color: #000000">                </span><span style="color: #0451A5">&quot;authority&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/B2C_1_susi&quot;</span>
+<span style="color: #000000">            }, </span>
+<span style="color: #000000">        }</span>
+<span style="color: #000000">    }</span>
+</code></pre>
+				<a href="#integration-with-the-expressjs" id="integration-with-the-expressjs" style="color: inherit; text-decoration: none;">
+					<h3>Integration with the Express.js</h3>
+				</a>
+				<p>To initialize the wrapper, import it and supply the settings file and an (optional) persistent cache as below:</p>
+				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">settings</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;../../appSettings.json&#039;</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">cache</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;../utils/cachePlugin&#039;</span><span style="color: #000000">);</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">msalWrapper</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;msal-express-wrapper&#039;</span><span style="color: #000000">);</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">authProvider</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">msalWrapper</span><span style="color: #000000">.</span><span style="color: #795E26">AuthProvider</span><span style="color: #000000">(</span><span style="color: #001080">settings</span><span style="color: #000000">, </span><span style="color: #001080">cache</span><span style="color: #000000">);</span>
+</code></pre>
+				<p>Once the wrapper is initialized, you can use it as below:</p>
+				<a href="#authentication" id="authentication" style="color: inherit; text-decoration: none;">
+					<h4>Authentication</h4>
+				</a>
+				<p>These routes are dedicated to the wrapper for handing authorization and token requests. They do not serve any page.</p>
+				<pre><code class="language-javascript"><span style="color: #008000">// authentication routes</span>
+<span style="color: #001080">app</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/signin&#039;</span><span style="color: #000000">, </span><span style="color: #001080">authProvider</span><span style="color: #000000">.</span><span style="color: #001080">signIn</span><span style="color: #000000">);</span>
+<span style="color: #001080">app</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/signout&#039;</span><span style="color: #000000">, </span><span style="color: #001080">authProvider</span><span style="color: #000000">.</span><span style="color: #001080">signOut</span><span style="color: #000000">);</span>
+<span style="color: #001080">app</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/redirect&#039;</span><span style="color: #000000">, </span><span style="color: #001080">authProvider</span><span style="color: #000000">.</span><span style="color: #001080">handleRedirect</span><span style="color: #000000">);</span>
+</code></pre>
+				<a href="#securing-routes" id="securing-routes" style="color: inherit; text-decoration: none;">
+					<h4>Securing routes</h4>
+				</a>
+				<p>Simply add the <code>isAuthenticated</code> middleware before the controller that serves the page you would like to secure:</p>
+				<pre><code class="language-javascript"><span style="color: #008000">// secure routes</span>
+<span style="color: #001080">app</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/id&#039;</span><span style="color: #000000">, </span><span style="color: #001080">authProvider</span><span style="color: #000000">.</span><span style="color: #001080">isAuthenticated</span><span style="color: #000000">, </span><span style="color: #001080">mainController</span><span style="color: #000000">.</span><span style="color: #001080">getIdPage</span><span style="color: #000000">);</span>
+</code></pre>
+				<a href="#acquiring-tokens" id="acquiring-tokens" style="color: inherit; text-decoration: none;">
+					<h4>Acquiring tokens</h4>
+				</a>
+				<p>Simply add the <code>getToken</code> middleware before the controller that makes a call to the web API that you would like to access. The access token will be available as a <em>session variable</em>:</p>
+				<pre><code class="language-javascript"><span style="color: #008000">// secure routes that call protected resources</span>
+<span style="color: #001080">app</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/profile&#039;</span><span style="color: #000000">, </span><span style="color: #001080">authProvider</span><span style="color: #000000">.</span><span style="color: #001080">isAuthenticated</span><span style="color: #000000">, </span><span style="color: #001080">authProvider</span><span style="color: #000000">.</span><span style="color: #001080">getToken</span><span style="color: #000000">, </span><span style="color: #001080">mainController</span><span style="color: #000000">.</span><span style="color: #001080">getProfilePage</span><span style="color: #000000">);</span>
+</code></pre>
+				<a href="#remarks" id="remarks" style="color: inherit; text-decoration: none;">
+					<h2>Remarks</h2>
+				</a>
+				<a href="#session-support" id="session-support" style="color: inherit; text-decoration: none;">
+					<h3>Session support</h3>
+				</a>
+				<p>Session support in this sample is provided by the <a href="https://www.npmjs.com/package/express-session">express-session</a> package. <strong>express-session</strong> is considered unfit for production, and you should either implement your own session solution or use a more suitable 3rd party library.</p>
+				<a href="#persistent-caching" id="persistent-caching" style="color: inherit; text-decoration: none;">
+					<h3>Persistent caching</h3>
+				</a>
+				<p>MSAL Node has an in-memory cache by default. The demo app also features a persistent cache plugin in order to save the cache to disk. This plugin is not meant to be production-ready. As such, you might want to implement persistent caching using a 3rd party library like <a href="https://redis.io/">redis</a>.</p>
+				<a href="#resources" id="resources" style="color: inherit; text-decoration: none;">
+					<h2>Resources</h2>
+				</a>
+				<ul>
+					<li><a href="https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-node/docs/initialize-confidential-client-application.md">Initializing a confidential client app with MSAL Node</a></li>
+					<li><a href="https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-node/docs/configuration.md">MSAL Node Configuration options</a></li>
+					<li><a href="https://docs.microsoft.com/azure/active-directory/develop/scenario-web-app-call-api-overview">Scenario: A web app that calls web APIs</a></li>
+				</ul>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="modules.html">Exports</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-class">
+						<a href="classes/authprovider.html" class="tsd-kind-icon">Auth<wbr>Provider</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/configurationutils.html" class="tsd-kind-icon">Configuration<wbr>Utils</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/tokenvalidator.html" class="tsd-kind-icon">Token<wbr>Validator</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

@@ -1,18 +1,18 @@
 # MSAL Express Wrapper
 
-This project illustrates a simple wrapper around **MSAL Node** [ConfidentialClientApplication](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-node/src/client/ConfidentialClientApplication.ts) class in order to abstract routine authentication tasks such as login, logout, token acquisition, as well as utility methods to validate tokens and etc.
+This project illustrates a simple wrapper around **MSAL Node** [ConfidentialClientApplication](https://azuread.github.io/microsoft-authentication-library-for-js/ref/classes/_azure_msal_node.confidentialclientapplication.html) class in order to abstract routine authentication tasks such as login, logout, token acquisition, as well as utility methods to validate tokens and etc.
 
 Suggestions and contributions are welcome!
 
 ## Prerequisites
 
 * Node 12 LTS or higher
-* Express.js
-* express-session
+* Express.js 4x or higher
+* express-session package
 
 ## Installation
 
-```console
+```shell
     npm install
     npm run build
 ```
@@ -109,7 +109,7 @@ Simply add the `getToken` middleware before the controller that makes a call to 
 
 ```javascript
 // secure routes that call protected resources
-app.get('/profile', authProvider.isAuthenticated, authProvider.getToken, mainController.getProfilePage); // get token for this route to call web API
+app.get('/profile', authProvider.isAuthenticated, authProvider.getToken, mainController.getProfilePage);
 ```
 
 ## Remarks
@@ -120,7 +120,7 @@ Session support in this sample is provided by the [express-session](https://www.
 
 ### Persistent caching
 
-MSAL Node has an in-memory cache by default. This sample also features a persistent cache plugin in order to save the cache to disk. This plugin is not meant to be production-ready. As such, you might want to implement persistent caching using a 3rd party library like [redis](https://redis.io/).
+MSAL Node has an in-memory cache by default. The demo app also features a persistent cache plugin in order to save the cache to disk. This plugin is not meant to be production-ready. As such, you might want to implement persistent caching using a 3rd party library like [redis](https://redis.io/).
 
 ## Resources
 

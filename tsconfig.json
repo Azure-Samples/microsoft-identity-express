@@ -1,6 +1,13 @@
 {
   // see https://www.typescriptlang.org/tsconfig to better understand tsconfig
   "include": ["src", "types"],
+  "typedocOptions": {
+    "entryPoints": [
+      "src/index.ts"
+    ],
+    "out": "docs",
+    "readme": "./README.md"
+  },
   "compilerOptions": {
     "module": "esnext",
     "lib": ["dom", "esnext"],
