@@ -5,18 +5,18 @@ name: Node.js CI
 
 on:
   push:
-    branches: [main, dev]
-    
+    branches: 
+      - main 
+      - dev
   pull_request:
-    branches: [main, dev]
+    branches:
+      - main
+      - dev
 
 jobs:
   build:
 
-    runs-on:
-      - ubuntu-latest
-      - windows-latest
-      - macOS-latest
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
