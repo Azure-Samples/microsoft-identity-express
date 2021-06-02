@@ -144,10 +144,7 @@ export class AuthProvider {
    * @param {NextFunction} next: express next function
    */
   signOut = (req: Request, res: Response, next: NextFunction): void => {
-    const postLogoutRedirectUri = this.urlUtils.ensureAbsoluteUrl(
-      req,
-      this.appSettings.settings.postLogoutRedirectUri
-    );
+    const postLogoutRedirectUri = this.urlUtils.ensureAbsoluteUrl(req, this.appSettings.settings.postLogoutRedirectUri);
 
     /**
      * Construct a logout URI and redirect the user to end the
@@ -171,11 +168,7 @@ export class AuthProvider {
    * @param {Response} res: express response object
    * @param {NextFunction} next: express next function
    */
-  handleRedirect = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
+  handleRedirect = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (req.query.state) {
       const state = JSON.parse(
         this.cryptoProvider.base64Decode(req.query.state as string)
@@ -197,15 +190,11 @@ export class AuthProvider {
 
             try {
               // exchange auth code for tokens
-              const tokenResponse = await this.msalClient.acquireTokenByCode(
-                tokenRequest
-              );
+              const tokenResponse = await this.msalClient.acquireTokenByCode(tokenRequest);
               console.log('\nResponse: \n:', tokenResponse);
 
               try {
-                const isIdTokenValid = await this.tokenValidator.validateIdToken(
-                  tokenResponse.idToken
-                );
+                const isIdTokenValid = await this.tokenValidator.validateIdToken(tokenResponse.idToken);
 
                 if (isIdTokenValid) {
                   // assign session variables
@@ -221,11 +210,11 @@ export class AuthProvider {
                 }
               } catch (error) {
                 console.log(error);
-                res.status(500).send(error);
+                res.status(500).send(ErrorMessages.NOT_PERMITTED);
               }
             } catch (error) {
               console.log(error);
-              res.status(500).send(error);
+              res.status(500).send(ErrorMessages.TOKEN_ACQUISITION_FAILED);
             }
             break;
           }
@@ -244,9 +233,7 @@ export class AuthProvider {
             };
 
             try {
-              const tokenResponse = await this.msalClient.acquireTokenByCode(
-                tokenRequest
-              );
+              const tokenResponse = await this.msalClient.acquireTokenByCode(tokenRequest);
               console.log('\nResponse: \n:', tokenResponse);
 
               req.session.resources[resourceName].accessToken =
@@ -254,7 +241,7 @@ export class AuthProvider {
               res.status(200).redirect(state.path);
             } catch (error) {
               console.log(error);
-              res.status(500).send(error);
+              res.status(500).send(ErrorMessages.TOKEN_ACQUISITION_FAILED);
             }
             break;
           }
@@ -278,11 +265,7 @@ export class AuthProvider {
    * @param {Object} res: express response object
    * @param {Function} next: express next
    */
-  getToken = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
+  getToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     // get scopes for token request
     const scopes = (Object.values(this.appSettings.resources).find(
       (resource: Resource) => resource.callingPageRoute === req.route.path
@@ -355,11 +338,7 @@ export class AuthProvider {
    * @param {Object} res: express response object
    * @param {Function} next: express next
    */
-  isAuthenticated = (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): void | Response => {
+  isAuthenticated = (req: Request, res: Response, next: NextFunction): void | Response => {
     if (req.session) {
       if (!req.session.isAuthenticated) {
         return res.status(401).send(ErrorMessages.NOT_PERMITTED);
@@ -378,11 +357,7 @@ export class AuthProvider {
    * @param {Object} res: express response object
    * @param {Function} next: express next
    */
-  isAuthorized = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void | Response> => {
+  isAuthorized = async (req: Request, res: Response, next: NextFunction): Promise<void | Response> => {
     const accessToken = req.headers.authorization.split(' ')[1];
 
     if (req.headers.authorization) {
@@ -410,20 +385,12 @@ export class AuthProvider {
    * @param {NextFunction} next: express next function
    * @param {AuthCodeParams} params: modifies auth code request url
    */
-  private getAuthCode = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-    params: AuthCodeParams
-  ): Promise<void> => {
+  private getAuthCode = async (req: Request, res: Response, next: NextFunction, params: AuthCodeParams): Promise<void> => {
     // prepare the request
     req.session.authCodeRequest.authority = params.authority;
     req.session.authCodeRequest.scopes = params.scopes;
     req.session.authCodeRequest.state = params.state;
-    req.session.authCodeRequest.redirectUri = this.urlUtils.ensureAbsoluteUrl(
-      req,
-      params.redirect
-    );
+    req.session.authCodeRequest.redirectUri = this.urlUtils.ensureAbsoluteUrl(req, params.redirect);
     req.session.authCodeRequest.prompt = params.prompt;
     req.session.authCodeRequest.account = params.account;
 
@@ -431,13 +398,11 @@ export class AuthProvider {
 
     // request an authorization code to exchange for tokens
     try {
-      const response = await this.msalClient.getAuthCodeUrl(
-        req.session.authCodeRequest
-      );
+      const response = await this.msalClient.getAuthCodeUrl(req.session.authCodeRequest);
       res.redirect(response);
     } catch (error) {
       console.log(error);
-      res.status(500).send(error);
+      res.status(500).send(ErrorMessages.AUTH_CODE_NOT_OBTAINED);
     }
   };
 

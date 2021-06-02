@@ -26,6 +26,8 @@ export declare const ErrorMessages: {
     CANNOT_DETERMINE_APP_STAGE: string;
     NONCE_MISMATCH: string;
     INTERACTION_REQUIRED: string;
+    TOKEN_ACQUISITION_FAILED: string;
+    AUTH_CODE_NOT_OBTAINED: string;
     TOKEN_NOT_FOUND: string;
     TOKEN_NOT_DECODED: string;
     TOKEN_NOT_VERIFIED: string;
