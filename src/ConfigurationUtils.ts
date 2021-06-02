@@ -65,10 +65,7 @@ export class ConfigurationUtils {
    * @param {JSON} config: configuration file
    * @param {Object} cachePlugin: passed during initialization
    */
-  static getMsalConfiguration = (
-    config: AppSettings,
-    cachePlugin: ICachePlugin = null
-  ): Configuration => {
+  static getMsalConfiguration = (config: AppSettings, cachePlugin: ICachePlugin = null): Configuration => {
     return {
       auth: {
         clientId: config.credentials.clientId,

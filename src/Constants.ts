@@ -33,6 +33,8 @@ export const ErrorMessages = {
   CANNOT_DETERMINE_APP_STAGE: 'Cannot determine application stage',
   NONCE_MISMATCH: 'Nonce does not match',
   INTERACTION_REQUIRED: 'interaction_required',
+  TOKEN_ACQUISITION_FAILED: 'Token acquisition failed',
+  AUTH_CODE_NOT_OBTAINED: 'Authorization code cannot be obtained',
   TOKEN_NOT_FOUND: 'No token found',
   TOKEN_NOT_DECODED: 'Token cannot be decoded',
   TOKEN_NOT_VERIFIED: 'Token cannot be verified',

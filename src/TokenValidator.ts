@@ -14,7 +14,7 @@ import { AppSettings } from './Types';
 import { ErrorMessages } from './Constants';
 
 export class TokenValidator {
-  appSettings: AppSettings;
+appSettings: AppSettings;
   msalConfig: Configuration;
 
   constructor(appSettings: AppSettings, msalConfig: Configuration) {
@@ -22,9 +22,7 @@ export class TokenValidator {
     this.msalConfig = msalConfig;
   }
 
-  verifyTokenSignature = async (
-    authToken: string
-  ): Promise<TokenClaims | boolean> => {
+  verifyTokenSignature = async (authToken: string): Promise<TokenClaims | boolean> => {
     if (StringUtils.isEmpty(authToken)) {
       console.log(ErrorMessages.TOKEN_NOT_FOUND);
       return false;
@@ -132,10 +130,7 @@ export class TokenValidator {
    * @param {string} accessToken: raw JWT token
    * @param {string} protectedRoute: used for checking scope
    */
-  validateAccessToken = async (
-    accessToken: string,
-    protectedRoute: string
-  ): Promise<boolean> => {
+  validateAccessToken = async (accessToken: string, protectedRoute: string): Promise<boolean> => {
     try {
       const verifiedToken = await this.verifyTokenSignature(accessToken);
 
@@ -158,10 +153,7 @@ export class TokenValidator {
    * @param {TokenClaims} verifiedToken
    * @param {string} protectedRoute
    */
-  validateAccessTokenClaims = (
-    verifiedToken: TokenClaims,
-    protectedRoute: string
-  ): boolean => {
+  validateAccessTokenClaims = (verifiedToken: TokenClaims, protectedRoute: string): boolean => {
     const now = Math.round(new Date().getTime() / 1000); // in UNIX format
 
     /**

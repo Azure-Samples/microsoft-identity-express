@@ -887,6 +887,8 @@ var ErrorMessages = {
   CANNOT_DETERMINE_APP_STAGE: 'Cannot determine application stage',
   NONCE_MISMATCH: 'Nonce does not match',
   INTERACTION_REQUIRED: 'interaction_required',
+  TOKEN_ACQUISITION_FAILED: 'Token acquisition failed',
+  AUTH_CODE_NOT_OBTAINED: 'Authorization code cannot be obtained',
   TOKEN_NOT_FOUND: 'No token found',
   TOKEN_NOT_DECODED: 'Token cannot be decoded',
   TOKEN_NOT_VERIFIED: 'Token cannot be verified',
@@ -1378,7 +1380,7 @@ function AuthProvider(appSettings, cache) {
               _context.prev = 19;
               _context.t1 = _context["catch"](12);
               console.log(_context.t1);
-              res.status(500).send(_context.t1);
+              res.status(500).send(ErrorMessages.NOT_PERMITTED);
 
             case 23:
               _context.next = 29;
@@ -1388,7 +1390,7 @@ function AuthProvider(appSettings, cache) {
               _context.prev = 25;
               _context.t2 = _context["catch"](7);
               console.log(_context.t2);
-              res.status(500).send(_context.t2);
+              res.status(500).send(ErrorMessages.TOKEN_ACQUISITION_FAILED);
 
             case 29:
               return _context.abrupt("break", 48);
@@ -1417,7 +1419,7 @@ function AuthProvider(appSettings, cache) {
               _context.prev = 41;
               _context.t3 = _context["catch"](32);
               console.log(_context.t3);
-              res.status(500).send(_context.t3);
+              res.status(500).send(ErrorMessages.TOKEN_ACQUISITION_FAILED);
 
             case 45:
               return _context.abrupt("break", 48);
@@ -1656,7 +1658,7 @@ function AuthProvider(appSettings, cache) {
               _context4.prev = 14;
               _context4.t0 = _context4["catch"](7);
               console.log(_context4.t0);
-              res.status(500).send(_context4.t0);
+              res.status(500).send(ErrorMessages.AUTH_CODE_NOT_OBTAINED);
 
             case 18:
             case "end":
