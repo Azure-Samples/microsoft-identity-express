@@ -25,9 +25,7 @@ import {
 import { ConfigurationUtils } from './ConfigurationUtils';
 import { TokenValidator } from './TokenValidator';
 import { UrlUtils } from './UrlUtils';
-
-import { Resource, AppSettings, AuthCodeParams } from './Types';
-
+import { Resource, AppSettings, AuthCodeParams, AccessRule } from './Types';
 import { AppStages, ErrorMessages } from './Constants';
 
 /**
@@ -63,10 +61,7 @@ export class AuthProvider {
     this.urlUtils = new UrlUtils();
 
     this.appSettings = appSettings;
-    this.msalConfig = ConfigurationUtils.getMsalConfiguration(
-      appSettings,
-      cache
-    );
+    this.msalConfig = ConfigurationUtils.getMsalConfiguration(appSettings, cache);
     this.tokenValidator = new TokenValidator(this.appSettings, this.msalConfig);
     this.msalClient = new ConfidentialClientApplication(this.msalConfig);
   }
@@ -170,9 +165,7 @@ export class AuthProvider {
    */
   handleRedirect = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (req.query.state) {
-      const state = JSON.parse(
-        this.cryptoProvider.base64Decode(req.query.state as string)
-      );
+      const state = JSON.parse(this.cryptoProvider.base64Decode(req.query.state as string));
 
       // check if nonce matches
       if (state.nonce === req.session.nonce) {
@@ -180,10 +173,7 @@ export class AuthProvider {
           case AppStages.SIGN_IN: {
             // token request should have auth code
             const tokenRequest: AuthorizationCodeRequest = {
-              redirectUri: this.urlUtils.ensureAbsoluteUrl(
-                req,
-                this.appSettings.settings.redirectUri
-              ),
+              redirectUri: this.urlUtils.ensureAbsoluteUrl(req, this.appSettings.settings.redirectUri),
               scopes: OIDC_DEFAULT_SCOPES,
               code: req.query.code as string,
             };
@@ -226,18 +216,13 @@ export class AuthProvider {
             const tokenRequest: AuthorizationCodeRequest = {
               code: req.query.code as string,
               scopes: this.appSettings.resources[resourceName].scopes, // scopes for resourceName
-              redirectUri: this.urlUtils.ensureAbsoluteUrl(
-                req,
-                this.appSettings.settings.redirectUri
-              ),
+              redirectUri: this.urlUtils.ensureAbsoluteUrl(req, this.appSettings.settings.redirectUri),
             };
 
             try {
               const tokenResponse = await this.msalClient.acquireTokenByCode(tokenRequest);
               console.log('\nResponse: \n:', tokenResponse);
-
-              req.session.resources[resourceName].accessToken =
-                tokenResponse.accessToken;
+              req.session.resources[resourceName].accessToken = tokenResponse.accessToken;
               res.status(200).redirect(state.path);
             } catch (error) {
               console.log(error);
@@ -267,9 +252,8 @@ export class AuthProvider {
    */
   getToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     // get scopes for token request
-    const scopes = (Object.values(this.appSettings.resources).find(
-      (resource: Resource) => resource.callingPageRoute === req.route.path
-    ) as Resource).scopes;
+    const scopes = (Object.values(this.appSettings.resources)
+      .find((resource: Resource) => resource.callingPageRoute === req.route.path) as Resource).scopes;
 
     const resourceName = this.getResourceName(req.route.path);
 
@@ -286,21 +270,14 @@ export class AuthProvider {
       };
 
       // acquire token silently to be used in resource call
-      const tokenResponse = await this.msalClient.acquireTokenSilent(
-        silentRequest
-      );
-      console.log(
-        '\nSuccessful silent token acquisition:\n Response: \n:',
-        tokenResponse
-      );
+      const tokenResponse = await this.msalClient.acquireTokenSilent(silentRequest);
+      console.log('\nSuccessful silent token acquisition:\n Response: \n:', tokenResponse);
 
       // In B2C scenarios, sometimes an access token is returned empty.
       // In that case, we will acquire token interactively instead.
       if (StringUtils.isEmpty(tokenResponse.accessToken)) {
         console.log(ErrorMessages.TOKEN_NOT_FOUND);
-        throw new InteractionRequiredAuthError(
-          ErrorMessages.INTERACTION_REQUIRED
-        );
+        throw new InteractionRequiredAuthError(ErrorMessages.INTERACTION_REQUIRED);
       }
 
       req.session[resourceName].accessToken = tokenResponse.accessToken;
@@ -361,12 +338,7 @@ export class AuthProvider {
     const accessToken = req.headers.authorization.split(' ')[1];
 
     if (req.headers.authorization) {
-      if (
-        !(await this.tokenValidator.validateAccessToken(
-          accessToken,
-          req.route.path
-        ))
-      ) {
+      if (!(await this.tokenValidator.validateAccessToken(accessToken, req.route.path))) {
         return res.status(401).send(ErrorMessages.NOT_PERMITTED);
       }
 
@@ -375,6 +347,42 @@ export class AuthProvider {
       res.status(401).send(ErrorMessages.NOT_PERMITTED);
     }
   };
+
+  /**
+   * Checks if the user has access for this route, defined in appSettings
+   * @param {Object} req: express request object
+   * @param {Object} res: express response object
+   * @param {Function} next: express next
+   */
+  hasAccess = (req: Request, res: Response, next: NextFunction): void | Response => {
+    if (req.session && this.appSettings.accessMatrix) {
+      if (req.session.account.idTokenClaims['roles'] === undefined) {
+        return res.status(403).send(ErrorMessages.USER_HAS_NO_ROLE);
+      } else {
+        const roles = req.session.account.idTokenClaims['roles'];
+        const rule = Object.values(this.appSettings.accessMatrix)
+          .filter((rule: AccessRule) => rule.path === req.path);
+
+        if (rule.length < 1) {
+          return res.status(403).send(ErrorMessages.RULE_NOT_FOUND);
+        } else {
+          if (rule[0].methods.includes(req.method)) {
+            let intersection = rule[0].roles.filter(role => roles.includes(role));
+
+            if (intersection.length < 1) {
+              return res.status(403).send(ErrorMessages.USER_NOT_IN_ROLE);
+            }
+          } else {
+            return res.status(403).send(ErrorMessages.METHOD_NOT_ALLOWED)
+          }
+        }
+      }
+
+      next();
+    } else {
+      res.status(401).send(ErrorMessages.NOT_PERMITTED);
+    }
+  }
 
   // ============== UTILS ===============
 
@@ -411,9 +419,7 @@ export class AuthProvider {
    * @param {string} path: /path string that the resource is associated with
    */
   private getResourceName = (path: string): string => {
-    const index = Object.values(this.appSettings.resources).findIndex(
-      (resource: Resource) => resource.callingPageRoute === path
-    );
+    const index = Object.values(this.appSettings.resources).findIndex((resource: Resource) => resource.callingPageRoute === path);
     const resourceName = Object.keys(this.appSettings.resources)[index];
     return resourceName;
   };

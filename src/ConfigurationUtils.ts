@@ -4,9 +4,7 @@
  */
 
 import { UrlString, Constants } from '@azure/msal-common';
-
 import { Configuration, ICachePlugin, LogLevel } from '@azure/msal-node';
-
 import { AppSettings } from './Types';
 
 export class ConfigurationUtils {
@@ -15,46 +13,27 @@ export class ConfigurationUtils {
    * @param {AppSettings} config: configuration file
    */
   static validateAppSettings = (config: AppSettings): void => {
-    if (
-      !config.credentials.clientId ||
-      config.credentials.clientId === 'Enter_the_Application_Id_Here'
-    ) {
+    if (!config.credentials.clientId || config.credentials.clientId === 'Enter_the_Application_Id_Here') {
       throw new Error('No clientId provided!');
     }
 
-    if (
-      !config.credentials.tenantId ||
-      config.credentials.tenantId === 'Enter_the_Tenant_Info_Here'
-    ) {
+    if (!config.credentials.tenantId || config.credentials.tenantId === 'Enter_the_Tenant_Info_Here') {
       throw new Error('No tenantId provided!');
     }
 
-    if (
-      !config.credentials.clientSecret ||
-      config.credentials.clientSecret === 'Enter_the_Client_Secret_Here'
-    ) {
+    if (!config.credentials.clientSecret || config.credentials.clientSecret === 'Enter_the_Client_Secret_Here') {
       throw new Error('No clientSecret provided!');
     }
 
-    if (
-      !config.settings.redirectUri ||
-      config.settings.redirectUri === 'Enter_the_Redirect_Uri_Here'
-    ) {
+    if (!config.settings.redirectUri || config.settings.redirectUri === 'Enter_the_Redirect_Uri_Here') {
       throw new Error('No postLogoutRedirectUri provided!');
     }
 
-    if (
-      !config.settings.postLogoutRedirectUri ||
-      config.settings.postLogoutRedirectUri ===
-        'Enter_the_Post_Logout_Redirect_Uri_Here'
-    ) {
+    if (!config.settings.postLogoutRedirectUri || config.settings.postLogoutRedirectUri === 'Enter_the_Post_Logout_Redirect_Uri_Here') {
       throw new Error('No postLogoutRedirectUri provided!');
     }
 
-    if (
-      !config.settings.homePageRoute ||
-      config.settings.homePageRoute === 'Enter_the_Home_Page_Route_Here'
-    ) {
+    if (!config.settings.homePageRoute || config.settings.homePageRoute === 'Enter_the_Home_Page_Route_Here') {
       throw new Error('No homePageRoute provided!');
     }
   };
@@ -74,11 +53,7 @@ export class ConfigurationUtils {
           : `https://${Constants.DEFAULT_AUTHORITY_HOST}/${config.credentials.tenantId}`,
         clientSecret: config.credentials.clientSecret,
         knownAuthorities: config.policies
-          ? [
-              UrlString.getDomainFromUrl(
-                Object.entries(config.policies)[0][1]['authority']
-              ),
-            ]
+          ? [UrlString.getDomainFromUrl(Object.entries(config.policies)[0][1]['authority'])]
           : [], // in B2C scenarios
       },
       cache: {
