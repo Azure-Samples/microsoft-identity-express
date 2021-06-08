@@ -74,6 +74,13 @@ export declare class AuthProvider {
      */
     isAuthorized: (req: Request, res: Response, next: NextFunction) => Promise<void | Response>;
     /**
+     * Checks if the user has access for this route, defined in appSettings
+     * @param {Object} req: express request object
+     * @param {Object} res: express response object
+     * @param {Function} next: express next
+     */
+    hasAccess: (req: Request, res: Response, next: NextFunction) => void | Response;
+    /**
      * This method is used to generate an auth code request
      * @param {Object} req: express request object
      * @param {Object} res: express response object

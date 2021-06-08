@@ -899,7 +899,11 @@ var ErrorMessages = {
   TOKEN_NOT_DECODED: 'Token cannot be decoded',
   TOKEN_NOT_VERIFIED: 'Token cannot be verified',
   KEYS_NOT_OBTAINED: 'Signing keys cannot be obtained',
-  STATE_NOT_FOUND: 'State not found'
+  STATE_NOT_FOUND: 'State not found',
+  USER_HAS_NO_ROLE: 'User does not have any roles',
+  USER_NOT_IN_ROLE: 'User does not have this role',
+  METHOD_NOT_ALLOWED: 'Method not allowed for this route',
+  RULE_NOT_FOUND: 'No rule found for this route'
 };
 
 var TokenValidator = function TokenValidator(appSettings, msalConfig) {
@@ -1623,7 +1627,47 @@ function AuthProvider(appSettings, cache) {
     return function (_x7, _x8, _x9) {
       return _ref3.apply(this, arguments);
     };
-  }(); // ============== UTILS ===============
+  }();
+  /**
+   * Checks if the user has access for this route, defined in appSettings
+   * @param {Object} req: express request object
+   * @param {Object} res: express response object
+   * @param {Function} next: express next
+   */
+
+
+  this.hasAccess = function (req, res, next) {
+    if (req.session && _this.appSettings.accessMatrix) {
+      if (req.session.account.idTokenClaims['roles'] === undefined) {
+        return res.status(403).send(ErrorMessages.USER_HAS_NO_ROLE);
+      } else {
+        var roles = req.session.account.idTokenClaims['roles'];
+        var rule = Object.values(_this.appSettings.accessMatrix).filter(function (rule) {
+          return rule.path === req.path;
+        });
+
+        if (rule.length < 1) {
+          return res.status(403).send(ErrorMessages.RULE_NOT_FOUND);
+        } else {
+          if (rule[0].methods.includes(req.method)) {
+            var intersection = rule[0].roles.filter(function (role) {
+              return roles.includes(role);
+            });
+
+            if (intersection.length < 1) {
+              return res.status(403).send(ErrorMessages.USER_NOT_IN_ROLE);
+            }
+          } else {
+            return res.status(403).send(ErrorMessages.METHOD_NOT_ALLOWED);
+          }
+        }
+      }
+
+      next();
+    } else {
+      res.status(401).send(ErrorMessages.NOT_PERMITTED);
+    }
+  }; // ============== UTILS ===============
 
   /**
    * This method is used to generate an auth code request

@@ -49,6 +49,11 @@ export declare type Settings = {
     redirectUri: string;
     postLogoutRedirectUri: string;
 };
+export declare type AccessRule = {
+    path: string;
+    methods: string[];
+    roles: string[];
+};
 export declare type AppSettings = {
     credentials: Credentials;
     settings: Settings;
@@ -57,6 +62,9 @@ export declare type AppSettings = {
     };
     policies?: {
         [policy: string]: Policy;
+    };
+    accessMatrix?: {
+        [accessRule: string]: AccessRule;
     };
     protected?: any;
 };

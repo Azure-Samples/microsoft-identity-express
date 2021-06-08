@@ -40,6 +40,10 @@ export const ErrorMessages = {
   TOKEN_NOT_VERIFIED: 'Token cannot be verified',
   KEYS_NOT_OBTAINED: 'Signing keys cannot be obtained',
   STATE_NOT_FOUND: 'State not found',
+  USER_HAS_NO_ROLE: 'User does not have any roles',
+  USER_NOT_IN_ROLE: 'User does not have this role',
+  METHOD_NOT_ALLOWED: 'Method not allowed for this route',
+  RULE_NOT_FOUND: 'No rule found for this route'
 };
 
 /**

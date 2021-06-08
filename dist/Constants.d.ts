@@ -33,6 +33,10 @@ export declare const ErrorMessages: {
     TOKEN_NOT_VERIFIED: string;
     KEYS_NOT_OBTAINED: string;
     STATE_NOT_FOUND: string;
+    USER_HAS_NO_ROLE: string;
+    USER_NOT_IN_ROLE: string;
+    METHOD_NOT_ALLOWED: string;
+    RULE_NOT_FOUND: string;
 };
 /**
  * For more information, visit: https://login.microsoftonline.com/error

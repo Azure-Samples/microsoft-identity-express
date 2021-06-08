@@ -5,9 +5,7 @@
 
 import jwt from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
-
 import { StringUtils, Constants, TokenClaims } from '@azure/msal-common';
-
 import { Configuration } from '@azure/msal-node';
 
 import { AppSettings } from './Types';
@@ -43,10 +41,7 @@ appSettings: AppSettings;
     let keys;
 
     try {
-      keys = await this.getSigningKeys(
-        decodedToken.header,
-        decodedToken.payload.tid
-      );
+      keys = await this.getSigningKeys(decodedToken.header, decodedToken.payload.tid);
     } catch (error) {
       console.log(ErrorMessages.KEYS_NOT_OBTAINED);
       console.log(error);
@@ -112,15 +107,9 @@ appSettings: AppSettings;
      * https://docs.microsoft.com/azure/active-directory/develop/id-tokens#validating-an-id_token
      */
 
-    const checkIssuer = idTokenClaims['iss'].includes(
-      this.appSettings.credentials.tenantId
-    )
-      ? true
-      : false;
-    const checkAudience =
-      idTokenClaims['aud'] === this.msalConfig.auth.clientId ? true : false;
-    const checkTimestamp =
-      idTokenClaims['iat'] <= now && idTokenClaims['exp'] >= now ? true : false;
+    const checkIssuer = idTokenClaims['iss'].includes(this.appSettings.credentials.tenantId) ? true : false;
+    const checkAudience = idTokenClaims['aud'] === this.msalConfig.auth.clientId ? true : false;
+    const checkTimestamp = idTokenClaims['iat'] <= now && idTokenClaims['exp'] >= now ? true : false;
 
     return checkIssuer && checkAudience && checkTimestamp;
   };
@@ -135,10 +124,7 @@ appSettings: AppSettings;
       const verifiedToken = await this.verifyTokenSignature(accessToken);
 
       if (verifiedToken) {
-        return this.validateAccessTokenClaims(
-          verifiedToken as TokenClaims,
-          protectedRoute
-        );
+        return this.validateAccessTokenClaims(verifiedToken as TokenClaims, protectedRoute);
       } else {
         return false;
       }
@@ -161,18 +147,14 @@ appSettings: AppSettings;
      * and timestamp, though implementation and extent vary. For more information, visit:
      * https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validating-tokens
      */
-    const checkIssuer = verifiedToken['iss'].includes(
-      this.appSettings.credentials.tenantId
-    )
-      ? true
-      : false;
-    const checkTimestamp =
-      verifiedToken['iat'] <= now && verifiedToken['exp'] >= now ? true : false;
-    const checkAudience =
-      verifiedToken['aud'] === this.appSettings.credentials.clientId ||
+    const checkIssuer = verifiedToken['iss'].includes(this.appSettings.credentials.tenantId) ? true : false;
+    const checkTimestamp = verifiedToken['iat'] <= now && verifiedToken['exp'] >= now ? true : false;
+    
+    const checkAudience = verifiedToken['aud'] === this.appSettings.credentials.clientId ||
       verifiedToken['aud'] === 'api://' + this.appSettings.credentials.clientId
         ? true
         : false;
+
     const checkScopes = this.appSettings.protected
       .find(item => item.route === protectedRoute)
       .scopes.every(scp => verifiedToken['scp'].includes(scp));

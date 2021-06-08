@@ -4,7 +4,6 @@
  */
 
 import { Request } from 'express';
-
 import { IUri, UrlString } from '@azure/msal-common';
 
 export class UrlUtils {

@@ -39,8 +39,6 @@
 							</div>
 							<input type="checkbox" id="tsd-filter-inherited" checked />
 							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
-							<input type="checkbox" id="tsd-filter-externals" checked />
-							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
 						</div>
 					</div>
 					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
@@ -61,15 +59,21 @@
 				<a href="#msal-express-wrapper" id="msal-express-wrapper" style="color: inherit; text-decoration: none;">
 					<h1>MSAL Express Wrapper</h1>
 				</a>
-				<p>This project illustrates a simple wrapper around <strong>MSAL Node</strong> <a href="https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-node/src/client/ConfidentialClientApplication.ts">ConfidentialClientApplication</a> class in order to abstract routine authentication tasks such as login, logout, token acquisition, as well as utility methods to validate tokens and etc.</p>
+				<p><a href="https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/node.js.yml"><img src="https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/node.js.yml/badge.svg" alt="Node.js CI"></a>
+					<a href="https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/codeql.yml"><img src="https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/codeql.yml/badge.svg" alt="Code Scanning"></a>
+					<a href="https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/typedoc.yml"><img src="https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/typedoc.yml/badge.svg" alt="Typedoc"></a>
+				<a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a></p>
+				<hr>
+				<p>This project illustrates a simple wrapper around <strong>MSAL Node</strong> <a href="https://azuread.github.io/microsoft-authentication-library-for-js/ref/classes/_azure_msal_node.confidentialclientapplication.html">ConfidentialClientApplication</a> class in order to abstract routine authentication tasks such as login, logout, token acquisition, as well as utility methods to validate tokens and etc.</p>
 				<p>Suggestions and contributions are welcome!</p>
 				<a href="#prerequisites" id="prerequisites" style="color: inherit; text-decoration: none;">
 					<h2>Prerequisites</h2>
 				</a>
 				<ul>
-					<li>Node 12 LTS or higher</li>
-					<li>Express.js 4x or higher</li>
-					<li>express-session package</li>
+					<li><a href="https://nodejs.org/en/">Node</a> 12 LTS or higher</li>
+					<li><a href="https://expressjs.com/">Express.js</a> 4x or higher</li>
+					<li><a href="https://www.npmjs.com/package/@azure/msal-node">@azure/msal-node</a></li>
+					<li><a href="https://www.npmjs.com/package/express-session">express-session</a></li>
 				</ul>
 				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
 					<h2>Installation</h2>
@@ -80,6 +84,7 @@
 				<a href="#getting-started" id="getting-started" style="color: inherit; text-decoration: none;">
 					<h2>Getting started</h2>
 				</a>
+				<p>Check out the <a href="./demo/README.md">demo app</a>. Read below for how to configure it.</p>
 				<a href="#configuration" id="configuration" style="color: inherit; text-decoration: none;">
 					<h3>Configuration</h3>
 				</a>
