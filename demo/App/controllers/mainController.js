@@ -20,7 +20,7 @@ exports.getProfilePage = async(req, res, next) => {
     let profile;
 
     try {
-        profile = await fetchManager.callAPI(appSettings.resources.graphAPI.endpoint, req.session["graphAPI"].accessToken);        
+        profile = await fetchManager.callAPI(appSettings.remoteResources.graphAPI.endpoint, req.session.remoteResources["graphAPI"].accessToken);        
     } catch (error) {
         console.log(error)
     }
@@ -32,7 +32,7 @@ exports.getTenantPage = async(req, res, next) => {
     let tenant;
 
     try {
-        tenant = await fetchManager.callAPI(appSettings.resources.armAPI.endpoint, req.session["armAPI"].accessToken);   
+        tenant = await fetchManager.callAPI(appSettings.remoteResources.armAPI.endpoint, req.session.remoteResources["armAPI"].accessToken);   
     } catch (error) {
         console.log(error)
     }

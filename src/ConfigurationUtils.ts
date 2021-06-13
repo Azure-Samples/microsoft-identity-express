@@ -11,17 +11,18 @@ export class ConfigurationUtils {
   /**
    * Validates the fields in the custom JSON configuration file
    * @param {AppSettings} config: configuration file
+   * @returns {void}
    */
-  static validateAppSettings = (config: AppSettings): void => {
-    if (!config.credentials.clientId || config.credentials.clientId === "Enter_the_Application_Id_Here") {
+  static validateAppSettings(config: AppSettings): void {
+    if (!config.appCredentials.clientId || config.appCredentials.clientId === "Enter_the_Application_Id_Here") {
       throw new Error("No clientId provided!");
     }
 
-    if (!config.credentials.tenantId || config.credentials.tenantId === "Enter_the_Tenant_Info_Here") {
+    if (!config.appCredentials.tenantId || config.appCredentials.tenantId === "Enter_the_Tenant_Info_Here") {
       throw new Error("No tenantId provided!");
     }
 
-    if (!config.credentials.clientSecret || config.credentials.clientSecret === "Enter_the_Client_Secret_Here") {
+    if (!config.appCredentials.clientSecret || config.appCredentials.clientSecret === "Enter_the_Client_Secret_Here") {
       throw new Error("No clientSecret provided!");
     }
   };
@@ -29,19 +30,20 @@ export class ConfigurationUtils {
   /**
    * Maps the custom JSON configuration file to configuration
    * object expected by MSAL Node ConfidentialClientApplication
-   * @param {JSON} config: configuration file
-   * @param {Object} cachePlugin: passed during initialization
+   * @param {AppSettings} config: configuration file
+   * @param {ICachePlugin} cachePlugin: passed during initialization
+   * @returns {Configuration}
    */
-  static getMsalConfiguration = (config: AppSettings, cachePlugin: ICachePlugin = null): Configuration => {
+  static getMsalConfiguration(config: AppSettings, cachePlugin: ICachePlugin = null): Configuration {
     return {
       auth: {
-        clientId: config.credentials.clientId,
-        authority: config.policies
-          ? Object.entries(config.policies)[0][1]["authority"]
-          : `https://${Constants.DEFAULT_AUTHORITY_HOST}/${config.credentials.tenantId}`,
-        clientSecret: config.credentials.clientSecret,
-        knownAuthorities: config.policies
-          ? [UrlString.getDomainFromUrl(Object.entries(config.policies)[0][1]["authority"])]
+        clientId: config.appCredentials.clientId,
+        authority: config.b2cPolicies
+          ? Object.entries(config.b2cPolicies)[0][1]["authority"]
+          : `https://${Constants.DEFAULT_AUTHORITY_HOST}/${config.appCredentials.tenantId}`,
+        clientSecret: config.appCredentials.clientSecret,
+        knownAuthorities: config.b2cPolicies
+          ? [UrlString.getDomainFromUrl(Object.entries(config.b2cPolicies)[0][1]["authority"])]
           : [], // in B2C scenarios
       },
       cache: {

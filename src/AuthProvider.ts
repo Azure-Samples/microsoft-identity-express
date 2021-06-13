@@ -3,7 +3,7 @@
  * Licensed under the MIT License.
  */
 import express from "express";
-import { Request, Response, NextFunction, Router } from "express";
+import { RequestHandler, Request, Response, NextFunction, Router } from "express";
 
 import {
     InteractionRequiredAuthError,
@@ -21,6 +21,7 @@ import {
     AuthorizationUrlRequest,
     AuthorizationCodeRequest,
     SilentFlowRequest,
+    OnBehalfOfRequest,
 } from "@azure/msal-node";
 
 import { ConfigurationUtils } from "./ConfigurationUtils";
@@ -32,8 +33,9 @@ import {
     AppSettings,
     AuthCodeParams,
     AccessRule,
-    Service,
-    InitializationOptions
+    InitializationOptions,
+    TokenOptions,
+    GuardOptions
 } from "./Types";
 
 import {
@@ -51,9 +53,8 @@ import {
  *
  * Session variables accessible are as follows:
  * req.session.isAuthenticated: boolean
- * req.session.isAuthorized: boolean
  * req.session.account: AccountInfo
- * req.session.<resourceName>.accessToken: string
+ * req.session.remoteResources.{resourceName}.accessToken: string
  */
 export class AuthProvider {
     urlUtils: UrlUtils;
@@ -66,6 +67,7 @@ export class AuthProvider {
     /**
      * @param {AppSettings} appSettings
      * @param {ICachePlugin} cache: cachePlugin
+     * @constructor
      */
     constructor(appSettings: AppSettings, cache?: ICachePlugin) {
         ConfigurationUtils.validateAppSettings(appSettings);
@@ -79,6 +81,11 @@ export class AuthProvider {
         this.urlUtils = new UrlUtils();
     }
 
+    /**
+     * Initialize authProvider and set default routes
+     * @param {InitializationOptions} options 
+     * @returns {Router}
+     */
     initialize = (options?: InitializationOptions): Router => {
 
         // TODO: takex in login routes
@@ -99,8 +106,9 @@ export class AuthProvider {
      * @param {Request} req: express request object
      * @param {Response} res: express response object
      * @param {NextFunction} next: express next function
+     * @returns {void}
      */
-    signIn = (req: Request, res: Response, next: NextFunction): void => {
+    signIn: RequestHandler = (req: Request, res: Response, next: NextFunction): void => {
         /**
          * Request Configuration
          * We manipulate these three request objects below
@@ -124,7 +132,7 @@ export class AuthProvider {
             } as AuthorizationCodeRequest;
         }
 
-        // signed-in user"s account
+        // signed-in user's account
         if (!req.session["account"]) {
             req.session.account = {
                 homeAccountId: "",
@@ -150,7 +158,7 @@ export class AuthProvider {
             authority: this.msalConfig.auth.authority,
             scopes: OIDC_DEFAULT_SCOPES,
             state: state,
-            redirect: this.appSettings.settings.redirectUri,
+            redirect: this.urlUtils.ensureAbsoluteUrl(req, this.appSettings.authRoutes.redirect),
             prompt: PromptValue.SELECT_ACCOUNT,
         };
 
@@ -159,13 +167,14 @@ export class AuthProvider {
     };
 
     /**
-     * Initiate sign out and clean the session
+     * Initiate sign out and destroy the session
      * @param {Request} req: express request object
      * @param {Response} res: express response object
      * @param {NextFunction} next: express next function
+     * @returns {void}
      */
-    signOut = (req: Request, res: Response, next: NextFunction): void => {
-        const postLogoutRedirectUri = this.urlUtils.ensureAbsoluteUrl(req, this.appSettings.settings.postLogoutRedirectUri);
+    signOut: RequestHandler = (req: Request, res: Response, next: NextFunction): void => {
+        const postLogoutRedirectUri = this.urlUtils.ensureAbsoluteUrl(req, this.appSettings.authRoutes.postLogout);
 
         /**
          * Construct a logout URI and redirect the user to end the
@@ -188,8 +197,9 @@ export class AuthProvider {
      * @param {Request} req: express request object
      * @param {Response} res: express response object
      * @param {NextFunction} next: express next function
+     * @returns {Promise}
      */
-    handleRedirect = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    handleRedirect: RequestHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         if (req.query.state) {
             const state = JSON.parse(this.cryptoProvider.base64Decode(req.query.state as string));
 
@@ -198,15 +208,11 @@ export class AuthProvider {
                 switch (state.stage) {
                     case AppStages.SIGN_IN: {
                         // token request should have auth code
-                        const tokenRequest: AuthorizationCodeRequest = {
-                            redirectUri: this.urlUtils.ensureAbsoluteUrl(req, this.appSettings.settings.redirectUri),
-                            scopes: OIDC_DEFAULT_SCOPES,
-                            code: req.query.code as string,
-                        };
+                        req.session.tokenRequest.code = req.query.code as string;
 
                         try {
                             // exchange auth code for tokens
-                            const tokenResponse = await this.msalClient.acquireTokenByCode(tokenRequest);
+                            const tokenResponse = await this.msalClient.acquireTokenByCode(req.session.tokenRequest);
                             console.log("\nResponse: \n:", tokenResponse);
 
                             try {
@@ -217,54 +223,55 @@ export class AuthProvider {
                                     req.session.account = tokenResponse.account;
                                     req.session.isAuthenticated = true;
 
-                                    res.status(200).redirect(this.appSettings.settings.homePageRoute);
+                                    res.redirect(this.appSettings.authRoutes.postLogin);
                                 } else {
                                     console.log(ErrorMessages.INVALID_TOKEN);
-                                    res.status(401).send(ErrorMessages.NOT_PERMITTED);
+                                    res.redirect(this.appSettings.authRoutes.unauthorized);
                                 }
                             } catch (error) {
+                                console.log(ErrorMessages.CANNOT_VALIDATE_TOKEN);
                                 console.log(error);
-                                res.status(500).send(ErrorMessages.NOT_PERMITTED);
+                                next(error)
                             }
                         } catch (error) {
+                            console.log(ErrorMessages.TOKEN_ACQUISITION_FAILED);
                             console.log(error);
-                            res.status(500).send(ErrorMessages.TOKEN_ACQUISITION_FAILED);
+                            next(error)
                         }
                         break;
                     }
 
                     case AppStages.ACQUIRE_TOKEN: {
                         // get the name of the resource associated with scope
-                        const resourceName = this.getResourceName(state.path);
+                        const resourceName = this.getResourceNameFromScopes(req.session.tokenRequest.scopes);
 
-                        const tokenRequest: AuthorizationCodeRequest = {
-                            code: req.query.code as string,
-                            scopes: this.appSettings.resources[resourceName].scopes, // scopes for resourceName
-                            redirectUri: this.urlUtils.ensureAbsoluteUrl(req, this.appSettings.settings.redirectUri),
-                        };
+                        req.session.tokenRequest.code = req.query.code as string
 
                         try {
-                            const tokenResponse = await this.msalClient.acquireTokenByCode(tokenRequest);
+                            const tokenResponse = await this.msalClient.acquireTokenByCode(req.session.tokenRequest);
                             console.log("\nResponse: \n:", tokenResponse);
-                            req.session.resources[resourceName].accessToken = tokenResponse.accessToken;
-                            res.status(200).redirect(state.path);
+                            req.session.remoteResources[resourceName].accessToken = tokenResponse.accessToken;
+                            res.redirect(state.path);
                         } catch (error) {
+                            console.log(ErrorMessages.TOKEN_ACQUISITION_FAILED);
                             console.log(error);
-                            res.status(500).send(ErrorMessages.TOKEN_ACQUISITION_FAILED);
+                            next(error);
                         }
                         break;
                     }
 
                     default:
-                        res.status(500).send(ErrorMessages.CANNOT_DETERMINE_APP_STAGE);
+                        console.log(ErrorMessages.CANNOT_DETERMINE_APP_STAGE);
+                        res.redirect(this.appSettings.authRoutes.error);
                         break;
                 }
             } else {
                 console.log(ErrorMessages.NONCE_MISMATCH);
-                res.status(401).send(ErrorMessages.NOT_PERMITTED);
+                res.redirect(this.appSettings.authRoutes.unauthorized);
             }
         } else {
-            res.status(500).send(ErrorMessages.STATE_NOT_FOUND);
+            console.log(ErrorMessages.STATE_NOT_FOUND)
+            res.redirect(this.appSettings.authRoutes.unauthorized);
         }
     };
 
@@ -272,23 +279,26 @@ export class AuthProvider {
 
     /**
      * Middleware that gets tokens via acquireToken*
-     * @param {Request} req: express request object
-     * @param {Response} res: express response object
-     * @param {NextFunction} next: express next
+     * @param {TokenOptions} options: express request object
+     * @returns {RequestHandler}
      */
-    getToken = (options?): Function => {
-        return async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+    getToken = (options: TokenOptions): RequestHandler => {
+        return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             // get scopes for token request
-            const scopes = (Object.values(this.appSettings.resources)
-                .find((resource: Resource) => resource.callingPageRoute === req.route.path) as Resource).scopes;
+            const scopes = options.resource.scopes;
 
-            const resourceName = this.getResourceName(req.route.path);
+            const resourceName = this.getResourceNameFromScopes(scopes)
 
-            if (!req.session[resourceName]) {
-                req.session[resourceName] = {
-                    accessToken: "",
-                } as Resource;
+            if (!req.session.remoteResources) {
+                req.session.remoteResources = {};
             }
+
+            req.session.remoteResources = {
+                [resourceName]: {
+                    ...this.appSettings.remoteResources[resourceName],
+                    accessToken: null,
+                } as Resource
+            };
 
             try {
                 const silentRequest: SilentFlowRequest = {
@@ -307,7 +317,7 @@ export class AuthProvider {
                     throw new InteractionRequiredAuthError(ErrorMessages.INTERACTION_REQUIRED);
                 }
 
-                req.session[resourceName].accessToken = tokenResponse.accessToken;
+                req.session.remoteResources[resourceName].accessToken = tokenResponse.accessToken;
                 next();
             } catch (error) {
                 // in case there are no cached tokens, initiate an interactive call
@@ -324,12 +334,14 @@ export class AuthProvider {
                         authority: this.msalConfig.auth.authority,
                         scopes: scopes,
                         state: state,
-                        redirect: this.appSettings.settings.redirectUri,
+                        redirect: this.urlUtils.ensureAbsoluteUrl(req, this.appSettings.authRoutes.redirect),
                         account: req.session.account,
                     };
 
                     // initiate the first leg of auth code grant to get token
                     this.getAuthCode(req, res, next, params);
+                } else {
+                    next(error);
                 }
             }
         }
@@ -337,42 +349,35 @@ export class AuthProvider {
 
     /**
      * Middleware that gets tokens via OBO flow
-     * @param {Request} req: express request object
-     * @param {Response} res: express response object
-     * @param {NextFunction} next: express next
+     * @param {TokenOptions} options: express request object
+     * @returns {RequestHandler}
      */
-    getTokenOnBehalf = (options?): Function => {
+    getTokenOnBehalf = (options: TokenOptions): RequestHandler => {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             const authHeader = req.headers.authorization;
 
             // get scopes for token request
-            const scopes = (Object.values(this.appSettings.resources)
-                .find((resource: Resource) => resource.callingPageRoute === req.route.path) as Resource).scopes;
+            const scopes = options.resource.scopes;
+            const resourceName = this.getResourceNameFromScopes(scopes);
 
-            const oboRequest = {
+            const oboRequest: OnBehalfOfRequest = {
                 oboAssertion: authHeader.split(" ")[1],
                 scopes: scopes,
             }
 
-            // get the resource name for attaching resource response to req
-            const serviceName = this.getServiceName(req.route.path);
-
             try {
                 const tokenResponse = await this.msalClient.acquireTokenOnBehalfOf(oboRequest);
 
-                if (req.session) {
-                    req.session[serviceName]["accessToken"] = tokenResponse.accessToken;
-                } else {
-                    req["locals"] = {
-                        serviceName: {
-                            "accessToken": tokenResponse.accessToken
-                        }
+                req["locals"] = {
+                    [resourceName]: {
+                        "accessToken": tokenResponse.accessToken
                     }
                 }
 
                 next();
             } catch (error) {
                 console.log(error);
+                next(error);
             }
         }
     }
@@ -381,20 +386,21 @@ export class AuthProvider {
 
     /**
      * Check if authenticated in session
-     * @param {Request} req: express request object
-     * @param {Response} res: express response object
-     * @param {NextFunction} next: express next
+     * @param {GuardOptions} options: express request object
+     * @returns {RequestHandler}
      */
-    isAuthenticated = (options?): Function => {
+    isAuthenticated = (options?: GuardOptions): RequestHandler => {
         return (req: Request, res: Response, next: NextFunction): void | Response => {
             if (req.session) {
                 if (!req.session.isAuthenticated) {
-                    return res.status(403).send(ErrorMessages.NOT_PERMITTED);
+                    console.log(ErrorMessages.NOT_PERMITTED);
+                    return res.redirect(this.appSettings.authRoutes.unauthorized);
                 }
 
                 next();
             } else {
-                res.status(401).send(ErrorMessages.NOT_PERMITTED);
+                console.log(ErrorMessages.SESSION_NOT_FOUND);
+                res.redirect(this.appSettings.authRoutes.error);
             }
         }
     };
@@ -402,60 +408,66 @@ export class AuthProvider {
     /**
      * Receives access token in req authorization header
      * and validates it using the jwt.verify
-     * @param {Request} req: express request object
-     * @param {Response} res: express response object
-     * @param {NextFunction} next: express next
+     * @param {GuardOptions} options: express request object
+     * @returns {RequestHandler}
      */
-    isAuthorized = (options?): Function => {
+    isAuthorized = (options?: GuardOptions): RequestHandler => {
         return async (req: Request, res: Response, next: NextFunction): Promise<void | Response> => {
             const accessToken = req.headers.authorization.split(" ")[1];
 
             if (req.headers.authorization) {
                 if (!(await this.tokenValidator.validateAccessToken(accessToken, req.route.path))) {
-                    return res.status(401).send(ErrorMessages.NOT_PERMITTED);
+                    console.log(ErrorMessages.INVALID_TOKEN);
+                    return res.redirect(this.appSettings.authRoutes.unauthorized);
                 }
 
                 next();
             } else {
-                res.status(401).send(ErrorMessages.NOT_PERMITTED);
+                console.log(ErrorMessages.TOKEN_NOT_FOUND);
+                res.redirect(this.appSettings.authRoutes.error);
             }
         }
     };
 
     /**
      * Checks if the user has access for this route, defined in appSettings
-     * @param {Request} req: express request object
-     * @param {Response} res: express response object
-     * @param {NextFunction} next: express next
+     * @param {GuardOptions} options: express request object
+     * @returns {RequestHandler}
      */
-    hasAccess = (options?): Function => {
+    hasAccess = (options?: GuardOptions): RequestHandler => {
         return (req: Request, res: Response, next: NextFunction): void | Response => {
             if (req.session && this.appSettings.accessMatrix) {
+
                 if (req.session.account.idTokenClaims["roles"] === undefined) {
-                    return res.status(403).send(ErrorMessages.USER_HAS_NO_ROLE);
+                    console.log(ErrorMessages.USER_HAS_NO_ROLE);
+                    return res.redirect(this.appSettings.authRoutes.unauthorized);
                 } else {
                     const roles = req.session.account.idTokenClaims["roles"];
+
                     const rule = Object.values(this.appSettings.accessMatrix)
                         .filter((rule: AccessRule) => rule.path === req.path);
 
                     if (rule.length < 1) {
-                        return res.status(403).send(ErrorMessages.RULE_NOT_FOUND);
+                        console.log(ErrorMessages.RULE_NOT_FOUND);
+                        return res.redirect(this.appSettings.authRoutes.unauthorized);
                     } else {
                         if (rule[0].methods.includes(req.method)) {
                             let intersection = rule[0].roles.filter(role => roles.includes(role));
 
                             if (intersection.length < 1) {
-                                return res.status(403).send(ErrorMessages.USER_NOT_IN_ROLE);
+                                console.log(ErrorMessages.USER_NOT_IN_ROLE);
+                                return res.redirect(this.appSettings.authRoutes.unauthorized);
                             }
                         } else {
-                            return res.status(403).send(ErrorMessages.METHOD_NOT_ALLOWED)
+                            console.log(ErrorMessages.METHOD_NOT_ALLOWED);
+                            return res.redirect(this.appSettings.authRoutes.unauthorized);
                         }
                     }
                 }
 
                 next();
             } else {
-                res.status(401).send(ErrorMessages.NOT_PERMITTED);
+                res.redirect(this.appSettings.authRoutes.unauthorized);
             }
         }
     }
@@ -468,45 +480,42 @@ export class AuthProvider {
      * @param {Response} res: express response object
      * @param {NextFunction} next: express next function
      * @param {AuthCodeParams} params: modifies auth code request url
+     * @returns {Promise}
      */
-    private getAuthCode = async (req: Request, res: Response, next: NextFunction, params: AuthCodeParams): Promise<void> => {
+    private async getAuthCode(req: Request, res: Response, next: NextFunction, params: AuthCodeParams): Promise<void> {
         // prepare the request
         req.session.authCodeRequest.authority = params.authority;
         req.session.authCodeRequest.scopes = params.scopes;
         req.session.authCodeRequest.state = params.state;
-        req.session.authCodeRequest.redirectUri = this.urlUtils.ensureAbsoluteUrl(req, params.redirect);
+        req.session.authCodeRequest.redirectUri = params.redirect;
         req.session.authCodeRequest.prompt = params.prompt;
         req.session.authCodeRequest.account = params.account;
 
         req.session.tokenRequest.authority = params.authority;
+        req.session.tokenRequest.scopes = params.scopes;
+        req.session.tokenRequest.redirectUri = params.redirect;
 
         // request an authorization code to exchange for tokens
         try {
             const response = await this.msalClient.getAuthCodeUrl(req.session.authCodeRequest);
             res.redirect(response);
         } catch (error) {
+            console.log(ErrorMessages.AUTH_CODE_NOT_OBTAINED);
             console.log(error);
-            res.status(500).send(ErrorMessages.AUTH_CODE_NOT_OBTAINED);
+            next(error);
         }
     };
 
     /**
-     * Util method to get the resource name for a given callingPageRoute (appSettings.json)
-     * @param {string} path: /path string that the resource is associated with
+     * Util method to get the resource name for a given scope(s)
+     * @param {Array} scopes: /path string that the resource is associated with
+     * @returns {string}
      */
-    private getResourceName = (path: string): string => {
-        const index = Object.values(this.appSettings.resources).findIndex((resource: Resource) => resource.callingPageRoute === path);
-        const resourceName = Object.keys(this.appSettings.resources)[index];
+    private getResourceNameFromScopes(scopes: string[]): string {
+        const index = Object.values({ ...this.appSettings.remoteResources, ...this.appSettings.ownedResources })
+            .findIndex((resource: Resource) => JSON.stringify(resource.scopes) === JSON.stringify(scopes));
+            
+        const resourceName = Object.keys({ ...this.appSettings.remoteResources, ...this.appSettings.ownedResources })[index];
         return resourceName;
-    };
-
-    /**
-     * Util method to get the service name for a given endpoint (appSettings.json)
-     * @param {string} path: /path string that the resource is associated with
-     */
-    private getServiceName = (path: string): string => {
-        const index = Object.values(this.appSettings.services).findIndex((service: Service) => service.endpoint === path);
-        const serviceName = Object.keys(this.appSettings.services)[index];
-        return serviceName;
     };
 }

@@ -14,23 +14,13 @@ export const AppStages = {
 };
 
 /**
- * Allowed fields in JSON configuration file
- */
-export const JsonConfiguration = {
-  CREDENTIALS: "credentials",
-  CONFIGURATION: "configuration",
-  RESOURCES: "resources",
-  POLICIES: "policies",
-  PROTECTED: "protected",
-};
-
-/**
  * Various error constants
  */
 export const ErrorMessages = {
   NOT_PERMITTED: "Not permitted",
   INVALID_TOKEN: "Invalid token",
   CANNOT_DETERMINE_APP_STAGE: "Cannot determine application stage",
+  CANNOT_VALIDATE_TOKEN: "Cannot validate token",
   NONCE_MISMATCH: "Nonce does not match",
   INTERACTION_REQUIRED: "interaction_required",
   TOKEN_ACQUISITION_FAILED: "Token acquisition failed",
@@ -43,7 +33,8 @@ export const ErrorMessages = {
   USER_HAS_NO_ROLE: "User does not have any roles",
   USER_NOT_IN_ROLE: "User does not have this role",
   METHOD_NOT_ALLOWED: "Method not allowed for this route",
-  RULE_NOT_FOUND: "No rule found for this route"
+  RULE_NOT_FOUND: "No rule found for this route",
+  SESSION_NOT_FOUND: "No session found for this request"
 };
 
 /**

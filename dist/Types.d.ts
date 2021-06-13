@@ -6,11 +6,11 @@ declare module "express-session" {
         account: AccountInfo;
         nonce: string;
         isAuthenticated?: boolean;
-        resources: {
+        remoteResources?: {
             [resource: string]: Resource;
         };
-        services: {
-            [service: string]: Service;
+        ownedResources?: {
+            [resource: string]: Resource;
         };
     }
 }
@@ -22,8 +22,20 @@ export declare type AuthCodeParams = {
     prompt?: string;
     account?: AccountInfo;
 };
-export declare type InitializationOptions = {};
-export declare type MiddlewareOptions = {};
+export declare type InitializationOptions = {
+    useSession?: boolean;
+    saveCacheToDisk?: boolean;
+    customState?: Object;
+};
+export declare type TokenOptions = {
+    resource: Resource;
+    claims?: string;
+    skipCache?: boolean;
+};
+export declare type GuardOptions = {
+    error: string;
+    unauthorized: string;
+};
 export declare type ValidationOptions = {
     audience: string;
     issuer: string;
@@ -34,48 +46,55 @@ export declare type State = {
     stage: string;
 };
 export declare type AppSettings = {
-    credentials: Credentials;
-    settings: Settings;
-    policies?: {
+    appCredentials: AppCredentials;
+    authRoutes?: AuthRoutes;
+    b2cPolicies?: {
         [policy: string]: Policy;
     };
-    resources?: {
+    remoteResources?: {
         [resource: string]: Resource;
     };
-    services?: {
-        [service: string]: Service;
+    ownedResources?: {
+        [resource: string]: Resource;
     };
     accessMatrix?: {
         [accessRule: string]: AccessRule;
     };
 };
-export declare type Credentials = {
+export declare type AppCredentials = {
     clientId: string;
     tenantId: string;
     clientSecret?: string;
     clientCertificate?: ClientCertificate;
+    keyVault?: KeyVault;
 };
 export declare type ClientCertificate = {
     thumbprint: string;
     privateKey: string;
+    x5c?: string;
 };
-export declare type Settings = {
-    homePageRoute: string;
-    redirectUri: string;
-    postLogoutRedirectUri: string;
+export declare type KeyVault = {
+    credentialType: string;
+    credentialName: string;
+    keyVaultUrl: string;
 };
-export declare type Service = {
-    endpoint: string;
-    scopes: string[];
-};
-export declare type Resource = {
-    callingPageRoute: string;
-    endpoint: string;
-    scopes: string[];
-    accessToken?: string;
+export declare type AuthRoutes = {
+    redirect: string;
+    login: string;
+    postLogin: string;
+    logout: string;
+    postLogout?: string;
+    frontChannelLogout?: string;
+    error: string;
+    unauthorized: string;
 };
 export declare type Policy = {
     authority: string;
+};
+export declare type Resource = {
+    endpoint: string;
+    scopes: string[];
+    accessToken?: string;
 };
 export declare type AccessRule = {
     path: string;

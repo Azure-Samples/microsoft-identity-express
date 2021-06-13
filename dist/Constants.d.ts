@@ -8,22 +8,13 @@ export declare const AppStages: {
     ACQUIRE_TOKEN: string;
 };
 /**
- * Allowed fields in JSON configuration file
- */
-export declare const JsonConfiguration: {
-    CREDENTIALS: string;
-    CONFIGURATION: string;
-    RESOURCES: string;
-    POLICIES: string;
-    PROTECTED: string;
-};
-/**
  * Various error constants
  */
 export declare const ErrorMessages: {
     NOT_PERMITTED: string;
     INVALID_TOKEN: string;
     CANNOT_DETERMINE_APP_STAGE: string;
+    CANNOT_VALIDATE_TOKEN: string;
     NONCE_MISMATCH: string;
     INTERACTION_REQUIRED: string;
     TOKEN_ACQUISITION_FAILED: string;
@@ -37,6 +28,7 @@ export declare const ErrorMessages: {
     USER_NOT_IN_ROLE: string;
     METHOD_NOT_ALLOWED: string;
     RULE_NOT_FOUND: string;
+    SESSION_NOT_FOUND: string;
 };
 /**
  * For more information, visit: https://login.microsoftonline.com/error

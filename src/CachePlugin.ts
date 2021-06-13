@@ -6,7 +6,7 @@ import fs from "fs";
 import { TokenCacheContext, ICachePlugin } from "@azure/msal-common";
 
 /**
- * This implements ICachePlugin for persistent caching. For more information, visit: 
+ * This implements ICachePlugin for persistent caching. Cache is persisted in a simple json file. For more information, visit: 
  * https://azuread.github.io/microsoft-authentication-library-for-js/ref/interfaces/_azure_msal_common.icacheplugin.html
  */
 
@@ -14,11 +14,11 @@ export class cachePlugin implements ICachePlugin {
 
     private cacheLocation: string;
 
-    constructor(cacheLocation: string = "./cache.json") {
+    constructor(cacheLocation: string) {
         this.cacheLocation = cacheLocation;
     }
 
-    getCachePlugin = () => {
+    getCachePlugin = (): ICachePlugin => {
         return {
             beforeCacheAccess: this.beforeCacheAccess,
             afterCacheAccess: this.afterCacheAccess

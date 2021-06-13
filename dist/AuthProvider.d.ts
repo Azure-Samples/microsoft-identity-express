@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction, Router } from "express";
+import { RequestHandler, Router } from "express";
 import { ConfidentialClientApplication, Configuration, ICachePlugin, CryptoProvider } from "@azure/msal-node";
 import { TokenValidator } from "./TokenValidator";
 import { UrlUtils } from "./UrlUtils";
-import { AppSettings, InitializationOptions } from "./Types";
+import { AppSettings, InitializationOptions, TokenOptions, GuardOptions } from "./Types";
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
  * It offers a collection of middleware and utility methods that automate
@@ -13,9 +13,8 @@ import { AppSettings, InitializationOptions } from "./Types";
  *
  * Session variables accessible are as follows:
  * req.session.isAuthenticated: boolean
- * req.session.isAuthorized: boolean
  * req.session.account: AccountInfo
- * req.session.<resourceName>.accessToken: string
+ * req.session.remoteResources.{resourceName}.accessToken: string
  */
 export declare class AuthProvider {
     urlUtils: UrlUtils;
@@ -27,83 +26,84 @@ export declare class AuthProvider {
     /**
      * @param {AppSettings} appSettings
      * @param {ICachePlugin} cache: cachePlugin
+     * @constructor
      */
     constructor(appSettings: AppSettings, cache?: ICachePlugin);
+    /**
+     * Initialize authProvider and set default routes
+     * @param {InitializationOptions} options
+     * @returns {Router}
+     */
     initialize: (options?: InitializationOptions) => Router;
     /**
      * Initiate sign in flow
      * @param {Request} req: express request object
      * @param {Response} res: express response object
      * @param {NextFunction} next: express next function
+     * @returns {void}
      */
-    signIn: (req: Request, res: Response, next: NextFunction) => void;
+    signIn: RequestHandler;
     /**
-     * Initiate sign out and clean the session
+     * Initiate sign out and destroy the session
      * @param {Request} req: express request object
      * @param {Response} res: express response object
      * @param {NextFunction} next: express next function
+     * @returns {void}
      */
-    signOut: (req: Request, res: Response, next: NextFunction) => void;
+    signOut: RequestHandler;
     /**
      * Middleware that handles redirect depending on request state
      * There are basically 2 stages: sign-in and acquire token
      * @param {Request} req: express request object
      * @param {Response} res: express response object
      * @param {NextFunction} next: express next function
+     * @returns {Promise}
      */
-    handleRedirect: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+    handleRedirect: RequestHandler;
     /**
      * Middleware that gets tokens via acquireToken*
-     * @param {Request} req: express request object
-     * @param {Response} res: express response object
-     * @param {NextFunction} next: express next
+     * @param {TokenOptions} options: express request object
+     * @returns {RequestHandler}
      */
-    getToken: (options?: any) => Function;
+    getToken: (options: TokenOptions) => RequestHandler;
     /**
      * Middleware that gets tokens via OBO flow
-     * @param {Request} req: express request object
-     * @param {Response} res: express response object
-     * @param {NextFunction} next: express next
+     * @param {TokenOptions} options: express request object
+     * @returns {RequestHandler}
      */
-    getTokenOnBehalf: (options?: any) => Function;
+    getTokenOnBehalf: (options: TokenOptions) => RequestHandler;
     /**
      * Check if authenticated in session
-     * @param {Request} req: express request object
-     * @param {Response} res: express response object
-     * @param {NextFunction} next: express next
+     * @param {GuardOptions} options: express request object
+     * @returns {RequestHandler}
      */
-    isAuthenticated: (options?: any) => Function;
+    isAuthenticated: (options?: GuardOptions) => RequestHandler;
     /**
      * Receives access token in req authorization header
      * and validates it using the jwt.verify
-     * @param {Request} req: express request object
-     * @param {Response} res: express response object
-     * @param {NextFunction} next: express next
+     * @param {GuardOptions} options: express request object
+     * @returns {RequestHandler}
      */
-    isAuthorized: (options?: any) => Function;
+    isAuthorized: (options?: GuardOptions) => RequestHandler;
     /**
      * Checks if the user has access for this route, defined in appSettings
-     * @param {Request} req: express request object
-     * @param {Response} res: express response object
-     * @param {NextFunction} next: express next
+     * @param {GuardOptions} options: express request object
+     * @returns {RequestHandler}
      */
-    hasAccess: (options?: any) => Function;
+    hasAccess: (options?: GuardOptions) => RequestHandler;
     /**
      * This method is used to generate an auth code request
      * @param {Request} req: express request object
      * @param {Response} res: express response object
      * @param {NextFunction} next: express next function
      * @param {AuthCodeParams} params: modifies auth code request url
+     * @returns {Promise}
      */
     private getAuthCode;
     /**
-     * Util method to get the resource name for a given callingPageRoute (appSettings.json)
-     * @param {string} path: /path string that the resource is associated with
+     * Util method to get the resource name for a given scope(s)
+     * @param {Array} scopes: /path string that the resource is associated with
+     * @returns {string}
      */
-    private getResourceName;
-    /**
-     * Util method to get the service name for a given endpoint (appSettings.json)
-     * @param {string} path: /path string that the resource is associated with
-     */
-    private getServiceName;
+    private getResourceNameFromScopes;
 }

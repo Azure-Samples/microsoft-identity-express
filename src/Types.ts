@@ -4,176 +4,138 @@
  */
 
 import {
-  AccountInfo,
-  AuthorizationUrlRequest,
-  AuthorizationCodeRequest,
+    AccountInfo,
+    AuthorizationUrlRequest,
+    AuthorizationCodeRequest,
 } from "@azure/msal-node";
 
 declare module "express-session" {
-  interface SessionData {
-    authCodeRequest: AuthorizationUrlRequest;
-    tokenRequest: AuthorizationCodeRequest;
-    account: AccountInfo;
-    nonce: string;
-    isAuthenticated?: boolean;
-    resources: {
-      [resource: string]: Resource;
-    };
-    services: {
-      [service: string]: Service;
+    interface SessionData {
+        authCodeRequest: AuthorizationUrlRequest;
+        tokenRequest: AuthorizationCodeRequest;
+        account: AccountInfo;
+        nonce: string;
+        isAuthenticated?: boolean;
+        remoteResources?: {
+            [resource: string]: Resource;
+        };
+        ownedResources?: {
+            [resource: string]: Resource
+        },
     }
-  }
 }
 
 export type AuthCodeParams = {
-  authority: string;
-  scopes: string[];
-  state: string;
-  redirect: string;
-  prompt?: string;
-  account?: AccountInfo;
+    authority: string;
+    scopes: string[];
+    state: string;
+    redirect: string;
+    prompt?: string;
+    account?: AccountInfo;
 };
 
 export type InitializationOptions = {
+    useSession?: boolean,
+    saveCacheToDisk?: boolean,
+    customState?: Object;
+};
 
-}
+export type TokenOptions = {
+    resource: Resource;
+    claims?: string;
+    skipCache?: boolean
+};
 
-export type MiddlewareOptions = {
-
-}
+export type GuardOptions = {
+    error: string;
+    unauthorized: string;
+};
 
 export type ValidationOptions = {
-  audience: string;
-  issuer: string;
-  scope: string;
+    audience: string;
+    issuer: string;
+    scope: string;
 };
 
 export type State = {
-  nonce: string;
-  stage: string;
+    nonce: string;
+    stage: string;
 };
 
 export type AppSettings = {
-  credentials: Credentials;
-  settings: Settings;
-  policies?: {
-    [policy: string]: Policy;
-  };
-  resources?: {
-    [resource: string]: Resource;
-  };
-  services?: {
-    [service: string]: Service
-  },
-  accessMatrix?: {
-    [accessRule: string]: AccessRule
-  }
+    appCredentials: AppCredentials;
+    authRoutes?: AuthRoutes;
+    b2cPolicies?: {
+        [policy: string]: Policy;
+    };
+    remoteResources?: {
+        [resource: string]: Resource;
+    };
+    ownedResources?: {
+        [resource: string]: Resource
+    },
+    accessMatrix?: {
+        [accessRule: string]: AccessRule
+    }
 };
 
-export type Credentials = {
-  clientId: string;
-  tenantId: string;
-  clientSecret?: string;
-  clientCertificate?: ClientCertificate;
+export type AppCredentials = {
+    clientId: string;
+    tenantId: string;
+    clientSecret?: string;
+    clientCertificate?: ClientCertificate;
+    keyVault?: KeyVault
 };
 
 export type ClientCertificate = {
-  thumbprint: string;
-  privateKey: string;
+    thumbprint: string;
+    privateKey: string;
+    x5c?: string
 };
 
-export type Settings = {
-  homePageRoute: string;
-  redirectUri: string;
-  postLogoutRedirectUri: string;
+export type KeyVault = {
+    credentialType: string,
+    credentialName: string
+    keyVaultUrl: string,
 };
 
-export type Service = {
-  endpoint: string,
-  scopes: string[]
-}
-
-export type Resource = {
-  callingPageRoute: string;
-  endpoint: string;
-  scopes: string[];
-  accessToken?: string;
+export type AuthRoutes = {
+    redirect: string;
+    login: string;
+    postLogin: string;
+    logout: string;
+    postLogout?: string;
+    frontChannelLogout?: string;
+    error: string;
+    unauthorized: string;
 };
 
 export type Policy = {
-  authority: string;
+    authority: string;
+};
+
+export type Resource = {
+    endpoint: string;
+    scopes: string[];
+    accessToken?: string;
 };
 
 export type AccessRule = {
-  path: string,
-  methods: string[],
-  roles: string[]
-}
-
-export type UserInfo = {
-  businessPhones?: Array<string>;
-  displayName?: string;
-  givenName?: string;
-  id?: string;
-  jobTitle?: string;
-  mail?: string;
-  mobilePhone?: string;
-  officeLocation?: string;
-  preferredLanguage?: string;
-  surname?: string;
-  userPrincipalName?: string;
+    path: string,
+    methods: string[],
+    roles: string[]
 };
 
-
-// export type AppSettings2 = {
-//   appCredentials: Credentials;
-//   authRoutes: Settings;
-//   b2cPolicies?: {
-//     [policy: string]: Policy;
-//   };
-//   protectedResources?: {
-//     [resource: string]: Resource;
-//   };
-//   ownedResources?: {
-//     [service: string]: Service
-//   },
-//   accessMatrix?: {
-//     [accessRule: string]: AccessRule
-//   }
-// };
-
-// export type AppCredentials = {
-//   clientId: string;
-//   tenantId: string;
-//   clientSecret?: string;
-//   clientCertificate?: ClientCertificate;
-//   keyVault?: KeyVault
-// }
-
-// export type KeyVault = {
-//   credentialType: string,
-//   credentialName: string
-//   keyVaultUrl: string,
-// }
-
-// export type AuthRoutes = {
-//   redirect: "/redirect",
-//   login: "/signin",
-//   logout: "/signout",
-//   postLogout?: "/",
-//   frontChannelLogout?: "/ssout",
-//   error: "/error",
-//   unauthorized: "/unauthorized",
-// }
-
-// export type remoteResource = {
-//   callingPageRoute: string;
-//   endpoint: string;
-//   scopes: string[];
-//   accessToken?: string;
-// }
-
-// export type ownedResource = {
-//   endpoint: string;
-//   scopes: string[];
-// }
+export type UserInfo = {
+    businessPhones?: Array<string>;
+    displayName?: string;
+    givenName?: string;
+    id?: string;
+    jobTitle?: string;
+    mail?: string;
+    mobilePhone?: string;
+    officeLocation?: string;
+    preferredLanguage?: string;
+    surname?: string;
+    userPrincipalName?: string;
+};

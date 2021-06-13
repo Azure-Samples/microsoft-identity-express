@@ -3,12 +3,19 @@
  * Licensed under the MIT License.
  */
 
-import axios, {AxiosResponse, AxiosRequestConfig} from "axios";
+import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
 import { StringUtils } from "@azure/msal-common";
 import { ErrorMessages } from "./Constants";
 
 export class FetchManager {
 
+    /**
+     * Calls a resource endpoint with a raw access token
+     * using the authorization bearer token scheme
+     * @param {string} endpoint 
+     * @param {string} accessToken 
+     * @returns {Promise}
+     */
     callApiEndpoint = async (endpoint: string, accessToken: string): Promise<AxiosResponse> => {
 
         if (StringUtils.isEmpty(accessToken)) {
@@ -20,13 +27,13 @@ export class FetchManager {
                 Authorization: `Bearer ${accessToken}`
             }
         };
-        
+
         console.log("request made to web API at: " + new Date().toString());
-    
+
         try {
             const response: AxiosResponse = await axios.get(endpoint, options);
             return response;
-        } catch(error) {
+        } catch (error) {
             console.log(error)
             return error;
         }
