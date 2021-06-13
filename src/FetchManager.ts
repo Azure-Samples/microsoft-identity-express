@@ -16,7 +16,7 @@ export class FetchManager {
      * @param {string} accessToken 
      * @returns {Promise}
      */
-    callApiEndpoint = async (endpoint: string, accessToken: string): Promise<AxiosResponse> => {
+    static callApiEndpoint = async (endpoint: string, accessToken: string): Promise<any> => {
 
         if (StringUtils.isEmpty(accessToken)) {
             throw new Error(ErrorMessages.TOKEN_NOT_FOUND)
@@ -32,11 +32,35 @@ export class FetchManager {
 
         try {
             const response: AxiosResponse = await axios.get(endpoint, options);
-            return response;
+            return response.data;
         } catch (error) {
             console.log(error)
             return error;
         }
+    }
+
+    /**
+     * @param {string} accessToken 
+     * @param {string} nextPage 
+     * @param {Array} userGroups 
+     * @returns {Promise}
+     */
+    static handlePagination = async (accessToken: string, nextPage: string, userGroups: string[] = []): Promise<any> => {
+
+        try {
+            const graphResponse = await FetchManager.callApiEndpoint(nextPage, accessToken);
+            graphResponse["value"].map((v) => userGroups.push(v.id));
+    
+            if (graphResponse["@odata.nextLink"]) {
+                return await FetchManager.handlePagination(accessToken, graphResponse["@odata.nextLink"], userGroups)
+            } else {
+                return userGroups;
+            }
+        } catch (error) {
+            console.log(error);
+            return error;
+        }
+    
     }
 
 }

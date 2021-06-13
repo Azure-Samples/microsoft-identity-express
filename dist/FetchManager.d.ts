@@ -1,4 +1,3 @@
-import { AxiosResponse } from "axios";
 export declare class FetchManager {
     /**
      * Calls a resource endpoint with a raw access token
@@ -7,5 +6,12 @@ export declare class FetchManager {
      * @param {string} accessToken
      * @returns {Promise}
      */
-    callApiEndpoint: (endpoint: string, accessToken: string) => Promise<AxiosResponse>;
+    static callApiEndpoint: (endpoint: string, accessToken: string) => Promise<any>;
+    /**
+     * @param {string} accessToken
+     * @param {string} nextPage
+     * @param {Array} userGroups
+     * @returns {Promise}
+     */
+    static handlePagination: (accessToken: string, nextPage: string, userGroups?: string[]) => Promise<any>;
 }

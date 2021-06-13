@@ -3,6 +3,7 @@ import { Constants, UrlString, StringUtils, OIDC_DEFAULT_SCOPES, PromptValue, In
 import { LogLevel, ConfidentialClientApplication, CryptoProvider } from '@azure/msal-node';
 import jwt from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
+import axios from 'axios';
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
   try {
@@ -56,6 +57,21 @@ function _extends() {
   };
 
   return _extends.apply(this, arguments);
+}
+
+function _objectWithoutPropertiesLoose(source, excluded) {
+  if (source == null) return {};
+  var target = {};
+  var sourceKeys = Object.keys(source);
+  var key, i;
+
+  for (i = 0; i < sourceKeys.length; i++) {
+    key = sourceKeys[i];
+    if (excluded.indexOf(key) >= 0) continue;
+    target[key] = source[key];
+  }
+
+  return target;
 }
 
 function createCommonjsModule(fn, module) {
@@ -909,9 +925,21 @@ var ErrorMessages = {
   STATE_NOT_FOUND: "State not found",
   USER_HAS_NO_ROLE: "User does not have any roles",
   USER_NOT_IN_ROLE: "User does not have this role",
+  USER_HAS_NO_GROUP: "User does not have any groups",
+  USER_NOT_IN_GROUP: "User does not have this group",
   METHOD_NOT_ALLOWED: "Method not allowed for this route",
   RULE_NOT_FOUND: "No rule found for this route",
   SESSION_NOT_FOUND: "No session found for this request"
+};
+/**
+ * Constants used in access control scenarios
+ */
+
+var AccessConstants = {
+  GROUPS: "groups",
+  ROLES: "roles",
+  CLAIM_NAMES: "_claim_name",
+  CLAIM_SOURCES: "_claim_sources"
 };
 
 var TokenValidator = /*#__PURE__*/function () {
@@ -1231,34 +1259,149 @@ var TokenValidator = /*#__PURE__*/function () {
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
-var UrlUtils =
+var UrlUtils = function UrlUtils() {};
 /**
- * @param {string} baseUrl
- * @constructor
+ * Gets the absolute URL from a given request and path string
+ * @param {Request} req
+ * @param {string} uri
+ * @returns {string}
  */
-function UrlUtils(baseUrl) {
-  /**
-   * Gets the absolute URL from a given request and path string
-   * @param {Request} req
-   * @param {string} uri
-   * @returns {string}
-   */
-  this.ensureAbsoluteUrl = function (req, uri) {
-    var urlComponents = new UrlString(uri).getUrlComponents();
 
-    if (!urlComponents.Protocol) {
-      if (!urlComponents.HostNameAndPort) {
-        return req.protocol + "://" + req.get("host") + uri;
-      }
+UrlUtils.ensureAbsoluteUrl = function (req, uri) {
+  var urlComponents = new UrlString(uri).getUrlComponents();
 
-      return req.protocol + "://" + uri;
-    } else {
-      return uri;
+  if (!urlComponents.Protocol) {
+    if (!urlComponents.HostNameAndPort) {
+      return req.protocol + "://" + req.get("host") + uri;
     }
-  };
 
-  this.baseUrl = baseUrl;
+    return req.protocol + "://" + uri;
+  } else {
+    return uri;
+  }
 };
+
+var FetchManager = function FetchManager() {};
+/**
+ * Calls a resource endpoint with a raw access token
+ * using the authorization bearer token scheme
+ * @param {string} endpoint
+ * @param {string} accessToken
+ * @returns {Promise}
+ */
+
+FetchManager.callApiEndpoint = /*#__PURE__*/function () {
+  var _ref = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(endpoint, accessToken) {
+    var options, response;
+    return runtime_1.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            if (!StringUtils.isEmpty(accessToken)) {
+              _context.next = 2;
+              break;
+            }
+
+            throw new Error(ErrorMessages.TOKEN_NOT_FOUND);
+
+          case 2:
+            options = {
+              headers: {
+                Authorization: "Bearer " + accessToken
+              }
+            };
+            console.log("request made to web API at: " + new Date().toString());
+            _context.prev = 4;
+            _context.next = 7;
+            return axios.get(endpoint, options);
+
+          case 7:
+            response = _context.sent;
+            return _context.abrupt("return", response.data);
+
+          case 11:
+            _context.prev = 11;
+            _context.t0 = _context["catch"](4);
+            console.log(_context.t0);
+            return _context.abrupt("return", _context.t0);
+
+          case 15:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, null, [[4, 11]]);
+  }));
+
+  return function (_x, _x2) {
+    return _ref.apply(this, arguments);
+  };
+}();
+/**
+ * @param {string} accessToken
+ * @param {string} nextPage
+ * @param {Array} userGroups
+ * @returns {Promise}
+ */
+
+
+FetchManager.handlePagination = /*#__PURE__*/function () {
+  var _ref2 = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(accessToken, nextPage, userGroups) {
+    var graphResponse;
+    return runtime_1.wrap(function _callee2$(_context2) {
+      while (1) {
+        switch (_context2.prev = _context2.next) {
+          case 0:
+            if (userGroups === void 0) {
+              userGroups = [];
+            }
+
+            _context2.prev = 1;
+            _context2.next = 4;
+            return FetchManager.callApiEndpoint(nextPage, accessToken);
+
+          case 4:
+            graphResponse = _context2.sent;
+            graphResponse["value"].map(function (v) {
+              return userGroups.push(v.id);
+            });
+
+            if (!graphResponse["@odata.nextLink"]) {
+              _context2.next = 12;
+              break;
+            }
+
+            _context2.next = 9;
+            return FetchManager.handlePagination(accessToken, graphResponse["@odata.nextLink"], userGroups);
+
+          case 9:
+            return _context2.abrupt("return", _context2.sent);
+
+          case 12:
+            return _context2.abrupt("return", userGroups);
+
+          case 13:
+            _context2.next = 19;
+            break;
+
+          case 15:
+            _context2.prev = 15;
+            _context2.t0 = _context2["catch"](1);
+            console.log(_context2.t0);
+            return _context2.abrupt("return", _context2.t0);
+
+          case 19:
+          case "end":
+            return _context2.stop();
+        }
+      }
+    }, _callee2, null, [[1, 15]]);
+  }));
+
+  return function (_x3, _x4, _x5) {
+    return _ref2.apply(this, arguments);
+  };
+}();
 
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
@@ -1355,11 +1498,11 @@ var AuthProvider = /*#__PURE__*/function () {
         authority: _this.msalConfig.auth.authority,
         scopes: OIDC_DEFAULT_SCOPES,
         state: state,
-        redirect: _this.urlUtils.ensureAbsoluteUrl(req, _this.appSettings.authRoutes.redirect),
+        redirect: UrlUtils.ensureAbsoluteUrl(req, _this.appSettings.authRoutes.redirect),
         prompt: PromptValue.SELECT_ACCOUNT
       }; // get url to sign user in
 
-      _this.getAuthCode(req, res, next, params);
+      _this.getAuthCode(req, res, params);
     };
     /**
      * Initiate sign out and destroy the session
@@ -1371,14 +1514,13 @@ var AuthProvider = /*#__PURE__*/function () {
 
 
     this.signOut = function (req, res, next) {
-      var postLogoutRedirectUri = _this.urlUtils.ensureAbsoluteUrl(req, _this.appSettings.authRoutes.postLogout);
+      var postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, _this.appSettings.authRoutes.postLogout);
       /**
        * Construct a logout URI and redirect the user to end the
        * session with Azure AD/B2C. For more information, visit:
        * (AAD) https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request
        * (B2C) https://docs.microsoft.com/azure/active-directory-b2c/openid-connect#send-a-sign-out-request
        */
-
 
       var logoutURI = _this.msalConfig.auth.authority + "/oauth2/v2.0/logout?post_logout_redirect_uri=" + postLogoutRedirectUri;
       req.session.isAuthenticated = false;
@@ -1602,11 +1744,11 @@ var AuthProvider = /*#__PURE__*/function () {
                       authority: _this.msalConfig.auth.authority,
                       scopes: scopes,
                       state: state,
-                      redirect: _this.urlUtils.ensureAbsoluteUrl(req, _this.appSettings.authRoutes.redirect),
+                      redirect: UrlUtils.ensureAbsoluteUrl(req, _this.appSettings.authRoutes.redirect),
                       account: req.session.account
                     }; // initiate the first leg of auth code grant to get token
 
-                    _this.getAuthCode(req, res, next, params);
+                    _this.getAuthCode(req, res, params);
                   } else {
                     next(_context2.t0);
                   }
@@ -1625,7 +1767,7 @@ var AuthProvider = /*#__PURE__*/function () {
       }();
     };
     /**
-     * Middleware that gets tokens via OBO flow
+     * Middleware that gets tokens via OBO flow. Used in api scenarios
      * @param {TokenOptions} options: express request object
      * @returns {RequestHandler}
      */
@@ -1699,7 +1841,7 @@ var AuthProvider = /*#__PURE__*/function () {
           next();
         } else {
           console.log(ErrorMessages.SESSION_NOT_FOUND);
-          res.redirect(_this.appSettings.authRoutes.error);
+          res.redirect(_this.appSettings.authRoutes.unauthorized);
         }
       };
     };
@@ -1745,7 +1887,7 @@ var AuthProvider = /*#__PURE__*/function () {
 
                 case 10:
                   console.log(ErrorMessages.TOKEN_NOT_FOUND);
-                  res.redirect(_this.appSettings.authRoutes.error);
+                  res.redirect(_this.appSettings.authRoutes.unauthorized);
 
                 case 12:
                 case "end":
@@ -1761,49 +1903,114 @@ var AuthProvider = /*#__PURE__*/function () {
       }();
     };
     /**
-     * Checks if the user has access for this route, defined in appSettings
+     * Checks if the user has access for this route, defined in access matrix
      * @param {GuardOptions} options: express request object
      * @returns {RequestHandler}
      */
 
 
     this.hasAccess = function (options) {
-      return function (req, res, next) {
-        if (req.session && _this.appSettings.accessMatrix) {
-          if (req.session.account.idTokenClaims["roles"] === undefined) {
-            console.log(ErrorMessages.USER_HAS_NO_ROLE);
-            return res.redirect(_this.appSettings.authRoutes.unauthorized);
-          } else {
-            var roles = req.session.account.idTokenClaims["roles"];
-            var rule = Object.values(_this.appSettings.accessMatrix).filter(function (rule) {
-              return rule.path === req.path;
-            });
+      return /*#__PURE__*/function () {
+        var _ref5 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee5(req, res, next) {
+          var checkFor, groups, roles;
+          return runtime_1.wrap(function _callee5$(_context5) {
+            while (1) {
+              switch (_context5.prev = _context5.next) {
+                case 0:
+                  if (!(req.session && _this.appSettings.accessMatrix)) {
+                    _context5.next = 34;
+                    break;
+                  }
 
-            if (rule.length < 1) {
-              console.log(ErrorMessages.RULE_NOT_FOUND);
-              return res.redirect(_this.appSettings.authRoutes.unauthorized);
-            } else {
-              if (rule[0].methods.includes(req.method)) {
-                var intersection = rule[0].roles.filter(function (role) {
-                  return roles.includes(role);
-                });
+                  checkFor = options.accessRule.hasOwnProperty(AccessConstants.GROUPS) ? AccessConstants.GROUPS : AccessConstants.ROLES;
+                  _context5.t0 = checkFor;
+                  _context5.next = _context5.t0 === AccessConstants.GROUPS ? 5 : _context5.t0 === AccessConstants.ROLES ? 21 : 31;
+                  break;
 
-                if (intersection.length < 1) {
-                  console.log(ErrorMessages.USER_NOT_IN_ROLE);
-                  return res.redirect(_this.appSettings.authRoutes.unauthorized);
-                }
-              } else {
-                console.log(ErrorMessages.METHOD_NOT_ALLOWED);
-                return res.redirect(_this.appSettings.authRoutes.unauthorized);
+                case 5:
+                  if (!(req.session.account.idTokenClaims[AccessConstants.GROUPS] === undefined)) {
+                    _context5.next = 16;
+                    break;
+                  }
+
+                  if (!(req.session.account.idTokenClaims[AccessConstants.CLAIM_NAMES] || req.session.account.idTokenClaims[AccessConstants.CLAIM_SOURCES])) {
+                    _context5.next = 12;
+                    break;
+                  }
+
+                  _context5.next = 9;
+                  return _this.handleOverage(req, res, next, options.accessRule);
+
+                case 9:
+                  return _context5.abrupt("return", _context5.sent);
+
+                case 12:
+                  console.log(ErrorMessages.USER_HAS_NO_GROUP);
+                  return _context5.abrupt("return", res.redirect(_this.appSettings.authRoutes.unauthorized));
+
+                case 14:
+                  _context5.next = 19;
+                  break;
+
+                case 16:
+                  groups = req.session.account.idTokenClaims[AccessConstants.GROUPS];
+
+                  if (_this.applyAccessRule(req.method, options.accessRule, groups, true)) {
+                    _context5.next = 19;
+                    break;
+                  }
+
+                  return _context5.abrupt("return", res.redirect(_this.appSettings.authRoutes.unauthorized));
+
+                case 19:
+                  next();
+                  return _context5.abrupt("break", 32);
+
+                case 21:
+                  if (!(req.session.account.idTokenClaims[AccessConstants.ROLES] === undefined)) {
+                    _context5.next = 26;
+                    break;
+                  }
+
+                  console.log(ErrorMessages.USER_HAS_NO_ROLE);
+                  return _context5.abrupt("return", res.redirect(_this.appSettings.authRoutes.unauthorized));
+
+                case 26:
+                  roles = req.session.account.idTokenClaims[AccessConstants.ROLES];
+
+                  if (!_this.applyAccessRule(req.method, options.accessRule, roles, false)) {
+                    _context5.next = 29;
+                    break;
+                  }
+
+                  return _context5.abrupt("return", res.redirect(_this.appSettings.authRoutes.unauthorized));
+
+                case 29:
+                  next();
+                  return _context5.abrupt("break", 32);
+
+                case 31:
+                  return _context5.abrupt("break", 32);
+
+                case 32:
+                  _context5.next = 35;
+                  break;
+
+                case 34:
+                  res.redirect(_this.appSettings.authRoutes.unauthorized);
+
+                case 35:
+                case "end":
+                  return _context5.stop();
               }
             }
-          }
+          }, _callee5);
+        }));
 
-          next();
-        } else {
-          res.redirect(_this.appSettings.authRoutes.unauthorized);
-        }
-      };
+        return function (_x13, _x14, _x15) {
+          return _ref5.apply(this, arguments);
+        };
+      }();
     };
 
     ConfigurationUtils.validateAppSettings(appSettings);
@@ -1812,14 +2019,12 @@ var AuthProvider = /*#__PURE__*/function () {
     this.msalClient = new ConfidentialClientApplication(this.msalConfig);
     this.tokenValidator = new TokenValidator(this.appSettings, this.msalConfig);
     this.cryptoProvider = new CryptoProvider();
-    this.urlUtils = new UrlUtils();
   } // ============== UTILS ===============
 
   /**
    * This method is used to generate an auth code request
    * @param {Request} req: express request object
    * @param {Response} res: express response object
-   * @param {NextFunction} next: express next function
    * @param {AuthCodeParams} params: modifies auth code request url
    * @returns {Promise}
    */
@@ -1830,11 +2035,11 @@ var AuthProvider = /*#__PURE__*/function () {
   _proto.getAuthCode =
   /*#__PURE__*/
   function () {
-    var _getAuthCode = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee5(req, res, next, params) {
+    var _getAuthCode = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee6(req, res, params) {
       var response;
-      return runtime_1.wrap(function _callee5$(_context5) {
+      return runtime_1.wrap(function _callee6$(_context6) {
         while (1) {
-          switch (_context5.prev = _context5.next) {
+          switch (_context6.prev = _context6.next) {
             case 0:
               // prepare the request
               req.session.authCodeRequest.authority = params.authority;
@@ -1847,32 +2052,31 @@ var AuthProvider = /*#__PURE__*/function () {
               req.session.tokenRequest.scopes = params.scopes;
               req.session.tokenRequest.redirectUri = params.redirect; // request an authorization code to exchange for tokens
 
-              _context5.prev = 9;
-              _context5.next = 12;
+              _context6.prev = 9;
+              _context6.next = 12;
               return this.msalClient.getAuthCodeUrl(req.session.authCodeRequest);
 
             case 12:
-              response = _context5.sent;
+              response = _context6.sent;
               res.redirect(response);
-              _context5.next = 21;
+              _context6.next = 20;
               break;
 
             case 16:
-              _context5.prev = 16;
-              _context5.t0 = _context5["catch"](9);
+              _context6.prev = 16;
+              _context6.t0 = _context6["catch"](9);
               console.log(ErrorMessages.AUTH_CODE_NOT_OBTAINED);
-              console.log(_context5.t0);
-              next(_context5.t0);
+              console.log(_context6.t0);
 
-            case 21:
+            case 20:
             case "end":
-              return _context5.stop();
+              return _context6.stop();
           }
         }
-      }, _callee5, this, [[9, 16]]);
+      }, _callee6, this, [[9, 16]]);
     }));
 
-    function getAuthCode(_x13, _x14, _x15, _x16) {
+    function getAuthCode(_x16, _x17, _x18) {
       return _getAuthCode.apply(this, arguments);
     }
 
@@ -1880,10 +2084,156 @@ var AuthProvider = /*#__PURE__*/function () {
   }();
 
   /**
+   *
+   * @param {Request} req: express request object
+   * @param {Response} res: express response object
+   * @returns
+   */
+  _proto.handleOverage =
+  /*#__PURE__*/
+  function () {
+    var _handleOverage = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee7(req, res, next, rule) {
+      var _req$session$account$, newIdTokenClaims, silentRequest, tokenResponse, graphResponse, userGroups;
+
+      return runtime_1.wrap(function _callee7$(_context7) {
+        while (1) {
+          switch (_context7.prev = _context7.next) {
+            case 0:
+              _req$session$account$ = req.session.account.idTokenClaims, newIdTokenClaims = _objectWithoutPropertiesLoose(_req$session$account$, ["_claim_names", "_claim_sources"]);
+              silentRequest = {
+                account: req.session.account,
+                scopes: ["User.Read", "GroupMember.Read.All"]
+              };
+              _context7.prev = 2;
+              _context7.next = 5;
+              return this.msalClient.acquireTokenSilent(silentRequest);
+
+            case 5:
+              tokenResponse = _context7.sent;
+              _context7.prev = 6;
+              _context7.next = 9;
+              return FetchManager.callApiEndpoint("https://graph.microsoft.com/v1.0/me/memberOf", tokenResponse.accessToken);
+
+            case 9:
+              graphResponse = _context7.sent;
+
+              if (!graphResponse["@odata.nextLink"]) {
+                _context7.next = 25;
+                break;
+              }
+
+              _context7.prev = 11;
+              _context7.next = 14;
+              return FetchManager.handlePagination(tokenResponse.accessToken, graphResponse["@odata.nextLink"]);
+
+            case 14:
+              userGroups = _context7.sent;
+              req.session.account.idTokenClaims = _extends({}, newIdTokenClaims, {
+                groups: userGroups
+              });
+
+              if (this.applyAccessRule(req.method, rule, req.session.account.idTokenClaims["groups"], true)) {
+                _context7.next = 18;
+                break;
+              }
+
+              return _context7.abrupt("return", res.redirect(this.appSettings.authRoutes.unauthorized));
+
+            case 18:
+              _context7.next = 23;
+              break;
+
+            case 20:
+              _context7.prev = 20;
+              _context7.t0 = _context7["catch"](11);
+              console.log(_context7.t0);
+
+            case 23:
+              _context7.next = 28;
+              break;
+
+            case 25:
+              req.session.account.idTokenClaims = _extends({}, newIdTokenClaims, {
+                groups: graphResponse["value"].map(function (v) {
+                  return v.id;
+                })
+              });
+
+              if (this.applyAccessRule(req.method, rule, req.session.account.idTokenClaims["groups"], true)) {
+                _context7.next = 28;
+                break;
+              }
+
+              return _context7.abrupt("return", res.redirect(this.appSettings.authRoutes.unauthorized));
+
+            case 28:
+              _context7.next = 33;
+              break;
+
+            case 30:
+              _context7.prev = 30;
+              _context7.t1 = _context7["catch"](6);
+              console.log(_context7.t1);
+
+            case 33:
+              _context7.next = 38;
+              break;
+
+            case 35:
+              _context7.prev = 35;
+              _context7.t2 = _context7["catch"](2);
+              console.log(_context7.t2);
+
+            case 38:
+            case "end":
+              return _context7.stop();
+          }
+        }
+      }, _callee7, this, [[2, 35], [6, 30], [11, 20]]);
+    }));
+
+    function handleOverage(_x19, _x20, _x21, _x22) {
+      return _handleOverage.apply(this, arguments);
+    }
+
+    return handleOverage;
+  }();
+
+  _proto.applyAccessRule = function applyAccessRule(method, rule, creds, isGroups) {
+    if (rule.methods.includes(method)) {
+      if (isGroups) {
+        var intersection = rule.groups.filter(function (elem) {
+          return creds.includes(elem);
+        });
+
+        if (intersection.length < 1) {
+          console.log(ErrorMessages.USER_NOT_IN_GROUP);
+          return false;
+        }
+      } else {
+        var _intersection = rule.roles.filter(function (elem) {
+          return creds.includes(elem);
+        });
+
+        if (_intersection.length < 1) {
+          console.log(ErrorMessages.USER_NOT_IN_ROLE);
+          return false;
+        }
+      }
+    } else {
+      console.log(ErrorMessages.METHOD_NOT_ALLOWED);
+      return false;
+    }
+
+    return true;
+  }
+  /**
    * Util method to get the resource name for a given scope(s)
    * @param {Array} scopes: /path string that the resource is associated with
    * @returns {string}
    */
+  ;
+
   _proto.getResourceNameFromScopes = function getResourceNameFromScopes(scopes) {
     var index = Object.values(_extends({}, this.appSettings.remoteResources, this.appSettings.ownedResources)).findIndex(function (resource) {
       return JSON.stringify(resource.scopes) === JSON.stringify(scopes);

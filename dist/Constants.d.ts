@@ -26,9 +26,20 @@ export declare const ErrorMessages: {
     STATE_NOT_FOUND: string;
     USER_HAS_NO_ROLE: string;
     USER_NOT_IN_ROLE: string;
+    USER_HAS_NO_GROUP: string;
+    USER_NOT_IN_GROUP: string;
     METHOD_NOT_ALLOWED: string;
     RULE_NOT_FOUND: string;
     SESSION_NOT_FOUND: string;
+};
+/**
+ * Constants used in access control scenarios
+ */
+export declare const AccessConstants: {
+    GROUPS: string;
+    ROLES: string;
+    CLAIM_NAMES: string;
+    CLAIM_SOURCES: string;
 };
 /**
  * For more information, visit: https://login.microsoftonline.com/error

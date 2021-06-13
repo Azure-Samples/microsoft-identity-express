@@ -1,7 +1,6 @@
 import { RequestHandler, Router } from "express";
 import { ConfidentialClientApplication, Configuration, ICachePlugin, CryptoProvider } from "@azure/msal-node";
 import { TokenValidator } from "./TokenValidator";
-import { UrlUtils } from "./UrlUtils";
 import { AppSettings, InitializationOptions, TokenOptions, GuardOptions } from "./Types";
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
@@ -17,7 +16,6 @@ import { AppSettings, InitializationOptions, TokenOptions, GuardOptions } from "
  * req.session.remoteResources.{resourceName}.accessToken: string
  */
 export declare class AuthProvider {
-    urlUtils: UrlUtils;
     appSettings: AppSettings;
     msalConfig: Configuration;
     cryptoProvider: CryptoProvider;
@@ -67,7 +65,7 @@ export declare class AuthProvider {
      */
     getToken: (options: TokenOptions) => RequestHandler;
     /**
-     * Middleware that gets tokens via OBO flow
+     * Middleware that gets tokens via OBO flow. Used in api scenarios
      * @param {TokenOptions} options: express request object
      * @returns {RequestHandler}
      */
@@ -86,7 +84,7 @@ export declare class AuthProvider {
      */
     isAuthorized: (options?: GuardOptions) => RequestHandler;
     /**
-     * Checks if the user has access for this route, defined in appSettings
+     * Checks if the user has access for this route, defined in access matrix
      * @param {GuardOptions} options: express request object
      * @returns {RequestHandler}
      */
@@ -95,11 +93,18 @@ export declare class AuthProvider {
      * This method is used to generate an auth code request
      * @param {Request} req: express request object
      * @param {Response} res: express response object
-     * @param {NextFunction} next: express next function
      * @param {AuthCodeParams} params: modifies auth code request url
      * @returns {Promise}
      */
     private getAuthCode;
+    /**
+     *
+     * @param {Request} req: express request object
+     * @param {Response} res: express response object
+     * @returns
+     */
+    private handleOverage;
+    private applyAccessRule;
     /**
      * Util method to get the resource name for a given scope(s)
      * @param {Array} scopes: /path string that the resource is associated with

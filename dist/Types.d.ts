@@ -33,8 +33,7 @@ export declare type TokenOptions = {
     skipCache?: boolean;
 };
 export declare type GuardOptions = {
-    error: string;
-    unauthorized: string;
+    accessRule: AccessRule;
 };
 export declare type ValidationOptions = {
     audience: string;
@@ -99,7 +98,8 @@ export declare type Resource = {
 export declare type AccessRule = {
     path: string;
     methods: string[];
-    roles: string[];
+    roles?: string[];
+    groups?: string[];
 };
 export declare type UserInfo = {
     businessPhones?: Array<string>;

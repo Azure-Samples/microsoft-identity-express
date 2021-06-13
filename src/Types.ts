@@ -35,20 +35,19 @@ export type AuthCodeParams = {
 };
 
 export type InitializationOptions = {
-    useSession?: boolean,
-    saveCacheToDisk?: boolean,
+    useSession?: boolean;
+    saveCacheToDisk?: boolean;
     customState?: Object;
 };
 
 export type TokenOptions = {
     resource: Resource;
     claims?: string;
-    skipCache?: boolean
+    skipCache?: boolean;
 };
 
 export type GuardOptions = {
-    error: string;
-    unauthorized: string;
+    accessRule: AccessRule
 };
 
 export type ValidationOptions = {
@@ -121,9 +120,10 @@ export type Resource = {
 };
 
 export type AccessRule = {
-    path: string,
-    methods: string[],
-    roles: string[]
+    path: string;
+    methods: string[];
+    roles?: string[];
+    groups?: string[];
 };
 
 export type UserInfo = {

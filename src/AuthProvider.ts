@@ -32,16 +32,19 @@ import {
     Resource,
     AppSettings,
     AuthCodeParams,
-    AccessRule,
     InitializationOptions,
     TokenOptions,
-    GuardOptions
+    GuardOptions,
+    AccessRule
 } from "./Types";
 
 import {
     AppStages,
-    ErrorMessages
+    ErrorMessages,
+    AccessConstants
 } from "./Constants";
+
+import { FetchManager } from "./FetchManager";
 
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
@@ -57,7 +60,6 @@ import {
  * req.session.remoteResources.{resourceName}.accessToken: string
  */
 export class AuthProvider {
-    urlUtils: UrlUtils;
     appSettings: AppSettings;
     msalConfig: Configuration;
     cryptoProvider: CryptoProvider;
@@ -78,7 +80,6 @@ export class AuthProvider {
 
         this.tokenValidator = new TokenValidator(this.appSettings, this.msalConfig);
         this.cryptoProvider = new CryptoProvider();
-        this.urlUtils = new UrlUtils();
     }
 
     /**
@@ -158,12 +159,12 @@ export class AuthProvider {
             authority: this.msalConfig.auth.authority,
             scopes: OIDC_DEFAULT_SCOPES,
             state: state,
-            redirect: this.urlUtils.ensureAbsoluteUrl(req, this.appSettings.authRoutes.redirect),
+            redirect: UrlUtils.ensureAbsoluteUrl(req, this.appSettings.authRoutes.redirect),
             prompt: PromptValue.SELECT_ACCOUNT,
         };
 
         // get url to sign user in
-        this.getAuthCode(req, res, next, params);
+        this.getAuthCode(req, res, params);
     };
 
     /**
@@ -174,7 +175,7 @@ export class AuthProvider {
      * @returns {void}
      */
     signOut: RequestHandler = (req: Request, res: Response, next: NextFunction): void => {
-        const postLogoutRedirectUri = this.urlUtils.ensureAbsoluteUrl(req, this.appSettings.authRoutes.postLogout);
+        const postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, this.appSettings.authRoutes.postLogout);
 
         /**
          * Construct a logout URI and redirect the user to end the
@@ -334,12 +335,12 @@ export class AuthProvider {
                         authority: this.msalConfig.auth.authority,
                         scopes: scopes,
                         state: state,
-                        redirect: this.urlUtils.ensureAbsoluteUrl(req, this.appSettings.authRoutes.redirect),
+                        redirect: UrlUtils.ensureAbsoluteUrl(req, this.appSettings.authRoutes.redirect),
                         account: req.session.account,
                     };
 
                     // initiate the first leg of auth code grant to get token
-                    this.getAuthCode(req, res, next, params);
+                    this.getAuthCode(req, res, params);
                 } else {
                     next(error);
                 }
@@ -348,7 +349,7 @@ export class AuthProvider {
     };
 
     /**
-     * Middleware that gets tokens via OBO flow
+     * Middleware that gets tokens via OBO flow. Used in api scenarios
      * @param {TokenOptions} options: express request object
      * @returns {RequestHandler}
      */
@@ -400,7 +401,7 @@ export class AuthProvider {
                 next();
             } else {
                 console.log(ErrorMessages.SESSION_NOT_FOUND);
-                res.redirect(this.appSettings.authRoutes.error);
+                res.redirect(this.appSettings.authRoutes.unauthorized);
             }
         }
     };
@@ -424,48 +425,63 @@ export class AuthProvider {
                 next();
             } else {
                 console.log(ErrorMessages.TOKEN_NOT_FOUND);
-                res.redirect(this.appSettings.authRoutes.error);
+                res.redirect(this.appSettings.authRoutes.unauthorized);
             }
         }
     };
 
     /**
-     * Checks if the user has access for this route, defined in appSettings
+     * Checks if the user has access for this route, defined in access matrix
      * @param {GuardOptions} options: express request object
      * @returns {RequestHandler}
      */
     hasAccess = (options?: GuardOptions): RequestHandler => {
-        return (req: Request, res: Response, next: NextFunction): void | Response => {
+        return async (req: Request, res: Response, next: NextFunction): Promise<any> => {
             if (req.session && this.appSettings.accessMatrix) {
 
-                if (req.session.account.idTokenClaims["roles"] === undefined) {
-                    console.log(ErrorMessages.USER_HAS_NO_ROLE);
-                    return res.redirect(this.appSettings.authRoutes.unauthorized);
-                } else {
-                    const roles = req.session.account.idTokenClaims["roles"];
+                const checkFor = options.accessRule.hasOwnProperty(AccessConstants.GROUPS) ? AccessConstants.GROUPS : AccessConstants.ROLES;
 
-                    const rule = Object.values(this.appSettings.accessMatrix)
-                        .filter((rule: AccessRule) => rule.path === req.path);
+                switch (checkFor) {
+                    case AccessConstants.GROUPS:
 
-                    if (rule.length < 1) {
-                        console.log(ErrorMessages.RULE_NOT_FOUND);
-                        return res.redirect(this.appSettings.authRoutes.unauthorized);
-                    } else {
-                        if (rule[0].methods.includes(req.method)) {
-                            let intersection = rule[0].roles.filter(role => roles.includes(role));
-
-                            if (intersection.length < 1) {
-                                console.log(ErrorMessages.USER_NOT_IN_ROLE);
+                        if (req.session.account.idTokenClaims[AccessConstants.GROUPS] === undefined) {
+                            if (req.session.account.idTokenClaims[AccessConstants.CLAIM_NAMES] || req.session.account.idTokenClaims[AccessConstants.CLAIM_SOURCES]) {
+                                return await this.handleOverage(req, res, next, options.accessRule);
+                            } else {
+                                console.log(ErrorMessages.USER_HAS_NO_GROUP);
                                 return res.redirect(this.appSettings.authRoutes.unauthorized);
                             }
                         } else {
-                            console.log(ErrorMessages.METHOD_NOT_ALLOWED);
-                            return res.redirect(this.appSettings.authRoutes.unauthorized);
-                        }
-                    }
-                }
+                            const groups = req.session.account.idTokenClaims[AccessConstants.GROUPS];
 
-                next();
+                            if (!this.applyAccessRule(req.method, options.accessRule, groups, true)) {
+                                return res.redirect(this.appSettings.authRoutes.unauthorized);
+                            }
+                        }
+
+                        next();
+
+                        break;
+
+                    case AccessConstants.ROLES:
+                        if (req.session.account.idTokenClaims[AccessConstants.ROLES] === undefined) {
+                            console.log(ErrorMessages.USER_HAS_NO_ROLE);
+                            return res.redirect(this.appSettings.authRoutes.unauthorized);
+                        } else {
+                            const roles = req.session.account.idTokenClaims[AccessConstants.ROLES];
+
+                            if (this.applyAccessRule(req.method, options.accessRule, roles, false)) {
+                                return res.redirect(this.appSettings.authRoutes.unauthorized);
+                            }
+                        }
+
+                        next();
+
+                        break;
+
+                    default:
+                        break;
+                }
             } else {
                 res.redirect(this.appSettings.authRoutes.unauthorized);
             }
@@ -478,11 +494,10 @@ export class AuthProvider {
      * This method is used to generate an auth code request
      * @param {Request} req: express request object
      * @param {Response} res: express response object
-     * @param {NextFunction} next: express next function
      * @param {AuthCodeParams} params: modifies auth code request url
      * @returns {Promise}
      */
-    private async getAuthCode(req: Request, res: Response, next: NextFunction, params: AuthCodeParams): Promise<void> {
+    private async getAuthCode(req: Request, res: Response, params: AuthCodeParams): Promise<void> {
         // prepare the request
         req.session.authCodeRequest.authority = params.authority;
         req.session.authCodeRequest.scopes = params.scopes;
@@ -502,9 +517,92 @@ export class AuthProvider {
         } catch (error) {
             console.log(ErrorMessages.AUTH_CODE_NOT_OBTAINED);
             console.log(error);
-            next(error);
         }
     };
+
+    /**
+     * 
+     * @param {Request} req: express request object
+     * @param {Response} res: express response object
+     * @returns 
+     */
+    private async handleOverage(req: Request, res: Response, next: NextFunction, rule: AccessRule) {
+        const { _claim_names, _claim_sources, ...newIdTokenClaims } = <any>req.session.account.idTokenClaims;
+
+        const silentRequest: SilentFlowRequest = {
+            account: req.session.account,
+            scopes: ["User.Read", "GroupMember.Read.All"],
+        };
+
+        try {
+            // acquire token silently to be used in resource call
+            const tokenResponse = await this.msalClient.acquireTokenSilent(silentRequest);
+            try {
+                const graphResponse = await FetchManager.callApiEndpoint("https://graph.microsoft.com/v1.0/me/memberOf", tokenResponse.accessToken);
+
+                /**
+                 * Some queries against Microsoft Graph return multiple pages of data either due to server-side paging 
+                 * or due to the use of the $top query parameter to specifically limit the page size in a request. 
+                 * When a result set spans multiple pages, Microsoft Graph returns an @odata.nextLink property in 
+                 * the response that contains a URL to the next page of results. Learn more at https://docs.microsoft.com/graph/paging
+                 */
+                if (graphResponse["@odata.nextLink"]) {
+                    try {
+                        const userGroups = await FetchManager.handlePagination(tokenResponse.accessToken, graphResponse["@odata.nextLink"]);
+
+                        req.session.account.idTokenClaims = {
+                            ...newIdTokenClaims,
+                            groups: userGroups
+                        }
+
+                        if (!this.applyAccessRule(req.method, rule, req.session.account.idTokenClaims["groups"], true)) {
+                            return res.redirect(this.appSettings.authRoutes.unauthorized);
+                        }
+                    } catch (error) {
+                        console.log(error);
+                    }
+                } else {
+                    req.session.account.idTokenClaims = {
+                        ...newIdTokenClaims,
+                        groups: graphResponse["value"].map((v) => v.id)
+                    }
+
+                    if (!this.applyAccessRule(req.method, rule, req.session.account.idTokenClaims["groups"], true)) {
+                        return res.redirect(this.appSettings.authRoutes.unauthorized);
+                    }
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    private applyAccessRule(method: string, rule: AccessRule, creds: string[], isGroups: boolean): boolean {
+        if (rule.methods.includes(method)) {
+            if (isGroups) {
+                let intersection = rule.groups.filter(elem => creds.includes(elem));
+
+                if (intersection.length < 1) {
+                    console.log(ErrorMessages.USER_NOT_IN_GROUP);
+                    return false;
+                }
+            } else {
+                let intersection = rule.roles.filter(elem => creds.includes(elem));
+
+                if (intersection.length < 1) {
+                    console.log(ErrorMessages.USER_NOT_IN_ROLE);
+                    return false;
+                }
+            }
+        } else {
+            console.log(ErrorMessages.METHOD_NOT_ALLOWED);
+            return false;
+        }
+
+        return true;
+    }
 
     /**
      * Util method to get the resource name for a given scope(s)
@@ -514,7 +612,7 @@ export class AuthProvider {
     private getResourceNameFromScopes(scopes: string[]): string {
         const index = Object.values({ ...this.appSettings.remoteResources, ...this.appSettings.ownedResources })
             .findIndex((resource: Resource) => JSON.stringify(resource.scopes) === JSON.stringify(scopes));
-            
+
         const resourceName = Object.keys({ ...this.appSettings.remoteResources, ...this.appSettings.ownedResources })[index];
         return resourceName;
     };
