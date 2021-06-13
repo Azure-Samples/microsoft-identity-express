@@ -1,5 +1,6 @@
+import express from 'express';
 import { Constants, UrlString, StringUtils, OIDC_DEFAULT_SCOPES, PromptValue, InteractionRequiredAuthError } from '@azure/msal-common';
-import { LogLevel, CryptoProvider, ConfidentialClientApplication } from '@azure/msal-node';
+import { LogLevel, ConfidentialClientApplication, CryptoProvider } from '@azure/msal-node';
 import jwt from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
 
@@ -804,28 +805,16 @@ var ConfigurationUtils = function ConfigurationUtils() {};
  */
 
 ConfigurationUtils.validateAppSettings = function (config) {
-  if (!config.credentials.clientId || config.credentials.clientId === 'Enter_the_Application_Id_Here') {
-    throw new Error('No clientId provided!');
+  if (!config.credentials.clientId || config.credentials.clientId === "Enter_the_Application_Id_Here") {
+    throw new Error("No clientId provided!");
   }
 
-  if (!config.credentials.tenantId || config.credentials.tenantId === 'Enter_the_Tenant_Info_Here') {
-    throw new Error('No tenantId provided!');
+  if (!config.credentials.tenantId || config.credentials.tenantId === "Enter_the_Tenant_Info_Here") {
+    throw new Error("No tenantId provided!");
   }
 
-  if (!config.credentials.clientSecret || config.credentials.clientSecret === 'Enter_the_Client_Secret_Here') {
-    throw new Error('No clientSecret provided!');
-  }
-
-  if (!config.settings.redirectUri || config.settings.redirectUri === 'Enter_the_Redirect_Uri_Here') {
-    throw new Error('No postLogoutRedirectUri provided!');
-  }
-
-  if (!config.settings.postLogoutRedirectUri || config.settings.postLogoutRedirectUri === 'Enter_the_Post_Logout_Redirect_Uri_Here') {
-    throw new Error('No postLogoutRedirectUri provided!');
-  }
-
-  if (!config.settings.homePageRoute || config.settings.homePageRoute === 'Enter_the_Home_Page_Route_Here') {
-    throw new Error('No homePageRoute provided!');
+  if (!config.credentials.clientSecret || config.credentials.clientSecret === "Enter_the_Client_Secret_Here") {
+    throw new Error("No clientSecret provided!");
   }
 };
 /**
@@ -844,9 +833,9 @@ ConfigurationUtils.getMsalConfiguration = function (config, cachePlugin) {
   return {
     auth: {
       clientId: config.credentials.clientId,
-      authority: config.policies ? Object.entries(config.policies)[0][1]['authority'] : "https://" + Constants.DEFAULT_AUTHORITY_HOST + "/" + config.credentials.tenantId,
+      authority: config.policies ? Object.entries(config.policies)[0][1]["authority"] : "https://" + Constants.DEFAULT_AUTHORITY_HOST + "/" + config.credentials.tenantId,
       clientSecret: config.credentials.clientSecret,
-      knownAuthorities: config.policies ? [UrlString.getDomainFromUrl(Object.entries(config.policies)[0][1]['authority'])] : []
+      knownAuthorities: config.policies ? [UrlString.getDomainFromUrl(Object.entries(config.policies)[0][1]["authority"])] : []
     },
     cache: {
       cachePlugin: cachePlugin
@@ -873,31 +862,31 @@ ConfigurationUtils.getMsalConfiguration = function (config, cachePlugin) {
  * appropriate action after redirect occurs
  */
 var AppStages = {
-  SIGN_IN: 'sign_in',
-  SIGN_OUT: 'sign_out',
-  ACQUIRE_TOKEN: 'acquire_token'
+  SIGN_IN: "sign_in",
+  SIGN_OUT: "sign_out",
+  ACQUIRE_TOKEN: "acquire_token"
 };
 /**
  * Various error constants
  */
 
 var ErrorMessages = {
-  NOT_PERMITTED: 'Not permitted',
-  INVALID_TOKEN: 'Invalid token',
-  CANNOT_DETERMINE_APP_STAGE: 'Cannot determine application stage',
-  NONCE_MISMATCH: 'Nonce does not match',
-  INTERACTION_REQUIRED: 'interaction_required',
-  TOKEN_ACQUISITION_FAILED: 'Token acquisition failed',
-  AUTH_CODE_NOT_OBTAINED: 'Authorization code cannot be obtained',
-  TOKEN_NOT_FOUND: 'No token found',
-  TOKEN_NOT_DECODED: 'Token cannot be decoded',
-  TOKEN_NOT_VERIFIED: 'Token cannot be verified',
-  KEYS_NOT_OBTAINED: 'Signing keys cannot be obtained',
-  STATE_NOT_FOUND: 'State not found',
-  USER_HAS_NO_ROLE: 'User does not have any roles',
-  USER_NOT_IN_ROLE: 'User does not have this role',
-  METHOD_NOT_ALLOWED: 'Method not allowed for this route',
-  RULE_NOT_FOUND: 'No rule found for this route'
+  NOT_PERMITTED: "Not permitted",
+  INVALID_TOKEN: "Invalid token",
+  CANNOT_DETERMINE_APP_STAGE: "Cannot determine application stage",
+  NONCE_MISMATCH: "Nonce does not match",
+  INTERACTION_REQUIRED: "interaction_required",
+  TOKEN_ACQUISITION_FAILED: "Token acquisition failed",
+  AUTH_CODE_NOT_OBTAINED: "Authorization code cannot be obtained",
+  TOKEN_NOT_FOUND: "No token found",
+  TOKEN_NOT_DECODED: "Token cannot be decoded",
+  TOKEN_NOT_VERIFIED: "Token cannot be verified",
+  KEYS_NOT_OBTAINED: "Signing keys cannot be obtained",
+  STATE_NOT_FOUND: "State not found",
+  USER_HAS_NO_ROLE: "User does not have any roles",
+  USER_NOT_IN_ROLE: "User does not have this role",
+  METHOD_NOT_ALLOWED: "Method not allowed for this route",
+  RULE_NOT_FOUND: "No rule found for this route"
 };
 
 var TokenValidator = function TokenValidator(appSettings, msalConfig) {
@@ -955,11 +944,11 @@ var TokenValidator = function TokenValidator(appSettings, msalConfig) {
               verifiedToken = jwt.verify(authToken, keys);
               /**
                * if a multiplexer was used in place of tenantId i.e. if the app
-               * is multi-tenant, the tenantId should be obtained from the user's
-               * token's tid claim for verification purposes
+               * is multi-tenant, the tenantId should be obtained from the user"s
+               * token"s tid claim for verification purposes
                */
 
-              if (_this.appSettings.credentials.tenantId === 'common' || _this.appSettings.credentials.tenantId === 'organizations' || _this.appSettings.credentials.tenantId === 'consumers') {
+              if (_this.appSettings.credentials.tenantId === "common" || _this.appSettings.credentials.tenantId === "organizations" || _this.appSettings.credentials.tenantId === "consumers") {
                 _this.appSettings.credentials.tenantId = decodedToken.payload.tid;
               }
 
@@ -1051,9 +1040,9 @@ var TokenValidator = function TokenValidator(appSettings, msalConfig) {
      * https://docs.microsoft.com/azure/active-directory/develop/id-tokens#validating-an-id_token
      */
 
-    var checkIssuer = idTokenClaims['iss'].includes(_this.appSettings.credentials.tenantId) ? true : false;
-    var checkAudience = idTokenClaims['aud'] === _this.msalConfig.auth.clientId ? true : false;
-    var checkTimestamp = idTokenClaims['iat'] <= now && idTokenClaims['exp'] >= now ? true : false;
+    var checkIssuer = idTokenClaims["iss"].includes(_this.appSettings.credentials.tenantId) ? true : false;
+    var checkAudience = idTokenClaims["aud"] === _this.msalConfig.auth.clientId ? true : false;
+    var checkTimestamp = idTokenClaims["iat"] <= now && idTokenClaims["exp"] >= now ? true : false;
     return checkIssuer && checkAudience && checkTimestamp;
   };
   /**
@@ -1125,16 +1114,14 @@ var TokenValidator = function TokenValidator(appSettings, msalConfig) {
      * https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validating-tokens
      */
 
-    var checkIssuer = verifiedToken['iss'].includes(_this.appSettings.credentials.tenantId) ? true : false;
-    var checkTimestamp = verifiedToken['iat'] <= now && verifiedToken['exp'] >= now ? true : false;
-    var checkAudience = verifiedToken['aud'] === _this.appSettings.credentials.clientId || verifiedToken['aud'] === 'api://' + _this.appSettings.credentials.clientId ? true : false;
-
-    var checkScopes = _this.appSettings["protected"].find(function (item) {
-      return item.route === protectedRoute;
+    var checkIssuer = verifiedToken["iss"].includes(_this.appSettings.credentials.tenantId) ? true : false;
+    var checkTimestamp = verifiedToken["iat"] <= now && verifiedToken["exp"] >= now ? true : false;
+    var checkAudience = verifiedToken["aud"] === _this.appSettings.credentials.clientId || verifiedToken["aud"] === "api://" + _this.appSettings.credentials.clientId ? true : false;
+    var checkScopes = Object.values(_this.appSettings.services).find(function (service) {
+      return service.endpoint === protectedRoute;
     }).scopes.every(function (scp) {
-      return verifiedToken['scp'].includes(scp);
+      return verifiedToken["scp"].includes(scp);
     });
-
     return checkAudience && checkIssuer && checkTimestamp && checkScopes;
   };
   /**
@@ -1194,10 +1181,10 @@ var UrlUtils = function UrlUtils() {
 
     if (!urlComponents.Protocol) {
       if (!urlComponents.HostNameAndPort) {
-        return req.protocol + '://' + req.get('host') + uri;
+        return req.protocol + "://" + req.get("host") + uri;
       }
 
-      return req.protocol + '://' + uri;
+      return req.protocol + "://" + uri;
     } else {
       return uri;
     }
@@ -1221,13 +1208,21 @@ var UrlUtils = function UrlUtils() {
 
 var AuthProvider =
 /**
- * @param {JSON} appSettings
+ * @param {AppSettings} appSettings
  * @param {ICachePlugin} cache: cachePlugin
  */
 function AuthProvider(appSettings, cache) {
   var _this = this;
 
-  // ========== MIDDLEWARE ===========
+  this.initialize = function (options) {
+    // TODO: takex in login routes
+    var appRouter = express.Router(); // authentication routes
+
+    appRouter.get('/signin', _this.signIn);
+    appRouter.get('/signout', _this.signOut);
+    appRouter.get('/redirect', _this.handleRedirect);
+    return appRouter;
+  }; // ========== HANDLERS ===========
 
   /**
    * Initiate sign in flow
@@ -1235,37 +1230,39 @@ function AuthProvider(appSettings, cache) {
    * @param {Response} res: express response object
    * @param {NextFunction} next: express next function
    */
+
+
   this.signIn = function (req, res, next) {
     /**
      * Request Configuration
      * We manipulate these three request objects below
      * to acquire a token with the appropriate claims
      */
-    if (!req.session['authCodeRequest']) {
+    if (!req.session["authCodeRequest"]) {
       req.session.authCodeRequest = {
-        authority: '',
+        authority: "",
         scopes: [],
         state: {},
-        redirectUri: ''
+        redirectUri: ""
       };
     }
 
-    if (!req.session['tokenRequest']) {
+    if (!req.session["tokenRequest"]) {
       req.session.tokenRequest = {
-        authority: '',
+        authority: "",
         scopes: [],
-        redirectUri: '',
-        code: ''
+        redirectUri: "",
+        code: ""
       };
-    } // signed-in user's account
+    } // signed-in user"s account
 
 
-    if (!req.session['account']) {
+    if (!req.session["account"]) {
       req.session.account = {
-        homeAccountId: '',
-        environment: '',
-        tenantId: '',
-        username: '',
+        homeAccountId: "",
+        environment: "",
+        tenantId: "",
+        username: "",
         idTokenClaims: {}
       };
     } // random GUID for csrf protection
@@ -1359,7 +1356,7 @@ function AuthProvider(appSettings, cache) {
 
             case 10:
               tokenResponse = _context.sent;
-              console.log('\nResponse: \n:', tokenResponse);
+              console.log("\nResponse: \n:", tokenResponse);
               _context.prev = 12;
               _context.next = 15;
               return _this.tokenValidator.validateIdToken(tokenResponse.idToken);
@@ -1413,7 +1410,7 @@ function AuthProvider(appSettings, cache) {
 
             case 35:
               _tokenResponse = _context.sent;
-              console.log('\nResponse: \n:', _tokenResponse);
+              console.log("\nResponse: \n:", _tokenResponse);
               req.session.resources[resourceName].accessToken = _tokenResponse.accessToken;
               res.status(200).redirect(state.path);
               _context.next = 45;
@@ -1458,226 +1455,301 @@ function AuthProvider(appSettings, cache) {
     return function (_x, _x2, _x3) {
       return _ref.apply(this, arguments);
     };
-  }();
+  }(); // ========== MIDDLEWARE ===========
+
   /**
-   * Middleware that gets tokens and calls web APIs
-   * @param {Object} req: express request object
-   * @param {Object} res: express response object
-   * @param {Function} next: express next
+   * Middleware that gets tokens via acquireToken*
+   * @param {Request} req: express request object
+   * @param {Response} res: express response object
+   * @param {NextFunction} next: express next
    */
 
 
-  this.getToken = /*#__PURE__*/function () {
-    var _ref2 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(req, res, next) {
-      var scopes, resourceName, silentRequest, tokenResponse, state, params;
-      return runtime_1.wrap(function _callee2$(_context2) {
-        while (1) {
-          switch (_context2.prev = _context2.next) {
-            case 0:
-              // get scopes for token request
-              scopes = Object.values(_this.appSettings.resources).find(function (resource) {
-                return resource.callingPageRoute === req.route.path;
-              }).scopes;
-              resourceName = _this.getResourceName(req.route.path);
+  this.getToken = function (options) {
+    return /*#__PURE__*/function () {
+      var _ref2 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(req, res, next) {
+        var scopes, resourceName, silentRequest, tokenResponse, state, params;
+        return runtime_1.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                // get scopes for token request
+                scopes = Object.values(_this.appSettings.resources).find(function (resource) {
+                  return resource.callingPageRoute === req.route.path;
+                }).scopes;
+                resourceName = _this.getResourceName(req.route.path);
 
-              if (!req.session[resourceName]) {
-                req.session[resourceName] = {
-                  accessToken: ''
-                };
-              }
+                if (!req.session[resourceName]) {
+                  req.session[resourceName] = {
+                    accessToken: ""
+                  };
+                }
 
-              _context2.prev = 3;
-              silentRequest = {
-                account: req.session.account,
-                scopes: scopes
-              }; // acquire token silently to be used in resource call
+                _context2.prev = 3;
+                silentRequest = {
+                  account: req.session.account,
+                  scopes: scopes
+                }; // acquire token silently to be used in resource call
 
-              _context2.next = 7;
-              return _this.msalClient.acquireTokenSilent(silentRequest);
+                _context2.next = 7;
+                return _this.msalClient.acquireTokenSilent(silentRequest);
 
-            case 7:
-              tokenResponse = _context2.sent;
-              console.log('\nSuccessful silent token acquisition:\n Response: \n:', tokenResponse); // In B2C scenarios, sometimes an access token is returned empty.
-              // In that case, we will acquire token interactively instead.
+              case 7:
+                tokenResponse = _context2.sent;
+                console.log("\nSuccessful silent token acquisition:\n Response: \n:", tokenResponse); // In B2C scenarios, sometimes an access token is returned empty.
+                // In that case, we will acquire token interactively instead.
 
-              if (!StringUtils.isEmpty(tokenResponse.accessToken)) {
-                _context2.next = 12;
+                if (!StringUtils.isEmpty(tokenResponse.accessToken)) {
+                  _context2.next = 12;
+                  break;
+                }
+
+                console.log(ErrorMessages.TOKEN_NOT_FOUND);
+                throw new InteractionRequiredAuthError(ErrorMessages.INTERACTION_REQUIRED);
+
+              case 12:
+                req.session[resourceName].accessToken = tokenResponse.accessToken;
+                next();
+                _context2.next = 19;
                 break;
-              }
 
-              console.log(ErrorMessages.TOKEN_NOT_FOUND);
-              throw new InteractionRequiredAuthError(ErrorMessages.INTERACTION_REQUIRED);
+              case 16:
+                _context2.prev = 16;
+                _context2.t0 = _context2["catch"](3);
 
-            case 12:
-              req.session[resourceName].accessToken = tokenResponse.accessToken;
-              next();
-              _context2.next = 19;
-              break;
+                // in case there are no cached tokens, initiate an interactive call
+                if (_context2.t0 instanceof InteractionRequiredAuthError) {
+                  state = _this.cryptoProvider.base64Encode(JSON.stringify({
+                    stage: AppStages.ACQUIRE_TOKEN,
+                    path: req.route.path,
+                    nonce: req.session.nonce
+                  }));
+                  params = {
+                    authority: _this.msalConfig.auth.authority,
+                    scopes: scopes,
+                    state: state,
+                    redirect: _this.appSettings.settings.redirectUri,
+                    account: req.session.account
+                  }; // initiate the first leg of auth code grant to get token
 
-            case 16:
-              _context2.prev = 16;
-              _context2.t0 = _context2["catch"](3);
+                  _this.getAuthCode(req, res, next, params);
+                }
 
-              // in case there are no cached tokens, initiate an interactive call
-              if (_context2.t0 instanceof InteractionRequiredAuthError) {
-                state = _this.cryptoProvider.base64Encode(JSON.stringify({
-                  stage: AppStages.ACQUIRE_TOKEN,
-                  path: req.route.path,
-                  nonce: req.session.nonce
-                }));
-                params = {
-                  authority: _this.msalConfig.auth.authority,
-                  scopes: scopes,
-                  state: state,
-                  redirect: _this.appSettings.settings.redirectUri,
-                  account: req.session.account
-                }; // initiate the first leg of auth code grant to get token
-
-                _this.getAuthCode(req, res, next, params);
-              }
-
-            case 19:
-            case "end":
-              return _context2.stop();
+              case 19:
+              case "end":
+                return _context2.stop();
+            }
           }
-        }
-      }, _callee2, null, [[3, 16]]);
-    }));
+        }, _callee2, null, [[3, 16]]);
+      }));
 
-    return function (_x4, _x5, _x6) {
-      return _ref2.apply(this, arguments);
-    };
-  }(); // ============== GUARD ===============
+      return function (_x4, _x5, _x6) {
+        return _ref2.apply(this, arguments);
+      };
+    }();
+  };
+  /**
+   * Middleware that gets tokens via OBO flow
+   * @param {Request} req: express request object
+   * @param {Response} res: express response object
+   * @param {NextFunction} next: express next
+   */
+
+
+  this.getTokenOnBehalf = function (options) {
+    return /*#__PURE__*/function () {
+      var _ref3 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee3(req, res, next) {
+        var authHeader, scopes, oboRequest, serviceName, tokenResponse;
+        return runtime_1.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                authHeader = req.headers.authorization; // get scopes for token request
+
+                scopes = Object.values(_this.appSettings.resources).find(function (resource) {
+                  return resource.callingPageRoute === req.route.path;
+                }).scopes;
+                oboRequest = {
+                  oboAssertion: authHeader.split(" ")[1],
+                  scopes: scopes
+                }; // get the resource name for attaching resource response to req
+
+                serviceName = _this.getServiceName(req.route.path);
+                _context3.prev = 4;
+                _context3.next = 7;
+                return _this.msalClient.acquireTokenOnBehalfOf(oboRequest);
+
+              case 7:
+                tokenResponse = _context3.sent;
+
+                if (req.session) {
+                  req.session[serviceName]["accessToken"] = tokenResponse.accessToken;
+                } else {
+                  req["locals"] = {
+                    serviceName: {
+                      "accessToken": tokenResponse.accessToken
+                    }
+                  };
+                }
+
+                next();
+                _context3.next = 15;
+                break;
+
+              case 12:
+                _context3.prev = 12;
+                _context3.t0 = _context3["catch"](4);
+                console.log(_context3.t0);
+
+              case 15:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3, null, [[4, 12]]);
+      }));
+
+      return function (_x7, _x8, _x9) {
+        return _ref3.apply(this, arguments);
+      };
+    }();
+  }; // ============== GUARDS ===============
 
   /**
    * Check if authenticated in session
-   * @param {Object} req: express request object
-   * @param {Object} res: express response object
-   * @param {Function} next: express next
+   * @param {Request} req: express request object
+   * @param {Response} res: express response object
+   * @param {NextFunction} next: express next
    */
 
 
-  this.isAuthenticated = function (req, res, next) {
-    if (req.session) {
-      if (!req.session.isAuthenticated) {
-        return res.status(401).send(ErrorMessages.NOT_PERMITTED);
-      }
+  this.isAuthenticated = function (options) {
+    return function (req, res, next) {
+      if (req.session) {
+        if (!req.session.isAuthenticated) {
+          return res.status(403).send(ErrorMessages.NOT_PERMITTED);
+        }
 
-      next();
-    } else {
-      res.status(401).send(ErrorMessages.NOT_PERMITTED);
-    }
+        next();
+      } else {
+        res.status(401).send(ErrorMessages.NOT_PERMITTED);
+      }
+    };
   };
   /**
    * Receives access token in req authorization header
    * and validates it using the jwt.verify
-   * @param {Object} req: express request object
-   * @param {Object} res: express response object
-   * @param {Function} next: express next
+   * @param {Request} req: express request object
+   * @param {Response} res: express response object
+   * @param {NextFunction} next: express next
    */
 
 
-  this.isAuthorized = /*#__PURE__*/function () {
-    var _ref3 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee3(req, res, next) {
-      var accessToken;
-      return runtime_1.wrap(function _callee3$(_context3) {
-        while (1) {
-          switch (_context3.prev = _context3.next) {
-            case 0:
-              accessToken = req.headers.authorization.split(' ')[1];
+  this.isAuthorized = function (options) {
+    return /*#__PURE__*/function () {
+      var _ref4 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee4(req, res, next) {
+        var accessToken;
+        return runtime_1.wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                accessToken = req.headers.authorization.split(" ")[1];
 
-              if (!req.headers.authorization) {
-                _context3.next = 9;
+                if (!req.headers.authorization) {
+                  _context4.next = 9;
+                  break;
+                }
+
+                _context4.next = 4;
+                return _this.tokenValidator.validateAccessToken(accessToken, req.route.path);
+
+              case 4:
+                if (_context4.sent) {
+                  _context4.next = 6;
+                  break;
+                }
+
+                return _context4.abrupt("return", res.status(401).send(ErrorMessages.NOT_PERMITTED));
+
+              case 6:
+                next();
+                _context4.next = 10;
                 break;
-              }
 
-              _context3.next = 4;
-              return _this.tokenValidator.validateAccessToken(accessToken, req.route.path);
+              case 9:
+                res.status(401).send(ErrorMessages.NOT_PERMITTED);
 
-            case 4:
-              if (_context3.sent) {
-                _context3.next = 6;
-                break;
-              }
-
-              return _context3.abrupt("return", res.status(401).send(ErrorMessages.NOT_PERMITTED));
-
-            case 6:
-              next();
-              _context3.next = 10;
-              break;
-
-            case 9:
-              res.status(401).send(ErrorMessages.NOT_PERMITTED);
-
-            case 10:
-            case "end":
-              return _context3.stop();
+              case 10:
+              case "end":
+                return _context4.stop();
+            }
           }
-        }
-      }, _callee3);
-    }));
+        }, _callee4);
+      }));
 
-    return function (_x7, _x8, _x9) {
-      return _ref3.apply(this, arguments);
-    };
-  }();
+      return function (_x10, _x11, _x12) {
+        return _ref4.apply(this, arguments);
+      };
+    }();
+  };
   /**
    * Checks if the user has access for this route, defined in appSettings
-   * @param {Object} req: express request object
-   * @param {Object} res: express response object
-   * @param {Function} next: express next
+   * @param {Request} req: express request object
+   * @param {Response} res: express response object
+   * @param {NextFunction} next: express next
    */
 
 
-  this.hasAccess = function (req, res, next) {
-    if (req.session && _this.appSettings.accessMatrix) {
-      if (req.session.account.idTokenClaims['roles'] === undefined) {
-        return res.status(403).send(ErrorMessages.USER_HAS_NO_ROLE);
-      } else {
-        var roles = req.session.account.idTokenClaims['roles'];
-        var rule = Object.values(_this.appSettings.accessMatrix).filter(function (rule) {
-          return rule.path === req.path;
-        });
-
-        if (rule.length < 1) {
-          return res.status(403).send(ErrorMessages.RULE_NOT_FOUND);
+  this.hasAccess = function (options) {
+    return function (req, res, next) {
+      if (req.session && _this.appSettings.accessMatrix) {
+        if (req.session.account.idTokenClaims["roles"] === undefined) {
+          return res.status(403).send(ErrorMessages.USER_HAS_NO_ROLE);
         } else {
-          if (rule[0].methods.includes(req.method)) {
-            var intersection = rule[0].roles.filter(function (role) {
-              return roles.includes(role);
-            });
+          var roles = req.session.account.idTokenClaims["roles"];
+          var rule = Object.values(_this.appSettings.accessMatrix).filter(function (rule) {
+            return rule.path === req.path;
+          });
 
-            if (intersection.length < 1) {
-              return res.status(403).send(ErrorMessages.USER_NOT_IN_ROLE);
-            }
+          if (rule.length < 1) {
+            return res.status(403).send(ErrorMessages.RULE_NOT_FOUND);
           } else {
-            return res.status(403).send(ErrorMessages.METHOD_NOT_ALLOWED);
+            if (rule[0].methods.includes(req.method)) {
+              var intersection = rule[0].roles.filter(function (role) {
+                return roles.includes(role);
+              });
+
+              if (intersection.length < 1) {
+                return res.status(403).send(ErrorMessages.USER_NOT_IN_ROLE);
+              }
+            } else {
+              return res.status(403).send(ErrorMessages.METHOD_NOT_ALLOWED);
+            }
           }
         }
-      }
 
-      next();
-    } else {
-      res.status(401).send(ErrorMessages.NOT_PERMITTED);
-    }
+        next();
+      } else {
+        res.status(401).send(ErrorMessages.NOT_PERMITTED);
+      }
+    };
   }; // ============== UTILS ===============
 
   /**
    * This method is used to generate an auth code request
-   * @param {Object} req: express request object
-   * @param {Object} res: express response object
+   * @param {Request} req: express request object
+   * @param {Response} res: express response object
    * @param {NextFunction} next: express next function
    * @param {AuthCodeParams} params: modifies auth code request url
    */
 
 
   this.getAuthCode = /*#__PURE__*/function () {
-    var _ref4 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee4(req, res, next, params) {
+    var _ref5 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee5(req, res, next, params) {
       var response;
-      return runtime_1.wrap(function _callee4$(_context4) {
+      return runtime_1.wrap(function _callee5$(_context5) {
         while (1) {
-          switch (_context4.prev = _context4.next) {
+          switch (_context5.prev = _context5.next) {
             case 0:
               // prepare the request
               req.session.authCodeRequest.authority = params.authority;
@@ -1688,32 +1760,32 @@ function AuthProvider(appSettings, cache) {
               req.session.authCodeRequest.account = params.account;
               req.session.tokenRequest.authority = params.authority; // request an authorization code to exchange for tokens
 
-              _context4.prev = 7;
-              _context4.next = 10;
+              _context5.prev = 7;
+              _context5.next = 10;
               return _this.msalClient.getAuthCodeUrl(req.session.authCodeRequest);
 
             case 10:
-              response = _context4.sent;
+              response = _context5.sent;
               res.redirect(response);
-              _context4.next = 18;
+              _context5.next = 18;
               break;
 
             case 14:
-              _context4.prev = 14;
-              _context4.t0 = _context4["catch"](7);
-              console.log(_context4.t0);
+              _context5.prev = 14;
+              _context5.t0 = _context5["catch"](7);
+              console.log(_context5.t0);
               res.status(500).send(ErrorMessages.AUTH_CODE_NOT_OBTAINED);
 
             case 18:
             case "end":
-              return _context4.stop();
+              return _context5.stop();
           }
         }
-      }, _callee4, null, [[7, 14]]);
+      }, _callee5, null, [[7, 14]]);
     }));
 
-    return function (_x10, _x11, _x12, _x13) {
-      return _ref4.apply(this, arguments);
+    return function (_x13, _x14, _x15, _x16) {
+      return _ref5.apply(this, arguments);
     };
   }();
   /**
@@ -1729,14 +1801,27 @@ function AuthProvider(appSettings, cache) {
     var resourceName = Object.keys(_this.appSettings.resources)[index];
     return resourceName;
   };
+  /**
+   * Util method to get the service name for a given endpoint (appSettings.json)
+   * @param {string} path: /path string that the resource is associated with
+   */
+
+
+  this.getServiceName = function (path) {
+    var index = Object.values(_this.appSettings.services).findIndex(function (service) {
+      return service.endpoint === path;
+    });
+    var serviceName = Object.keys(_this.appSettings.services)[index];
+    return serviceName;
+  };
 
   ConfigurationUtils.validateAppSettings(appSettings);
-  this.cryptoProvider = new CryptoProvider();
-  this.urlUtils = new UrlUtils();
   this.appSettings = appSettings;
   this.msalConfig = ConfigurationUtils.getMsalConfiguration(appSettings, cache);
-  this.tokenValidator = new TokenValidator(this.appSettings, this.msalConfig);
   this.msalClient = new ConfidentialClientApplication(this.msalConfig);
+  this.tokenValidator = new TokenValidator(this.appSettings, this.msalConfig);
+  this.cryptoProvider = new CryptoProvider();
+  this.urlUtils = new UrlUtils();
 };
 
 export { AuthProvider, ConfigurationUtils, TokenValidator };

@@ -1,6 +1,6 @@
-import { TokenClaims } from '@azure/msal-common';
-import { Configuration } from '@azure/msal-node';
-import { AppSettings } from './Types';
+import { TokenClaims } from "@azure/msal-common";
+import { Configuration } from "@azure/msal-node";
+import { AppSettings } from "./Types";
 export declare class TokenValidator {
     appSettings: AppSettings;
     msalConfig: Configuration;

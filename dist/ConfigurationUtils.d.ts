@@ -1,5 +1,5 @@
-import { Configuration, ICachePlugin } from '@azure/msal-node';
-import { AppSettings } from './Types';
+import { Configuration, ICachePlugin } from "@azure/msal-node";
+import { AppSettings } from "./Types";
 export declare class ConfigurationUtils {
     /**
      * Validates the fields in the custom JSON configuration file

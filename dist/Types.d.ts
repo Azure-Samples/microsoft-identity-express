@@ -1,13 +1,16 @@
-import { AccountInfo, AuthorizationUrlRequest, AuthorizationCodeRequest } from '@azure/msal-node';
-declare module 'express-session' {
+import { AccountInfo, AuthorizationUrlRequest, AuthorizationCodeRequest } from "@azure/msal-node";
+declare module "express-session" {
     interface SessionData {
         authCodeRequest: AuthorizationUrlRequest;
         tokenRequest: AuthorizationCodeRequest;
         account: AccountInfo;
         nonce: string;
-        isAuthenticated: boolean;
+        isAuthenticated?: boolean;
         resources: {
             [resource: string]: Resource;
+        };
+        services: {
+            [service: string]: Service;
         };
     }
 }
@@ -19,6 +22,8 @@ export declare type AuthCodeParams = {
     prompt?: string;
     account?: AccountInfo;
 };
+export declare type InitializationOptions = {};
+export declare type MiddlewareOptions = {};
 export declare type ValidationOptions = {
     audience: string;
     issuer: string;
@@ -28,16 +33,26 @@ export declare type State = {
     nonce: string;
     stage: string;
 };
-export declare type Resource = {
-    callingPageRoute: string;
-    endpoint: string;
-    scopes: string[];
-    accessToken?: string;
+export declare type AppSettings = {
+    credentials: Credentials;
+    settings: Settings;
+    policies?: {
+        [policy: string]: Policy;
+    };
+    resources?: {
+        [resource: string]: Resource;
+    };
+    services?: {
+        [service: string]: Service;
+    };
+    accessMatrix?: {
+        [accessRule: string]: AccessRule;
+    };
 };
 export declare type Credentials = {
     clientId: string;
     tenantId: string;
-    clientSecret: string;
+    clientSecret?: string;
     clientCertificate?: ClientCertificate;
 };
 export declare type ClientCertificate = {
@@ -49,27 +64,23 @@ export declare type Settings = {
     redirectUri: string;
     postLogoutRedirectUri: string;
 };
+export declare type Service = {
+    endpoint: string;
+    scopes: string[];
+};
+export declare type Resource = {
+    callingPageRoute: string;
+    endpoint: string;
+    scopes: string[];
+    accessToken?: string;
+};
+export declare type Policy = {
+    authority: string;
+};
 export declare type AccessRule = {
     path: string;
     methods: string[];
     roles: string[];
-};
-export declare type AppSettings = {
-    credentials: Credentials;
-    settings: Settings;
-    resources?: {
-        [resource: string]: Resource;
-    };
-    policies?: {
-        [policy: string]: Policy;
-    };
-    accessMatrix?: {
-        [accessRule: string]: AccessRule;
-    };
-    protected?: any;
-};
-export declare type Policy = {
-    authority: string;
 };
 export declare type UserInfo = {
     businessPhones?: Array<string>;

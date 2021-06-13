@@ -1,5 +1,5 @@
 const fetchManager = require('../utils/fetchManager');
-const appSettings = require('../../appSettings.json');
+const appSettings = require('../appSettings');
 
 exports.getHomePage = (req, res, next) => {
     res.render('home', { isAuthenticated: req.session.isAuthenticated });
