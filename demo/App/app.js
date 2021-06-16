@@ -9,13 +9,12 @@ const path = require('path');
 const helmet = require('helmet');
 
 const settings = require('./appSettings');
-console.log(settings);
 const cache = require('./utils/cachePlugin');
 
 const msalWrapper = require('../../dist/index');
+const router = require('./routes/router');
 
 const SERVER_PORT = process.env.PORT || 4000;
-
 const app = express();
 
 app.set('views', path.join(__dirname, './views'));
@@ -57,9 +56,6 @@ const authProvider = new msalWrapper.AuthProvider(settings, cache);
 
 app.use(authProvider.initialize());
 
-const router = require('./routes/router')(authProvider);
+app.use(router(authProvider));
 
-app.use(router);
-
-console.log(app);
 app.listen(SERVER_PORT, () => console.log(`Msal Node Auth Code Sample app listening on port ${SERVER_PORT}!`));

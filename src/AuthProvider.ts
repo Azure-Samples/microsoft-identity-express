@@ -10,6 +10,7 @@ import {
     OIDC_DEFAULT_SCOPES,
     PromptValue,
     StringUtils,
+    IdTokenClaims
 } from "@azure/msal-common";
 
 import {
@@ -89,13 +90,12 @@ export class AuthProvider {
      */
     initialize = (options?: InitializationOptions): Router => {
 
-        // TODO: takex in login routes
         const appRouter = express.Router();
 
         // authentication routes
-        appRouter.get('/signin', this.signIn);
-        appRouter.get('/signout', this.signOut);
-        appRouter.get('/redirect', this.handleRedirect);
+        appRouter.get(this.appSettings.authRoutes.login, this.login);
+        appRouter.get(this.appSettings.authRoutes.logout, this.logout);
+        appRouter.get(this.appSettings.authRoutes.redirect, this.handleRedirect);
 
         return appRouter;
     }
@@ -109,7 +109,7 @@ export class AuthProvider {
      * @param {NextFunction} next: express next function
      * @returns {void}
      */
-    signIn: RequestHandler = (req: Request, res: Response, next: NextFunction): void => {
+    login: RequestHandler = (req: Request, res: Response, next: NextFunction): void => {
         /**
          * Request Configuration
          * We manipulate these three request objects below
@@ -174,7 +174,7 @@ export class AuthProvider {
      * @param {NextFunction} next: express next function
      * @returns {void}
      */
-    signOut: RequestHandler = (req: Request, res: Response, next: NextFunction): void => {
+    logout: RequestHandler = (req: Request, res: Response, next: NextFunction): void => {
         const postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, this.appSettings.authRoutes.postLogout);
 
         /**

@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ConfigurationUtils | msal-express-wrapper</title>
+	<title>FetchManager | msal-express-wrapper</title>
 	<meta name="description" content="Documentation for msal-express-wrapper">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -53,10 +53,10 @@
 					<a href="../modules.html">msal-express-wrapper</a>
 				</li>
 				<li>
-					<a href="configurationutils.html">ConfigurationUtils</a>
+					<a href="fetchmanager.html">FetchManager</a>
 				</li>
 			</ul>
-			<h1>Class ConfigurationUtils</h1>
+			<h1>Class FetchManager</h1>
 		</div>
 	</div>
 </header>
@@ -67,7 +67,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">ConfigurationUtils</span>
+						<span class="target">FetchManager</span>
 					</li>
 				</ul>
 			</section>
@@ -78,14 +78,14 @@
 						<section class="tsd-index-section ">
 							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="configurationutils.html#constructor" class="tsd-kind-icon">constructor</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="fetchmanager.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="configurationutils.html#getmsalconfiguration" class="tsd-kind-icon">get<wbr>Msal<wbr>Configuration</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="configurationutils.html#validateappsettings" class="tsd-kind-icon">validate<wbr>App<wbr>Settings</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="fetchmanager.html#callapiendpoint" class="tsd-kind-icon">call<wbr>Api<wbr>Endpoint</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="fetchmanager.html#handlepagination" class="tsd-kind-icon">handle<wbr>Pagination</a></li>
 							</ul>
 						</section>
 					</div>
@@ -97,13 +97,13 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Configuration<wbr>Utils<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="configurationutils.html" class="tsd-signature-type" data-tsd-kind="Class">ConfigurationUtils</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Fetch<wbr>Manager<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="fetchmanager.html" class="tsd-signature-type" data-tsd-kind="Class">FetchManager</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 							</aside>
-							<h4 class="tsd-returns-title">Returns <a href="configurationutils.html" class="tsd-signature-type" data-tsd-kind="Class">ConfigurationUtils</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="fetchmanager.html" class="tsd-signature-type" data-tsd-kind="Class">FetchManager</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -111,62 +111,63 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
-					<a name="getmsalconfiguration" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> get<wbr>Msal<wbr>Configuration</h3>
+					<a name="callapiendpoint" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> call<wbr>Api<wbr>Endpoint</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Msal<wbr>Configuration<span class="tsd-signature-symbol">(</span>config<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">AppSettings</span>, cachePlugin<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">ICachePlugin</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Configuration</span></li>
+						<li class="tsd-signature tsd-kind-icon">call<wbr>Api<wbr>Endpoint<span class="tsd-signature-symbol">(</span>endpoint<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, accessToken<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/e09902f/src/ConfigurationUtils.ts#L37">ConfigurationUtils.ts:37</a></li>
+									<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/e09902f/src/FetchManager.ts#L19">FetchManager.ts:19</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Maps the custom JSON configuration file to configuration
-									object expected by MSAL Node ConfidentialClientApplication</p>
+									<p>Calls a resource endpoint with a raw access token
+									using the authorization bearer token scheme</p>
 								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>config: <span class="tsd-signature-type">AppSettings</span></h5>
+									<h5>endpoint: <span class="tsd-signature-type">string</span></h5>
 								</li>
 								<li>
-									<h5>cachePlugin: <span class="tsd-signature-type">ICachePlugin</span><span class="tsd-signature-symbol"> = null</span></h5>
+									<h5>accessToken: <span class="tsd-signature-type">string</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Configuration</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
-					<a name="validateappsettings" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> validate<wbr>App<wbr>Settings</h3>
+					<a name="handlepagination" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> handle<wbr>Pagination</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">validate<wbr>App<wbr>Settings<span class="tsd-signature-symbol">(</span>config<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">AppSettings</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">handle<wbr>Pagination<span class="tsd-signature-symbol">(</span>accessToken<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, nextPage<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, userGroups<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/e09902f/src/ConfigurationUtils.ts#L16">ConfigurationUtils.ts:16</a></li>
+									<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/e09902f/src/FetchManager.ts#L48">FetchManager.ts:48</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Validates the fields in the custom JSON configuration file</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>config: <span class="tsd-signature-type">AppSettings</span></h5>
+									<h5>accessToken: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>nextPage: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>userGroups: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -185,27 +186,27 @@
 					<li class=" tsd-kind-class">
 						<a href="authprovider.html" class="tsd-kind-icon">Auth<wbr>Provider</a>
 					</li>
+					<li class=" tsd-kind-class">
+						<a href="configurationutils.html" class="tsd-kind-icon">Configuration<wbr>Utils</a>
+					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-class">
-						<a href="configurationutils.html" class="tsd-kind-icon">Configuration<wbr>Utils</a>
+						<a href="fetchmanager.html" class="tsd-kind-icon">Fetch<wbr>Manager</a>
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class">
-								<a href="configurationutils.html#constructor" class="tsd-kind-icon">constructor</a>
+								<a href="fetchmanager.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
-								<a href="configurationutils.html#getmsalconfiguration" class="tsd-kind-icon">get<wbr>Msal<wbr>Configuration</a>
+								<a href="fetchmanager.html#callapiendpoint" class="tsd-kind-icon">call<wbr>Api<wbr>Endpoint</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
-								<a href="configurationutils.html#validateappsettings" class="tsd-kind-icon">validate<wbr>App<wbr>Settings</a>
+								<a href="fetchmanager.html#handlepagination" class="tsd-kind-icon">handle<wbr>Pagination</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-class">
-						<a href="fetchmanager.html" class="tsd-kind-icon">Fetch<wbr>Manager</a>
-					</li>
 					<li class=" tsd-kind-class">
 						<a href="tokenvalidator.html" class="tsd-kind-icon">Token<wbr>Validator</a>
 					</li>

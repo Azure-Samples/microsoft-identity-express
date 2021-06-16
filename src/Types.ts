@@ -103,10 +103,10 @@ export type AuthRoutes = {
     login: string;
     postLogin: string;
     logout: string;
-    postLogout?: string;
-    frontChannelLogout?: string;
+    postLogout: string;
     error: string;
     unauthorized: string;
+    frontChannelLogout?: string;
 };
 
 export type Policy = {

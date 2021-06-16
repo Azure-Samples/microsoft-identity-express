@@ -40,7 +40,7 @@ export declare class AuthProvider {
      * @param {NextFunction} next: express next function
      * @returns {void}
      */
-    signIn: RequestHandler;
+    login: RequestHandler;
     /**
      * Initiate sign out and destroy the session
      * @param {Request} req: express request object
@@ -48,7 +48,7 @@ export declare class AuthProvider {
      * @param {NextFunction} next: express next function
      * @returns {void}
      */
-    signOut: RequestHandler;
+    logout: RequestHandler;
     /**
      * Middleware that handles redirect depending on request state
      * There are basically 2 stages: sign-in and acquire token

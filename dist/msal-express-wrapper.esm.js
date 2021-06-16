@@ -1432,12 +1432,11 @@ var AuthProvider = /*#__PURE__*/function () {
      * @returns {Router}
      */
     this.initialize = function (options) {
-      // TODO: takex in login routes
       var appRouter = express.Router(); // authentication routes
 
-      appRouter.get('/signin', _this.signIn);
-      appRouter.get('/signout', _this.signOut);
-      appRouter.get('/redirect', _this.handleRedirect);
+      appRouter.get(_this.appSettings.authRoutes.login, _this.login);
+      appRouter.get(_this.appSettings.authRoutes.logout, _this.logout);
+      appRouter.get(_this.appSettings.authRoutes.redirect, _this.handleRedirect);
       return appRouter;
     }; // ========== HANDLERS ===========
 
@@ -1450,7 +1449,7 @@ var AuthProvider = /*#__PURE__*/function () {
      */
 
 
-    this.signIn = function (req, res, next) {
+    this.login = function (req, res, next) {
       /**
        * Request Configuration
        * We manipulate these three request objects below
@@ -1513,7 +1512,7 @@ var AuthProvider = /*#__PURE__*/function () {
      */
 
 
-    this.signOut = function (req, res, next) {
+    this.logout = function (req, res, next) {
       var postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, _this.appSettings.authRoutes.postLogout);
       /**
        * Construct a logout URI and redirect the user to end the
@@ -2245,5 +2244,5 @@ var AuthProvider = /*#__PURE__*/function () {
   return AuthProvider;
 }();
 
-export { AuthProvider, ConfigurationUtils, TokenValidator };
+export { AuthProvider, ConfigurationUtils, FetchManager, TokenValidator };
 //# sourceMappingURL=msal-express-wrapper.esm.js.map

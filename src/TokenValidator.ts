@@ -118,7 +118,6 @@ export class TokenValidator {
          * For more information on validating id tokens, visit:
          * https://docs.microsoft.com/azure/active-directory/develop/id-tokens#validating-an-id_token
          */
-
         const checkIssuer = idTokenClaims["iss"].includes(this.appSettings.appCredentials.tenantId) ? true : false;
         const checkAudience = idTokenClaims["aud"] === this.msalConfig.auth.clientId ? true : false;
         const checkTimestamp = idTokenClaims["iat"] <= now && idTokenClaims["exp"] >= now ? true : false;
