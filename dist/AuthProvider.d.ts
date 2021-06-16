@@ -1,18 +1,20 @@
 import { RequestHandler, Router } from "express";
 import { ConfidentialClientApplication, Configuration, ICachePlugin, CryptoProvider } from "@azure/msal-node";
 import { TokenValidator } from "./TokenValidator";
-import { AppSettings, InitializationOptions, TokenRequestOptions, GuardOptions, LoginLogoutOptions } from "./Types";
+import { AppSettings, InitializationOptions, TokenRequestOptions, GuardOptions, LoginOptions, LogoutOptions } from "./Types";
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
  * It offers a collection of middleware and utility methods that automate
- * basic authentication and authorization tasks in Express MVC web apps.
+ * basic authentication and authorization tasks in Express MVC web apps and
+ * RESTful APIs.
  *
- * You must have express and express-sessions package installed. Middleware
- * here can be used with express sessions in route controllers.
- *
+ * You must have express and express-sessions packages installed.
  * Session variables accessible are as follows:
+ *
  * req.session.isAuthenticated: boolean
+ *
  * req.session.account: AccountInfo
+ *
  * req.session.remoteResources.{resourceName}.accessToken: string
  */
 export declare class AuthProvider {
@@ -28,36 +30,32 @@ export declare class AuthProvider {
      */
     constructor(appSettings: AppSettings, cache?: ICachePlugin);
     /**
-     * Initialize authProvider and set default routes
+     * Initialize AuthProvider and set default routes and handlers
      * @param {InitializationOptions} options
      * @returns {Router}
      */
     initialize: (options?: InitializationOptions) => Router;
     /**
-     * Initiate sign in flow
-     * @param {Request} req: express request object
-     * @param {Response} res: express response object
-     * @param {NextFunction} next: express next function
-     * @returns {void}
+     * Initiates sign in flow
+     * @param {LoginOptions} options: options to modify login request
+     * @returns {RequestHandler}
      */
-    login: (options?: LoginLogoutOptions) => RequestHandler;
+    login: (options?: LoginOptions) => RequestHandler;
     /**
      * Initiate sign out and destroy the session
-     * @param {Request} req: express request object
-     * @param {Response} res: express response object
-     * @param {NextFunction} next: express next function
-     * @returns {void}
+     * @param options
+     * @returns {RequestHandler}
      */
-    logout: (options?: LoginLogoutOptions) => RequestHandler;
+    logout: (options?: LogoutOptions) => RequestHandler;
     /**
      * Middleware that handles redirect depending on request state
      * There are basically 2 stages: sign-in and acquire token
      * @param {Request} req: express request object
      * @param {Response} res: express response object
      * @param {NextFunction} next: express next function
-     * @returns {Promise}
+     * @returns {RequestHandler}
      */
-    handleRedirect: (options?: any) => RequestHandler;
+    private handleRedirect;
     /**
      * Middleware that gets tokens via acquireToken*
      * @param {TokenRequestOptions} options: express request object
@@ -93,7 +91,8 @@ export declare class AuthProvider {
      * This method is used to generate an auth code request
      * @param {Request} req: express request object
      * @param {Response} res: express response object
-     * @param {AuthCodeParams} params: modifies auth code request url
+     * @param {NextFunction} next: express next function
+     * @param {AuthCodeParams} params: modifies auth code url request
      * @returns {Promise}
      */
     private getAuthCode;
@@ -101,13 +100,23 @@ export declare class AuthProvider {
      *
      * @param {Request} req: express request object
      * @param {Response} res: express response object
+     * @param {NextFunction} next: express next function
+     * @param {AccessRule} rule: a given access rule
      * @returns
      */
     private handleOverage;
-    private applyAccessRule;
+    /**
+     * Checks if the request passes a given access rule
+     * @param {string} method
+     * @param {AccessRule} rule
+     * @param {Array} creds
+     * @param {string} credType
+     * @returns {boolean}
+     */
+    private checkAccessRule;
     /**
      * Util method to get the resource name for a given scope(s)
-     * @param {Array} scopes: /path string that the resource is associated with
+     * @param {Array} scopes: an array of scopes that the resource is associated with
      * @returns {string}
      */
     private getResourceNameFromScopes;

@@ -1375,13 +1375,13 @@ FetchManager.handlePagination = /*#__PURE__*/function () {
               return userGroups.push(v.id);
             });
 
-            if (!graphResponse["@odata.nextLink"]) {
+            if (!graphResponse[AccessConstants.PAGINATION_LINK]) {
               _context2.next = 12;
               break;
             }
 
             _context2.next = 9;
-            return FetchManager.handlePagination(accessToken, graphResponse["@odata.nextLink"], userGroups);
+            return FetchManager.handlePagination(accessToken, graphResponse[AccessConstants.PAGINATION_LINK], userGroups);
 
           case 9:
             return _context2.abrupt("return", _context2.sent);
@@ -1412,17 +1412,20 @@ FetchManager.handlePagination = /*#__PURE__*/function () {
   };
 }();
 
+var _excluded = ["_claim_names", "_claim_sources"];
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
  * It offers a collection of middleware and utility methods that automate
- * basic authentication and authorization tasks in Express MVC web apps.
+ * basic authentication and authorization tasks in Express MVC web apps and
+ * RESTful APIs.
  *
- * You must have express and express-sessions package installed. Middleware
- * here can be used with express sessions in route controllers.
- *
+ * You must have express and express-sessions packages installed.
  * Session variables accessible are as follows:
+ *
  * req.session.isAuthenticated: boolean
+ *
  * req.session.account: AccountInfo
+ *
  * req.session.remoteResources.{resourceName}.accessToken: string
  */
 
@@ -1436,7 +1439,7 @@ var AuthProvider = /*#__PURE__*/function () {
     var _this = this;
 
     /**
-     * Initialize authProvider and set default routes
+     * Initialize AuthProvider and set default routes and handlers
      * @param {InitializationOptions} options
      * @returns {Router}
      */
@@ -1461,11 +1464,9 @@ var AuthProvider = /*#__PURE__*/function () {
     }; // ========== HANDLERS ===========
 
     /**
-     * Initiate sign in flow
-     * @param {Request} req: express request object
-     * @param {Response} res: express response object
-     * @param {NextFunction} next: express next function
-     * @returns {void}
+     * Initiates sign in flow
+     * @param {LoginOptions} options: options to modify login request
+     * @returns {RequestHandler}
      */
 
 
@@ -1510,7 +1511,7 @@ var AuthProvider = /*#__PURE__*/function () {
 
         var state = _this.cryptoProvider.base64Encode(JSON.stringify({
           stage: AppStages.SIGN_IN,
-          path: options.successRedirect,
+          path: options.postLogin,
           nonce: req.session.nonce
         }));
 
@@ -1527,16 +1528,14 @@ var AuthProvider = /*#__PURE__*/function () {
     };
     /**
      * Initiate sign out and destroy the session
-     * @param {Request} req: express request object
-     * @param {Response} res: express response object
-     * @param {NextFunction} next: express next function
-     * @returns {void}
+     * @param options
+     * @returns {RequestHandler}
      */
 
 
     this.logout = function (options) {
       return function (req, res, next) {
-        var postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.successRedirect);
+        var postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.postLogout);
         /**
          * Construct a logout URI and redirect the user to end the
          * session with Azure AD/B2C. For more information, visit:
@@ -1557,7 +1556,7 @@ var AuthProvider = /*#__PURE__*/function () {
      * @param {Request} req: express request object
      * @param {Response} res: express response object
      * @param {NextFunction} next: express next function
-     * @returns {Promise}
+     * @returns {RequestHandler}
      */
 
 
@@ -1984,7 +1983,7 @@ var AuthProvider = /*#__PURE__*/function () {
                 case 16:
                   groups = req.session.account.idTokenClaims[AccessConstants.GROUPS];
 
-                  if (_this.applyAccessRule(req.method, options.accessRule, groups, AccessConstants.GROUPS)) {
+                  if (_this.checkAccessRule(req.method, options.accessRule, groups, AccessConstants.GROUPS)) {
                     _context5.next = 19;
                     break;
                   }
@@ -2007,7 +2006,7 @@ var AuthProvider = /*#__PURE__*/function () {
                 case 26:
                   roles = req.session.account.idTokenClaims[AccessConstants.ROLES];
 
-                  if (_this.applyAccessRule(req.method, options.accessRule, roles, AccessConstants.ROLES)) {
+                  if (_this.checkAccessRule(req.method, options.accessRule, roles, AccessConstants.ROLES)) {
                     _context5.next = 29;
                     break;
                   }
@@ -2054,7 +2053,8 @@ var AuthProvider = /*#__PURE__*/function () {
    * This method is used to generate an auth code request
    * @param {Request} req: express request object
    * @param {Response} res: express response object
-   * @param {AuthCodeParams} params: modifies auth code request url
+   * @param {NextFunction} next: express next function
+   * @param {AuthCodeParams} params: modifies auth code url request
    * @returns {Promise}
    */
 
@@ -2117,6 +2117,8 @@ var AuthProvider = /*#__PURE__*/function () {
    *
    * @param {Request} req: express request object
    * @param {Response} res: express response object
+   * @param {NextFunction} next: express next function
+   * @param {AccessRule} rule: a given access rule
    * @returns
    */
   _proto.handleOverage =
@@ -2129,7 +2131,7 @@ var AuthProvider = /*#__PURE__*/function () {
         while (1) {
           switch (_context7.prev = _context7.next) {
             case 0:
-              _req$session$account$ = req.session.account.idTokenClaims, newIdTokenClaims = _objectWithoutPropertiesLoose(_req$session$account$, ["_claim_names", "_claim_sources"]);
+              _req$session$account$ = req.session.account.idTokenClaims, newIdTokenClaims = _objectWithoutPropertiesLoose(_req$session$account$, _excluded);
               silentRequest = {
                 account: req.session.account,
                 scopes: AccessConstants.GRAPH_MEMBER_SCOPES.split(" ")
@@ -2162,7 +2164,7 @@ var AuthProvider = /*#__PURE__*/function () {
                 groups: userGroups
               });
 
-              if (this.applyAccessRule(req.method, rule, req.session.account.idTokenClaims[AccessConstants.GROUPS], AccessConstants.GROUPS)) {
+              if (this.checkAccessRule(req.method, rule, req.session.account.idTokenClaims[AccessConstants.GROUPS], AccessConstants.GROUPS)) {
                 _context7.next = 20;
                 break;
               }
@@ -2193,7 +2195,7 @@ var AuthProvider = /*#__PURE__*/function () {
                 })
               });
 
-              if (this.applyAccessRule(req.method, rule, req.session.account.idTokenClaims[AccessConstants.GROUPS], AccessConstants.GROUPS)) {
+              if (this.checkAccessRule(req.method, rule, req.session.account.idTokenClaims[AccessConstants.GROUPS], AccessConstants.GROUPS)) {
                 _context7.next = 34;
                 break;
               }
@@ -2236,9 +2238,18 @@ var AuthProvider = /*#__PURE__*/function () {
     }
 
     return handleOverage;
-  }();
+  }()
+  /**
+   * Checks if the request passes a given access rule
+   * @param {string} method
+   * @param {AccessRule} rule
+   * @param {Array} creds
+   * @param {string} credType
+   * @returns {boolean}
+   */
+  ;
 
-  _proto.applyAccessRule = function applyAccessRule(method, rule, creds, credType) {
+  _proto.checkAccessRule = function checkAccessRule(method, rule, creds, credType) {
     if (rule.methods.includes(method)) {
       switch (credType) {
         case AccessConstants.GROUPS:
@@ -2270,7 +2281,7 @@ var AuthProvider = /*#__PURE__*/function () {
   }
   /**
    * Util method to get the resource name for a given scope(s)
-   * @param {Array} scopes: /path string that the resource is associated with
+   * @param {Array} scopes: an array of scopes that the resource is associated with
    * @returns {string}
    */
   ;

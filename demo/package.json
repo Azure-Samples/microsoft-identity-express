@@ -12,7 +12,6 @@
   "license": "MIT",
   "dependencies": {
     "@azure/msal-node": "^1.1.0",
-    "msal-express-wrapper": "git+https://github.com/Azure-Samples/msal-express-wrapper.git",
     "axios": "^0.21.0",
     "bootstrap": "^4.5.3",
     "ejs": "^3.0.1",

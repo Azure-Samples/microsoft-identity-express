@@ -12,13 +12,13 @@ module.exports = (authProvider) => {
 
     router.get('/signin',
         authProvider.login({
-            successRedirect: "/",
+            postLogin: "/",
         }),
     );
 
     router.get('/signout',
         authProvider.logout({
-            successRedirect: "/",
+            postLogout: "/",
         }),
     );
 

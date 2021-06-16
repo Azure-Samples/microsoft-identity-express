@@ -46,10 +46,20 @@ export type TokenRequestOptions = {
     skipCache?: boolean;
 };
 
-export type LoginLogoutOptions = {
-    successRedirect: string;
+export type LoginOptions = {
+    postLogin: string;
+    extraScopesToConsent: string[];
     failureRedirect?: string;
 }
+
+export type LogoutOptions = {
+    postLogout: string;
+    failureRedirect?: string;
+}
+
+export type RedirectOptions = {
+
+};
 
 export type GuardOptions = {
     accessRule: AccessRule
@@ -140,3 +150,7 @@ export type UserInfo = {
     surname?: string;
     userPrincipalName?: string;
 };
+
+export type IdTokenClaims = {
+
+}

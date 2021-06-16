@@ -36,7 +36,9 @@ import {
     TokenRequestOptions,
     GuardOptions,
     AccessRule,
-    LoginLogoutOptions
+    LoginOptions,
+    LogoutOptions,
+    RedirectOptions
 } from "./Types";
 
 import {
@@ -50,14 +52,16 @@ import { FetchManager } from "./FetchManager";
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
  * It offers a collection of middleware and utility methods that automate
- * basic authentication and authorization tasks in Express MVC web apps.
+ * basic authentication and authorization tasks in Express MVC web apps and
+ * RESTful APIs.
  *
- * You must have express and express-sessions package installed. Middleware
- * here can be used with express sessions in route controllers.
- *
+ * You must have express and express-sessions packages installed. 
  * Session variables accessible are as follows:
+ * 
  * req.session.isAuthenticated: boolean
+ * 
  * req.session.account: AccountInfo
+ * 
  * req.session.remoteResources.{resourceName}.accessToken: string
  */
 export class AuthProvider {
@@ -84,8 +88,8 @@ export class AuthProvider {
     }
 
     /**
-     * Initialize authProvider and set default routes
-     * @param {InitializationOptions} options 
+     * Initialize AuthProvider and set default routes and handlers
+     * @param {InitializationOptions} options
      * @returns {Router}
      */
     initialize = (options?: InitializationOptions): Router => {
@@ -113,13 +117,11 @@ export class AuthProvider {
     // ========== HANDLERS ===========
 
     /**
-     * Initiate sign in flow
-     * @param {Request} req: express request object
-     * @param {Response} res: express response object
-     * @param {NextFunction} next: express next function
-     * @returns {void}
+     * Initiates sign in flow
+     * @param {LoginOptions} options: options to modify login request
+     * @returns {RequestHandler}
      */
-    login = (options?: LoginLogoutOptions): RequestHandler => {
+    login = (options?: LoginOptions): RequestHandler => {
         return (req: Request, res: Response, next: NextFunction): Promise<void> => {
             /**
          * Request Configuration
@@ -161,7 +163,7 @@ export class AuthProvider {
             const state = this.cryptoProvider.base64Encode(
                 JSON.stringify({
                     stage: AppStages.SIGN_IN,
-                    path: options.successRedirect,
+                    path: options.postLogin,
                     nonce: req.session.nonce,
                 })
             );
@@ -181,14 +183,12 @@ export class AuthProvider {
 
     /**
      * Initiate sign out and destroy the session
-     * @param {Request} req: express request object
-     * @param {Response} res: express response object
-     * @param {NextFunction} next: express next function
-     * @returns {void}
+     * @param options 
+     * @returns {RequestHandler}
      */
-    logout = (options?: LoginLogoutOptions): RequestHandler => {
+    logout = (options?: LogoutOptions): RequestHandler => {
         return (req: Request, res: Response, next: NextFunction): void => {
-            const postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.successRedirect);
+            const postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.postLogout);
 
             /**
              * Construct a logout URI and redirect the user to end the
@@ -212,9 +212,9 @@ export class AuthProvider {
      * @param {Request} req: express request object
      * @param {Response} res: express response object
      * @param {NextFunction} next: express next function
-     * @returns {Promise}
+     * @returns {RequestHandler}
      */
-    handleRedirect = (options?): RequestHandler => {
+    private handleRedirect = (options?: RedirectOptions): RequestHandler => {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             if (req.query.state) {
                 const state = JSON.parse(this.cryptoProvider.base64Decode(req.query.state as string));
@@ -408,7 +408,7 @@ export class AuthProvider {
      * @returns {RequestHandler}
      */
     isAuthenticated = (options?: GuardOptions): RequestHandler => {
-        return (req: Request, res: Response, next: NextFunction): void | Response => {
+        return (req: Request, res: Response, next: NextFunction): void => {
             if (req.session) {
                 if (!req.session.isAuthenticated) {
                     console.log(ErrorMessages.NOT_PERMITTED);
@@ -430,7 +430,7 @@ export class AuthProvider {
      * @returns {RequestHandler}
      */
     isAuthorized = (options?: GuardOptions): RequestHandler => {
-        return async (req: Request, res: Response, next: NextFunction): Promise<void | Response> => {
+        return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             const accessToken = req.headers.authorization.split(" ")[1];
 
             if (req.headers.authorization) {
@@ -471,7 +471,7 @@ export class AuthProvider {
                         } else {
                             const groups = req.session.account.idTokenClaims[AccessConstants.GROUPS];
 
-                            if (!this.applyAccessRule(req.method, options.accessRule, groups, AccessConstants.GROUPS)) {
+                            if (!this.checkAccessRule(req.method, options.accessRule, groups, AccessConstants.GROUPS)) {
                                 return res.redirect(this.appSettings.authRoutes.unauthorized);
                             }
                         }
@@ -487,7 +487,7 @@ export class AuthProvider {
                         } else {
                             const roles = req.session.account.idTokenClaims[AccessConstants.ROLES];
 
-                            if (!this.applyAccessRule(req.method, options.accessRule, roles, AccessConstants.ROLES)) {
+                            if (!this.checkAccessRule(req.method, options.accessRule, roles, AccessConstants.ROLES)) {
                                 return res.redirect(this.appSettings.authRoutes.unauthorized);
                             }
                         }
@@ -511,7 +511,8 @@ export class AuthProvider {
      * This method is used to generate an auth code request
      * @param {Request} req: express request object
      * @param {Response} res: express response object
-     * @param {AuthCodeParams} params: modifies auth code request url
+     * @param {NextFunction} next: express next function
+     * @param {AuthCodeParams} params: modifies auth code url request
      * @returns {Promise}
      */
     private async getAuthCode(req: Request, res: Response, next: NextFunction, params: AuthCodeParams): Promise<void> {
@@ -542,9 +543,11 @@ export class AuthProvider {
      * 
      * @param {Request} req: express request object
      * @param {Response} res: express response object
+     * @param {NextFunction} next: express next function
+     * @param {AccessRule} rule: a given access rule
      * @returns 
      */
-    private async handleOverage(req: Request, res: Response, next: NextFunction, rule: AccessRule) {
+    private async handleOverage(req: Request, res: Response, next: NextFunction, rule: AccessRule): Promise<void> {
         const { _claim_names, _claim_sources, ...newIdTokenClaims } = <any>req.session.account.idTokenClaims;
 
         const silentRequest: SilentFlowRequest = {
@@ -573,7 +576,7 @@ export class AuthProvider {
                             groups: userGroups
                         }
 
-                        if (!this.applyAccessRule(req.method, rule, req.session.account.idTokenClaims[AccessConstants.GROUPS], AccessConstants.GROUPS)) {
+                        if (!this.checkAccessRule(req.method, rule, req.session.account.idTokenClaims[AccessConstants.GROUPS], AccessConstants.GROUPS)) {
                             return res.redirect(this.appSettings.authRoutes.unauthorized);
                         } else {
                             return next();
@@ -588,7 +591,7 @@ export class AuthProvider {
                         groups: graphResponse["value"].map((v) => v.id)
                     }
 
-                    if (!this.applyAccessRule(req.method, rule, req.session.account.idTokenClaims[AccessConstants.GROUPS], AccessConstants.GROUPS)) {
+                    if (!this.checkAccessRule(req.method, rule, req.session.account.idTokenClaims[AccessConstants.GROUPS], AccessConstants.GROUPS)) {
                         return res.redirect(this.appSettings.authRoutes.unauthorized);
                     } else {
                         return next();
@@ -604,7 +607,15 @@ export class AuthProvider {
         }
     }
 
-    private applyAccessRule(method: string, rule: AccessRule, creds: string[], credType: string): boolean {
+    /**
+     * Checks if the request passes a given access rule
+     * @param {string} method 
+     * @param {AccessRule} rule 
+     * @param {Array} creds 
+     * @param {string} credType 
+     * @returns {boolean}
+     */
+    private checkAccessRule(method: string, rule: AccessRule, creds: string[], credType: string): boolean {
         if (rule.methods.includes(method)) {
             switch (credType) {
                 case AccessConstants.GROUPS:
@@ -634,7 +645,7 @@ export class AuthProvider {
 
     /**
      * Util method to get the resource name for a given scope(s)
-     * @param {Array} scopes: /path string that the resource is associated with
+     * @param {Array} scopes: an array of scopes that the resource is associated with
      * @returns {string}
      */
     private getResourceNameFromScopes(scopes: string[]): string {

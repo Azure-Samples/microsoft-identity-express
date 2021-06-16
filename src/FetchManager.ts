@@ -5,7 +5,7 @@
 
 import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
 import { StringUtils } from "@azure/msal-common";
-import { ErrorMessages } from "./Constants";
+import { ErrorMessages, AccessConstants } from "./Constants";
 
 export class FetchManager {
 
@@ -51,8 +51,8 @@ export class FetchManager {
             const graphResponse = await FetchManager.callApiEndpoint(nextPage, accessToken);
             graphResponse["value"].map((v) => userGroups.push(v.id));
     
-            if (graphResponse["@odata.nextLink"]) {
-                return await FetchManager.handlePagination(accessToken, graphResponse["@odata.nextLink"], userGroups)
+            if (graphResponse[AccessConstants.PAGINATION_LINK]) {
+                return await FetchManager.handlePagination(accessToken, graphResponse[AccessConstants.PAGINATION_LINK], userGroups)
             } else {
                 return userGroups;
             }

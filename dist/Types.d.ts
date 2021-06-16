@@ -32,10 +32,16 @@ export declare type TokenRequestOptions = {
     claims?: string;
     skipCache?: boolean;
 };
-export declare type LoginLogoutOptions = {
-    successRedirect: string;
+export declare type LoginOptions = {
+    postLogin: string;
+    extraScopesToConsent: string[];
     failureRedirect?: string;
 };
+export declare type LogoutOptions = {
+    postLogout: string;
+    failureRedirect?: string;
+};
+export declare type RedirectOptions = {};
 export declare type GuardOptions = {
     accessRule: AccessRule;
 };
@@ -83,10 +89,6 @@ export declare type KeyVault = {
 };
 export declare type AuthRoutes = {
     redirect: string;
-    login: string;
-    postLogin: string;
-    logout: string;
-    postLogout: string;
     error: string;
     unauthorized: string;
     frontChannelLogout?: string;
@@ -118,3 +120,4 @@ export declare type UserInfo = {
     surname?: string;
     userPrincipalName?: string;
 };
+export declare type IdTokenClaims = {};
