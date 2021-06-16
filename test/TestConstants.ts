@@ -4,8 +4,8 @@
  */
 
 export const TEST_CONSTANTS = {
-  CLIENT_ID: 'b41a6fbb-c728-4e03-aa59-d25b0fd383b6',
-  TENANT_ID: 'f11c4351-21d7-4568-b848-4eaf4316b3a8',
+  CLIENT_ID: 'MOCK_CLIENT_ID',
+  TENANT_ID: 'MOCK_TENANT_ID',
   DEFAULT_AUTHORITY: 'https://login.microsoftonline.com/common/',
   AUTHORITY: 'https://login.microsoftonline.com/TenantId',
   ALTERNATE_AUTHORITY: 'https://login.microsoftonline.com/alternate',
