@@ -10,7 +10,6 @@ import {
     OIDC_DEFAULT_SCOPES,
     PromptValue,
     StringUtils,
-    IdTokenClaims
 } from "@azure/msal-common";
 
 import {
@@ -34,9 +33,10 @@ import {
     AppSettings,
     AuthCodeParams,
     InitializationOptions,
-    TokenOptions,
+    TokenRequestOptions,
     GuardOptions,
-    AccessRule
+    AccessRule,
+    LoginLogoutOptions
 } from "./Types";
 
 import {
@@ -92,10 +92,20 @@ export class AuthProvider {
 
         const appRouter = express.Router();
 
-        // authentication routes
-        appRouter.get(this.appSettings.authRoutes.login, this.login);
-        appRouter.get(this.appSettings.authRoutes.logout, this.logout);
-        appRouter.get(this.appSettings.authRoutes.redirect, this.handleRedirect);
+        // handle redirect
+        appRouter.get(this.appSettings.authRoutes.redirect, this.handleRedirect());
+
+        if (this.appSettings.authRoutes.frontChannelLogout) {
+            /**
+             * Expose front-channel logout route. For more information, visit: 
+             * https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#single-sign-out
+             */
+            appRouter.get(this.appSettings.authRoutes.frontChannelLogout, (req, res, next) => {
+                req.session.destroy(() => {
+                    res.sendStatus(200);
+                });
+            });
+        }
 
         return appRouter;
     }
@@ -109,62 +119,64 @@ export class AuthProvider {
      * @param {NextFunction} next: express next function
      * @returns {void}
      */
-    login: RequestHandler = (req: Request, res: Response, next: NextFunction): void => {
-        /**
+    login = (options?: LoginLogoutOptions): RequestHandler => {
+        return (req: Request, res: Response, next: NextFunction): Promise<void> => {
+            /**
          * Request Configuration
          * We manipulate these three request objects below
          * to acquire a token with the appropriate claims
          */
-        if (!req.session["authCodeRequest"]) {
-            req.session.authCodeRequest = {
-                authority: "",
-                scopes: [],
-                state: {},
-                redirectUri: "",
-            } as AuthorizationUrlRequest;
+            if (!req.session["authCodeRequest"]) {
+                req.session.authCodeRequest = {
+                    authority: "",
+                    scopes: [],
+                    state: {},
+                    redirectUri: "",
+                } as AuthorizationUrlRequest;
+            }
+
+            if (!req.session["tokenRequest"]) {
+                req.session.tokenRequest = {
+                    authority: "",
+                    scopes: [],
+                    redirectUri: "",
+                    code: "",
+                } as AuthorizationCodeRequest;
+            }
+
+            // signed-in user's account
+            if (!req.session["account"]) {
+                req.session.account = {
+                    homeAccountId: "",
+                    environment: "",
+                    tenantId: "",
+                    username: "",
+                    idTokenClaims: {},
+                } as AccountInfo;
+            }
+
+            // random GUID for csrf protection
+            req.session.nonce = this.cryptoProvider.createNewGuid();
+
+            const state = this.cryptoProvider.base64Encode(
+                JSON.stringify({
+                    stage: AppStages.SIGN_IN,
+                    path: options.successRedirect,
+                    nonce: req.session.nonce,
+                })
+            );
+
+            const params: AuthCodeParams = {
+                authority: this.msalConfig.auth.authority,
+                scopes: OIDC_DEFAULT_SCOPES,
+                state: state,
+                redirect: UrlUtils.ensureAbsoluteUrl(req, this.appSettings.authRoutes.redirect),
+                prompt: PromptValue.SELECT_ACCOUNT,
+            };
+
+            // get url to sign user in
+            return this.getAuthCode(req, res, next, params);
         }
-
-        if (!req.session["tokenRequest"]) {
-            req.session.tokenRequest = {
-                authority: "",
-                scopes: [],
-                redirectUri: "",
-                code: "",
-            } as AuthorizationCodeRequest;
-        }
-
-        // signed-in user's account
-        if (!req.session["account"]) {
-            req.session.account = {
-                homeAccountId: "",
-                environment: "",
-                tenantId: "",
-                username: "",
-                idTokenClaims: {},
-            } as AccountInfo;
-        }
-
-        // random GUID for csrf protection
-        req.session.nonce = this.cryptoProvider.createNewGuid();
-
-        const state = this.cryptoProvider.base64Encode(
-            JSON.stringify({
-                stage: AppStages.SIGN_IN,
-                path: req.route.path,
-                nonce: req.session.nonce,
-            })
-        );
-
-        const params: AuthCodeParams = {
-            authority: this.msalConfig.auth.authority,
-            scopes: OIDC_DEFAULT_SCOPES,
-            state: state,
-            redirect: UrlUtils.ensureAbsoluteUrl(req, this.appSettings.authRoutes.redirect),
-            prompt: PromptValue.SELECT_ACCOUNT,
-        };
-
-        // get url to sign user in
-        this.getAuthCode(req, res, params);
     };
 
     /**
@@ -174,22 +186,24 @@ export class AuthProvider {
      * @param {NextFunction} next: express next function
      * @returns {void}
      */
-    logout: RequestHandler = (req: Request, res: Response, next: NextFunction): void => {
-        const postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, this.appSettings.authRoutes.postLogout);
+    logout = (options?: LoginLogoutOptions): RequestHandler => {
+        return (req: Request, res: Response, next: NextFunction): void => {
+            const postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.successRedirect);
 
-        /**
-         * Construct a logout URI and redirect the user to end the
-         * session with Azure AD/B2C. For more information, visit:
-         * (AAD) https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request
-         * (B2C) https://docs.microsoft.com/azure/active-directory-b2c/openid-connect#send-a-sign-out-request
-         */
-        const logoutURI = `${this.msalConfig.auth.authority}/oauth2/v2.0/logout?post_logout_redirect_uri=${postLogoutRedirectUri}`;
+            /**
+             * Construct a logout URI and redirect the user to end the
+             * session with Azure AD/B2C. For more information, visit:
+             * (AAD) https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request
+             * (B2C) https://docs.microsoft.com/azure/active-directory-b2c/openid-connect#send-a-sign-out-request
+             */
+            const logoutURI = `${this.msalConfig.auth.authority}/oauth2/v2.0/logout?post_logout_redirect_uri=${postLogoutRedirectUri}`;
 
-        req.session.isAuthenticated = false;
+            req.session.isAuthenticated = false;
 
-        req.session.destroy(() => {
-            res.redirect(logoutURI);
-        });
+            req.session.destroy(() => {
+                res.redirect(logoutURI);
+            });
+        }
     };
 
     /**
@@ -200,79 +214,81 @@ export class AuthProvider {
      * @param {NextFunction} next: express next function
      * @returns {Promise}
      */
-    handleRedirect: RequestHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        if (req.query.state) {
-            const state = JSON.parse(this.cryptoProvider.base64Decode(req.query.state as string));
+    handleRedirect = (options?): RequestHandler => {
+        return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+            if (req.query.state) {
+                const state = JSON.parse(this.cryptoProvider.base64Decode(req.query.state as string));
 
-            // check if nonce matches
-            if (state.nonce === req.session.nonce) {
-                switch (state.stage) {
-                    case AppStages.SIGN_IN: {
-                        // token request should have auth code
-                        req.session.tokenRequest.code = req.query.code as string;
-
-                        try {
-                            // exchange auth code for tokens
-                            const tokenResponse = await this.msalClient.acquireTokenByCode(req.session.tokenRequest);
-                            console.log("\nResponse: \n:", tokenResponse);
+                // check if nonce matches
+                if (state.nonce === req.session.nonce) {
+                    switch (state.stage) {
+                        case AppStages.SIGN_IN: {
+                            // token request should have auth code
+                            req.session.tokenRequest.code = req.query.code as string;
 
                             try {
-                                const isIdTokenValid = await this.tokenValidator.validateIdToken(tokenResponse.idToken);
+                                // exchange auth code for tokens
+                                const tokenResponse = await this.msalClient.acquireTokenByCode(req.session.tokenRequest);
+                                console.log("\nResponse: \n:", tokenResponse);
 
-                                if (isIdTokenValid) {
-                                    // assign session variables
-                                    req.session.account = tokenResponse.account;
-                                    req.session.isAuthenticated = true;
+                                try {
+                                    const isIdTokenValid = await this.tokenValidator.validateIdToken(tokenResponse.idToken);
 
-                                    res.redirect(this.appSettings.authRoutes.postLogin);
-                                } else {
-                                    console.log(ErrorMessages.INVALID_TOKEN);
-                                    res.redirect(this.appSettings.authRoutes.unauthorized);
+                                    if (isIdTokenValid) {
+                                        // assign session variables
+                                        req.session.account = tokenResponse.account;
+                                        req.session.isAuthenticated = true;
+
+                                        res.redirect(state.path);
+                                    } else {
+                                        console.log(ErrorMessages.INVALID_TOKEN);
+                                        res.redirect(this.appSettings.authRoutes.unauthorized);
+                                    }
+                                } catch (error) {
+                                    console.log(ErrorMessages.CANNOT_VALIDATE_TOKEN);
+                                    console.log(error);
+                                    next(error)
                                 }
                             } catch (error) {
-                                console.log(ErrorMessages.CANNOT_VALIDATE_TOKEN);
+                                console.log(ErrorMessages.TOKEN_ACQUISITION_FAILED);
                                 console.log(error);
                                 next(error)
                             }
-                        } catch (error) {
-                            console.log(ErrorMessages.TOKEN_ACQUISITION_FAILED);
-                            console.log(error);
-                            next(error)
+                            break;
                         }
-                        break;
-                    }
 
-                    case AppStages.ACQUIRE_TOKEN: {
-                        // get the name of the resource associated with scope
-                        const resourceName = this.getResourceNameFromScopes(req.session.tokenRequest.scopes);
+                        case AppStages.ACQUIRE_TOKEN: {
+                            // get the name of the resource associated with scope
+                            const resourceName = this.getResourceNameFromScopes(req.session.tokenRequest.scopes);
 
-                        req.session.tokenRequest.code = req.query.code as string
+                            req.session.tokenRequest.code = req.query.code as string
 
-                        try {
-                            const tokenResponse = await this.msalClient.acquireTokenByCode(req.session.tokenRequest);
-                            console.log("\nResponse: \n:", tokenResponse);
-                            req.session.remoteResources[resourceName].accessToken = tokenResponse.accessToken;
-                            res.redirect(state.path);
-                        } catch (error) {
-                            console.log(ErrorMessages.TOKEN_ACQUISITION_FAILED);
-                            console.log(error);
-                            next(error);
+                            try {
+                                const tokenResponse = await this.msalClient.acquireTokenByCode(req.session.tokenRequest);
+                                console.log("\nResponse: \n:", tokenResponse);
+                                req.session.remoteResources[resourceName].accessToken = tokenResponse.accessToken;
+                                res.redirect(state.path);
+                            } catch (error) {
+                                console.log(ErrorMessages.TOKEN_ACQUISITION_FAILED);
+                                console.log(error);
+                                next(error);
+                            }
+                            break;
                         }
-                        break;
-                    }
 
-                    default:
-                        console.log(ErrorMessages.CANNOT_DETERMINE_APP_STAGE);
-                        res.redirect(this.appSettings.authRoutes.error);
-                        break;
+                        default:
+                            console.log(ErrorMessages.CANNOT_DETERMINE_APP_STAGE);
+                            res.redirect(this.appSettings.authRoutes.error);
+                            break;
+                    }
+                } else {
+                    console.log(ErrorMessages.NONCE_MISMATCH);
+                    res.redirect(this.appSettings.authRoutes.unauthorized);
                 }
             } else {
-                console.log(ErrorMessages.NONCE_MISMATCH);
+                console.log(ErrorMessages.STATE_NOT_FOUND)
                 res.redirect(this.appSettings.authRoutes.unauthorized);
             }
-        } else {
-            console.log(ErrorMessages.STATE_NOT_FOUND)
-            res.redirect(this.appSettings.authRoutes.unauthorized);
         }
     };
 
@@ -280,10 +296,10 @@ export class AuthProvider {
 
     /**
      * Middleware that gets tokens via acquireToken*
-     * @param {TokenOptions} options: express request object
+     * @param {TokenRequestOptions} options: express request object
      * @returns {RequestHandler}
      */
-    getToken = (options: TokenOptions): RequestHandler => {
+    getToken = (options: TokenRequestOptions): RequestHandler => {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             // get scopes for token request
             const scopes = options.resource.scopes;
@@ -340,8 +356,9 @@ export class AuthProvider {
                     };
 
                     // initiate the first leg of auth code grant to get token
-                    this.getAuthCode(req, res, params);
+                    return this.getAuthCode(req, res, next, params);
                 } else {
+                    console.log(error);
                     next(error);
                 }
             }
@@ -350,10 +367,10 @@ export class AuthProvider {
 
     /**
      * Middleware that gets tokens via OBO flow. Used in api scenarios
-     * @param {TokenOptions} options: express request object
+     * @param {TokenRequestOptions} options: express request object
      * @returns {RequestHandler}
      */
-    getTokenOnBehalf = (options: TokenOptions): RequestHandler => {
+    getTokenOnBehalf = (options: TokenRequestOptions): RequestHandler => {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             const authHeader = req.headers.authorization;
 
@@ -454,7 +471,7 @@ export class AuthProvider {
                         } else {
                             const groups = req.session.account.idTokenClaims[AccessConstants.GROUPS];
 
-                            if (!this.applyAccessRule(req.method, options.accessRule, groups, true)) {
+                            if (!this.applyAccessRule(req.method, options.accessRule, groups, AccessConstants.GROUPS)) {
                                 return res.redirect(this.appSettings.authRoutes.unauthorized);
                             }
                         }
@@ -470,7 +487,7 @@ export class AuthProvider {
                         } else {
                             const roles = req.session.account.idTokenClaims[AccessConstants.ROLES];
 
-                            if (this.applyAccessRule(req.method, options.accessRule, roles, false)) {
+                            if (!this.applyAccessRule(req.method, options.accessRule, roles, AccessConstants.ROLES)) {
                                 return res.redirect(this.appSettings.authRoutes.unauthorized);
                             }
                         }
@@ -497,7 +514,7 @@ export class AuthProvider {
      * @param {AuthCodeParams} params: modifies auth code request url
      * @returns {Promise}
      */
-    private async getAuthCode(req: Request, res: Response, params: AuthCodeParams): Promise<void> {
+    private async getAuthCode(req: Request, res: Response, next: NextFunction, params: AuthCodeParams): Promise<void> {
         // prepare the request
         req.session.authCodeRequest.authority = params.authority;
         req.session.authCodeRequest.scopes = params.scopes;
@@ -517,6 +534,7 @@ export class AuthProvider {
         } catch (error) {
             console.log(ErrorMessages.AUTH_CODE_NOT_OBTAINED);
             console.log(error);
+            next(error);
         }
     };
 
@@ -531,14 +549,14 @@ export class AuthProvider {
 
         const silentRequest: SilentFlowRequest = {
             account: req.session.account,
-            scopes: ["User.Read", "GroupMember.Read.All"],
+            scopes: AccessConstants.GRAPH_MEMBER_SCOPES.split(" "),
         };
 
         try {
             // acquire token silently to be used in resource call
             const tokenResponse = await this.msalClient.acquireTokenSilent(silentRequest);
             try {
-                const graphResponse = await FetchManager.callApiEndpoint("https://graph.microsoft.com/v1.0/me/memberOf", tokenResponse.accessToken);
+                const graphResponse = await FetchManager.callApiEndpoint(AccessConstants.GRAPH_MEMBERS_ENDPOINT, tokenResponse.accessToken);
 
                 /**
                  * Some queries against Microsoft Graph return multiple pages of data either due to server-side paging 
@@ -546,20 +564,23 @@ export class AuthProvider {
                  * When a result set spans multiple pages, Microsoft Graph returns an @odata.nextLink property in 
                  * the response that contains a URL to the next page of results. Learn more at https://docs.microsoft.com/graph/paging
                  */
-                if (graphResponse["@odata.nextLink"]) {
+                if (graphResponse[AccessConstants.PAGINATION_LINK]) {
                     try {
-                        const userGroups = await FetchManager.handlePagination(tokenResponse.accessToken, graphResponse["@odata.nextLink"]);
+                        const userGroups = await FetchManager.handlePagination(tokenResponse.accessToken, graphResponse[AccessConstants.PAGINATION_LINK]);
 
                         req.session.account.idTokenClaims = {
                             ...newIdTokenClaims,
                             groups: userGroups
                         }
 
-                        if (!this.applyAccessRule(req.method, rule, req.session.account.idTokenClaims["groups"], true)) {
+                        if (!this.applyAccessRule(req.method, rule, req.session.account.idTokenClaims[AccessConstants.GROUPS], AccessConstants.GROUPS)) {
                             return res.redirect(this.appSettings.authRoutes.unauthorized);
+                        } else {
+                            return next();
                         }
                     } catch (error) {
                         console.log(error);
+                        next(error);
                     }
                 } else {
                     req.session.account.idTokenClaims = {
@@ -567,34 +588,41 @@ export class AuthProvider {
                         groups: graphResponse["value"].map((v) => v.id)
                     }
 
-                    if (!this.applyAccessRule(req.method, rule, req.session.account.idTokenClaims["groups"], true)) {
+                    if (!this.applyAccessRule(req.method, rule, req.session.account.idTokenClaims[AccessConstants.GROUPS], AccessConstants.GROUPS)) {
                         return res.redirect(this.appSettings.authRoutes.unauthorized);
+                    } else {
+                        return next();
                     }
                 }
             } catch (error) {
                 console.log(error);
+                next(error);
             }
         } catch (error) {
             console.log(error);
+            next(error);
         }
     }
 
-    private applyAccessRule(method: string, rule: AccessRule, creds: string[], isGroups: boolean): boolean {
+    private applyAccessRule(method: string, rule: AccessRule, creds: string[], credType: string): boolean {
         if (rule.methods.includes(method)) {
-            if (isGroups) {
-                let intersection = rule.groups.filter(elem => creds.includes(elem));
+            switch (credType) {
+                case AccessConstants.GROUPS:
+                    if (rule.groups.filter(elem => creds.includes(elem)).length < 1) {
+                        console.log(ErrorMessages.USER_NOT_IN_GROUP);
+                        return false;
+                    }
+                    break;
 
-                if (intersection.length < 1) {
-                    console.log(ErrorMessages.USER_NOT_IN_GROUP);
-                    return false;
-                }
-            } else {
-                let intersection = rule.roles.filter(elem => creds.includes(elem));
+                case AccessConstants.ROLES:
+                    if (rule.roles.filter(elem => creds.includes(elem)).length < 1) {
+                        console.log(ErrorMessages.USER_NOT_IN_ROLE);
+                        return false;
+                    }
+                    break;
 
-                if (intersection.length < 1) {
-                    console.log(ErrorMessages.USER_NOT_IN_ROLE);
-                    return false;
-                }
+                default:
+                    break;
             }
         } else {
             console.log(ErrorMessages.METHOD_NOT_ALLOWED);

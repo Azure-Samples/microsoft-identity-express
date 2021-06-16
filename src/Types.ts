@@ -40,11 +40,16 @@ export type InitializationOptions = {
     customState?: Object;
 };
 
-export type TokenOptions = {
+export type TokenRequestOptions = {
     resource: Resource;
     claims?: string;
     skipCache?: boolean;
 };
+
+export type LoginLogoutOptions = {
+    successRedirect: string;
+    failureRedirect?: string;
+}
 
 export type GuardOptions = {
     accessRule: AccessRule
@@ -100,10 +105,6 @@ export type KeyVault = {
 
 export type AuthRoutes = {
     redirect: string;
-    login: string;
-    postLogin: string;
-    logout: string;
-    postLogout: string;
     error: string;
     unauthorized: string;
     frontChannelLogout?: string;

@@ -6,10 +6,6 @@ const appSettings = {
     },
     authRoutes: {
         redirect: "/redirect",
-        login: "/signin",
-        postLogin: "/",
-        logout: "/signout",
-        postLogout: "/",
         error: "/error",
         unauthorized: "/unauthorized"
     },

@@ -10,25 +10,37 @@ module.exports = (authProvider) => {
     router.get('/', (req, res, next) => res.redirect('/home'));
     router.get('/home', mainController.getHomePage);
 
+    router.get('/signin',
+        authProvider.login({
+            successRedirect: "/",
+        }),
+    );
+
+    router.get('/signout',
+        authProvider.logout({
+            successRedirect: "/",
+        }),
+    );
+
     // secure routes
-    router.get('/id', 
+    router.get('/id',
         authProvider.isAuthenticated(),
         mainController.getIdPage
     );
 
-    router.get('/profile', 
-        authProvider.isAuthenticated(), 
+    router.get('/profile',
+        authProvider.isAuthenticated(),
         authProvider.getToken({
             resource: appSettings.remoteResources.graphAPI
         }),
         mainController.getProfilePage
     ); // get token for this route to call web API
 
-    router.get('/tenant', 
-        authProvider.isAuthenticated(), 
+    router.get('/tenant',
+        authProvider.isAuthenticated(),
         authProvider.getToken({
             resource: appSettings.remoteResources.armAPI
-        }), 
+        }),
         mainController.getTenantPage
     ); // get token for this route to call web API
 

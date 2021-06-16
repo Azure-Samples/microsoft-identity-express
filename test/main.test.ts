@@ -16,10 +16,6 @@ test('instantiates a class', () => {
     },
     authRoutes: {
       redirect: TEST_CONSTANTS.APP_ROUTE,
-      login: TEST_CONSTANTS.APP_ROUTE,
-      postLogin: TEST_CONSTANTS.APP_ROUTE,
-      logout: TEST_CONSTANTS.APP_ROUTE,
-      postLogout: TEST_CONSTANTS.APP_ROUTE,
       error: TEST_CONSTANTS.APP_ROUTE,
       unauthorized: TEST_CONSTANTS.APP_ROUTE
     },

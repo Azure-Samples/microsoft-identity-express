@@ -40,6 +40,9 @@ export declare const AccessConstants: {
     ROLES: string;
     CLAIM_NAMES: string;
     CLAIM_SOURCES: string;
+    PAGINATION_LINK: string;
+    GRAPH_MEMBERS_ENDPOINT: string;
+    GRAPH_MEMBER_SCOPES: string;
 };
 /**
  * For more information, visit: https://login.microsoftonline.com/error

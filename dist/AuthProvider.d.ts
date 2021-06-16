@@ -1,7 +1,7 @@
 import { RequestHandler, Router } from "express";
 import { ConfidentialClientApplication, Configuration, ICachePlugin, CryptoProvider } from "@azure/msal-node";
 import { TokenValidator } from "./TokenValidator";
-import { AppSettings, InitializationOptions, TokenOptions, GuardOptions } from "./Types";
+import { AppSettings, InitializationOptions, TokenRequestOptions, GuardOptions, LoginLogoutOptions } from "./Types";
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
  * It offers a collection of middleware and utility methods that automate
@@ -40,7 +40,7 @@ export declare class AuthProvider {
      * @param {NextFunction} next: express next function
      * @returns {void}
      */
-    login: RequestHandler;
+    login: (options?: LoginLogoutOptions) => RequestHandler;
     /**
      * Initiate sign out and destroy the session
      * @param {Request} req: express request object
@@ -48,7 +48,7 @@ export declare class AuthProvider {
      * @param {NextFunction} next: express next function
      * @returns {void}
      */
-    logout: RequestHandler;
+    logout: (options?: LoginLogoutOptions) => RequestHandler;
     /**
      * Middleware that handles redirect depending on request state
      * There are basically 2 stages: sign-in and acquire token
@@ -57,19 +57,19 @@ export declare class AuthProvider {
      * @param {NextFunction} next: express next function
      * @returns {Promise}
      */
-    handleRedirect: RequestHandler;
+    handleRedirect: (options?: any) => RequestHandler;
     /**
      * Middleware that gets tokens via acquireToken*
-     * @param {TokenOptions} options: express request object
+     * @param {TokenRequestOptions} options: express request object
      * @returns {RequestHandler}
      */
-    getToken: (options: TokenOptions) => RequestHandler;
+    getToken: (options: TokenRequestOptions) => RequestHandler;
     /**
      * Middleware that gets tokens via OBO flow. Used in api scenarios
-     * @param {TokenOptions} options: express request object
+     * @param {TokenRequestOptions} options: express request object
      * @returns {RequestHandler}
      */
-    getTokenOnBehalf: (options: TokenOptions) => RequestHandler;
+    getTokenOnBehalf: (options: TokenRequestOptions) => RequestHandler;
     /**
      * Check if authenticated in session
      * @param {GuardOptions} options: express request object

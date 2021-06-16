@@ -27,10 +27,14 @@ export declare type InitializationOptions = {
     saveCacheToDisk?: boolean;
     customState?: Object;
 };
-export declare type TokenOptions = {
+export declare type TokenRequestOptions = {
     resource: Resource;
     claims?: string;
     skipCache?: boolean;
+};
+export declare type LoginLogoutOptions = {
+    successRedirect: string;
+    failureRedirect?: string;
 };
 export declare type GuardOptions = {
     accessRule: AccessRule;

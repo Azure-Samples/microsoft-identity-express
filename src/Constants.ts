@@ -46,7 +46,10 @@ export const ErrorMessages = {
     GROUPS: "groups",
     ROLES: "roles",
     CLAIM_NAMES: "_claim_name",
-    CLAIM_SOURCES: "_claim_sources"
+    CLAIM_SOURCES: "_claim_sources",
+    PAGINATION_LINK: "@odata.nextLink",
+    GRAPH_MEMBERS_ENDPOINT: "https://graph.microsoft.com/v1.0/me/memberOf",
+    GRAPH_MEMBER_SCOPES: "User.Read GroupMember.Read.All"
 };
 
 /**
