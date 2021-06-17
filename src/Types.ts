@@ -46,18 +46,18 @@ export type TokenRequestOptions = {
     skipCache?: boolean;
 };
 
-export type LoginOptions = {
-    postLogin: string;
-    extraScopesToConsent: string[];
+export type SignInOptions = {
+    successRedirect: string;
+    extraScopesToConsent?: string[];
     failureRedirect?: string;
 }
 
-export type LogoutOptions = {
-    postLogout: string;
+export type SignOutOptions = {
+    successRedirect: string;
     failureRedirect?: string;
 }
 
-export type RedirectOptions = {
+export type HandleRedirectOptions = {
 
 };
 
@@ -150,7 +150,3 @@ export type UserInfo = {
     surname?: string;
     userPrincipalName?: string;
 };
-
-export type IdTokenClaims = {
-
-}

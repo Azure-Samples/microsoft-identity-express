@@ -10,15 +10,16 @@ module.exports = (authProvider) => {
     router.get('/', (req, res, next) => res.redirect('/home'));
     router.get('/home', mainController.getHomePage);
 
+    // auth routes
     router.get('/signin',
-        authProvider.login({
-            postLogin: "/",
+        authProvider.signIn({
+            successRedirect: "/",
         }),
     );
 
     router.get('/signout',
-        authProvider.logout({
-            postLogout: "/",
+        authProvider.signOut({
+            successRedirect: "/",
         }),
     );
 
@@ -30,7 +31,7 @@ module.exports = (authProvider) => {
 
     router.get('/profile',
         authProvider.isAuthenticated(),
-        authProvider.acquireToken({
+        authProvider.getToken({
             resource: appSettings.remoteResources.graphAPI
         }),
         mainController.getProfilePage
@@ -38,7 +39,7 @@ module.exports = (authProvider) => {
 
     router.get('/tenant',
         authProvider.isAuthenticated(),
-        authProvider.acquireToken({
+        authProvider.getToken({
             resource: appSettings.remoteResources.armAPI
         }),
         mainController.getTenantPage

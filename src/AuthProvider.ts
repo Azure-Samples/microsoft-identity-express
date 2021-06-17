@@ -36,9 +36,9 @@ import {
     TokenRequestOptions,
     GuardOptions,
     AccessRule,
-    LoginOptions,
-    LogoutOptions,
-    RedirectOptions
+    SignInOptions,
+    SignOutOptions,
+    HandleRedirectOptions
 } from "./Types";
 
 import {
@@ -54,14 +54,12 @@ import { FetchManager } from "./FetchManager";
  * It offers a collection of middleware and utility methods that automate
  * basic authentication and authorization tasks in Express MVC web apps and
  * RESTful APIs.
- *
+ * 
  * You must have express and express-sessions packages installed. 
  * Session variables accessible are as follows:
  * 
  * req.session.isAuthenticated: boolean
- * 
  * req.session.account: AccountInfo
- * 
  * req.session.remoteResources.{resourceName}.accessToken: string
  */
 export class AuthProvider {
@@ -80,6 +78,10 @@ export class AuthProvider {
         ConfigurationUtils.validateAppSettings(appSettings);
         this.appSettings = appSettings;
 
+        // TODO: getCredentialFromKeyVault();
+        // const configurationUtils = new ConfigurationUtils();
+        // const keyVaultCredential = configurationUtils.getCredentialFromKeyVault(appSettings);
+        
         this.msalConfig = ConfigurationUtils.getMsalConfiguration(appSettings, cache);
         this.msalClient = new ConfidentialClientApplication(this.msalConfig);
 
@@ -93,6 +95,8 @@ export class AuthProvider {
      * @returns {Router}
      */
     initialize = (options?: InitializationOptions): Router => {
+
+        // TODO: initialize app defaults
 
         const appRouter = express.Router();
 
@@ -118,10 +122,10 @@ export class AuthProvider {
 
     /**
      * Initiates sign in flow
-     * @param {LoginOptions} options: options to modify login request
+     * @param {SignInOptions} options: options to modify login request
      * @returns {RequestHandler}
      */
-    login = (options?: LoginOptions): RequestHandler => {
+    signIn = (options?: SignInOptions): RequestHandler => {
         return (req: Request, res: Response, next: NextFunction): Promise<void> => {
             /**
          * Request Configuration
@@ -160,10 +164,11 @@ export class AuthProvider {
             // random GUID for csrf protection
             req.session.nonce = this.cryptoProvider.createNewGuid();
 
+            // TODO: encrypt state parameter 
             const state = this.cryptoProvider.base64Encode(
                 JSON.stringify({
                     stage: AppStages.SIGN_IN,
-                    path: options.postLogin,
+                    path: options.successRedirect,
                     nonce: req.session.nonce,
                 })
             );
@@ -186,9 +191,9 @@ export class AuthProvider {
      * @param options 
      * @returns {RequestHandler}
      */
-    logout = (options?: LogoutOptions): RequestHandler => {
+    signOut = (options?: SignOutOptions): RequestHandler => {
         return (req: Request, res: Response, next: NextFunction): void => {
-            const postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.postLogout);
+            const postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.successRedirect);
 
             /**
              * Construct a logout URI and redirect the user to end the
@@ -214,7 +219,7 @@ export class AuthProvider {
      * @param {NextFunction} next: express next function
      * @returns {RequestHandler}
      */
-    private handleRedirect = (options?: RedirectOptions): RequestHandler => {
+    private handleRedirect = (options?: HandleRedirectOptions): RequestHandler => {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             if (req.query.state) {
                 const state = JSON.parse(this.cryptoProvider.base64Decode(req.query.state as string));
@@ -299,7 +304,7 @@ export class AuthProvider {
      * @param {TokenRequestOptions} options: express request object
      * @returns {RequestHandler}
      */
-    acquireToken = (options: TokenRequestOptions): RequestHandler => {
+    getToken = (options: TokenRequestOptions): RequestHandler => {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             // get scopes for token request
             const scopes = options.resource.scopes;
@@ -370,7 +375,7 @@ export class AuthProvider {
      * @param {TokenRequestOptions} options: express request object
      * @returns {RequestHandler}
      */
-    acquireTokenOnBehalf = (options: TokenRequestOptions): RequestHandler => {
+    getTokenOnBehalf = (options: TokenRequestOptions): RequestHandler => {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             const authHeader = req.headers.authorization;
 
@@ -649,6 +654,8 @@ export class AuthProvider {
      * @returns {string}
      */
     private getResourceNameFromScopes(scopes: string[]): string {
+        // TODO: deep check equality here 
+
         const index = Object.values({ ...this.appSettings.remoteResources, ...this.appSettings.ownedResources })
             .findIndex((resource: Resource) => JSON.stringify(resource.scopes) === JSON.stringify(scopes));
 
