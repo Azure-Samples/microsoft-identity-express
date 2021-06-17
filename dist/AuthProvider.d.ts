@@ -1,7 +1,7 @@
 import { RequestHandler, Router } from "express";
 import { ConfidentialClientApplication, Configuration, ICachePlugin, CryptoProvider } from "@azure/msal-node";
 import { TokenValidator } from "./TokenValidator";
-import { AppSettings, InitializationOptions, TokenRequestOptions, GuardOptions, LoginOptions, LogoutOptions } from "./Types";
+import { AppSettings, InitializationOptions, TokenRequestOptions, GuardOptions, SignInOptions, SignOutOptions } from "./Types";
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
  * It offers a collection of middleware and utility methods that automate
@@ -12,9 +12,7 @@ import { AppSettings, InitializationOptions, TokenRequestOptions, GuardOptions, 
  * Session variables accessible are as follows:
  *
  * req.session.isAuthenticated: boolean
- *
  * req.session.account: AccountInfo
- *
  * req.session.remoteResources.{resourceName}.accessToken: string
  */
 export declare class AuthProvider {
@@ -37,16 +35,16 @@ export declare class AuthProvider {
     initialize: (options?: InitializationOptions) => Router;
     /**
      * Initiates sign in flow
-     * @param {LoginOptions} options: options to modify login request
+     * @param {SignInOptions} options: options to modify login request
      * @returns {RequestHandler}
      */
-    login: (options?: LoginOptions) => RequestHandler;
+    signIn: (options?: SignInOptions) => RequestHandler;
     /**
      * Initiate sign out and destroy the session
      * @param options
      * @returns {RequestHandler}
      */
-    logout: (options?: LogoutOptions) => RequestHandler;
+    signOut: (options?: SignOutOptions) => RequestHandler;
     /**
      * Middleware that handles redirect depending on request state
      * There are basically 2 stages: sign-in and acquire token
@@ -61,13 +59,13 @@ export declare class AuthProvider {
      * @param {TokenRequestOptions} options: express request object
      * @returns {RequestHandler}
      */
-    acquireToken: (options: TokenRequestOptions) => RequestHandler;
+    getToken: (options: TokenRequestOptions) => RequestHandler;
     /**
      * Middleware that gets tokens via OBO flow. Used in api scenarios
      * @param {TokenRequestOptions} options: express request object
      * @returns {RequestHandler}
      */
-    acquireTokenOnBehalf: (options: TokenRequestOptions) => RequestHandler;
+    getTokenOnBehalf: (options: TokenRequestOptions) => RequestHandler;
     /**
      * Check if authenticated in session
      * @param {GuardOptions} options: express request object

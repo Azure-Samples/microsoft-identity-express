@@ -4,6 +4,9 @@ import { LogLevel, ConfidentialClientApplication, CryptoProvider } from '@azure/
 import jwt from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
 import axios from 'axios';
+import { CertificateClient } from '@azure/keyvault-certificates';
+import { ManagedIdentityCredential } from '@azure/identity';
+import { SecretClient } from '@azure/keyvault-secrets';
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
   try {
@@ -1417,9 +1420,7 @@ var _excluded = ["_claim_names", "_claim_sources"];
  * Session variables accessible are as follows:
  *
  * req.session.isAuthenticated: boolean
- *
  * req.session.account: AccountInfo
- *
  * req.session.remoteResources.{resourceName}.accessToken: string
  */
 
@@ -1438,6 +1439,7 @@ var AuthProvider = /*#__PURE__*/function () {
      * @returns {Router}
      */
     this.initialize = function (options) {
+      // TODO: initialize app defaults
       var appRouter = express.Router(); // handle redirect
 
       appRouter.get(_this.appSettings.authRoutes.redirect, _this.handleRedirect());
@@ -1459,12 +1461,12 @@ var AuthProvider = /*#__PURE__*/function () {
 
     /**
      * Initiates sign in flow
-     * @param {LoginOptions} options: options to modify login request
+     * @param {SignInOptions} options: options to modify login request
      * @returns {RequestHandler}
      */
 
 
-    this.login = function (options) {
+    this.signIn = function (options) {
       return function (req, res, next) {
         /**
         * Request Configuration
@@ -1501,11 +1503,11 @@ var AuthProvider = /*#__PURE__*/function () {
         } // random GUID for csrf protection
 
 
-        req.session.nonce = _this.cryptoProvider.createNewGuid();
+        req.session.nonce = _this.cryptoProvider.createNewGuid(); // TODO: encrypt state parameter 
 
         var state = _this.cryptoProvider.base64Encode(JSON.stringify({
           stage: AppStages.SIGN_IN,
-          path: options.postLogin,
+          path: options.successRedirect,
           nonce: req.session.nonce
         }));
 
@@ -1527,9 +1529,9 @@ var AuthProvider = /*#__PURE__*/function () {
      */
 
 
-    this.logout = function (options) {
+    this.signOut = function (options) {
       return function (req, res, next) {
-        var postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.postLogout);
+        var postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.successRedirect);
         /**
          * Construct a logout URI and redirect the user to end the
          * session with Azure AD/B2C. For more information, visit:
@@ -1698,7 +1700,7 @@ var AuthProvider = /*#__PURE__*/function () {
      */
 
 
-    this.acquireToken = function (options) {
+    this.getToken = function (options) {
       return /*#__PURE__*/function () {
         var _ref2 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(req, res, next) {
           var _req$session$remoteRe;
@@ -1795,7 +1797,7 @@ var AuthProvider = /*#__PURE__*/function () {
      */
 
 
-    this.acquireTokenOnBehalf = function (options) {
+    this.getTokenOnBehalf = function (options) {
       return /*#__PURE__*/function () {
         var _ref3 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee3(req, res, next) {
           var authHeader, scopes, resourceName, oboRequest, _req$locals, tokenResponse;
@@ -2036,7 +2038,10 @@ var AuthProvider = /*#__PURE__*/function () {
     };
 
     ConfigurationUtils.validateAppSettings(appSettings);
-    this.appSettings = appSettings;
+    this.appSettings = appSettings; // TODO: getCredentialFromKeyVault();
+    // const configurationUtils = new ConfigurationUtils();
+    // const keyVaultCredential = configurationUtils.getCredentialFromKeyVault(appSettings);
+
     this.msalConfig = ConfigurationUtils.getMsalConfiguration(appSettings, cache);
     this.msalClient = new ConfidentialClientApplication(this.msalConfig);
     this.tokenValidator = new TokenValidator(this.appSettings, this.msalConfig);
@@ -2281,6 +2286,7 @@ var AuthProvider = /*#__PURE__*/function () {
   ;
 
   _proto.getResourceNameFromScopes = function getResourceNameFromScopes(scopes) {
+    // TODO: deep check equality here 
     var index = Object.values(_extends({}, this.appSettings.remoteResources, this.appSettings.ownedResources)).findIndex(function (resource) {
       return JSON.stringify(resource.scopes) === JSON.stringify(scopes);
     });
@@ -2291,5 +2297,134 @@ var AuthProvider = /*#__PURE__*/function () {
   return AuthProvider;
 }();
 
-export { AuthProvider, ConfigurationUtils, FetchManager, TokenValidator };
+var KeyVaultManager = /*#__PURE__*/function () {
+  function KeyVaultManager() {}
+
+  var _proto = KeyVaultManager.prototype;
+
+  _proto.getCredentialFromKeyVault = /*#__PURE__*/function () {
+    var _getCredentialFromKeyVault = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(config) {
+      var credential;
+      return runtime_1.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              // Using VS Code's auth context for credentials
+              credential = new ManagedIdentityCredential();
+              _context.t0 = config.appCredentials.keyVault.credentialType;
+              _context.next = _context.t0 === "secret" ? 4 : _context.t0 === "certificate" ? 7 : 10;
+              break;
+
+            case 4:
+              _context.next = 6;
+              return this.getSecretCredential(config, credential);
+
+            case 6:
+              return _context.abrupt("return", _context.sent);
+
+            case 7:
+              _context.next = 9;
+              return this.getCertificateCredential(config, credential);
+
+            case 9:
+              return _context.abrupt("return", _context.sent);
+
+            case 10:
+              return _context.abrupt("break", 11);
+
+            case 11:
+            case "end":
+              return _context.stop();
+          }
+        }
+      }, _callee, this);
+    }));
+
+    function getCredentialFromKeyVault(_x) {
+      return _getCredentialFromKeyVault.apply(this, arguments);
+    }
+
+    return getCredentialFromKeyVault;
+  }();
+
+  _proto.getCertificateCredential = /*#__PURE__*/function () {
+    var _getCertificateCredential = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(config, credential) {
+      var secretClient, keyVaultCertificate;
+      return runtime_1.wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              // Initialize secretClient with credentials
+              secretClient = new CertificateClient(config.appCredentials.keyVault.keyVaultUrl, credential);
+              _context2.prev = 1;
+              _context2.next = 4;
+              return secretClient.getCertificate(config.appCredentials.keyVault.credentialName);
+
+            case 4:
+              keyVaultCertificate = _context2.sent;
+              return _context2.abrupt("return", keyVaultCertificate);
+
+            case 8:
+              _context2.prev = 8;
+              _context2.t0 = _context2["catch"](1);
+              console.log(_context2.t0);
+              return _context2.abrupt("return", _context2.t0);
+
+            case 12:
+            case "end":
+              return _context2.stop();
+          }
+        }
+      }, _callee2, null, [[1, 8]]);
+    }));
+
+    function getCertificateCredential(_x2, _x3) {
+      return _getCertificateCredential.apply(this, arguments);
+    }
+
+    return getCertificateCredential;
+  }();
+
+  _proto.getSecretCredential = /*#__PURE__*/function () {
+    var _getSecretCredential = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee3(config, credential) {
+      var secretClient, keyVaultSecret;
+      return runtime_1.wrap(function _callee3$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              // Initialize secretClient with credentials
+              secretClient = new SecretClient(config.appCredentials.keyVault.keyVaultUrl, credential);
+              _context3.prev = 1;
+              _context3.next = 4;
+              return secretClient.getSecret(config.appCredentials.keyVault.credentialName);
+
+            case 4:
+              keyVaultSecret = _context3.sent;
+              return _context3.abrupt("return", keyVaultSecret);
+
+            case 8:
+              _context3.prev = 8;
+              _context3.t0 = _context3["catch"](1);
+              console.log(_context3.t0);
+              return _context3.abrupt("return", _context3.t0);
+
+            case 12:
+            case "end":
+              return _context3.stop();
+          }
+        }
+      }, _callee3, null, [[1, 8]]);
+    }));
+
+    function getSecretCredential(_x4, _x5) {
+      return _getSecretCredential.apply(this, arguments);
+    }
+
+    return getSecretCredential;
+  }();
+
+  return KeyVaultManager;
+}();
+
+export { AuthProvider, ConfigurationUtils, FetchManager, KeyVaultManager, TokenValidator };
 //# sourceMappingURL=msal-express-wrapper.esm.js.map
