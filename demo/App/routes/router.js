@@ -1,30 +1,57 @@
 const express = require('express');
-const msalWrapper = require('msal-express-wrapper');
-
-const settings = require('../../appSettings.json');
-const cache = require('../utils/cachePlugin');
 const mainController = require('../controllers/mainController');
+const appSettings = require('../appSettings');
 
-const authProvider = new msalWrapper.AuthProvider(settings, cache);
+module.exports = (authProvider) => {
+    // initialize router
+    const router = express.Router();
 
-// initialize router
-const router = express.Router();
+    // app routes
+    router.get('/', (req, res, next) => res.redirect('/home'));
+    router.get('/home', mainController.getHomePage);
 
-// app routes
-router.get('/', (req, res, next) => res.redirect('/home'));
-router.get('/home', mainController.getHomePage);
+    router.get('/signin',
+        authProvider.login({
+            postLogin: "/",
+        }),
+    );
 
-// authentication routes
-router.get('/signin', authProvider.signIn);
-router.get('/signout', authProvider.signOut);
-router.get('/redirect', authProvider.handleRedirect);
+    router.get('/signout',
+        authProvider.logout({
+            postLogout: "/",
+        }),
+    );
 
-// secure routes
-router.get('/id', authProvider.isAuthenticated, mainController.getIdPage);
-router.get('/profile', authProvider.isAuthenticated, authProvider.getToken, mainController.getProfilePage); // get token for this route to call web API
-router.get('/tenant', authProvider.isAuthenticated, authProvider.getToken, mainController.getTenantPage) // get token for this route to call web API
+    // secure routes
+    router.get('/id',
+        authProvider.isAuthenticated(),
+        mainController.getIdPage
+    );
 
-// 404
-router.get('*', (req, res) => res.status(404).redirect('/404.html'));
+    router.get('/profile',
+        authProvider.isAuthenticated(),
+        authProvider.acquireToken({
+            resource: appSettings.remoteResources.graphAPI
+        }),
+        mainController.getProfilePage
+    ); // get token for this route to call web API
 
-module.exports = router;
+    router.get('/tenant',
+        authProvider.isAuthenticated(),
+        authProvider.acquireToken({
+            resource: appSettings.remoteResources.armAPI
+        }),
+        mainController.getTenantPage
+    ); // get token for this route to call web API
+
+    // unauthorized
+    router.get('/error', (req, res) => res.redirect('/401.html'));
+
+    // error
+    router.get('/unauthorized', (req, res) => res.redirect('/500.html'));
+
+    // 404
+    router.get('*', (req, res) => res.redirect('/404.html'));
+
+    return router;
+}
