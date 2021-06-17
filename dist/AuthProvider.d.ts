@@ -61,13 +61,13 @@ export declare class AuthProvider {
      * @param {TokenRequestOptions} options: express request object
      * @returns {RequestHandler}
      */
-    getToken: (options: TokenRequestOptions) => RequestHandler;
+    acquireToken: (options: TokenRequestOptions) => RequestHandler;
     /**
      * Middleware that gets tokens via OBO flow. Used in api scenarios
      * @param {TokenRequestOptions} options: express request object
      * @returns {RequestHandler}
      */
-    getTokenOnBehalf: (options: TokenRequestOptions) => RequestHandler;
+    acquireTokenOnBehalf: (options: TokenRequestOptions) => RequestHandler;
     /**
      * Check if authenticated in session
      * @param {GuardOptions} options: express request object

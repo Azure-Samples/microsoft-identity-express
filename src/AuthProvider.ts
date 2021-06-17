@@ -299,7 +299,7 @@ export class AuthProvider {
      * @param {TokenRequestOptions} options: express request object
      * @returns {RequestHandler}
      */
-    getToken = (options: TokenRequestOptions): RequestHandler => {
+    acquireToken = (options: TokenRequestOptions): RequestHandler => {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             // get scopes for token request
             const scopes = options.resource.scopes;
@@ -370,7 +370,7 @@ export class AuthProvider {
      * @param {TokenRequestOptions} options: express request object
      * @returns {RequestHandler}
      */
-    getTokenOnBehalf = (options: TokenRequestOptions): RequestHandler => {
+    acquireTokenOnBehalf = (options: TokenRequestOptions): RequestHandler => {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             const authHeader = req.headers.authorization;
 

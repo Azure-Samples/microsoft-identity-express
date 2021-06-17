@@ -30,7 +30,7 @@ module.exports = (authProvider) => {
 
     router.get('/profile',
         authProvider.isAuthenticated(),
-        authProvider.getToken({
+        authProvider.acquireToken({
             resource: appSettings.remoteResources.graphAPI
         }),
         mainController.getProfilePage
@@ -38,7 +38,7 @@ module.exports = (authProvider) => {
 
     router.get('/tenant',
         authProvider.isAuthenticated(),
-        authProvider.getToken({
+        authProvider.acquireToken({
             resource: appSettings.remoteResources.armAPI
         }),
         mainController.getTenantPage

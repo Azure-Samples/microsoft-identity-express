@@ -1704,7 +1704,7 @@ var AuthProvider = /*#__PURE__*/function () {
      */
 
 
-    this.getToken = function (options) {
+    this.acquireToken = function (options) {
       return /*#__PURE__*/function () {
         var _ref2 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(req, res, next) {
           var _req$session$remoteRe;
@@ -1801,7 +1801,7 @@ var AuthProvider = /*#__PURE__*/function () {
      */
 
 
-    this.getTokenOnBehalf = function (options) {
+    this.acquireTokenOnBehalf = function (options) {
       return /*#__PURE__*/function () {
         var _ref3 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee3(req, res, next) {
           var authHeader, scopes, resourceName, oboRequest, _req$locals, tokenResponse;
