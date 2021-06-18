@@ -4,104 +4,150 @@
  */
 
 import {
-  AccountInfo,
-  AuthorizationUrlRequest,
-  AuthorizationCodeRequest,
-} from '@azure/msal-node';
+    AccountInfo,
+    AuthorizationUrlRequest,
+    AuthorizationCodeRequest,
+    ICachePlugin,
+} from "@azure/msal-node";
 
-declare module 'express-session' {
-  interface SessionData {
-    authCodeRequest: AuthorizationUrlRequest;
-    tokenRequest: AuthorizationCodeRequest;
-    account: AccountInfo;
-    nonce: string;
-    isAuthenticated: boolean;
-    resources: {
-      [resource: string]: Resource;
-    };
-  }
+declare module "express-session" {
+    interface SessionData {
+        authCodeRequest: AuthorizationUrlRequest;
+        tokenRequest: AuthorizationCodeRequest;
+        account: AccountInfo;
+        nonce: string;
+        isAuthenticated?: boolean;
+        remoteResources?: {
+            [resource: string]: Resource;
+        };
+        ownedResources?: {
+            [resource: string]: Resource
+        },
+    }
 }
 
 export type AuthCodeParams = {
-  authority: string;
-  scopes: string[];
-  state: string;
-  redirect: string;
-  prompt?: string;
-  account?: AccountInfo;
+    authority: string;
+    scopes: string[];
+    state: string;
+    redirect: string;
+    prompt?: string;
+    account?: AccountInfo;
+};
+
+export type InitializationOptions = {
+    saveCacheToDisk?: boolean;
+    useSession?: boolean;
+    customState?: Object;
+};
+
+export type TokenRequestOptions = {
+    resource: Resource;
+    claims?: string;
+    skipCache?: boolean;
+};
+
+export type SignInOptions = {
+    successRedirect: string;
+    extraScopesToConsent?: string[];
+    failureRedirect?: string;
+}
+
+export type SignOutOptions = {
+    successRedirect: string;
+    failureRedirect?: string;
+}
+
+export type HandleRedirectOptions = {
+
+};
+
+export type GuardOptions = {
+    accessRule: AccessRule
 };
 
 export type ValidationOptions = {
-  audience: string;
-  issuer: string;
-  scope: string;
+    audience: string;
+    issuer: string;
+    scope: string;
 };
 
 export type State = {
-  nonce: string;
-  stage: string;
+    nonce: string;
+    stage: string;
 };
 
-export type Resource = {
-  callingPageRoute: string;
-  endpoint: string;
-  scopes: string[];
-  accessToken?: string;
+export type AppSettings = {
+    appCredentials: AppCredentials;
+    authRoutes?: AuthRoutes;
+    b2cPolicies?: {
+        [policy: string]: Policy;
+    };
+    remoteResources?: {
+        [resource: string]: Resource;
+    };
+    ownedResources?: {
+        [resource: string]: Resource
+    },
+    accessMatrix?: {
+        [accessRule: string]: AccessRule
+    }
 };
 
-export type Credentials = {
-  clientId: string;
-  tenantId: string;
-  clientSecret: string;
-  clientCertificate?: ClientCertificate;
+export type AppCredentials = {
+    clientId: string;
+    tenantId: string;
+    clientSecret?: string;
+    clientCertificate?: ClientCertificate;
+    keyVaultCredential?: KeyVaultCredential;
 };
 
 export type ClientCertificate = {
-  thumbprint: string;
-  privateKey: string;
+    thumbprint: string;
+    privateKey: string;
+    x5c?: string
 };
 
-export type Settings = {
-  homePageRoute: string;
-  redirectUri: string;
-  postLogoutRedirectUri: string;
+export type KeyVaultCredential = {
+    credentialType: string;
+    credentialName: string;
+    keyVaultUrl: string;
 };
 
-export type AccessRule = {
-  path: string,
-  methods: string[],
-  roles: string[]
-}
-
-export type AppSettings = {
-  credentials: Credentials;
-  settings: Settings;
-  resources?: {
-    [resource: string]: Resource;
-  };
-  policies?: {
-    [policy: string]: Policy;
-  };
-  accessMatrix?: {
-    [accessRule: string]: AccessRule
-  }
-  protected?: any,
+export type AuthRoutes = {
+    redirect: string;
+    error: string;
+    unauthorized: string;
+    frontChannelLogout?: string;
 };
 
 export type Policy = {
-  authority: string;
+    authority: string;
+};
+
+export type Resource = {
+    endpoint: string;
+    scopes: string[];
+    accessToken?: string;
+};
+
+export type AccessRule = {
+    path: string;
+    methods: string[];
+    roles?: string[];
+    groups?: string[];
 };
 
 export type UserInfo = {
-  businessPhones?: Array<string>;
-  displayName?: string;
-  givenName?: string;
-  id?: string;
-  jobTitle?: string;
-  mail?: string;
-  mobilePhone?: string;
-  officeLocation?: string;
-  preferredLanguage?: string;
-  surname?: string;
-  userPrincipalName?: string;
+    businessPhones?: Array<string>;
+    displayName?: string;
+    givenName?: string;
+    id?: string;
+    jobTitle?: string;
+    mail?: string;
+    mobilePhone?: string;
+    officeLocation?: string;
+    preferredLanguage?: string;
+    surname?: string;
+    userPrincipalName?: string;
 };

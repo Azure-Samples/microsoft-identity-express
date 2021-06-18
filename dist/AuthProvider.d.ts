@@ -1,96 +1,126 @@
-import { Request, Response, NextFunction } from 'express';
-import { ConfidentialClientApplication, Configuration, ICachePlugin, CryptoProvider } from '@azure/msal-node';
-import { TokenValidator } from './TokenValidator';
-import { UrlUtils } from './UrlUtils';
-import { AppSettings } from './Types';
+import { RequestHandler, Router } from "express";
+import { ConfidentialClientApplication, Configuration, ICachePlugin, CryptoProvider } from "@azure/msal-node";
+import { TokenValidator } from "./TokenValidator";
+import { AppSettings, InitializationOptions, TokenRequestOptions, GuardOptions, SignInOptions, SignOutOptions } from "./Types";
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
  * It offers a collection of middleware and utility methods that automate
- * basic authentication and authorization tasks in Express MVC web apps.
+ * basic authentication and authorization tasks in Express MVC web apps and
+ * RESTful APIs.
  *
- * You must have express and express-sessions package installed. Middleware
- * here can be used with express sessions in route controllers.
- *
+ * You must have express and express-sessions packages installed.
  * Session variables accessible are as follows:
+ *
  * req.session.isAuthenticated: boolean
- * req.session.isAuthorized: boolean
  * req.session.account: AccountInfo
- * req.session.<resourceName>.accessToken: string
+ * req.session.remoteResources.{resourceName}.accessToken: string
  */
 export declare class AuthProvider {
-    urlUtils: UrlUtils;
     appSettings: AppSettings;
     msalConfig: Configuration;
     cryptoProvider: CryptoProvider;
     tokenValidator: TokenValidator;
     msalClient: ConfidentialClientApplication;
     /**
-     * @param {JSON} appSettings
+     * @param {AppSettings} appSettings
      * @param {ICachePlugin} cache: cachePlugin
+     * @constructor
      */
     constructor(appSettings: AppSettings, cache?: ICachePlugin);
     /**
-     * Initiate sign in flow
-     * @param {Request} req: express request object
-     * @param {Response} res: express response object
-     * @param {NextFunction} next: express next function
+     * Asynchronously builds authProvider object with credentials fetched from Key Vault
+     * @param {AppSettings} appSettings
+     * @param {ICachePlugin} cache: cachePlugin
+     * @returns
      */
-    signIn: (req: Request, res: Response, next: NextFunction) => void;
+    static buildAsync(appSettings: AppSettings, cache?: ICachePlugin): Promise<AuthProvider>;
     /**
-     * Initiate sign out and clean the session
-     * @param {Request} req: express request object
-     * @param {Response} res: express response object
-     * @param {NextFunction} next: express next function
+     * Initialize AuthProvider and set default routes and handlers
+     * @param {InitializationOptions} options
+     * @returns {Router}
      */
-    signOut: (req: Request, res: Response, next: NextFunction) => void;
+    initialize: (options?: InitializationOptions) => Router;
+    /**
+     * Initiates sign in flow
+     * @param {SignInOptions} options: options to modify login request
+     * @returns {RequestHandler}
+     */
+    signIn: (options?: SignInOptions) => RequestHandler;
+    /**
+     * Initiate sign out and destroy the session
+     * @param options: options to modify logout request
+     * @returns {RequestHandler}
+     */
+    signOut: (options?: SignOutOptions) => RequestHandler;
     /**
      * Middleware that handles redirect depending on request state
      * There are basically 2 stages: sign-in and acquire token
-     * @param {Request} req: express request object
-     * @param {Response} res: express response object
-     * @param {NextFunction} next: express next function
+     * @param {HandleRedirectOptions} options: options to modify this middleware
+     * @returns {RequestHandler}
      */
-    handleRedirect: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+    private handleRedirect;
     /**
-     * Middleware that gets tokens and calls web APIs
-     * @param {Object} req: express request object
-     * @param {Object} res: express response object
-     * @param {Function} next: express next
+     * Middleware that gets tokens via acquireToken*
+     * @param {TokenRequestOptions} options: options to modify this middleware
+     * @returns {RequestHandler}
      */
-    getToken: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+    getToken: (options: TokenRequestOptions) => RequestHandler;
+    /**
+     * Middleware that gets tokens via OBO flow. Used in web API scenarios
+     * @param {TokenRequestOptions} options: options to modify this middleware
+     * @returns {RequestHandler}
+     */
+    getTokenOnBehalf: (options: TokenRequestOptions) => RequestHandler;
     /**
      * Check if authenticated in session
-     * @param {Object} req: express request object
-     * @param {Object} res: express response object
-     * @param {Function} next: express next
+     * @param {GuardOptions} options: options to modify this middleware
+     * @returns {RequestHandler}
      */
-    isAuthenticated: (req: Request, res: Response, next: NextFunction) => void | Response;
+    isAuthenticated: (options?: GuardOptions) => RequestHandler;
     /**
      * Receives access token in req authorization header
      * and validates it using the jwt.verify
-     * @param {Object} req: express request object
-     * @param {Object} res: express response object
-     * @param {Function} next: express next
+     * @param {GuardOptions} options: options to modify this middleware
+     * @returns {RequestHandler}
      */
-    isAuthorized: (req: Request, res: Response, next: NextFunction) => Promise<void | Response>;
+    isAuthorized: (options?: GuardOptions) => RequestHandler;
     /**
-     * Checks if the user has access for this route, defined in appSettings
-     * @param {Object} req: express request object
-     * @param {Object} res: express response object
-     * @param {Function} next: express next
+     * Checks if the user has access for this route, defined in access matrix
+     * @param {GuardOptions} options: options to modify this middleware
+     * @returns {RequestHandler}
      */
-    hasAccess: (req: Request, res: Response, next: NextFunction) => void | Response;
+    hasAccess: (options?: GuardOptions) => RequestHandler;
     /**
-     * This method is used to generate an auth code request
-     * @param {Object} req: express request object
-     * @param {Object} res: express response object
+     * This method is used to generate an auth code url request
+     * @param {Request} req: express request object
+     * @param {Response} res: express response object
      * @param {NextFunction} next: express next function
-     * @param {AuthCodeParams} params: modifies auth code request url
+     * @param {AuthCodeParams} params: modifies auth code url request
+     * @returns {Promise}
      */
     private getAuthCode;
     /**
-     * Util method to get the resource name for a given callingPageRoute (appSettings.json)
-     * @param {string} path: /path string that the resource is associated with
+     * Handles group overage claims by querying MS Graph /memberOf endpoint
+     * @param {Request} req: express request object
+     * @param {Response} res: express response object
+     * @param {NextFunction} next: express next function
+     * @param {AccessRule} rule: a given access rule
+     * @returns {Promise}
      */
-    private getResourceName;
+    private handleOverage;
+    /**
+     * Checks if the request passes a given access rule
+     * @param {string} method: HTTP method for this route
+     * @param {AccessRule} rule: access rule for this route
+     * @param {Array} creds: user's credentials i.e. roles or groups
+     * @param {string} credType: roles or groups
+     * @returns {boolean}
+     */
+    private checkAccessRule;
+    /**
+     * Util method to get the resource name for a given scope(s)
+     * @param {Array} scopes: an array of scopes that the resource is associated with
+     * @returns {string}
+     */
+    private getResourceNameFromScopes;
 }
