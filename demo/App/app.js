@@ -39,8 +39,7 @@ async function main() {
         resave: false,
         saveUninitialized: false,
         cookie: {
-            secure: false, // set this to true on production 
-            maxAge: 3600000 // 1 hour
+            secure: false, 
         }
     }
 

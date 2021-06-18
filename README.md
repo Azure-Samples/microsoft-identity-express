@@ -2,6 +2,7 @@
 
 [![Node.js CI](https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/node.js.yml/badge.svg)](https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/node.js.yml)
 [![Code Scanning](https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/codeql.yml/badge.svg)](https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/codeql.yml)
+[![Coverage Badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/Azure-Samples/9481c835913f1f176c8529dc7a875c8e/raw/msal-express-wrapper__heads_main.json)]
 [![Typedoc](https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/typedoc.yml/badge.svg)](https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/typedoc.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
