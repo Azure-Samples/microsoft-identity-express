@@ -31,6 +31,7 @@ export declare const ErrorMessages: {
     METHOD_NOT_ALLOWED: string;
     RULE_NOT_FOUND: string;
     SESSION_NOT_FOUND: string;
+    KEY_VAULT_CONFIG_NOT_FOUND: string;
 };
 /**
  * Constants used in access control scenarios
@@ -43,6 +44,21 @@ export declare const AccessConstants: {
     PAGINATION_LINK: string;
     GRAPH_MEMBERS_ENDPOINT: string;
     GRAPH_MEMBER_SCOPES: string;
+};
+/**
+ * String constants related to AAD Authority
+ */
+export declare const AADAuthorityConstants: {
+    COMMON: string;
+    ORGANIZATIONS: string;
+    CONSUMERS: string;
+};
+/**
+ * String constants related to AAD Authority
+ */
+export declare const KeyVaultCredentialTypes: {
+    SECRET: string;
+    CERTIFICATE: string;
 };
 /**
  * For more information, visit: https://login.microsoftonline.com/error

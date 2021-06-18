@@ -9,7 +9,7 @@ import { StringUtils, Constants, TokenClaims } from "@azure/msal-common";
 import { Configuration } from "@azure/msal-node";
 
 import { AppSettings, Resource } from "./Types";
-import { ErrorMessages } from "./Constants";
+import { ErrorMessages, AADAuthorityConstants } from "./Constants";
 
 export class TokenValidator {
     appSettings: AppSettings;
@@ -70,9 +70,9 @@ export class TokenValidator {
              * token"s tid claim for verification purposes
              */
             if (
-                this.appSettings.appCredentials.tenantId === "common" ||
-                this.appSettings.appCredentials.tenantId === "organizations" ||
-                this.appSettings.appCredentials.tenantId === "consumers"
+                this.appSettings.appCredentials.tenantId === AADAuthorityConstants.COMMON ||
+                this.appSettings.appCredentials.tenantId === AADAuthorityConstants.ORGANIZATIONS ||
+                this.appSettings.appCredentials.tenantId === AADAuthorityConstants.CONSUMERS
             ) {
                 this.appSettings.appCredentials.tenantId = decodedToken.payload.tid;
             }
@@ -147,9 +147,9 @@ export class TokenValidator {
     };
 
     /**
-     *
-     * @param {TokenClaims} verifiedToken
-     * @param {string} protectedRoute
+     * Validates the access token for a set of claims
+     * @param {TokenClaims} verifiedToken: token with a verified signature
+     * @param {string} protectedRoute: route where this token is required to access
      * @returns {boolean}
      */
     validateAccessTokenClaims(verifiedToken: TokenClaims, protectedRoute: string): boolean {
@@ -175,7 +175,8 @@ export class TokenValidator {
     /**
      * Fetches signing keys of an access token
      * from the authority discovery endpoint
-     * @param {Object} header
+     * @param {Object} header: token header
+     * @param {string} tid: tenant id
      * @returns {Promise}
      */
     private async getSigningKeys(header, tid: string): Promise<string> {

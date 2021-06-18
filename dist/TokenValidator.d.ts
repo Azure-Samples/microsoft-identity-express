@@ -36,16 +36,17 @@ export declare class TokenValidator {
      */
     validateAccessToken(accessToken: string, protectedRoute: string): Promise<boolean>;
     /**
-     *
-     * @param {TokenClaims} verifiedToken
-     * @param {string} protectedRoute
+     * Validates the access token for a set of claims
+     * @param {TokenClaims} verifiedToken: token with a verified signature
+     * @param {string} protectedRoute: route where this token is required to access
      * @returns {boolean}
      */
     validateAccessTokenClaims(verifiedToken: TokenClaims, protectedRoute: string): boolean;
     /**
      * Fetches signing keys of an access token
      * from the authority discovery endpoint
-     * @param {Object} header
+     * @param {Object} header: token header
+     * @param {string} tid: tenant id
      * @returns {Promise}
      */
     private getSigningKeys;

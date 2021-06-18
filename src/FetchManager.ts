@@ -40,21 +40,22 @@ export class FetchManager {
     }
 
     /**
-     * @param {string} accessToken 
-     * @param {string} nextPage 
-     * @param {Array} userGroups 
+     * Handles queries against Microsoft Graph that return multiple pages of data  
+     * @param {string} accessToken: access token required by endpoint 
+     * @param {string} nextPage: next page link
+     * @param {Array} data: stores data from each page
      * @returns {Promise}
      */
-    static handlePagination = async (accessToken: string, nextPage: string, userGroups: string[] = []): Promise<any> => {
+    static handlePagination = async (accessToken: string, nextPage: string, data: string[] = []): Promise<any> => {
 
         try {
             const graphResponse = await FetchManager.callApiEndpoint(nextPage, accessToken);
-            graphResponse["value"].map((v) => userGroups.push(v.id));
+            graphResponse["value"].map((v) => data.push(v.id));
     
             if (graphResponse[AccessConstants.PAGINATION_LINK]) {
-                return await FetchManager.handlePagination(accessToken, graphResponse[AccessConstants.PAGINATION_LINK], userGroups)
+                return await FetchManager.handlePagination(accessToken, graphResponse[AccessConstants.PAGINATION_LINK], data)
             } else {
-                return userGroups;
+                return data;
             }
         } catch (error) {
             console.log(error);

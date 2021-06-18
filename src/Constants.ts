@@ -36,13 +36,14 @@ export const ErrorMessages = {
     USER_NOT_IN_GROUP: "User does not have this group",
     METHOD_NOT_ALLOWED: "Method not allowed for this route",
     RULE_NOT_FOUND: "No rule found for this route",
-    SESSION_NOT_FOUND: "No session found for this request"
+    SESSION_NOT_FOUND: "No session found for this request",
+    KEY_VAULT_CONFIG_NOT_FOUND: "No coordinates found for Key Vault access"
 };
 
 /**
  * Constants used in access control scenarios
  */
- export const AccessConstants = {
+export const AccessConstants = {
     GROUPS: "groups",
     ROLES: "roles",
     CLAIM_NAMES: "_claim_name",
@@ -51,6 +52,23 @@ export const ErrorMessages = {
     GRAPH_MEMBERS_ENDPOINT: "https://graph.microsoft.com/v1.0/me/memberOf",
     GRAPH_MEMBER_SCOPES: "User.Read GroupMember.Read.All"
 };
+
+/**
+ * String constants related to AAD Authority
+ */
+export const AADAuthorityConstants = {
+    COMMON: "common",
+    ORGANIZATIONS: "organizations",
+    CONSUMERS: "consumers"
+}
+
+/**
+ * String constants related to AAD Authority
+ */
+export const KeyVaultCredentialTypes = {
+    SECRET: "secret",
+    CERTIFICATE: "certificate",
+}
 
 /**
  * For more information, visit: https://login.microsoftonline.com/error

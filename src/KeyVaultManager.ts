@@ -1,23 +1,51 @@
 import { CertificateClient, KeyVaultCertificate } from "@azure/keyvault-certificates";
-import { ManagedIdentityCredential } from "@azure/identity";
+import { DefaultAzureCredential } from "@azure/identity";
 import { KeyVaultSecret, SecretClient } from "@azure/keyvault-secrets";
 
 import { AppSettings } from "./Types";
+import { KeyVaultCredentialTypes } from "./Constants";
 
 export class KeyVaultManager {
 
-    async getCredentialFromKeyVault(config: AppSettings): Promise<KeyVaultCertificate | KeyVaultSecret> {
+    /**
+     * Fetches credentials from Key Vault and updates appSettings
+     * @param {AppSettings} config 
+     * @returns {Promise}
+     */
+    async getCredentialFromKeyVault(config: AppSettings): Promise<AppSettings> {
 
-        // Using VS Code's auth context for credentials
-        const credential = new ManagedIdentityCredential();
+        const credential = new DefaultAzureCredential();
 
-        switch (config.appCredentials.keyVault.credentialType) {
-            case "secret": {
-                return await this.getSecretCredential(config, credential);
+        if (!config.appCredentials.keyVaultCredential) {
+            return config
+        }
+
+        switch (config.appCredentials.keyVaultCredential.credentialType) {
+            case KeyVaultCredentialTypes.SECRET: {
+                try {
+                    const secretResponse = await this.getSecretCredential(config, credential);
+                    config.appCredentials.clientSecret = secretResponse.value;
+                    return config;
+                } catch (error) {
+                    console.log(error);
+                }
+                break;
             }
 
-            case "certificate": {
-                return await this.getCertificateCredential(config, credential);
+            case KeyVaultCredentialTypes.CERTIFICATE: {
+                try {
+                    const certificateResponse = await this.getCertificateCredential(config, credential);
+                    const secretResponse = await this.getSecretCredential(config, credential);
+
+                    config.appCredentials.clientCertificate = {
+                        thumbprint: certificateResponse.properties.x509Thumbprint.toString(),
+                        privateKey: secretResponse.value.split('-----BEGIN CERTIFICATE-----\n')[0]
+                    }
+                    return config;
+                } catch (error) {
+                    console.log(error);
+                }
+                break;
             }
 
             default:
@@ -25,13 +53,19 @@ export class KeyVaultManager {
         }
     };
 
-    async getCertificateCredential(config: AppSettings, credential: ManagedIdentityCredential): Promise<KeyVaultCertificate> {
+    /**
+     * Gets a certificate credential from Key Vault
+     * @param {AppSettings} config 
+     * @param {DefaultAzureCredential} credential 
+     * @returns {Promise}
+     */
+    async getCertificateCredential(config: AppSettings, credential: DefaultAzureCredential): Promise<KeyVaultCertificate> {
 
         // Initialize secretClient with credentials
-        const secretClient = new CertificateClient(config.appCredentials.keyVault.keyVaultUrl, credential);
+        const secretClient = new CertificateClient(config.appCredentials.keyVaultCredential.keyVaultUrl, credential);
 
         try {
-            const keyVaultCertificate = await secretClient.getCertificate(config.appCredentials.keyVault.credentialName);
+            const keyVaultCertificate = await secretClient.getCertificate(config.appCredentials.keyVaultCredential.credentialName);
             return keyVaultCertificate;
         } catch (error) {
             console.log(error);
@@ -39,13 +73,19 @@ export class KeyVaultManager {
         }
     }
 
-    async getSecretCredential(config: AppSettings, credential: ManagedIdentityCredential): Promise<KeyVaultSecret> {
+    /**
+     * Gets a secret credential from Key Vault
+     * @param {AppSettings} config 
+     * @param {DefaultAzureCredential} credential 
+     * @returns {Promise}
+     */
+    async getSecretCredential(config: AppSettings, credential: DefaultAzureCredential): Promise<KeyVaultSecret> {
 
         // Initialize secretClient with credentials
-        const secretClient = new SecretClient(config.appCredentials.keyVault.keyVaultUrl, credential);
+        const secretClient = new SecretClient(config.appCredentials.keyVaultCredential.keyVaultUrl, credential);
 
         try {
-            const keyVaultSecret = await secretClient.getSecret(config.appCredentials.keyVault.credentialName);
+            const keyVaultSecret = await secretClient.getSecret(config.appCredentials.keyVaultCredential.credentialName);
             return keyVaultSecret;
         } catch (error) {
             console.log(error);
