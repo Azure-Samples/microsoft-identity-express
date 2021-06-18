@@ -26,6 +26,13 @@
       "pre-commit": "tsdx lint"
     }
   },
+  "jest": {
+    "coverageReporters": [
+      "json-summary",
+      "text",
+      "lcov"
+    ]
+  },
   "prettier": {
     "printWidth": 80,
     "semi": true,
