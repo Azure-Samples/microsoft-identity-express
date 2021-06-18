@@ -16,8 +16,7 @@
     "bootstrap": "^4.5.3",
     "ejs": "^3.0.1",
     "express": "^4.17.1",
-    "express-session": "^1.17.1",
-    "helmet": "^4.6.0"
+    "express-session": "^1.17.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.2"

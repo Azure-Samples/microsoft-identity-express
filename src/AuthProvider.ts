@@ -3,12 +3,20 @@
  * Licensed under the MIT License.
  */
 import express from "express";
-import { RequestHandler, Request, Response, NextFunction, Router } from "express";
+
+import {
+    RequestHandler,
+    Request,
+    Response,
+    NextFunction,
+    Router
+} from "express";
 
 import {
     InteractionRequiredAuthError,
     OIDC_DEFAULT_SCOPES,
     PromptValue,
+    CredentialType,
     StringUtils,
 } from "@azure/msal-common";
 
@@ -26,6 +34,8 @@ import {
 
 import { ConfigurationUtils } from "./ConfigurationUtils";
 import { TokenValidator } from "./TokenValidator";
+import { KeyVaultManager } from "./KeyVaultManager";
+import { FetchManager } from "./FetchManager";
 import { UrlUtils } from "./UrlUtils";
 
 import {
@@ -46,8 +56,6 @@ import {
     ErrorMessages,
     AccessConstants
 } from "./Constants";
-
-import { FetchManager } from "./FetchManager";
 
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
@@ -78,15 +86,28 @@ export class AuthProvider {
         ConfigurationUtils.validateAppSettings(appSettings);
         this.appSettings = appSettings;
 
-        // TODO: getCredentialFromKeyVault();
-        // const configurationUtils = new ConfigurationUtils();
-        // const keyVaultCredential = configurationUtils.getCredentialFromKeyVault(appSettings);
-        
         this.msalConfig = ConfigurationUtils.getMsalConfiguration(appSettings, cache);
         this.msalClient = new ConfidentialClientApplication(this.msalConfig);
 
         this.tokenValidator = new TokenValidator(this.appSettings, this.msalConfig);
         this.cryptoProvider = new CryptoProvider();
+    }
+
+    /**
+     * Asynchronously builds authProvider object with credentials fetched from Key Vault
+     * @param {AppSettings} appSettings
+     * @param {ICachePlugin} cache: cachePlugin
+     * @returns 
+     */
+    static async buildAsync(appSettings: AppSettings, cache?: ICachePlugin): Promise<AuthProvider> {
+        try {
+            const keyVault = new KeyVaultManager();
+            const appSettingsWithKeyVaultCredentials = await keyVault.getCredentialFromKeyVault(appSettings);
+            const authProvider = new AuthProvider(appSettingsWithKeyVaultCredentials, cache);
+            return authProvider;
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     /**
@@ -118,7 +139,7 @@ export class AuthProvider {
         return appRouter;
     }
 
-    // ========== HANDLERS ===========
+    // ========== ROUTE HANDLERS ===========
 
     /**
      * Initiates sign in flow
@@ -128,10 +149,10 @@ export class AuthProvider {
     signIn = (options?: SignInOptions): RequestHandler => {
         return (req: Request, res: Response, next: NextFunction): Promise<void> => {
             /**
-         * Request Configuration
-         * We manipulate these three request objects below
-         * to acquire a token with the appropriate claims
-         */
+             * Request Configuration
+             * We manipulate these three request objects below
+             * to acquire a token with the appropriate claims
+             */
             if (!req.session["authCodeRequest"]) {
                 req.session.authCodeRequest = {
                     authority: "",
@@ -188,7 +209,7 @@ export class AuthProvider {
 
     /**
      * Initiate sign out and destroy the session
-     * @param options 
+     * @param options: options to modify logout request 
      * @returns {RequestHandler}
      */
     signOut = (options?: SignOutOptions): RequestHandler => {
@@ -214,9 +235,7 @@ export class AuthProvider {
     /**
      * Middleware that handles redirect depending on request state
      * There are basically 2 stages: sign-in and acquire token
-     * @param {Request} req: express request object
-     * @param {Response} res: express response object
-     * @param {NextFunction} next: express next function
+     * @param {HandleRedirectOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
     private handleRedirect = (options?: HandleRedirectOptions): RequestHandler => {
@@ -301,7 +320,7 @@ export class AuthProvider {
 
     /**
      * Middleware that gets tokens via acquireToken*
-     * @param {TokenRequestOptions} options: express request object
+     * @param {TokenRequestOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
     getToken = (options: TokenRequestOptions): RequestHandler => {
@@ -371,8 +390,8 @@ export class AuthProvider {
     };
 
     /**
-     * Middleware that gets tokens via OBO flow. Used in api scenarios
-     * @param {TokenRequestOptions} options: express request object
+     * Middleware that gets tokens via OBO flow. Used in web API scenarios
+     * @param {TokenRequestOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
     getTokenOnBehalf = (options: TokenRequestOptions): RequestHandler => {
@@ -391,9 +410,10 @@ export class AuthProvider {
             try {
                 const tokenResponse = await this.msalClient.acquireTokenOnBehalfOf(oboRequest);
 
+                // as OBO is commonly used in middle-tier web APIs without sessions, attach AT to req
                 req["locals"] = {
                     [resourceName]: {
-                        "accessToken": tokenResponse.accessToken
+                        accessToken: tokenResponse.accessToken
                     }
                 }
 
@@ -409,7 +429,7 @@ export class AuthProvider {
 
     /**
      * Check if authenticated in session
-     * @param {GuardOptions} options: express request object
+     * @param {GuardOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
     isAuthenticated = (options?: GuardOptions): RequestHandler => {
@@ -431,7 +451,7 @@ export class AuthProvider {
     /**
      * Receives access token in req authorization header
      * and validates it using the jwt.verify
-     * @param {GuardOptions} options: express request object
+     * @param {GuardOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
     isAuthorized = (options?: GuardOptions): RequestHandler => {
@@ -454,7 +474,7 @@ export class AuthProvider {
 
     /**
      * Checks if the user has access for this route, defined in access matrix
-     * @param {GuardOptions} options: express request object
+     * @param {GuardOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
     hasAccess = (options?: GuardOptions): RequestHandler => {
@@ -482,7 +502,6 @@ export class AuthProvider {
                         }
 
                         next();
-
                         break;
 
                     case AccessConstants.ROLES:
@@ -498,7 +517,6 @@ export class AuthProvider {
                         }
 
                         next();
-
                         break;
 
                     default:
@@ -513,7 +531,7 @@ export class AuthProvider {
     // ============== UTILS ===============
 
     /**
-     * This method is used to generate an auth code request
+     * This method is used to generate an auth code url request
      * @param {Request} req: express request object
      * @param {Response} res: express response object
      * @param {NextFunction} next: express next function
@@ -545,12 +563,12 @@ export class AuthProvider {
     };
 
     /**
-     * 
+     * Handles group overage claims by querying MS Graph /memberOf endpoint
      * @param {Request} req: express request object
      * @param {Response} res: express response object
      * @param {NextFunction} next: express next function
      * @param {AccessRule} rule: a given access rule
-     * @returns 
+     * @returns {Promise}
      */
     private async handleOverage(req: Request, res: Response, next: NextFunction, rule: AccessRule): Promise<void> {
         const { _claim_names, _claim_sources, ...newIdTokenClaims } = <any>req.session.account.idTokenClaims;
@@ -614,10 +632,10 @@ export class AuthProvider {
 
     /**
      * Checks if the request passes a given access rule
-     * @param {string} method 
-     * @param {AccessRule} rule 
-     * @param {Array} creds 
-     * @param {string} credType 
+     * @param {string} method: HTTP method for this route
+     * @param {AccessRule} rule: access rule for this route
+     * @param {Array} creds: user's credentials i.e. roles or groups
+     * @param {string} credType: roles or groups
      * @returns {boolean}
      */
     private checkAccessRule(method: string, rule: AccessRule, creds: string[], credType: string): boolean {

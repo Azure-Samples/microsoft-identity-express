@@ -7,6 +7,7 @@ import {
     AccountInfo,
     AuthorizationUrlRequest,
     AuthorizationCodeRequest,
+    ICachePlugin,
 } from "@azure/msal-node";
 
 declare module "express-session" {
@@ -35,8 +36,8 @@ export type AuthCodeParams = {
 };
 
 export type InitializationOptions = {
-    useSession?: boolean;
     saveCacheToDisk?: boolean;
+    useSession?: boolean;
     customState?: Object;
 };
 
@@ -98,7 +99,7 @@ export type AppCredentials = {
     tenantId: string;
     clientSecret?: string;
     clientCertificate?: ClientCertificate;
-    keyVault?: KeyVault
+    keyVaultCredential?: KeyVaultCredential;
 };
 
 export type ClientCertificate = {
@@ -107,10 +108,10 @@ export type ClientCertificate = {
     x5c?: string
 };
 
-export type KeyVault = {
-    credentialType: string,
-    credentialName: string
-    keyVaultUrl: string,
+export type KeyVaultCredential = {
+    credentialType: string;
+    credentialName: string;
+    keyVaultUrl: string;
 };
 
 export type AuthRoutes = {

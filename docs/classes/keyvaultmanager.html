@@ -115,22 +115,27 @@
 					<a name="getcertificatecredential" class="tsd-anchor"></a>
 					<h3>get<wbr>Certificate<wbr>Credential</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Certificate<wbr>Credential<span class="tsd-signature-symbol">(</span>config<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">AppSettings</span>, credential<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ManagedIdentityCredential</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">KeyVaultCertificate</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Certificate<wbr>Credential<span class="tsd-signature-symbol">(</span>config<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">AppSettings</span>, credential<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">DefaultAzureCredential</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">KeyVaultCertificate</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/e570604/src/KeyVaultManager.ts#L28">KeyVaultManager.ts:28</a></li>
+									<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/923b5dd/src/KeyVaultManager.ts#L62">KeyVaultManager.ts:62</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets a certificate credential from Key Vault</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>config: <span class="tsd-signature-type">AppSettings</span></h5>
 								</li>
 								<li>
-									<h5>credential: <span class="tsd-signature-type">ManagedIdentityCredential</span></h5>
+									<h5>credential: <span class="tsd-signature-type">DefaultAzureCredential</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">KeyVaultCertificate</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -141,22 +146,27 @@
 					<a name="getcredentialfromkeyvault" class="tsd-anchor"></a>
 					<h3>get<wbr>Credential<wbr>From<wbr>Key<wbr>Vault</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Credential<wbr>From<wbr>Key<wbr>Vault<span class="tsd-signature-symbol">(</span>config<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">AppSettings</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">KeyVaultCertificate</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">KeyVaultSecret</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Credential<wbr>From<wbr>Key<wbr>Vault<span class="tsd-signature-symbol">(</span>config<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">AppSettings</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">AppSettings</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/e570604/src/KeyVaultManager.ts#L9">KeyVaultManager.ts:9</a></li>
+									<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/923b5dd/src/KeyVaultManager.ts#L15">KeyVaultManager.ts:15</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Fetches credentials from Key Vault and updates appSettings</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>config: <span class="tsd-signature-type">AppSettings</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">KeyVaultCertificate</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">KeyVaultSecret</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">AppSettings</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -164,22 +174,27 @@
 					<a name="getsecretcredential" class="tsd-anchor"></a>
 					<h3>get<wbr>Secret<wbr>Credential</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Secret<wbr>Credential<span class="tsd-signature-symbol">(</span>config<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">AppSettings</span>, credential<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ManagedIdentityCredential</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">KeyVaultSecret</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Secret<wbr>Credential<span class="tsd-signature-symbol">(</span>config<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">AppSettings</span>, credential<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">DefaultAzureCredential</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">KeyVaultSecret</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/e570604/src/KeyVaultManager.ts#L42">KeyVaultManager.ts:42</a></li>
+									<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/923b5dd/src/KeyVaultManager.ts#L82">KeyVaultManager.ts:82</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets a secret credential from Key Vault</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>config: <span class="tsd-signature-type">AppSettings</span></h5>
 								</li>
 								<li>
-									<h5>credential: <span class="tsd-signature-type">ManagedIdentityCredential</span></h5>
+									<h5>credential: <span class="tsd-signature-type">DefaultAzureCredential</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">KeyVaultSecret</span><span class="tsd-signature-symbol">&gt;</span></h4>

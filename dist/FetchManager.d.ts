@@ -8,10 +8,11 @@ export declare class FetchManager {
      */
     static callApiEndpoint: (endpoint: string, accessToken: string) => Promise<any>;
     /**
-     * @param {string} accessToken
-     * @param {string} nextPage
-     * @param {Array} userGroups
+     * Handles queries against Microsoft Graph that return multiple pages of data
+     * @param {string} accessToken: access token required by endpoint
+     * @param {string} nextPage: next page link
+     * @param {Array} data: stores data from each page
      * @returns {Promise}
      */
-    static handlePagination: (accessToken: string, nextPage: string, userGroups?: string[]) => Promise<any>;
+    static handlePagination: (accessToken: string, nextPage: string, data?: string[]) => Promise<any>;
 }

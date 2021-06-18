@@ -28,6 +28,13 @@ export declare class AuthProvider {
      */
     constructor(appSettings: AppSettings, cache?: ICachePlugin);
     /**
+     * Asynchronously builds authProvider object with credentials fetched from Key Vault
+     * @param {AppSettings} appSettings
+     * @param {ICachePlugin} cache: cachePlugin
+     * @returns
+     */
+    static buildAsync(appSettings: AppSettings, cache?: ICachePlugin): Promise<AuthProvider>;
+    /**
      * Initialize AuthProvider and set default routes and handlers
      * @param {InitializationOptions} options
      * @returns {Router}
@@ -41,52 +48,50 @@ export declare class AuthProvider {
     signIn: (options?: SignInOptions) => RequestHandler;
     /**
      * Initiate sign out and destroy the session
-     * @param options
+     * @param options: options to modify logout request
      * @returns {RequestHandler}
      */
     signOut: (options?: SignOutOptions) => RequestHandler;
     /**
      * Middleware that handles redirect depending on request state
      * There are basically 2 stages: sign-in and acquire token
-     * @param {Request} req: express request object
-     * @param {Response} res: express response object
-     * @param {NextFunction} next: express next function
+     * @param {HandleRedirectOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
     private handleRedirect;
     /**
      * Middleware that gets tokens via acquireToken*
-     * @param {TokenRequestOptions} options: express request object
+     * @param {TokenRequestOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
     getToken: (options: TokenRequestOptions) => RequestHandler;
     /**
-     * Middleware that gets tokens via OBO flow. Used in api scenarios
-     * @param {TokenRequestOptions} options: express request object
+     * Middleware that gets tokens via OBO flow. Used in web API scenarios
+     * @param {TokenRequestOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
     getTokenOnBehalf: (options: TokenRequestOptions) => RequestHandler;
     /**
      * Check if authenticated in session
-     * @param {GuardOptions} options: express request object
+     * @param {GuardOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
     isAuthenticated: (options?: GuardOptions) => RequestHandler;
     /**
      * Receives access token in req authorization header
      * and validates it using the jwt.verify
-     * @param {GuardOptions} options: express request object
+     * @param {GuardOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
     isAuthorized: (options?: GuardOptions) => RequestHandler;
     /**
      * Checks if the user has access for this route, defined in access matrix
-     * @param {GuardOptions} options: express request object
+     * @param {GuardOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
     hasAccess: (options?: GuardOptions) => RequestHandler;
     /**
-     * This method is used to generate an auth code request
+     * This method is used to generate an auth code url request
      * @param {Request} req: express request object
      * @param {Response} res: express response object
      * @param {NextFunction} next: express next function
@@ -95,20 +100,20 @@ export declare class AuthProvider {
      */
     private getAuthCode;
     /**
-     *
+     * Handles group overage claims by querying MS Graph /memberOf endpoint
      * @param {Request} req: express request object
      * @param {Response} res: express response object
      * @param {NextFunction} next: express next function
      * @param {AccessRule} rule: a given access rule
-     * @returns
+     * @returns {Promise}
      */
     private handleOverage;
     /**
      * Checks if the request passes a given access rule
-     * @param {string} method
-     * @param {AccessRule} rule
-     * @param {Array} creds
-     * @param {string} credType
+     * @param {string} method: HTTP method for this route
+     * @param {AccessRule} rule: access rule for this route
+     * @param {Array} creds: user's credentials i.e. roles or groups
+     * @param {string} credType: roles or groups
      * @returns {boolean}
      */
     private checkAccessRule;

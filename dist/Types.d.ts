@@ -23,8 +23,8 @@ export declare type AuthCodeParams = {
     account?: AccountInfo;
 };
 export declare type InitializationOptions = {
-    useSession?: boolean;
     saveCacheToDisk?: boolean;
+    useSession?: boolean;
     customState?: Object;
 };
 export declare type TokenRequestOptions = {
@@ -75,14 +75,14 @@ export declare type AppCredentials = {
     tenantId: string;
     clientSecret?: string;
     clientCertificate?: ClientCertificate;
-    keyVault?: KeyVault;
+    keyVaultCredential?: KeyVaultCredential;
 };
 export declare type ClientCertificate = {
     thumbprint: string;
     privateKey: string;
     x5c?: string;
 };
-export declare type KeyVault = {
+export declare type KeyVaultCredential = {
     credentialType: string;
     credentialName: string;
     keyVaultUrl: string;
