@@ -3,10 +3,10 @@ name: Typedoc
 on:
   push:
     branches:
-      - dev  # Set a branch name to trigger deployment
+      - main  # Set a branch name to trigger deployment
   pull_request:
     branches:
-      - dev  # Set a branch name to trigger deployment
+      - main  # Set a branch name to trigger deployment
 
 jobs:
   deploy:
