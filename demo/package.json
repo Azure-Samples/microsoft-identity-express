@@ -8,7 +8,7 @@
     "start": "node App/app.js",
     "dev": "nodemon App/app.js"
   },
-  "author": "",
+  "author": "derisen",
   "license": "MIT",
   "dependencies": {
     "@azure/msal-node": "^1.1.0",

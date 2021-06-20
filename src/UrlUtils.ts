@@ -10,19 +10,19 @@ export class UrlUtils {
   /**
    * Gets the absolute URL from a given request and path string
    * @param {Request} req: express request object 
-   * @param {string} uri: a given URI
+   * @param {string} url: a given URL
    * @returns {string}
    */
-  static ensureAbsoluteUrl = (req: Request, uri: string): string => {
-    const urlComponents: IUri = new UrlString(uri).getUrlComponents();
+  static ensureAbsoluteUrl = (req: Request, url: string): string => {
+    const urlComponents: IUri = new UrlString(url).getUrlComponents();
 
     if (!urlComponents.Protocol) {
       if (!urlComponents.HostNameAndPort) {
-        return req.protocol + "://" + req.get("host") + uri;
+        return req.protocol + "://" + req.get("host") + url;
       }
-      return req.protocol + "://" + uri;
+      return req.protocol + "://" + url;
     } else {
-      return uri;
+      return url;
     }
   };
 }

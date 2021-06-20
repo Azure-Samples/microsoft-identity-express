@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ConfigurationUtils | msal-express-wrapper</title>
+	<title>UrlUtils | msal-express-wrapper</title>
 	<meta name="description" content="Documentation for msal-express-wrapper">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -53,10 +53,10 @@
 					<a href="../modules.html">msal-express-wrapper</a>
 				</li>
 				<li>
-					<a href="configurationutils.html">ConfigurationUtils</a>
+					<a href="urlutils.html">UrlUtils</a>
 				</li>
 			</ul>
-			<h1>Class ConfigurationUtils</h1>
+			<h1>Class UrlUtils</h1>
 		</div>
 	</div>
 </header>
@@ -67,7 +67,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">ConfigurationUtils</span>
+						<span class="target">UrlUtils</span>
 					</li>
 				</ul>
 			</section>
@@ -78,15 +78,13 @@
 						<section class="tsd-index-section ">
 							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="configurationutils.html#constructor" class="tsd-kind-icon">constructor</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="urlutils.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="configurationutils.html#getmsalconfiguration" class="tsd-kind-icon">get<wbr>Msal<wbr>Configuration</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="configurationutils.html#isguid" class="tsd-kind-icon">is<wbr>Guid</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="configurationutils.html#validateappsettings" class="tsd-kind-icon">validate<wbr>App<wbr>Settings</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="urlutils.html#ensureabsoluteurl" class="tsd-kind-icon">ensure<wbr>Absolute<wbr>Url</a></li>
 							</ul>
 						</section>
 					</div>
@@ -98,13 +96,13 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Configuration<wbr>Utils<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="configurationutils.html" class="tsd-signature-type" data-tsd-kind="Class">ConfigurationUtils</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Url<wbr>Utils<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="urlutils.html" class="tsd-signature-type" data-tsd-kind="Class">UrlUtils</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 							</aside>
-							<h4 class="tsd-returns-title">Returns <a href="configurationutils.html" class="tsd-signature-type" data-tsd-kind="Class">ConfigurationUtils</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="urlutils.html" class="tsd-signature-type" data-tsd-kind="Class">UrlUtils</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -112,92 +110,33 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
-					<a name="getmsalconfiguration" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> get<wbr>Msal<wbr>Configuration</h3>
+					<a name="ensureabsoluteurl" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> ensure<wbr>Absolute<wbr>Url</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Msal<wbr>Configuration<span class="tsd-signature-symbol">(</span>config<span class="tsd-signature-symbol">: </span><a href="../modules.html#appsettings" class="tsd-signature-type" data-tsd-kind="Type alias">AppSettings</a>, cachePlugin<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">ICachePlugin</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Configuration</span></li>
+						<li class="tsd-signature tsd-kind-icon">ensure<wbr>Absolute<wbr>Url<span class="tsd-signature-symbol">(</span>req<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Request</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ParamsDictionary</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">ParsedQs</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span>, url<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/ConfigurationUtils.ts#L70">ConfigurationUtils.ts:70</a></li>
+									<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/UrlUtils.ts#L16">UrlUtils.ts:16</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Maps the custom configuration object to configuration
-									object expected by MSAL Node ConfidentialClientApplication class</p>
+									<p>Gets the absolute URL from a given request and path string</p>
 								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>config: <a href="../modules.html#appsettings" class="tsd-signature-type" data-tsd-kind="Type alias">AppSettings</a></h5>
+									<h5>req: <span class="tsd-signature-type">Request</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ParamsDictionary</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">ParsedQs</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h5>
 								</li>
 								<li>
-									<h5>cachePlugin: <span class="tsd-signature-type">ICachePlugin</span><span class="tsd-signature-symbol"> = null</span></h5>
+									<h5>url: <span class="tsd-signature-type">string</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Configuration</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
-					<a name="isguid" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> is<wbr>Guid</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">is<wbr>Guid<span class="tsd-signature-symbol">(</span>guid<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/ConfigurationUtils.ts#L120">ConfigurationUtils.ts:120</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>verifies if a string is  GUID</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>guid: <span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-									</div>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
-					<a name="validateappsettings" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> validate<wbr>App<wbr>Settings</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">validate<wbr>App<wbr>Settings<span class="tsd-signature-symbol">(</span>config<span class="tsd-signature-symbol">: </span><a href="../modules.html#appsettings" class="tsd-signature-type" data-tsd-kind="Type alias">AppSettings</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/ConfigurationUtils.ts#L32">ConfigurationUtils.ts:32</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Validates the fields in the configuration file</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>config: <a href="../modules.html#appsettings" class="tsd-signature-type" data-tsd-kind="Type alias">AppSettings</a></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -216,27 +155,9 @@
 					<li class=" tsd-kind-class">
 						<a href="authprovider.html" class="tsd-kind-icon">Auth<wbr>Provider</a>
 					</li>
-				</ul>
-				<ul class="current">
-					<li class="current tsd-kind-class">
+					<li class=" tsd-kind-class">
 						<a href="configurationutils.html" class="tsd-kind-icon">Configuration<wbr>Utils</a>
-						<ul>
-							<li class=" tsd-kind-constructor tsd-parent-kind-class">
-								<a href="configurationutils.html#constructor" class="tsd-kind-icon">constructor</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
-								<a href="configurationutils.html#getmsalconfiguration" class="tsd-kind-icon">get<wbr>Msal<wbr>Configuration</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
-								<a href="configurationutils.html#isguid" class="tsd-kind-icon">is<wbr>Guid</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
-								<a href="configurationutils.html#validateappsettings" class="tsd-kind-icon">validate<wbr>App<wbr>Settings</a>
-							</li>
-						</ul>
 					</li>
-				</ul>
-				<ul class="after-current">
 					<li class=" tsd-kind-class">
 						<a href="fetchmanager.html" class="tsd-kind-icon">Fetch<wbr>Manager</a>
 					</li>
@@ -249,9 +170,21 @@
 					<li class=" tsd-kind-class">
 						<a href="tokenvalidator.html" class="tsd-kind-icon">Token<wbr>Validator</a>
 					</li>
-					<li class=" tsd-kind-class">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-class">
 						<a href="urlutils.html" class="tsd-kind-icon">Url<wbr>Utils</a>
+						<ul>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class">
+								<a href="urlutils.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
+								<a href="urlutils.html#ensureabsoluteurl" class="tsd-kind-icon">ensure<wbr>Absolute<wbr>Url</a>
+							</li>
+						</ul>
 					</li>
+				</ul>
+				<ul class="after-current">
 					<li class=" tsd-kind-type-alias">
 						<a href="../modules.html#accessrule" class="tsd-kind-icon">Access<wbr>Rule</a>
 					</li>

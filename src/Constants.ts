@@ -14,6 +14,41 @@ export const AppStages = {
 };
 
 /**
+ * String constants related to AAD Authority
+ */
+export const AADAuthorityConstants = {
+    COMMON: "common",
+    ORGANIZATIONS: "organizations",
+    CONSUMERS: "consumers"
+}
+
+/**
+ * String constants related to AAD Authority
+ */
+export const KeyVaultCredentialTypes = {
+    SECRET: "secret",
+    CERTIFICATE: "certificate",
+}
+
+/**
+ * Constants used in access control scenarios
+ */
+export const AccessConstants = {
+    GROUPS: "groups",
+    ROLES: "roles",
+    CLAIM_NAMES: "_claim_name",
+    CLAIM_SOURCES: "_claim_sources",
+    PAGINATION_LINK: "@odata.nextLink",
+    GRAPH_MEMBERS_ENDPOINT: "https://graph.microsoft.com/v1.0/me/memberOf",
+    GRAPH_MEMBER_SCOPES: "User.Read GroupMember.Read.All"
+};
+
+export const InfoMessages = {
+    REQUEST_FOR_RESOURCE: "Request made to web API",
+    OVERAGE_OCCURRED: "User has too many groups. Groups overage claim occurred"
+}
+
+/**
  * Various error constants
  */
 export const ErrorMessages = {
@@ -37,37 +72,18 @@ export const ErrorMessages = {
     METHOD_NOT_ALLOWED: "Method not allowed for this route",
     RULE_NOT_FOUND: "No rule found for this route",
     SESSION_NOT_FOUND: "No session found for this request",
-    KEY_VAULT_CONFIG_NOT_FOUND: "No coordinates found for Key Vault access"
+    KEY_VAULT_CONFIG_NOT_FOUND: "No coordinates found for Key Vault"
 };
 
-/**
- * Constants used in access control scenarios
- */
-export const AccessConstants = {
-    GROUPS: "groups",
-    ROLES: "roles",
-    CLAIM_NAMES: "_claim_name",
-    CLAIM_SOURCES: "_claim_sources",
-    PAGINATION_LINK: "@odata.nextLink",
-    GRAPH_MEMBERS_ENDPOINT: "https://graph.microsoft.com/v1.0/me/memberOf",
-    GRAPH_MEMBER_SCOPES: "User.Read GroupMember.Read.All"
-};
-
-/**
- * String constants related to AAD Authority
- */
-export const AADAuthorityConstants = {
-    COMMON: "common",
-    ORGANIZATIONS: "organizations",
-    CONSUMERS: "consumers"
-}
-
-/**
- * String constants related to AAD Authority
- */
-export const KeyVaultCredentialTypes = {
-    SECRET: "secret",
-    CERTIFICATE: "certificate",
+export const ConfigurationErrorMessages = {
+    NO_CLIENT_ID: "No clientId provided!",
+    INVALID_CLIENT_ID: "Invalid clientId!",
+    NO_TENANT_INFO: "No tenant info provided!",
+    INVALID_TENANT_INFO: "Invalid tenant info!",
+    NO_CLIENT_CREDENTIAL: "No client credential provided!",
+    NO_REDIRECT_URI: "No redirect URI provided!",
+    NO_ERROR_ROUTE: "No error route provided!",
+    NO_UNAUTHORIZED_ROUTE: "No unauthorized route provided!"
 }
 
 /**

@@ -8,6 +8,37 @@ export declare const AppStages: {
     ACQUIRE_TOKEN: string;
 };
 /**
+ * String constants related to AAD Authority
+ */
+export declare const AADAuthorityConstants: {
+    COMMON: string;
+    ORGANIZATIONS: string;
+    CONSUMERS: string;
+};
+/**
+ * String constants related to AAD Authority
+ */
+export declare const KeyVaultCredentialTypes: {
+    SECRET: string;
+    CERTIFICATE: string;
+};
+/**
+ * Constants used in access control scenarios
+ */
+export declare const AccessConstants: {
+    GROUPS: string;
+    ROLES: string;
+    CLAIM_NAMES: string;
+    CLAIM_SOURCES: string;
+    PAGINATION_LINK: string;
+    GRAPH_MEMBERS_ENDPOINT: string;
+    GRAPH_MEMBER_SCOPES: string;
+};
+export declare const InfoMessages: {
+    REQUEST_FOR_RESOURCE: string;
+    OVERAGE_OCCURRED: string;
+};
+/**
  * Various error constants
  */
 export declare const ErrorMessages: {
@@ -33,32 +64,15 @@ export declare const ErrorMessages: {
     SESSION_NOT_FOUND: string;
     KEY_VAULT_CONFIG_NOT_FOUND: string;
 };
-/**
- * Constants used in access control scenarios
- */
-export declare const AccessConstants: {
-    GROUPS: string;
-    ROLES: string;
-    CLAIM_NAMES: string;
-    CLAIM_SOURCES: string;
-    PAGINATION_LINK: string;
-    GRAPH_MEMBERS_ENDPOINT: string;
-    GRAPH_MEMBER_SCOPES: string;
-};
-/**
- * String constants related to AAD Authority
- */
-export declare const AADAuthorityConstants: {
-    COMMON: string;
-    ORGANIZATIONS: string;
-    CONSUMERS: string;
-};
-/**
- * String constants related to AAD Authority
- */
-export declare const KeyVaultCredentialTypes: {
-    SECRET: string;
-    CERTIFICATE: string;
+export declare const ConfigurationErrorMessages: {
+    NO_CLIENT_ID: string;
+    INVALID_CLIENT_ID: string;
+    NO_TENANT_INFO: string;
+    INVALID_TENANT_INFO: string;
+    NO_CLIENT_CREDENTIAL: string;
+    NO_REDIRECT_URI: string;
+    NO_ERROR_ROUTE: string;
+    NO_UNAUTHORIZED_ROUTE: string;
 };
 /**
  * For more information, visit: https://login.microsoftonline.com/error

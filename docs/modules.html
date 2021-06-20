@@ -66,9 +66,856 @@
 								<li class="tsd-kind-class"><a href="classes/configurationutils.html" class="tsd-kind-icon">Configuration<wbr>Utils</a></li>
 								<li class="tsd-kind-class"><a href="classes/fetchmanager.html" class="tsd-kind-icon">Fetch<wbr>Manager</a></li>
 								<li class="tsd-kind-class"><a href="classes/keyvaultmanager.html" class="tsd-kind-icon">Key<wbr>Vault<wbr>Manager</a></li>
+								<li class="tsd-kind-class"><a href="classes/logger.html" class="tsd-kind-icon">Logger</a></li>
 								<li class="tsd-kind-class"><a href="classes/tokenvalidator.html" class="tsd-kind-icon">Token<wbr>Validator</a></li>
+								<li class="tsd-kind-class"><a href="classes/urlutils.html" class="tsd-kind-icon">Url<wbr>Utils</a></li>
 							</ul>
 						</section>
+						<section class="tsd-index-section ">
+							<h3>Type aliases</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-type-alias"><a href="modules.html#accessrule" class="tsd-kind-icon">Access<wbr>Rule</a></li>
+								<li class="tsd-kind-type-alias"><a href="modules.html#accesstokenclaims" class="tsd-kind-icon">Access<wbr>Token<wbr>Claims</a></li>
+								<li class="tsd-kind-type-alias"><a href="modules.html#appcredentials" class="tsd-kind-icon">App<wbr>Credentials</a></li>
+								<li class="tsd-kind-type-alias"><a href="modules.html#appsettings" class="tsd-kind-icon">App<wbr>Settings</a></li>
+								<li class="tsd-kind-type-alias"><a href="modules.html#authcodeparams" class="tsd-kind-icon">Auth<wbr>Code<wbr>Params</a></li>
+								<li class="tsd-kind-type-alias"><a href="modules.html#authroutes" class="tsd-kind-icon">Auth<wbr>Routes</a></li>
+								<li class="tsd-kind-type-alias"><a href="modules.html#clientcertificate" class="tsd-kind-icon">Client<wbr>Certificate</a></li>
+								<li class="tsd-kind-type-alias"><a href="modules.html#guardoptions" class="tsd-kind-icon">Guard<wbr>Options</a></li>
+								<li class="tsd-kind-type-alias"><a href="modules.html#handleredirectoptions" class="tsd-kind-icon">Handle<wbr>Redirect<wbr>Options</a></li>
+								<li class="tsd-kind-type-alias"><a href="modules.html#idtokenclaims" class="tsd-kind-icon">Id<wbr>Token<wbr>Claims</a></li>
+								<li class="tsd-kind-type-alias"><a href="modules.html#initializationoptions" class="tsd-kind-icon">Initialization<wbr>Options</a></li>
+								<li class="tsd-kind-type-alias"><a href="modules.html#keyvaultcredential" class="tsd-kind-icon">Key<wbr>Vault<wbr>Credential</a></li>
+								<li class="tsd-kind-type-alias"><a href="modules.html#policy" class="tsd-kind-icon">Policy</a></li>
+								<li class="tsd-kind-type-alias"><a href="modules.html#resource" class="tsd-kind-icon">Resource</a></li>
+								<li class="tsd-kind-type-alias"><a href="modules.html#signinoptions" class="tsd-kind-icon">Sign<wbr>InOptions</a></li>
+								<li class="tsd-kind-type-alias"><a href="modules.html#signoutoptions" class="tsd-kind-icon">Sign<wbr>Out<wbr>Options</a></li>
+								<li class="tsd-kind-type-alias"><a href="modules.html#state" class="tsd-kind-icon">State</a></li>
+								<li class="tsd-kind-type-alias"><a href="modules.html#tokenrequestoptions" class="tsd-kind-icon">Token<wbr>Request<wbr>Options</a></li>
+								<li class="tsd-kind-type-alias"><a href="modules.html#userinfo" class="tsd-kind-icon">User<wbr>Info</a></li>
+								<li class="tsd-kind-type-alias"><a href="modules.html#validationoptions" class="tsd-kind-icon">Validation<wbr>Options</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Variables</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-variable"><a href="modules.html#aadauthorityconstants" class="tsd-kind-icon">AADAuthority<wbr>Constants</a></li>
+								<li class="tsd-kind-variable"><a href="modules.html#accessconstants" class="tsd-kind-icon">Access<wbr>Constants</a></li>
+								<li class="tsd-kind-variable"><a href="modules.html#appstages" class="tsd-kind-icon">App<wbr>Stages</a></li>
+								<li class="tsd-kind-variable"><a href="modules.html#configurationerrormessages" class="tsd-kind-icon">Configuration<wbr>Error<wbr>Messages</a></li>
+								<li class="tsd-kind-variable"><a href="modules.html#errorcodes" class="tsd-kind-icon">Error<wbr>Codes</a></li>
+								<li class="tsd-kind-variable"><a href="modules.html#errormessages" class="tsd-kind-icon">Error<wbr>Messages</a></li>
+								<li class="tsd-kind-variable"><a href="modules.html#infomessages" class="tsd-kind-icon">Info<wbr>Messages</a></li>
+								<li class="tsd-kind-variable"><a href="modules.html#keyvaultcredentialtypes" class="tsd-kind-icon">Key<wbr>Vault<wbr>Credential<wbr>Types</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Type aliases</h2>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="accessrule" class="tsd-anchor"></a>
+					<h3>Access<wbr>Rule</h3>
+					<div class="tsd-signature tsd-kind-icon">Access<wbr>Rule<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>groups<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>methods<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>roles<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Types.ts#L138">Types.ts:138</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> groups<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>methods<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> roles<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="accesstokenclaims" class="tsd-anchor"></a>
+					<h3>Access<wbr>Token<wbr>Claims</h3>
+					<div class="tsd-signature tsd-kind-icon">Access<wbr>Token<wbr>Claims<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">TokenClaims</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">{ </span>_claim_names<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>_claim_sources<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>aud<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>groups<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>roles<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>scp<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Types.ts#L175">Types.ts:175</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Type which describes Access Token claims known by MSAL.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="appcredentials" class="tsd-anchor"></a>
+					<h3>App<wbr>Credentials</h3>
+					<div class="tsd-signature tsd-kind-icon">App<wbr>Credentials<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>clientCertificate<span class="tsd-signature-symbol">?: </span><a href="modules.html#clientcertificate" class="tsd-signature-type" data-tsd-kind="Type alias">ClientCertificate</a><span class="tsd-signature-symbol">; </span>clientId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>clientSecret<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>keyVaultCredential<span class="tsd-signature-symbol">?: </span><a href="modules.html#keyvaultcredential" class="tsd-signature-type" data-tsd-kind="Type alias">KeyVaultCredential</a><span class="tsd-signature-symbol">; </span>tenantId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Types.ts#L101">Types.ts:101</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> client<wbr>Certificate<span class="tsd-signature-symbol">?: </span><a href="modules.html#clientcertificate" class="tsd-signature-type" data-tsd-kind="Type alias">ClientCertificate</a></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>client<wbr>Id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> client<wbr>Secret<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> key<wbr>Vault<wbr>Credential<span class="tsd-signature-symbol">?: </span><a href="modules.html#keyvaultcredential" class="tsd-signature-type" data-tsd-kind="Type alias">KeyVaultCredential</a></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>tenant<wbr>Id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="appsettings" class="tsd-anchor"></a>
+					<h3>App<wbr>Settings</h3>
+					<div class="tsd-signature tsd-kind-icon">App<wbr>Settings<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>accessMatrix<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>appCredentials<span class="tsd-signature-symbol">: </span><a href="modules.html#appcredentials" class="tsd-signature-type" data-tsd-kind="Type alias">AppCredentials</a><span class="tsd-signature-symbol">; </span>authRoutes<span class="tsd-signature-symbol">?: </span><a href="modules.html#authroutes" class="tsd-signature-type" data-tsd-kind="Type alias">AuthRoutes</a><span class="tsd-signature-symbol">; </span>b2cPolicies<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>ownedResources<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>remoteResources<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Types.ts#L84">Types.ts:84</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> access<wbr>Matrix<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span></h5>
+								<ul class="tsd-parameters">
+									<li class="tsd-parameter-index-signature">
+										<h5><span class="tsd-signature-symbol">[</span>accessRule: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="modules.html#accessrule" class="tsd-signature-type" data-tsd-kind="Type alias">AccessRule</a></h5>
+									</li>
+								</ul>
+							</li>
+							<li class="tsd-parameter">
+								<h5>app<wbr>Credentials<span class="tsd-signature-symbol">: </span><a href="modules.html#appcredentials" class="tsd-signature-type" data-tsd-kind="Type alias">AppCredentials</a></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> auth<wbr>Routes<span class="tsd-signature-symbol">?: </span><a href="modules.html#authroutes" class="tsd-signature-type" data-tsd-kind="Type alias">AuthRoutes</a></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> b2c<wbr>Policies<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span></h5>
+								<ul class="tsd-parameters">
+									<li class="tsd-parameter-index-signature">
+										<h5><span class="tsd-signature-symbol">[</span>policy: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="modules.html#policy" class="tsd-signature-type" data-tsd-kind="Type alias">Policy</a></h5>
+									</li>
+								</ul>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> owned<wbr>Resources<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span></h5>
+								<ul class="tsd-parameters">
+									<li class="tsd-parameter-index-signature">
+										<h5><span class="tsd-signature-symbol">[</span>resource: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="modules.html#resource" class="tsd-signature-type" data-tsd-kind="Type alias">Resource</a></h5>
+									</li>
+								</ul>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> remote<wbr>Resources<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{}</span></h5>
+								<ul class="tsd-parameters">
+									<li class="tsd-parameter-index-signature">
+										<h5><span class="tsd-signature-symbol">[</span>resource: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="modules.html#resource" class="tsd-signature-type" data-tsd-kind="Type alias">Resource</a></h5>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="authcodeparams" class="tsd-anchor"></a>
+					<h3>Auth<wbr>Code<wbr>Params</h3>
+					<div class="tsd-signature tsd-kind-icon">Auth<wbr>Code<wbr>Params<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>account<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">AccountInfo</span><span class="tsd-signature-symbol">; </span>authority<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>prompt<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>redirect<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>scopes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>state<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Types.ts#L31">Types.ts:31</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> account<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">AccountInfo</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>authority<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> prompt<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>redirect<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>scopes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>state<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="authroutes" class="tsd-anchor"></a>
+					<h3>Auth<wbr>Routes</h3>
+					<div class="tsd-signature tsd-kind-icon">Auth<wbr>Routes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>error<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>frontChannelLogout<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>redirect<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>unauthorized<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Types.ts#L121">Types.ts:121</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>error<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> front<wbr>Channel<wbr>Logout<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>redirect<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>unauthorized<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="clientcertificate" class="tsd-anchor"></a>
+					<h3>Client<wbr>Certificate</h3>
+					<div class="tsd-signature tsd-kind-icon">Client<wbr>Certificate<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>privateKey<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>thumbprint<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>x5c<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Types.ts#L109">Types.ts:109</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>private<wbr>Key<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>thumbprint<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> x5c<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="guardoptions" class="tsd-anchor"></a>
+					<h3>Guard<wbr>Options</h3>
+					<div class="tsd-signature tsd-kind-icon">Guard<wbr>Options<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>accessRule<span class="tsd-signature-symbol">: </span><a href="modules.html#accessrule" class="tsd-signature-type" data-tsd-kind="Type alias">AccessRule</a><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Types.ts#L72">Types.ts:72</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>access<wbr>Rule<span class="tsd-signature-symbol">: </span><a href="modules.html#accessrule" class="tsd-signature-type" data-tsd-kind="Type alias">AccessRule</a></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="handleredirectoptions" class="tsd-anchor"></a>
+					<h3>Handle<wbr>Redirect<wbr>Options</h3>
+					<div class="tsd-signature tsd-kind-icon">Handle<wbr>Redirect<wbr>Options<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Types.ts#L68">Types.ts:68</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="idtokenclaims" class="tsd-anchor"></a>
+					<h3>Id<wbr>Token<wbr>Claims</h3>
+					<div class="tsd-signature tsd-kind-icon">Id<wbr>Token<wbr>Claims<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">TokenClaims</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">{ </span>_claim_names<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>_claim_sources<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>aud<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>groups<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>roles<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Types.ts#L164">Types.ts:164</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Type which describes Id Token claims known by MSAL.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="initializationoptions" class="tsd-anchor"></a>
+					<h3>Initialization<wbr>Options</h3>
+					<div class="tsd-signature tsd-kind-icon">Initialization<wbr>Options<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>customState<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Object</span><span class="tsd-signature-symbol">; </span>saveCacheToDisk<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>useSession<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Types.ts#L45">Types.ts:45</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> custom<wbr>State<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Object</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> save<wbr>Cache<wbr>ToDisk<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> use<wbr>Session<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="keyvaultcredential" class="tsd-anchor"></a>
+					<h3>Key<wbr>Vault<wbr>Credential</h3>
+					<div class="tsd-signature tsd-kind-icon">Key<wbr>Vault<wbr>Credential<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>credentialName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>credentialType<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>keyVaultUrl<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Types.ts#L115">Types.ts:115</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>credential<wbr>Name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>credential<wbr>Type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>key<wbr>Vault<wbr>Url<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="policy" class="tsd-anchor"></a>
+					<h3>Policy</h3>
+					<div class="tsd-signature tsd-kind-icon">Policy<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>authority<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Types.ts#L128">Types.ts:128</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>authority<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="resource" class="tsd-anchor"></a>
+					<h3>Resource</h3>
+					<div class="tsd-signature tsd-kind-icon">Resource<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>accessToken<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>endpoint<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>scopes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Types.ts#L132">Types.ts:132</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> access<wbr>Token<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>endpoint<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>scopes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="signinoptions" class="tsd-anchor"></a>
+					<h3>Sign<wbr>InOptions</h3>
+					<div class="tsd-signature tsd-kind-icon">Sign<wbr>InOptions<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>extraScopesToConsent<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>failureRedirect<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>successRedirect<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Types.ts#L57">Types.ts:57</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> extra<wbr>Scopes<wbr>ToConsent<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> failure<wbr>Redirect<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>success<wbr>Redirect<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="signoutoptions" class="tsd-anchor"></a>
+					<h3>Sign<wbr>Out<wbr>Options</h3>
+					<div class="tsd-signature tsd-kind-icon">Sign<wbr>Out<wbr>Options<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>failureRedirect<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>successRedirect<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Types.ts#L63">Types.ts:63</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> failure<wbr>Redirect<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>success<wbr>Redirect<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="state" class="tsd-anchor"></a>
+					<h3>State</h3>
+					<div class="tsd-signature tsd-kind-icon">State<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>nonce<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>stage<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Types.ts#L40">Types.ts:40</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>nonce<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>stage<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="tokenrequestoptions" class="tsd-anchor"></a>
+					<h3>Token<wbr>Request<wbr>Options</h3>
+					<div class="tsd-signature tsd-kind-icon">Token<wbr>Request<wbr>Options<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>claims<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>resource<span class="tsd-signature-symbol">: </span><a href="modules.html#resource" class="tsd-signature-type" data-tsd-kind="Type alias">Resource</a><span class="tsd-signature-symbol">; </span>skipCache<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Types.ts#L51">Types.ts:51</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> claims<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>resource<span class="tsd-signature-symbol">: </span><a href="modules.html#resource" class="tsd-signature-type" data-tsd-kind="Type alias">Resource</a></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> skip<wbr>Cache<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="userinfo" class="tsd-anchor"></a>
+					<h3>User<wbr>Info</h3>
+					<div class="tsd-signature tsd-kind-icon">User<wbr>Info<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>businessPhones<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>displayName<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>givenName<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>id<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>jobTitle<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>mail<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>mobilePhone<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>officeLocation<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>preferredLanguage<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>surname<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>userPrincipalName<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Types.ts#L147">Types.ts:147</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> business<wbr>Phones<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> display<wbr>Name<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> given<wbr>Name<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> id<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> job<wbr>Title<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> mail<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> mobile<wbr>Phone<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> office<wbr>Location<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> preferred<wbr>Language<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> surname<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> user<wbr>Principal<wbr>Name<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="validationoptions" class="tsd-anchor"></a>
+					<h3>Validation<wbr>Options</h3>
+					<div class="tsd-signature tsd-kind-icon">Validation<wbr>Options<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>audience<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>issuer<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>scope<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Types.ts#L76">Types.ts:76</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>audience<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>issuer<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>scope<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Variables</h2>
+				<section class="tsd-panel tsd-member tsd-kind-variable">
+					<a name="aadauthorityconstants" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> AADAuthority<wbr>Constants</h3>
+					<div class="tsd-signature tsd-kind-icon">AADAuthority<wbr>Constants<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>COMMON<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>CONSUMERS<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>ORGANIZATIONS<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> = ...</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Constants.ts#L19">Constants.ts:19</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>String constants related to AAD Authority</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>COMMON<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>CONSUMERS<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>ORGANIZATIONS<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable">
+					<a name="accessconstants" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> Access<wbr>Constants</h3>
+					<div class="tsd-signature tsd-kind-icon">Access<wbr>Constants<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>CLAIM_NAMES<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>CLAIM_SOURCES<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>GRAPH_MEMBERS_ENDPOINT<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>GRAPH_MEMBER_SCOPES<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>GROUPS<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>PAGINATION_LINK<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>ROLES<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> = ...</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Constants.ts#L36">Constants.ts:36</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Constants used in access control scenarios</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>CLAIM_<wbr>NAMES<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>CLAIM_<wbr>SOURCES<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>GRAPH_<wbr>MEMBERS_<wbr>ENDPOINT<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>GRAPH_<wbr>MEMBER_<wbr>SCOPES<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>GROUPS<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>PAGINATION_<wbr>LINK<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>ROLES<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable">
+					<a name="appstages" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> App<wbr>Stages</h3>
+					<div class="tsd-signature tsd-kind-icon">App<wbr>Stages<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>ACQUIRE_TOKEN<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>SIGN_IN<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>SIGN_OUT<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> = ...</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Constants.ts#L10">Constants.ts:10</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Basic authentication stages used to determine
+							appropriate action after redirect occurs</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>ACQUIRE_<wbr>TOKEN<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>SIGN_<wbr>IN<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>SIGN_<wbr>OUT<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable">
+					<a name="configurationerrormessages" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> Configuration<wbr>Error<wbr>Messages</h3>
+					<div class="tsd-signature tsd-kind-icon">Configuration<wbr>Error<wbr>Messages<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>INVALID_CLIENT_ID<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>INVALID_TENANT_INFO<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>NO_CLIENT_CREDENTIAL<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>NO_CLIENT_ID<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>NO_ERROR_ROUTE<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>NO_REDIRECT_URI<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>NO_TENANT_INFO<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>NO_UNAUTHORIZED_ROUTE<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> = ...</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Constants.ts#L78">Constants.ts:78</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>INVALID_<wbr>CLIENT_<wbr>ID<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>INVALID_<wbr>TENANT_<wbr>INFO<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>NO_<wbr>CLIENT_<wbr>CREDENTIAL<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>NO_<wbr>CLIENT_<wbr>ID<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>NO_<wbr>ERROR_<wbr>ROUTE<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>NO_<wbr>REDIRECT_<wbr>URI<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>NO_<wbr>TENANT_<wbr>INFO<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>NO_<wbr>UNAUTHORIZED_<wbr>ROUTE<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable">
+					<a name="errorcodes" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> Error<wbr>Codes</h3>
+					<div class="tsd-signature tsd-kind-icon">Error<wbr>Codes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>65001<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> = ...</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Constants.ts#L92">Constants.ts:92</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>For more information, visit: <a href="https://login.microsoftonline.com/error">https://login.microsoftonline.com/error</a></p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>65001<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable">
+					<a name="errormessages" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> Error<wbr>Messages</h3>
+					<div class="tsd-signature tsd-kind-icon">Error<wbr>Messages<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>AUTH_CODE_NOT_OBTAINED<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>CANNOT_DETERMINE_APP_STAGE<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>CANNOT_VALIDATE_TOKEN<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>INTERACTION_REQUIRED<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>INVALID_TOKEN<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>KEYS_NOT_OBTAINED<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>KEY_VAULT_CONFIG_NOT_FOUND<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>METHOD_NOT_ALLOWED<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>NONCE_MISMATCH<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>NOT_PERMITTED<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>RULE_NOT_FOUND<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>SESSION_NOT_FOUND<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>STATE_NOT_FOUND<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>TOKEN_ACQUISITION_FAILED<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>TOKEN_NOT_DECODED<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>TOKEN_NOT_FOUND<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>TOKEN_NOT_VERIFIED<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>USER_HAS_NO_GROUP<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>USER_HAS_NO_ROLE<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>USER_NOT_IN_GROUP<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>USER_NOT_IN_ROLE<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> = ...</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Constants.ts#L54">Constants.ts:54</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Various error constants</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>AUTH_<wbr>CODE_<wbr>NOT_<wbr>OBTAINED<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>CANNOT_<wbr>DETERMINE_<wbr>APP_<wbr>STAGE<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>CANNOT_<wbr>VALIDATE_<wbr>TOKEN<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>INTERACTION_<wbr>REQUIRED<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>INVALID_<wbr>TOKEN<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>KEYS_<wbr>NOT_<wbr>OBTAINED<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>KEY_<wbr>VAULT_<wbr>CONFIG_<wbr>NOT_<wbr>FOUND<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>METHOD_<wbr>NOT_<wbr>ALLOWED<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>NONCE_<wbr>MISMATCH<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>NOT_<wbr>PERMITTED<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>RULE_<wbr>NOT_<wbr>FOUND<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>SESSION_<wbr>NOT_<wbr>FOUND<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>STATE_<wbr>NOT_<wbr>FOUND<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>TOKEN_<wbr>ACQUISITION_<wbr>FAILED<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>TOKEN_<wbr>NOT_<wbr>DECODED<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>TOKEN_<wbr>NOT_<wbr>FOUND<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>TOKEN_<wbr>NOT_<wbr>VERIFIED<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>USER_<wbr>HAS_<wbr>NO_<wbr>GROUP<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>USER_<wbr>HAS_<wbr>NO_<wbr>ROLE<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>USER_<wbr>NOT_<wbr>IN_<wbr>GROUP<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>USER_<wbr>NOT_<wbr>IN_<wbr>ROLE<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable">
+					<a name="infomessages" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> Info<wbr>Messages</h3>
+					<div class="tsd-signature tsd-kind-icon">Info<wbr>Messages<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>OVERAGE_OCCURRED<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>REQUEST_FOR_RESOURCE<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> = ...</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Constants.ts#L46">Constants.ts:46</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>OVERAGE_<wbr>OCCURRED<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>REQUEST_<wbr>FOR_<wbr>RESOURCE<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable">
+					<a name="keyvaultcredentialtypes" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> Key<wbr>Vault<wbr>Credential<wbr>Types</h3>
+					<div class="tsd-signature tsd-kind-icon">Key<wbr>Vault<wbr>Credential<wbr>Types<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>CERTIFICATE<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>SECRET<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> = ...</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/6c1e195/src/Constants.ts#L28">Constants.ts:28</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>String constants related to AAD Authority</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>CERTIFICATE<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>SECRET<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+						</ul>
 					</div>
 				</section>
 			</section>
@@ -96,7 +943,97 @@
 						<a href="classes/keyvaultmanager.html" class="tsd-kind-icon">Key<wbr>Vault<wbr>Manager</a>
 					</li>
 					<li class=" tsd-kind-class">
+						<a href="classes/logger.html" class="tsd-kind-icon">Logger</a>
+					</li>
+					<li class=" tsd-kind-class">
 						<a href="classes/tokenvalidator.html" class="tsd-kind-icon">Token<wbr>Validator</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/urlutils.html" class="tsd-kind-icon">Url<wbr>Utils</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#accessrule" class="tsd-kind-icon">Access<wbr>Rule</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#accesstokenclaims" class="tsd-kind-icon">Access<wbr>Token<wbr>Claims</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#appcredentials" class="tsd-kind-icon">App<wbr>Credentials</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#appsettings" class="tsd-kind-icon">App<wbr>Settings</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#authcodeparams" class="tsd-kind-icon">Auth<wbr>Code<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#authroutes" class="tsd-kind-icon">Auth<wbr>Routes</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#clientcertificate" class="tsd-kind-icon">Client<wbr>Certificate</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#guardoptions" class="tsd-kind-icon">Guard<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#handleredirectoptions" class="tsd-kind-icon">Handle<wbr>Redirect<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#idtokenclaims" class="tsd-kind-icon">Id<wbr>Token<wbr>Claims</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#initializationoptions" class="tsd-kind-icon">Initialization<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#keyvaultcredential" class="tsd-kind-icon">Key<wbr>Vault<wbr>Credential</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#policy" class="tsd-kind-icon">Policy</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#resource" class="tsd-kind-icon">Resource</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#signinoptions" class="tsd-kind-icon">Sign<wbr>InOptions</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#signoutoptions" class="tsd-kind-icon">Sign<wbr>Out<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#state" class="tsd-kind-icon">State</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#tokenrequestoptions" class="tsd-kind-icon">Token<wbr>Request<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#userinfo" class="tsd-kind-icon">User<wbr>Info</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#validationoptions" class="tsd-kind-icon">Validation<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#aadauthorityconstants" class="tsd-kind-icon">AADAuthority<wbr>Constants</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#accessconstants" class="tsd-kind-icon">Access<wbr>Constants</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#appstages" class="tsd-kind-icon">App<wbr>Stages</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#configurationerrormessages" class="tsd-kind-icon">Configuration<wbr>Error<wbr>Messages</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#errorcodes" class="tsd-kind-icon">Error<wbr>Codes</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#errormessages" class="tsd-kind-icon">Error<wbr>Messages</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#infomessages" class="tsd-kind-icon">Info<wbr>Messages</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#keyvaultcredentialtypes" class="tsd-kind-icon">Key<wbr>Vault<wbr>Credential<wbr>Types</a>
 					</li>
 				</ul>
 			</nav>
@@ -113,6 +1050,7 @@
 				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
 			</ul>
 			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
 				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
 			</ul>
 			<ul class="tsd-legend">
