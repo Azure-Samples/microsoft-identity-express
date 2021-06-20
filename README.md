@@ -7,23 +7,45 @@
 
 ---
 
-This project illustrates a simple wrapper around **MSAL Node** [ConfidentialClientApplication](https://azuread.github.io/microsoft-authentication-library-for-js/ref/classes/_azure_msal_node.confidentialclientapplication.html) class in order to abstract routine authentication tasks such as login, logout, token acquisition, as well as utility methods to validate tokens and etc.
+This project illustrates a simple wrapper around **MSAL Node** [ConfidentialClientApplication](https://azuread.github.io/microsoft-authentication-library-for-js/ref/classes/_azure_msal_node.confidentialclientapplication.html) class in order to streamline routine authentication tasks such as login, logout and token acquisition, as well as securing routes and protecting resources.
 
-Suggestions and contributions are welcome!
+This is an open source project. [Suggestions](https://github.com/Azure-Samples/msal-express-wrapper/issues/new) and [contributions](https://github.com/Azure-Samples/msal-express-wrapper/blob/dev/CONTRIBUTING.md) are welcome!
+
+> :mega: This project backs the tutorial: [Enable your Node.js web app to sign-in users and call APIs with the Microsoft identity platform](https://github.com/Azure-Samples/ms-identity-javascript-nodejs-tutorial)
+
+## Features
+
+* Simple API for authN/authZ with the [Microsoft identity platform](https://docs.microsoft.com/azure/active-directory/develop/v2-overview)
+* Fetch credentials from [Azure Key Vault](https://docs.microsoft.com/azure/key-vault/general/basic-concepts)
+* Handle role-based access with Azure AD [App Roles](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps) and [Security Groups](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-groups-create-azure-portal)
+* (coming soon) Enable [Conditional Access](https://docs.microsoft.com/azure/active-directory/develop/v2-conditional-access-dev-guide) and [Zero-Trust](https://docs.microsoft.com/azure/active-directory/develop/developer-guide-conditional-access-authentication-context)
+* (coming soon) Run custom policies with [Azure AD B2C](https://docs.microsoft.com/azure/active-directory-b2c/overview)
 
 ## Prerequisites
 
 * [Node](https://nodejs.org/en/) 12 LTS or higher
 * [Express.js](https://expressjs.com/) 4x or higher
 * [@azure/msal-node](https://www.npmjs.com/package/@azure/msal-node)
-* [express-session](https://www.npmjs.com/package/express-session)
+* [express-session](https://www.npmjs.com/package/express-session) (or a similar session solution)
 
 ## Installation
 
 ```shell
+    npm install azure-samples/msal-express-wrapper 
+```
+
+or download and extract the repository *.zip* file.
+
+## Build
+
+```shell
+    git clone https://github.com/Azure-Samples/msal-express-wrapper.git
+    cd msal-express-wrapper
     npm install
     npm run build
 ```
+
+> :information_source: This project is generated using [tsdx](https://github.com/formium/tsdx).
 
 ## Getting started
 
@@ -31,106 +53,206 @@ Check out the [demo app](./demo/README.md). Read below for how to configure it.
 
 ### Configuration
 
-1. Initialize the wrapper in your app by providing a settings file in JSON. The file looks like the following:
-
-```JSON
-    {
-        "credentials": {
-            "clientId": "CLIENT_ID",
-            "tenantId": "TENANT_ID",
-            "clientSecret": "CLIENT_SECRET"
-        },
-        "settings": {
-            "homePageRoute": "/home",
-            "redirectUri": "http://localhost:4000/redirect",
-            "postLogoutRedirectUri": "http://localhost:4000"
-        }
-    }
-```
-
-> :information_source: For `redirectUri` and `postLogoutRedirectUri`, you can simply enter the path component of the URI instead of the full URI. For example, instead of `http://localhost:4000/redirect`, you can simply enter `/redirect`. This may come in handy in deployment scenarios.
-
-1. Add the web API endpoints you would like to call under **resources**:
-
-```JSON
-    {
-        // ...
-        "resources": {
-            "graphAPI": {
-                "callingPageRoute": "/profile",
-                "endpoint": "https://graph.microsoft.com/v1.0/me",
-                "scopes": ["user.read"]
-            },
-        }
-    }
-```
-
-1. If you are authenticating with **Azure AD B2C**, user-flows and/or policies should be provided as well:
-
-```JSON
-    {
-        // ...
-        "policies": {
-            "signUpSignIn": {
-                "authority": "https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/B2C_1_susi"
-            }, 
-        }
-    }
-```
-
-### Integration with the Express.js
-
-To initialize the wrapper, import it and supply the settings file and an (optional) persistent cache as below:
+1. Initialize the wrapper in your app by providing a settings object. The object looks like the follows:
 
 ```javascript
-const settings = require('../../appSettings.json');
-const cache = require('../utils/cachePlugin');
-
-const msalWrapper = require('msal-express-wrapper');
-
-const authProvider = new msalWrapper.AuthProvider(settings, cache);
+const appSettings = {
+    appCredentials: {
+        clientId: "CLIENT_ID", // Application (client) ID on Azure AD
+        tenantId: "TENANT_ID", // alt. "common" "organizations" "consumers"
+        clientSecret: "CLIENT_SECRET" // alt. client certificate or key vault credential
+    },
+    authRoutes: {
+        redirect: "/redirect", // redirect URI configured on Azure AD
+        error: "/error", // errors will be redirected to this route
+        unauthorized: "/unauthorized" // unauthorized access attempts will be redirected to this route
+    },
+    remoteResources: {
+        graphAPI: {
+            endpoint: "https://graph.microsoft.com/v1.0/me", // Microsoft Graph
+            scopes: ["user.read"]
+        },
+        armAPI: {
+            endpoint: "https://management.azure.com/tenants?api-version=2020-01-01", // Azure REST API
+            scopes: ["https://management.azure.com/user_impersonation"]
+        }
+    }
+}
 ```
 
-Once the wrapper is initialized, you can use it as below:
+1. If you are authenticating with **Azure AD B2C**, user-flows should be provided as well. The first item is used as default authority.
+
+```javascript
+const appSettings = {
+        // ...
+        policies: {
+            signUpSignIn: {
+                authority: "https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/B2C_1_susi"
+            }
+        }
+    }
+```
+
+### Integration with Express.js
+
+Import the package and instantiate [AuthProvider](https://azure-samples.github.io/msal-express-wrapper/classes/authprovider.html) class, which exposes the middleware you can use in your routes. The constructor takes the settings object and an (optional) persistent cache:
+
+```javascript
+const express = require('express');
+const session = require('express-session');
+const msalWrapper = require('msal-express-wrapper');
+
+const settings = require('./appSettings');
+const cache = require('./utils/cachePlugin');
+const router = require('./routes/router');
+
+const SERVER_PORT = process.env.PORT || 4000;
+
+const app = express();
+
+app.use(session({
+    secret: 'ENTER_YOUR_SECRET_HERE',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: false, // set to true on deployment
+    }
+}));
+
+const authProvider = new msalWrapper.AuthProvider(settings, cache);
+
+app.use(authProvider.initialize()); // initialize default routes
+
+app.use(router(authProvider)); // use authProvider in routers downstream
+
+app.listen(SERVER_PORT, () => console.log(`Server is listening on port ${SERVER_PORT}!`));
+```
+
+### Middleware
 
 #### Authentication
 
-These routes are dedicated to the wrapper for handing authorization and token requests. They do not serve any page.
+Add [signIn()](https://azure-samples.github.io/msal-express-wrapper/classes/authprovider.html#signin) and [signOut()](https://azure-samples.github.io/msal-express-wrapper/classes/authprovider.html#signout) middleware to routes you want users to sign-in and sign-out, respectively. You will need to pass the routes for redirect after as parameters to each:
 
 ```javascript
-// authentication routes
-app.get('/signin', authProvider.signIn);
-app.get('/signout', authProvider.signOut);
-app.get('/redirect', authProvider.handleRedirect);
+const express = require('express');
+const appSettings = require('../appSettings');
+const mainController = require('../controllers/mainController');
+
+module.exports = (authProvider) => {
+
+    // initialize router
+    const router = express.Router();
+
+    router.get('/', (req, res, next) => res.redirect('/home'));
+
+    router.get('/home', (req, res, next) => {
+        res.render('home', { isAuthenticated: req.session.isAuthenticated });
+    });
+
+    // unauthorized
+    router.get('/error', (req, res) => res.redirect('/401.html'));
+
+    // error
+    router.get('/unauthorized', (req, res) => res.redirect('/500.html'));
+
+    // auth routes
+    router.get('/signin',
+        authProvider.signIn({
+            successRedirect: "/",
+        }),
+    );
+
+    router.get('/signout',
+        authProvider.signOut({
+            successRedirect: "/",
+        }),
+    );
+
+    router.get('*', (req, res) => res.redirect('/404.html'));
+
+    return router;
+}
 ```
 
 #### Securing routes
 
-Simply add the `isAuthenticated` middleware before the controller that serves the page you would like to secure:
+Simply add the [isAuthenticated()](https://azure-samples.github.io/msal-express-wrapper/classes/authprovider.html#isauthenticated) middleware before the controller that serves the page you would like to secure:
 
 ```javascript
 // secure routes
-app.get('/id', authProvider.isAuthenticated, mainController.getIdPage);
+app.get('/id', 
+    authProvider.isAuthenticated({
+            unauthorizedRedirect: "/sign-in"
+        }
+    ), // checks if authenticated via session
+    (req, res, next) => {
+        res.render('id', { isAuthenticated: req.session.isAuthenticated, claims: req.session.account.idTokenClaims });
+    }
+);
 ```
 
 #### Acquiring tokens
 
-Simply add the `getToken` middleware before the controller that makes a call to the web API that you would like to access. The access token will be available as a *session variable*:
+[getToken()](https://azure-samples.github.io/msal-express-wrapper/classes/authprovider.html#gettoken) can be used before middleware that calls a web API. The access token will be available via `req.session`:
 
 ```javascript
-// secure routes that call protected resources
-app.get('/profile', authProvider.isAuthenticated, authProvider.getToken, mainController.getProfilePage);
+    router.get('/profile',
+        authProvider.isAuthenticated(),
+        authProvider.getToken({
+            resource: {
+                endpoint: "https://graph.microsoft.com/v1.0/me",
+                scopes: [ "User.Read" ]
+            }
+        }),
+        async(req, res, next) => {        
+            try {
+                // use axios or a similar alternative
+                const response = await axios.default.get("https://graph.microsoft.com/v1.0/me", {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                    }
+                });
+
+                res.render('profile', { isAuthenticated: req.session.isAuthenticated, profile: response.data });
+            } catch (error) {
+                console.log(error);
+                next(error);
+            }
+        }
+    ); // get token for this route to call web API
+```
+
+#### Controlling access
+
+Use [hasAccess()](https://azure-samples.github.io/msal-express-wrapper/classes/authprovider.html#hasaccess) middleware to control access for Azure AD App Roles and/or Security Groups:
+
+```javascript
+    router.use('/admin',
+        authProvider.isAuthenticated(),
+        authProvider.hasAccess({
+            accessRule: {
+                methods: [ "GET", "POST", "DELETE" ],
+                roles: [ "admin_role" ]
+            }
+        }),
+        (req, res) => {
+            const users = User.getAllUsers();
+        
+            res.render('dashboard', { isAuthenticated: req.session.isAuthenticated, users: users });
+        }
+    );
 ```
 
 ## Remarks
 
 ### Session support
 
-Session support in this sample is provided by the [express-session](https://www.npmjs.com/package/express-session) package. **express-session** is considered unfit for production, and you should either implement your own session solution or use a more suitable 3rd party library.
+Session support in this sample is provided by the [express-session](https://www.npmjs.com/package/express-session) package using in-memory session store. **in-memory session store** is unfit for production, and you should either use a [compatible session store](https://github.com/expressjs/session#compatible-session-stores) or implement your own storage solution.
 
 ### Persistent caching
 
-MSAL Node has an in-memory cache by default. The demo app also features a persistent cache plugin in order to save the cache to disk. This plugin is not meant to be production-ready. As such, you might want to implement persistent caching using a 3rd party library like [redis](https://redis.io/).
+MSAL Node has an in-memory cache by default. The demo app also features a [persistent cache plugin](./demo/App/utils/cachePlugin.js) in order to save the cache to disk. This plugin is not meant to be production-ready. As such, you might want to implement persistent caching using a 3rd party library like [redis](https://redis.io/).
 
 ## Resources
 

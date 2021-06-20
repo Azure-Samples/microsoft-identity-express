@@ -56,7 +56,7 @@ async function main() {
 
     app.use(router(authProvider));
 
-    app.listen(SERVER_PORT, () => console.log(`Msal Node Auth Code Sample app listening on port ${SERVER_PORT}!`));
+    app.listen(SERVER_PORT, () => console.log(`Server is listening on port ${SERVER_PORT}!`));
 }
 
 main();
