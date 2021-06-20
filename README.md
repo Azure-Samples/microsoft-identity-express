@@ -7,7 +7,7 @@
 
 ---
 
-This project illustrates a simple wrapper around **MSAL Node** [ConfidentialClientApplication](https://azuread.github.io/microsoft-authentication-library-for-js/ref/classes/_azure_msal_node.confidentialclientapplication.html) class in order to streamline routine authentication tasks such as login, logout and token acquisition, as well as securing routes and protecting resources.
+This project illustrates a simple wrapper around the [ConfidentialClientApplication](https://azuread.github.io/microsoft-authentication-library-for-js/ref/classes/_azure_msal_node.confidentialclientapplication.html) class of the [Microsoft Authentication Library for Node.js](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-node#microsoft-authentication-library-for-node-msal-node) (MSAL Node), in order to streamline routine authentication tasks such as login, logout and token acquisition, as well as securing routes and controlling access.
 
 This is an open source project. [Suggestions](https://github.com/Azure-Samples/msal-express-wrapper/issues/new) and [contributions](https://github.com/Azure-Samples/msal-express-wrapper/blob/dev/CONTRIBUTING.md) are welcome!
 
@@ -20,6 +20,8 @@ This is an open source project. [Suggestions](https://github.com/Azure-Samples/m
 * Handle role-based access with Azure AD [App Roles](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps) and [Security Groups](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-groups-create-azure-portal)
 * (coming soon) Enable [Conditional Access](https://docs.microsoft.com/azure/active-directory/develop/v2-conditional-access-dev-guide) and [Zero-Trust](https://docs.microsoft.com/azure/active-directory/develop/developer-guide-conditional-access-authentication-context)
 * (coming soon) Run custom policies with [Azure AD B2C](https://docs.microsoft.com/azure/active-directory-b2c/overview)
+
+> :warning: Protected web API scenarios are currently not supported.
 
 ## Prerequisites
 
@@ -127,6 +129,12 @@ app.use(router(authProvider)); // use authProvider in routers downstream
 
 app.listen(SERVER_PORT, () => console.log(`Server is listening on port ${SERVER_PORT}!`));
 ```
+
+The wrapper stores user data on `req.session` variable. Below are some of the useful variables:
+
+* `req.session.isAuthenticated`: indicates if user is currently authenticated (*boolean*)
+* `req.session.account`: MSAL.js account object containing useful information like ID token claims (see [AccountInfo](https://azuread.github.io/microsoft-authentication-library-for-js/ref/modules/_azure_msal_common.html#accountinfo))
+* `req.session.remoteResources.{resourceName}`: Contains parameters related to an Azure AD / Azure AD B2C protected resource, including raw access tokens (see [Resource](https://azure-samples.github.io/msal-express-wrapper/docs/modules.html#resource))
 
 ### Middleware
 
@@ -254,7 +262,7 @@ Session support in this sample is provided by the [express-session](https://www.
 
 MSAL Node has an in-memory cache by default. The demo app also features a [persistent cache plugin](./demo/App/utils/cachePlugin.js) in order to save the cache to disk. This plugin is not meant to be production-ready. As such, you might want to implement persistent caching using a 3rd party library like [redis](https://redis.io/).
 
-## Resources
+## Information
 
 * [Initializing a confidential client app with MSAL Node](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-node/docs/initialize-confidential-client-application.md)
 * [MSAL Node Configuration options](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-node/docs/configuration.md)

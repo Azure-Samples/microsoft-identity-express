@@ -3,6 +3,7 @@ const mainController = require('../controllers/mainController');
 const appSettings = require('../appSettings');
 
 module.exports = (authProvider) => {
+    
     // initialize router
     const router = express.Router();
 

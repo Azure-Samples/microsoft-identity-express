@@ -1,26 +1,19 @@
 import { RequestHandler, Router } from "express";
-import { ConfidentialClientApplication, Configuration, ICachePlugin, CryptoProvider } from "@azure/msal-node";
-import { TokenValidator } from "./TokenValidator";
+import { ICachePlugin } from "@azure/msal-node";
 import { AppSettings, InitializationOptions, TokenRequestOptions, GuardOptions, SignInOptions, SignOutOptions } from "./Types";
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
  * It offers a collection of middleware and utility methods that automate
  * basic authentication and authorization tasks in Express MVC web apps and
- * RESTful APIs.
- *
- * You must have express and express-sessions packages installed.
- * Session variables accessible are as follows:
- *
- * req.session.isAuthenticated: boolean
- * req.session.account: AccountInfo
- * req.session.remoteResources.{resourceName}.accessToken: string
+ * RESTful APIs (coming soon).
  */
 export declare class AuthProvider {
     appSettings: AppSettings;
-    msalConfig: Configuration;
-    cryptoProvider: CryptoProvider;
-    tokenValidator: TokenValidator;
-    msalClient: ConfidentialClientApplication;
+    private logger;
+    private msalConfig;
+    private cryptoProvider;
+    private tokenValidator;
+    private msalClient;
     /**
      * @param {AppSettings} appSettings
      * @param {ICachePlugin} cache: cachePlugin

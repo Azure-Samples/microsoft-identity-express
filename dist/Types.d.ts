@@ -1,3 +1,4 @@
+import { TokenClaims } from "@azure/msal-common";
 import { AccountInfo, AuthorizationUrlRequest, AuthorizationCodeRequest } from "@azure/msal-node";
 declare module "express-session" {
     interface SessionData {
@@ -21,6 +22,10 @@ export declare type AuthCodeParams = {
     redirect: string;
     prompt?: string;
     account?: AccountInfo;
+};
+export declare type State = {
+    nonce: string;
+    stage: string;
 };
 export declare type InitializationOptions = {
     saveCacheToDisk?: boolean;
@@ -49,10 +54,6 @@ export declare type ValidationOptions = {
     audience: string;
     issuer: string;
     scope: string;
-};
-export declare type State = {
-    nonce: string;
-    stage: string;
 };
 export declare type AppSettings = {
     appCredentials: AppCredentials;
@@ -119,4 +120,25 @@ export declare type UserInfo = {
     preferredLanguage?: string;
     surname?: string;
     userPrincipalName?: string;
+};
+/**
+ * Type which describes Id Token claims known by MSAL.
+ */
+export declare type IdTokenClaims = TokenClaims & {
+    aud?: string;
+    roles?: string[];
+    groups?: string[];
+    _claim_names?: string[];
+    _claim_sources?: string[];
+};
+/**
+ * Type which describes Access Token claims known by MSAL.
+ */
+export declare type AccessTokenClaims = TokenClaims & {
+    aud?: string;
+    scp?: string[];
+    roles?: string[];
+    groups?: string[];
+    _claim_names?: string[];
+    _claim_sources?: string[];
 };
