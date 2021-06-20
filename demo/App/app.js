@@ -33,7 +33,6 @@ async function main() {
      * Using express-session middleware. Be sure to familiarize yourself with available options
      * and set the desired options. Visit: https://www.npmjs.com/package/express-session
      */
-
     const sessionConfig = {
         secret: 'ENTER_YOUR_SECRET_HERE',
         resave: false,
@@ -50,13 +49,17 @@ async function main() {
 
     app.use(session(sessionConfig));
 
-    const authProvider = await msalWrapper.AuthProvider.buildAsync(settings, cache);
+    try {
+        const authProvider = await msalWrapper.AuthProvider.buildAsync(settings, cache);
 
-    app.use(authProvider.initialize());
-
-    app.use(router(authProvider));
-
-    app.listen(SERVER_PORT, () => console.log(`Server is listening on port ${SERVER_PORT}!`));
+        app.use(authProvider.initialize());
+    
+        app.use(router(authProvider));
+    
+        app.listen(SERVER_PORT, () => console.log(`Server is listening on port ${SERVER_PORT}!`));   
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 main();

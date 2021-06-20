@@ -3,13 +3,15 @@
  * Licensed under the MIT License.
  */
 
+import { TokenClaims } from "@azure/msal-common";
+
 import {
     AccountInfo,
     AuthorizationUrlRequest,
     AuthorizationCodeRequest,
-    ICachePlugin,
 } from "@azure/msal-node";
 
+// extending express Request object
 declare module "express-session" {
     interface SessionData {
         authCodeRequest: AuthorizationUrlRequest;
@@ -21,7 +23,7 @@ declare module "express-session" {
             [resource: string]: Resource;
         };
         ownedResources?: {
-            [resource: string]: Resource
+            [resource: string]: Resource;
         },
     }
 }
@@ -33,6 +35,11 @@ export type AuthCodeParams = {
     redirect: string;
     prompt?: string;
     account?: AccountInfo;
+};
+
+export type State = {
+    nonce: string;
+    stage: string;
 };
 
 export type InitializationOptions = {
@@ -59,7 +66,7 @@ export type SignOutOptions = {
 }
 
 export type HandleRedirectOptions = {
-
+    // TODO:
 };
 
 export type GuardOptions = {
@@ -72,10 +79,7 @@ export type ValidationOptions = {
     scope: string;
 };
 
-export type State = {
-    nonce: string;
-    stage: string;
-};
+// ======= CONFIG ========
 
 export type AppSettings = {
     appCredentials: AppCredentials;
@@ -138,6 +142,8 @@ export type AccessRule = {
     groups?: string[];
 };
 
+// ======= USER ========
+
 export type UserInfo = {
     businessPhones?: Array<string>;
     displayName?: string;
@@ -150,4 +156,27 @@ export type UserInfo = {
     preferredLanguage?: string;
     surname?: string;
     userPrincipalName?: string;
+};
+
+/**
+ * Type which describes Id Token claims known by MSAL.
+ */
+export type IdTokenClaims = TokenClaims & {
+    aud?: string,
+    roles?: string[],
+    groups?: string[],
+    _claim_names?: string[],
+    _claim_sources?: string[],
+};
+
+/**
+ * Type which describes Access Token claims known by MSAL.
+ */
+export type AccessTokenClaims = TokenClaims & {
+    aud?: string,
+    scp?: string[],
+    roles?: string[],
+    groups?: string[],
+    _claim_names?: string[],
+    _claim_sources?: string[],
 };

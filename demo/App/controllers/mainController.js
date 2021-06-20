@@ -20,22 +20,22 @@ exports.getProfilePage = async(req, res, next) => {
     let profile;
 
     try {
-        profile = await fetchManager.callAPI(appSettings.remoteResources.graphAPI.endpoint, req.session.remoteResources["graphAPI"].accessToken);        
+        profile = await fetchManager.callAPI(appSettings.remoteResources.graphAPI.endpoint, req.session.remoteResources["graphAPI"].accessToken);
+        res.render('profile', { isAuthenticated: req.session.isAuthenticated, profile: profile });        
     } catch (error) {
-        console.log(error)
+        console.log(error);
+        next(error);
     }
-
-    res.render('profile', { isAuthenticated: req.session.isAuthenticated, profile: profile });
 }
 
 exports.getTenantPage = async(req, res, next) => {
     let tenant;
 
     try {
-        tenant = await fetchManager.callAPI(appSettings.remoteResources.armAPI.endpoint, req.session.remoteResources["armAPI"].accessToken);   
+        tenant = await fetchManager.callAPI(appSettings.remoteResources.armAPI.endpoint, req.session.remoteResources["armAPI"].accessToken);
+        res.render('tenant', { isAuthenticated: req.session.isAuthenticated, tenant: tenant.value[0] });
     } catch (error) {
-        console.log(error)
+        console.log(error);
+        next(error);
     }
-
-    res.render('tenant', { isAuthenticated: req.session.isAuthenticated, tenant: tenant.value[0] });
 }

@@ -64,8 +64,24 @@
 					<a href="https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/typedoc.yml"><img src="https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/typedoc.yml/badge.svg" alt="Typedoc"></a>
 				<a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a></p>
 				<hr>
-				<p>This project illustrates a simple wrapper around <strong>MSAL Node</strong> <a href="https://azuread.github.io/microsoft-authentication-library-for-js/ref/classes/_azure_msal_node.confidentialclientapplication.html">ConfidentialClientApplication</a> class in order to abstract routine authentication tasks such as login, logout, token acquisition, as well as utility methods to validate tokens and etc.</p>
-				<p>Suggestions and contributions are welcome!</p>
+				<p>This project illustrates a simple wrapper around the <a href="https://azuread.github.io/microsoft-authentication-library-for-js/ref/classes/_azure_msal_node.confidentialclientapplication.html">ConfidentialClientApplication</a> class of the <a href="https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-node#microsoft-authentication-library-for-node-msal-node">Microsoft Authentication Library for Node.js</a> (MSAL Node), in order to streamline routine authentication tasks such as login, logout and token acquisition, as well as securing routes and controlling access.</p>
+				<p>This is an open source project. <a href="https://github.com/Azure-Samples/msal-express-wrapper/issues/new">Suggestions</a> and <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/dev/CONTRIBUTING.md">contributions</a> are welcome!</p>
+				<blockquote>
+					<p>:mega: This project backs the tutorial: <a href="https://github.com/Azure-Samples/ms-identity-javascript-nodejs-tutorial">Enable your Node.js web app to sign-in users and call APIs with the Microsoft identity platform</a></p>
+				</blockquote>
+				<a href="#features" id="features" style="color: inherit; text-decoration: none;">
+					<h2>Features</h2>
+				</a>
+				<ul>
+					<li>Simple API for authN/authZ with the <a href="https://docs.microsoft.com/azure/active-directory/develop/v2-overview">Microsoft identity platform</a></li>
+					<li>Fetch credentials from <a href="https://docs.microsoft.com/azure/key-vault/general/basic-concepts">Azure Key Vault</a></li>
+					<li>Handle role-based access with Azure AD <a href="https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps">App Roles</a> and <a href="https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-groups-create-azure-portal">Security Groups</a></li>
+					<li>(coming soon) Enable <a href="https://docs.microsoft.com/azure/active-directory/develop/v2-conditional-access-dev-guide">Conditional Access</a> and <a href="https://docs.microsoft.com/azure/active-directory/develop/developer-guide-conditional-access-authentication-context">Zero-Trust</a></li>
+					<li>(coming soon) Run custom policies with <a href="https://docs.microsoft.com/azure/active-directory-b2c/overview">Azure AD B2C</a></li>
+				</ul>
+				<blockquote>
+					<p>:warning: Protected web API scenarios are currently not supported.</p>
+				</blockquote>
 				<a href="#prerequisites" id="prerequisites" style="color: inherit; text-decoration: none;">
 					<h2>Prerequisites</h2>
 				</a>
@@ -73,14 +89,25 @@
 					<li><a href="https://nodejs.org/en/">Node</a> 12 LTS or higher</li>
 					<li><a href="https://expressjs.com/">Express.js</a> 4x or higher</li>
 					<li><a href="https://www.npmjs.com/package/@azure/msal-node">@azure/msal-node</a></li>
-					<li><a href="https://www.npmjs.com/package/express-session">express-session</a></li>
+					<li><a href="https://www.npmjs.com/package/express-session">express-session</a> (or a similar session solution)</li>
 				</ul>
 				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
 					<h2>Installation</h2>
 				</a>
-				<pre><code class="language-shell"><span style="color: #000000">    npm install</span>
+				<pre><code class="language-shell"><span style="color: #000000">    npm install azure-samples/msal-express-wrapper </span>
+</code></pre>
+				<p>or download and extract the repository <em>.zip</em> file.</p>
+				<a href="#build" id="build" style="color: inherit; text-decoration: none;">
+					<h2>Build</h2>
+				</a>
+				<pre><code class="language-shell"><span style="color: #000000">    git clone https://github.com/Azure-Samples/msal-express-wrapper.git</span>
+<span style="color: #000000">    </span><span style="color: #795E26">cd</span><span style="color: #000000"> msal-express-wrapper</span>
+<span style="color: #000000">    npm install</span>
 <span style="color: #000000">    npm run build</span>
 </code></pre>
+				<blockquote>
+					<p>:information_source: This project is generated using <a href="https://github.com/formium/tsdx">tsdx</a>.</p>
+				</blockquote>
 				<a href="#getting-started" id="getting-started" style="color: inherit; text-decoration: none;">
 					<h2>Getting started</h2>
 				</a>
@@ -89,84 +116,190 @@
 					<h3>Configuration</h3>
 				</a>
 				<ol>
-					<li>Initialize the wrapper in your app by providing a settings file in JSON. The file looks like the following:</li>
+					<li>Initialize the wrapper in your app by providing a settings object. The object looks like the follows:</li>
 				</ol>
-				<pre><code class="language-JSON"><span style="color: #000000">    {</span>
-<span style="color: #000000">        </span><span style="color: #0451A5">&quot;credentials&quot;</span><span style="color: #000000">: {</span>
-<span style="color: #000000">            </span><span style="color: #0451A5">&quot;clientId&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;CLIENT_ID&quot;</span><span style="color: #000000">,</span>
-<span style="color: #000000">            </span><span style="color: #0451A5">&quot;tenantId&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;TENANT_ID&quot;</span><span style="color: #000000">,</span>
-<span style="color: #000000">            </span><span style="color: #0451A5">&quot;clientSecret&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;CLIENT_SECRET&quot;</span>
+				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">appSettings</span><span style="color: #000000"> = {</span>
+<span style="color: #000000">    </span><span style="color: #001080">appCredentials:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #001080">clientId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;CLIENT_ID&quot;</span><span style="color: #000000">, </span><span style="color: #008000">// Application (client) ID on Azure AD</span>
+<span style="color: #000000">        </span><span style="color: #001080">tenantId:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;TENANT_ID&quot;</span><span style="color: #000000">, </span><span style="color: #008000">// alt. &quot;common&quot; &quot;organizations&quot; &quot;consumers&quot;</span>
+<span style="color: #000000">        </span><span style="color: #001080">clientSecret:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;CLIENT_SECRET&quot;</span><span style="color: #000000"> </span><span style="color: #008000">// alt. client certificate or key vault credential</span>
+<span style="color: #000000">    },</span>
+<span style="color: #000000">    </span><span style="color: #001080">authRoutes:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #001080">redirect:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;/redirect&quot;</span><span style="color: #000000">, </span><span style="color: #008000">// redirect URI configured on Azure AD</span>
+<span style="color: #000000">        </span><span style="color: #001080">error:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;/error&quot;</span><span style="color: #000000">, </span><span style="color: #008000">// errors will be redirected to this route</span>
+<span style="color: #000000">        </span><span style="color: #001080">unauthorized:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;/unauthorized&quot;</span><span style="color: #000000"> </span><span style="color: #008000">// unauthorized access attempts will be redirected to this route</span>
+<span style="color: #000000">    },</span>
+<span style="color: #000000">    </span><span style="color: #001080">remoteResources:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #001080">graphAPI:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">            </span><span style="color: #001080">endpoint:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;https://graph.microsoft.com/v1.0/me&quot;</span><span style="color: #000000">, </span><span style="color: #008000">// Microsoft Graph</span>
+<span style="color: #000000">            </span><span style="color: #001080">scopes:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;user.read&quot;</span><span style="color: #000000">]</span>
 <span style="color: #000000">        },</span>
-<span style="color: #000000">        </span><span style="color: #0451A5">&quot;settings&quot;</span><span style="color: #000000">: {</span>
-<span style="color: #000000">            </span><span style="color: #0451A5">&quot;homePageRoute&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;/home&quot;</span><span style="color: #000000">,</span>
-<span style="color: #000000">            </span><span style="color: #0451A5">&quot;redirectUri&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;http://localhost:4000/redirect&quot;</span><span style="color: #000000">,</span>
-<span style="color: #000000">            </span><span style="color: #0451A5">&quot;postLogoutRedirectUri&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;http://localhost:4000&quot;</span>
+<span style="color: #000000">        </span><span style="color: #001080">armAPI:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">            </span><span style="color: #001080">endpoint:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;https://management.azure.com/tenants?api-version=2020-01-01&quot;</span><span style="color: #000000">, </span><span style="color: #008000">// Azure REST API</span>
+<span style="color: #000000">            </span><span style="color: #001080">scopes:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;https://management.azure.com/user_impersonation&quot;</span><span style="color: #000000">]</span>
 <span style="color: #000000">        }</span>
 <span style="color: #000000">    }</span>
-</code></pre>
-				<blockquote>
-					<p>:information_source: For <code>redirectUri</code> and <code>postLogoutRedirectUri</code>, you can simply enter the path component of the URI instead of the full URI. For example, instead of <code>http://localhost:4000/redirect</code>, you can simply enter <code>/redirect</code>. This may come in handy in deployment scenarios.</p>
-				</blockquote>
-				<ol>
-					<li>Add the web API endpoints you would like to call under <strong>resources</strong>:</li>
-				</ol>
-				<pre><code class="language-JSON"><span style="color: #000000">    {</span>
-<span style="color: #000000">        </span><span style="color: #008000">// ...</span>
-<span style="color: #000000">        </span><span style="color: #0451A5">&quot;resources&quot;</span><span style="color: #000000">: {</span>
-<span style="color: #000000">            </span><span style="color: #0451A5">&quot;graphAPI&quot;</span><span style="color: #000000">: {</span>
-<span style="color: #000000">                </span><span style="color: #0451A5">&quot;callingPageRoute&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;/profile&quot;</span><span style="color: #000000">,</span>
-<span style="color: #000000">                </span><span style="color: #0451A5">&quot;endpoint&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;https://graph.microsoft.com/v1.0/me&quot;</span><span style="color: #000000">,</span>
-<span style="color: #000000">                </span><span style="color: #0451A5">&quot;scopes&quot;</span><span style="color: #000000">: [</span><span style="color: #A31515">&quot;user.read&quot;</span><span style="color: #000000">]</span>
-<span style="color: #000000">            },</span>
-<span style="color: #000000">        }</span>
-<span style="color: #000000">    }</span>
+<span style="color: #000000">}</span>
 </code></pre>
 				<ol>
-					<li>If you are authenticating with <strong>Azure AD B2C</strong>, user-flows and/or policies should be provided as well:</li>
+					<li>If you are authenticating with <strong>Azure AD B2C</strong>, user-flows should be provided as well. The first item is used as default authority.</li>
 				</ol>
-				<pre><code class="language-JSON"><span style="color: #000000">    {</span>
+				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">appSettings</span><span style="color: #000000"> = {</span>
 <span style="color: #000000">        </span><span style="color: #008000">// ...</span>
-<span style="color: #000000">        </span><span style="color: #0451A5">&quot;policies&quot;</span><span style="color: #000000">: {</span>
-<span style="color: #000000">            </span><span style="color: #0451A5">&quot;signUpSignIn&quot;</span><span style="color: #000000">: {</span>
-<span style="color: #000000">                </span><span style="color: #0451A5">&quot;authority&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/B2C_1_susi&quot;</span>
-<span style="color: #000000">            }, </span>
+<span style="color: #000000">        </span><span style="color: #001080">policies:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">            </span><span style="color: #001080">signUpSignIn:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">                </span><span style="color: #001080">authority:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/B2C_1_susi&quot;</span>
+<span style="color: #000000">            }</span>
 <span style="color: #000000">        }</span>
 <span style="color: #000000">    }</span>
 </code></pre>
-				<a href="#integration-with-the-expressjs" id="integration-with-the-expressjs" style="color: inherit; text-decoration: none;">
-					<h3>Integration with the Express.js</h3>
+				<a href="#integration-with-expressjs" id="integration-with-expressjs" style="color: inherit; text-decoration: none;">
+					<h3>Integration with Express.js</h3>
 				</a>
-				<p>To initialize the wrapper, import it and supply the settings file and an (optional) persistent cache as below:</p>
-				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">settings</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;../../appSettings.json&#039;</span><span style="color: #000000">);</span>
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">cache</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;../utils/cachePlugin&#039;</span><span style="color: #000000">);</span>
-
+				<p>Import the package and instantiate <a href="https://azure-samples.github.io/msal-express-wrapper/classes/authprovider.html">AuthProvider</a> class, which exposes the middleware you can use in your routes. The constructor takes the settings object and an (optional) persistent cache:</p>
+				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">express</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;express&#039;</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">session</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;express-session&#039;</span><span style="color: #000000">);</span>
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">msalWrapper</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;msal-express-wrapper&#039;</span><span style="color: #000000">);</span>
 
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">settings</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;./appSettings&#039;</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">cache</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;./utils/cachePlugin&#039;</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">router</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;./routes/router&#039;</span><span style="color: #000000">);</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">SERVER_PORT</span><span style="color: #000000"> = </span><span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #001080">env</span><span style="color: #000000">.</span><span style="color: #0070C1">PORT</span><span style="color: #000000"> || </span><span style="color: #098658">4000</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">app</span><span style="color: #000000"> = </span><span style="color: #795E26">express</span><span style="color: #000000">();</span>
+
+<span style="color: #001080">app</span><span style="color: #000000">.</span><span style="color: #795E26">use</span><span style="color: #000000">(</span><span style="color: #795E26">session</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">secret:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;ENTER_YOUR_SECRET_HERE&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">resave:</span><span style="color: #000000"> </span><span style="color: #0000FF">false</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">saveUninitialized:</span><span style="color: #000000"> </span><span style="color: #0000FF">false</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">cookie:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #001080">secure:</span><span style="color: #000000"> </span><span style="color: #0000FF">false</span><span style="color: #000000">, </span><span style="color: #008000">// set to true on deployment</span>
+<span style="color: #000000">    }</span>
+<span style="color: #000000">}));</span>
+
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">authProvider</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">msalWrapper</span><span style="color: #000000">.</span><span style="color: #795E26">AuthProvider</span><span style="color: #000000">(</span><span style="color: #001080">settings</span><span style="color: #000000">, </span><span style="color: #001080">cache</span><span style="color: #000000">);</span>
+
+<span style="color: #001080">app</span><span style="color: #000000">.</span><span style="color: #795E26">use</span><span style="color: #000000">(</span><span style="color: #001080">authProvider</span><span style="color: #000000">.</span><span style="color: #795E26">initialize</span><span style="color: #000000">()); </span><span style="color: #008000">// initialize default routes</span>
+
+<span style="color: #001080">app</span><span style="color: #000000">.</span><span style="color: #795E26">use</span><span style="color: #000000">(</span><span style="color: #795E26">router</span><span style="color: #000000">(</span><span style="color: #001080">authProvider</span><span style="color: #000000">)); </span><span style="color: #008000">// use authProvider in routers downstream</span>
+
+<span style="color: #001080">app</span><span style="color: #000000">.</span><span style="color: #795E26">listen</span><span style="color: #000000">(</span><span style="color: #0070C1">SERVER_PORT</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">`Server is listening on port </span><span style="color: #0000FF">${</span><span style="color: #0070C1">SERVER_PORT</span><span style="color: #0000FF">}</span><span style="color: #A31515">!`</span><span style="color: #000000">));</span>
 </code></pre>
-				<p>Once the wrapper is initialized, you can use it as below:</p>
+				<p>The wrapper stores user data on <code>req.session</code> variable. Below are some of the useful variables:</p>
+				<ul>
+					<li><code>req.session.isAuthenticated</code>: indicates if user is currently authenticated (<em>boolean</em>)</li>
+					<li><code>req.session.account</code>: MSAL.js account object containing useful information like ID token claims (see <a href="https://azuread.github.io/microsoft-authentication-library-for-js/ref/modules/_azure_msal_common.html#accountinfo">AccountInfo</a>)</li>
+					<li><code>req.session.remoteResources.{resourceName}</code>: Contains parameters related to an Azure AD / Azure AD B2C protected resource, including raw access tokens (see <a href="https://azure-samples.github.io/msal-express-wrapper/docs/modules.html#resource">Resource</a>)</li>
+				</ul>
+				<a href="#middleware" id="middleware" style="color: inherit; text-decoration: none;">
+					<h3>Middleware</h3>
+				</a>
 				<a href="#authentication" id="authentication" style="color: inherit; text-decoration: none;">
 					<h4>Authentication</h4>
 				</a>
-				<p>These routes are dedicated to the wrapper for handing authorization and token requests. They do not serve any page.</p>
-				<pre><code class="language-javascript"><span style="color: #008000">// authentication routes</span>
-<span style="color: #001080">app</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/signin&#039;</span><span style="color: #000000">, </span><span style="color: #001080">authProvider</span><span style="color: #000000">.</span><span style="color: #001080">signIn</span><span style="color: #000000">);</span>
-<span style="color: #001080">app</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/signout&#039;</span><span style="color: #000000">, </span><span style="color: #001080">authProvider</span><span style="color: #000000">.</span><span style="color: #001080">signOut</span><span style="color: #000000">);</span>
-<span style="color: #001080">app</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/redirect&#039;</span><span style="color: #000000">, </span><span style="color: #001080">authProvider</span><span style="color: #000000">.</span><span style="color: #001080">handleRedirect</span><span style="color: #000000">);</span>
+				<p>Add <a href="https://azure-samples.github.io/msal-express-wrapper/classes/authprovider.html#signin">signIn()</a> and <a href="https://azure-samples.github.io/msal-express-wrapper/classes/authprovider.html#signout">signOut()</a> middleware to routes you want users to sign-in and sign-out, respectively. You will need to pass the routes for redirect after as parameters to each:</p>
+				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">express</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;express&#039;</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">appSettings</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;../appSettings&#039;</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">mainController</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;../controllers/mainController&#039;</span><span style="color: #000000">);</span>
+
+<span style="color: #267F99">module</span><span style="color: #000000">.</span><span style="color: #267F99">exports</span><span style="color: #000000"> = (</span><span style="color: #001080">authProvider</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+
+<span style="color: #000000">    </span><span style="color: #008000">// initialize router</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">router</span><span style="color: #000000"> = </span><span style="color: #001080">express</span><span style="color: #000000">.</span><span style="color: #795E26">Router</span><span style="color: #000000">();</span>
+
+<span style="color: #000000">    </span><span style="color: #001080">router</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/&#039;</span><span style="color: #000000">, (</span><span style="color: #001080">req</span><span style="color: #000000">, </span><span style="color: #001080">res</span><span style="color: #000000">, </span><span style="color: #001080">next</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">res</span><span style="color: #000000">.</span><span style="color: #795E26">redirect</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/home&#039;</span><span style="color: #000000">));</span>
+
+<span style="color: #000000">    </span><span style="color: #001080">router</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/home&#039;</span><span style="color: #000000">, (</span><span style="color: #001080">req</span><span style="color: #000000">, </span><span style="color: #001080">res</span><span style="color: #000000">, </span><span style="color: #001080">next</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #001080">res</span><span style="color: #000000">.</span><span style="color: #795E26">render</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;home&#039;</span><span style="color: #000000">, { </span><span style="color: #001080">isAuthenticated:</span><span style="color: #000000"> </span><span style="color: #001080">req</span><span style="color: #000000">.</span><span style="color: #001080">session</span><span style="color: #000000">.</span><span style="color: #001080">isAuthenticated</span><span style="color: #000000"> });</span>
+<span style="color: #000000">    });</span>
+
+<span style="color: #000000">    </span><span style="color: #008000">// unauthorized</span>
+<span style="color: #000000">    </span><span style="color: #001080">router</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/error&#039;</span><span style="color: #000000">, (</span><span style="color: #001080">req</span><span style="color: #000000">, </span><span style="color: #001080">res</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">res</span><span style="color: #000000">.</span><span style="color: #795E26">redirect</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/401.html&#039;</span><span style="color: #000000">));</span>
+
+<span style="color: #000000">    </span><span style="color: #008000">// error</span>
+<span style="color: #000000">    </span><span style="color: #001080">router</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/unauthorized&#039;</span><span style="color: #000000">, (</span><span style="color: #001080">req</span><span style="color: #000000">, </span><span style="color: #001080">res</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">res</span><span style="color: #000000">.</span><span style="color: #795E26">redirect</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/500.html&#039;</span><span style="color: #000000">));</span>
+
+<span style="color: #000000">    </span><span style="color: #008000">// auth routes</span>
+<span style="color: #000000">    </span><span style="color: #001080">router</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/signin&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">authProvider</span><span style="color: #000000">.</span><span style="color: #795E26">signIn</span><span style="color: #000000">({</span>
+<span style="color: #000000">            </span><span style="color: #001080">successRedirect:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;/&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">        }),</span>
+<span style="color: #000000">    );</span>
+
+<span style="color: #000000">    </span><span style="color: #001080">router</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/signout&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">authProvider</span><span style="color: #000000">.</span><span style="color: #795E26">signOut</span><span style="color: #000000">({</span>
+<span style="color: #000000">            </span><span style="color: #001080">successRedirect:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;/&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">        }),</span>
+<span style="color: #000000">    );</span>
+
+<span style="color: #000000">    </span><span style="color: #001080">router</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;*&#039;</span><span style="color: #000000">, (</span><span style="color: #001080">req</span><span style="color: #000000">, </span><span style="color: #001080">res</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">res</span><span style="color: #000000">.</span><span style="color: #795E26">redirect</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/404.html&#039;</span><span style="color: #000000">));</span>
+
+<span style="color: #000000">    </span><span style="color: #AF00DB">return</span><span style="color: #000000"> </span><span style="color: #001080">router</span><span style="color: #000000">;</span>
+<span style="color: #000000">}</span>
 </code></pre>
 				<a href="#securing-routes" id="securing-routes" style="color: inherit; text-decoration: none;">
 					<h4>Securing routes</h4>
 				</a>
-				<p>Simply add the <code>isAuthenticated</code> middleware before the controller that serves the page you would like to secure:</p>
+				<p>Simply add the <a href="https://azure-samples.github.io/msal-express-wrapper/classes/authprovider.html#isauthenticated">isAuthenticated()</a> middleware before the controller that serves the page you would like to secure:</p>
 				<pre><code class="language-javascript"><span style="color: #008000">// secure routes</span>
-<span style="color: #001080">app</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/id&#039;</span><span style="color: #000000">, </span><span style="color: #001080">authProvider</span><span style="color: #000000">.</span><span style="color: #001080">isAuthenticated</span><span style="color: #000000">, </span><span style="color: #001080">mainController</span><span style="color: #000000">.</span><span style="color: #001080">getIdPage</span><span style="color: #000000">);</span>
+<span style="color: #001080">app</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/id&#039;</span><span style="color: #000000">, </span>
+<span style="color: #000000">    </span><span style="color: #001080">authProvider</span><span style="color: #000000">.</span><span style="color: #795E26">isAuthenticated</span><span style="color: #000000">({</span>
+<span style="color: #000000">            </span><span style="color: #001080">unauthorizedRedirect:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;/sign-in&quot;</span>
+<span style="color: #000000">        }</span>
+<span style="color: #000000">    ), </span><span style="color: #008000">// checks if authenticated via session</span>
+<span style="color: #000000">    (</span><span style="color: #001080">req</span><span style="color: #000000">, </span><span style="color: #001080">res</span><span style="color: #000000">, </span><span style="color: #001080">next</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #001080">res</span><span style="color: #000000">.</span><span style="color: #795E26">render</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;id&#039;</span><span style="color: #000000">, { </span><span style="color: #001080">isAuthenticated:</span><span style="color: #000000"> </span><span style="color: #001080">req</span><span style="color: #000000">.</span><span style="color: #001080">session</span><span style="color: #000000">.</span><span style="color: #001080">isAuthenticated</span><span style="color: #000000">, </span><span style="color: #001080">claims:</span><span style="color: #000000"> </span><span style="color: #001080">req</span><span style="color: #000000">.</span><span style="color: #001080">session</span><span style="color: #000000">.</span><span style="color: #001080">account</span><span style="color: #000000">.</span><span style="color: #001080">idTokenClaims</span><span style="color: #000000"> });</span>
+<span style="color: #000000">    }</span>
+<span style="color: #000000">);</span>
 </code></pre>
 				<a href="#acquiring-tokens" id="acquiring-tokens" style="color: inherit; text-decoration: none;">
 					<h4>Acquiring tokens</h4>
 				</a>
-				<p>Simply add the <code>getToken</code> middleware before the controller that makes a call to the web API that you would like to access. The access token will be available as a <em>session variable</em>:</p>
-				<pre><code class="language-javascript"><span style="color: #008000">// secure routes that call protected resources</span>
-<span style="color: #001080">app</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/profile&#039;</span><span style="color: #000000">, </span><span style="color: #001080">authProvider</span><span style="color: #000000">.</span><span style="color: #001080">isAuthenticated</span><span style="color: #000000">, </span><span style="color: #001080">authProvider</span><span style="color: #000000">.</span><span style="color: #001080">getToken</span><span style="color: #000000">, </span><span style="color: #001080">mainController</span><span style="color: #000000">.</span><span style="color: #001080">getProfilePage</span><span style="color: #000000">);</span>
+				<p><a href="https://azure-samples.github.io/msal-express-wrapper/classes/authprovider.html#gettoken">getToken()</a> can be used before middleware that calls a web API. The access token will be available via <code>req.session</code>:</p>
+				<pre><code class="language-javascript"><span style="color: #000000">    </span><span style="color: #001080">router</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/profile&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">authProvider</span><span style="color: #000000">.</span><span style="color: #795E26">isAuthenticated</span><span style="color: #000000">(),</span>
+<span style="color: #000000">        </span><span style="color: #001080">authProvider</span><span style="color: #000000">.</span><span style="color: #795E26">getToken</span><span style="color: #000000">({</span>
+<span style="color: #000000">            </span><span style="color: #001080">resource:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">                </span><span style="color: #001080">endpoint:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;https://graph.microsoft.com/v1.0/me&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">                </span><span style="color: #001080">scopes:</span><span style="color: #000000"> [ </span><span style="color: #A31515">&quot;User.Read&quot;</span><span style="color: #000000"> ]</span>
+<span style="color: #000000">            }</span>
+<span style="color: #000000">        }),</span>
+<span style="color: #000000">        </span><span style="color: #0000FF">async</span><span style="color: #000000">(</span><span style="color: #001080">req</span><span style="color: #000000">, </span><span style="color: #001080">res</span><span style="color: #000000">, </span><span style="color: #001080">next</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {        </span>
+<span style="color: #000000">            </span><span style="color: #AF00DB">try</span><span style="color: #000000"> {</span>
+<span style="color: #000000">                </span><span style="color: #008000">// use axios or a similar alternative</span>
+<span style="color: #000000">                </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">response</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">axios</span><span style="color: #000000">.</span><span style="color: #001080">default</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;https://graph.microsoft.com/v1.0/me&quot;</span><span style="color: #000000">, {</span>
+<span style="color: #000000">                    </span><span style="color: #001080">headers:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">                        </span><span style="color: #001080">Authorization:</span><span style="color: #000000"> </span><span style="color: #A31515">`Bearer </span><span style="color: #0000FF">${</span><span style="color: #001080">accessToken</span><span style="color: #0000FF">}</span><span style="color: #A31515">`</span>
+<span style="color: #000000">                    }</span>
+<span style="color: #000000">                });</span>
+
+<span style="color: #000000">                </span><span style="color: #001080">res</span><span style="color: #000000">.</span><span style="color: #795E26">render</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;profile&#039;</span><span style="color: #000000">, { </span><span style="color: #001080">isAuthenticated:</span><span style="color: #000000"> </span><span style="color: #001080">req</span><span style="color: #000000">.</span><span style="color: #001080">session</span><span style="color: #000000">.</span><span style="color: #001080">isAuthenticated</span><span style="color: #000000">, </span><span style="color: #001080">profile:</span><span style="color: #000000"> </span><span style="color: #001080">response</span><span style="color: #000000">.</span><span style="color: #001080">data</span><span style="color: #000000"> });</span>
+<span style="color: #000000">            } </span><span style="color: #AF00DB">catch</span><span style="color: #000000"> (</span><span style="color: #001080">error</span><span style="color: #000000">) {</span>
+<span style="color: #000000">                </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">error</span><span style="color: #000000">);</span>
+<span style="color: #000000">                </span><span style="color: #795E26">next</span><span style="color: #000000">(</span><span style="color: #001080">error</span><span style="color: #000000">);</span>
+<span style="color: #000000">            }</span>
+<span style="color: #000000">        }</span>
+<span style="color: #000000">    ); </span><span style="color: #008000">// get token for this route to call web API</span>
+</code></pre>
+				<a href="#controlling-access" id="controlling-access" style="color: inherit; text-decoration: none;">
+					<h4>Controlling access</h4>
+				</a>
+				<p>Use <a href="https://azure-samples.github.io/msal-express-wrapper/classes/authprovider.html#hasaccess">hasAccess()</a> middleware to control access for Azure AD App Roles and/or Security Groups:</p>
+				<pre><code class="language-javascript"><span style="color: #000000">    </span><span style="color: #001080">router</span><span style="color: #000000">.</span><span style="color: #795E26">use</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/admin&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">authProvider</span><span style="color: #000000">.</span><span style="color: #795E26">isAuthenticated</span><span style="color: #000000">(),</span>
+<span style="color: #000000">        </span><span style="color: #001080">authProvider</span><span style="color: #000000">.</span><span style="color: #795E26">hasAccess</span><span style="color: #000000">({</span>
+<span style="color: #000000">            </span><span style="color: #001080">accessRule:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">                </span><span style="color: #001080">methods:</span><span style="color: #000000"> [ </span><span style="color: #A31515">&quot;GET&quot;</span><span style="color: #000000">, </span><span style="color: #A31515">&quot;POST&quot;</span><span style="color: #000000">, </span><span style="color: #A31515">&quot;DELETE&quot;</span><span style="color: #000000"> ],</span>
+<span style="color: #000000">                </span><span style="color: #001080">roles:</span><span style="color: #000000"> [ </span><span style="color: #A31515">&quot;admin_role&quot;</span><span style="color: #000000"> ]</span>
+<span style="color: #000000">            }</span>
+<span style="color: #000000">        }),</span>
+<span style="color: #000000">        (</span><span style="color: #001080">req</span><span style="color: #000000">, </span><span style="color: #001080">res</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">            </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">users</span><span style="color: #000000"> = </span><span style="color: #001080">User</span><span style="color: #000000">.</span><span style="color: #795E26">getAllUsers</span><span style="color: #000000">();</span>
+<span style="color: #000000">        </span>
+<span style="color: #000000">            </span><span style="color: #001080">res</span><span style="color: #000000">.</span><span style="color: #795E26">render</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;dashboard&#039;</span><span style="color: #000000">, { </span><span style="color: #001080">isAuthenticated:</span><span style="color: #000000"> </span><span style="color: #001080">req</span><span style="color: #000000">.</span><span style="color: #001080">session</span><span style="color: #000000">.</span><span style="color: #001080">isAuthenticated</span><span style="color: #000000">, </span><span style="color: #001080">users:</span><span style="color: #000000"> </span><span style="color: #001080">users</span><span style="color: #000000"> });</span>
+<span style="color: #000000">        }</span>
+<span style="color: #000000">    );</span>
 </code></pre>
 				<a href="#remarks" id="remarks" style="color: inherit; text-decoration: none;">
 					<h2>Remarks</h2>
@@ -174,13 +307,13 @@
 				<a href="#session-support" id="session-support" style="color: inherit; text-decoration: none;">
 					<h3>Session support</h3>
 				</a>
-				<p>Session support in this sample is provided by the <a href="https://www.npmjs.com/package/express-session">express-session</a> package. <strong>express-session</strong> is considered unfit for production, and you should either implement your own session solution or use a more suitable 3rd party library.</p>
+				<p>Session support in this sample is provided by the <a href="https://www.npmjs.com/package/express-session">express-session</a> package using in-memory session store. <strong>in-memory session store</strong> is unfit for production, and you should either use a <a href="https://github.com/expressjs/session#compatible-session-stores">compatible session store</a> or implement your own storage solution.</p>
 				<a href="#persistent-caching" id="persistent-caching" style="color: inherit; text-decoration: none;">
 					<h3>Persistent caching</h3>
 				</a>
-				<p>MSAL Node has an in-memory cache by default. The demo app also features a persistent cache plugin in order to save the cache to disk. This plugin is not meant to be production-ready. As such, you might want to implement persistent caching using a 3rd party library like <a href="https://redis.io/">redis</a>.</p>
-				<a href="#resources" id="resources" style="color: inherit; text-decoration: none;">
-					<h2>Resources</h2>
+				<p>MSAL Node has an in-memory cache by default. The demo app also features a <a href="./demo/App/utils/cachePlugin.js">persistent cache plugin</a> in order to save the cache to disk. This plugin is not meant to be production-ready. As such, you might want to implement persistent caching using a 3rd party library like <a href="https://redis.io/">redis</a>.</p>
+				<a href="#information" id="information" style="color: inherit; text-decoration: none;">
+					<h2>Information</h2>
 				</a>
 				<ul>
 					<li><a href="https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-node/docs/initialize-confidential-client-application.md">Initializing a confidential client app with MSAL Node</a></li>
@@ -212,7 +345,97 @@
 						<a href="classes/keyvaultmanager.html" class="tsd-kind-icon">Key<wbr>Vault<wbr>Manager</a>
 					</li>
 					<li class=" tsd-kind-class">
+						<a href="classes/logger.html" class="tsd-kind-icon">Logger</a>
+					</li>
+					<li class=" tsd-kind-class">
 						<a href="classes/tokenvalidator.html" class="tsd-kind-icon">Token<wbr>Validator</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/urlutils.html" class="tsd-kind-icon">Url<wbr>Utils</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#accessrule" class="tsd-kind-icon">Access<wbr>Rule</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#accesstokenclaims" class="tsd-kind-icon">Access<wbr>Token<wbr>Claims</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#appcredentials" class="tsd-kind-icon">App<wbr>Credentials</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#appsettings" class="tsd-kind-icon">App<wbr>Settings</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#authcodeparams" class="tsd-kind-icon">Auth<wbr>Code<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#authroutes" class="tsd-kind-icon">Auth<wbr>Routes</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#clientcertificate" class="tsd-kind-icon">Client<wbr>Certificate</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#guardoptions" class="tsd-kind-icon">Guard<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#handleredirectoptions" class="tsd-kind-icon">Handle<wbr>Redirect<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#idtokenclaims" class="tsd-kind-icon">Id<wbr>Token<wbr>Claims</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#initializationoptions" class="tsd-kind-icon">Initialization<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#keyvaultcredential" class="tsd-kind-icon">Key<wbr>Vault<wbr>Credential</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#policy" class="tsd-kind-icon">Policy</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#resource" class="tsd-kind-icon">Resource</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#signinoptions" class="tsd-kind-icon">Sign<wbr>InOptions</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#signoutoptions" class="tsd-kind-icon">Sign<wbr>Out<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#state" class="tsd-kind-icon">State</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#tokenrequestoptions" class="tsd-kind-icon">Token<wbr>Request<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#userinfo" class="tsd-kind-icon">User<wbr>Info</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#validationoptions" class="tsd-kind-icon">Validation<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#aadauthorityconstants" class="tsd-kind-icon">AADAuthority<wbr>Constants</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#accessconstants" class="tsd-kind-icon">Access<wbr>Constants</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#appstages" class="tsd-kind-icon">App<wbr>Stages</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#configurationerrormessages" class="tsd-kind-icon">Configuration<wbr>Error<wbr>Messages</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#errorcodes" class="tsd-kind-icon">Error<wbr>Codes</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#errormessages" class="tsd-kind-icon">Error<wbr>Messages</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#infomessages" class="tsd-kind-icon">Info<wbr>Messages</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#keyvaultcredentialtypes" class="tsd-kind-icon">Key<wbr>Vault<wbr>Credential<wbr>Types</a>
 					</li>
 				</ul>
 			</nav>
@@ -229,6 +452,7 @@
 				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
 			</ul>
 			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
 				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
 			</ul>
 			<ul class="tsd-legend">

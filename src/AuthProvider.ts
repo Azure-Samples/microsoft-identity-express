@@ -16,7 +16,6 @@ import {
     InteractionRequiredAuthError,
     OIDC_DEFAULT_SCOPES,
     PromptValue,
-    CredentialType,
     StringUtils,
 } from "@azure/msal-common";
 
@@ -37,6 +36,7 @@ import { TokenValidator } from "./TokenValidator";
 import { KeyVaultManager } from "./KeyVaultManager";
 import { FetchManager } from "./FetchManager";
 import { UrlUtils } from "./UrlUtils";
+import { Logger } from "./Logger";
 
 import {
     Resource,
@@ -54,28 +54,23 @@ import {
 import {
     AppStages,
     ErrorMessages,
-    AccessConstants
+    AccessConstants,
+    InfoMessages
 } from "./Constants";
 
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
  * It offers a collection of middleware and utility methods that automate
  * basic authentication and authorization tasks in Express MVC web apps and
- * RESTful APIs.
- * 
- * You must have express and express-sessions packages installed. 
- * Session variables accessible are as follows:
- * 
- * req.session.isAuthenticated: boolean
- * req.session.account: AccountInfo
- * req.session.remoteResources.{resourceName}.accessToken: string
+ * RESTful APIs (coming soon).
  */
 export class AuthProvider {
     appSettings: AppSettings;
-    msalConfig: Configuration;
-    cryptoProvider: CryptoProvider;
-    tokenValidator: TokenValidator;
-    msalClient: ConfidentialClientApplication;
+    private logger: Logger;
+    private msalConfig: Configuration;
+    private cryptoProvider: CryptoProvider;
+    private tokenValidator: TokenValidator;
+    private msalClient: ConfidentialClientApplication;
 
     /**
      * @param {AppSettings} appSettings
@@ -253,7 +248,6 @@ export class AuthProvider {
                             try {
                                 // exchange auth code for tokens
                                 const tokenResponse = await this.msalClient.acquireTokenByCode(req.session.tokenRequest);
-                                console.log("\nResponse: \n:", tokenResponse);
 
                                 try {
                                     const isIdTokenValid = await this.tokenValidator.validateIdToken(tokenResponse.idToken);
@@ -265,16 +259,16 @@ export class AuthProvider {
 
                                         res.redirect(state.path);
                                     } else {
-                                        console.log(ErrorMessages.INVALID_TOKEN);
+                                        Logger.logError(ErrorMessages.INVALID_TOKEN);
                                         res.redirect(this.appSettings.authRoutes.unauthorized);
                                     }
                                 } catch (error) {
-                                    console.log(ErrorMessages.CANNOT_VALIDATE_TOKEN);
+                                    Logger.logError(ErrorMessages.CANNOT_VALIDATE_TOKEN);
                                     console.log(error);
                                     next(error)
                                 }
                             } catch (error) {
-                                console.log(ErrorMessages.TOKEN_ACQUISITION_FAILED);
+                                Logger.logError(ErrorMessages.TOKEN_ACQUISITION_FAILED);
                                 console.log(error);
                                 next(error)
                             }
@@ -289,11 +283,10 @@ export class AuthProvider {
 
                             try {
                                 const tokenResponse = await this.msalClient.acquireTokenByCode(req.session.tokenRequest);
-                                console.log("\nResponse: \n:", tokenResponse);
                                 req.session.remoteResources[resourceName].accessToken = tokenResponse.accessToken;
                                 res.redirect(state.path);
                             } catch (error) {
-                                console.log(ErrorMessages.TOKEN_ACQUISITION_FAILED);
+                                Logger.logError(ErrorMessages.TOKEN_ACQUISITION_FAILED);
                                 console.log(error);
                                 next(error);
                             }
@@ -301,16 +294,16 @@ export class AuthProvider {
                         }
 
                         default:
-                            console.log(ErrorMessages.CANNOT_DETERMINE_APP_STAGE);
+                            Logger.logError(ErrorMessages.CANNOT_DETERMINE_APP_STAGE);
                             res.redirect(this.appSettings.authRoutes.error);
                             break;
                     }
                 } else {
-                    console.log(ErrorMessages.NONCE_MISMATCH);
+                    Logger.logError(ErrorMessages.NONCE_MISMATCH);
                     res.redirect(this.appSettings.authRoutes.unauthorized);
                 }
             } else {
-                console.log(ErrorMessages.STATE_NOT_FOUND)
+                Logger.logError(ErrorMessages.STATE_NOT_FOUND)
                 res.redirect(this.appSettings.authRoutes.unauthorized);
             }
         }
@@ -349,12 +342,11 @@ export class AuthProvider {
 
                 // acquire token silently to be used in resource call
                 const tokenResponse = await this.msalClient.acquireTokenSilent(silentRequest);
-                console.log("\nSuccessful silent token acquisition:\n Response: \n:", tokenResponse);
 
                 // In B2C scenarios, sometimes an access token is returned empty.
                 // In that case, we will acquire token interactively instead.
                 if (StringUtils.isEmpty(tokenResponse.accessToken)) {
-                    console.log(ErrorMessages.TOKEN_NOT_FOUND);
+                    Logger.logError(ErrorMessages.TOKEN_NOT_FOUND);
                     throw new InteractionRequiredAuthError(ErrorMessages.INTERACTION_REQUIRED);
                 }
 
@@ -436,13 +428,13 @@ export class AuthProvider {
         return (req: Request, res: Response, next: NextFunction): void => {
             if (req.session) {
                 if (!req.session.isAuthenticated) {
-                    console.log(ErrorMessages.NOT_PERMITTED);
+                    Logger.logError(ErrorMessages.NOT_PERMITTED);
                     return res.redirect(this.appSettings.authRoutes.unauthorized);
                 }
 
                 next();
             } else {
-                console.log(ErrorMessages.SESSION_NOT_FOUND);
+                Logger.logError(ErrorMessages.SESSION_NOT_FOUND);
                 res.redirect(this.appSettings.authRoutes.unauthorized);
             }
         }
@@ -459,14 +451,14 @@ export class AuthProvider {
             const accessToken = req.headers.authorization.split(" ")[1];
 
             if (req.headers.authorization) {
-                if (!(await this.tokenValidator.validateAccessToken(accessToken, req.route.path))) {
-                    console.log(ErrorMessages.INVALID_TOKEN);
+                if (!(await this.tokenValidator.verifyAccessTokenSignature(accessToken, req.route.path))) {
+                    Logger.logError(ErrorMessages.INVALID_TOKEN);
                     return res.redirect(this.appSettings.authRoutes.unauthorized);
                 }
 
                 next();
             } else {
-                console.log(ErrorMessages.TOKEN_NOT_FOUND);
+                Logger.logError(ErrorMessages.TOKEN_NOT_FOUND);
                 res.redirect(this.appSettings.authRoutes.unauthorized);
             }
         }
@@ -488,9 +480,10 @@ export class AuthProvider {
 
                         if (req.session.account.idTokenClaims[AccessConstants.GROUPS] === undefined) {
                             if (req.session.account.idTokenClaims[AccessConstants.CLAIM_NAMES] || req.session.account.idTokenClaims[AccessConstants.CLAIM_SOURCES]) {
+                                Logger.logWarning(InfoMessages.OVERAGE_OCCURRED)
                                 return await this.handleOverage(req, res, next, options.accessRule);
                             } else {
-                                console.log(ErrorMessages.USER_HAS_NO_GROUP);
+                                Logger.logError(ErrorMessages.USER_HAS_NO_GROUP);
                                 return res.redirect(this.appSettings.authRoutes.unauthorized);
                             }
                         } else {
@@ -506,7 +499,7 @@ export class AuthProvider {
 
                     case AccessConstants.ROLES:
                         if (req.session.account.idTokenClaims[AccessConstants.ROLES] === undefined) {
-                            console.log(ErrorMessages.USER_HAS_NO_ROLE);
+                            Logger.logError(ErrorMessages.USER_HAS_NO_ROLE);
                             return res.redirect(this.appSettings.authRoutes.unauthorized);
                         } else {
                             const roles = req.session.account.idTokenClaims[AccessConstants.ROLES];
@@ -556,7 +549,7 @@ export class AuthProvider {
             const response = await this.msalClient.getAuthCodeUrl(req.session.authCodeRequest);
             res.redirect(response);
         } catch (error) {
-            console.log(ErrorMessages.AUTH_CODE_NOT_OBTAINED);
+            Logger.logError(ErrorMessages.AUTH_CODE_NOT_OBTAINED);
             console.log(error);
             next(error);
         }
@@ -643,14 +636,14 @@ export class AuthProvider {
             switch (credType) {
                 case AccessConstants.GROUPS:
                     if (rule.groups.filter(elem => creds.includes(elem)).length < 1) {
-                        console.log(ErrorMessages.USER_NOT_IN_GROUP);
+                        Logger.logError(ErrorMessages.USER_NOT_IN_GROUP);
                         return false;
                     }
                     break;
 
                 case AccessConstants.ROLES:
                     if (rule.roles.filter(elem => creds.includes(elem)).length < 1) {
-                        console.log(ErrorMessages.USER_NOT_IN_ROLE);
+                        Logger.logError(ErrorMessages.USER_NOT_IN_ROLE);
                         return false;
                     }
                     break;
@@ -659,7 +652,7 @@ export class AuthProvider {
                     break;
             }
         } else {
-            console.log(ErrorMessages.METHOD_NOT_ALLOWED);
+            Logger.logError(ErrorMessages.METHOD_NOT_ALLOWED);
             return false;
         }
 

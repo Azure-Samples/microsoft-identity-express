@@ -5,7 +5,14 @@
 
 import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
 import { StringUtils } from "@azure/msal-common";
-import { ErrorMessages, AccessConstants } from "./Constants";
+
+import { 
+    AccessConstants, 
+    InfoMessages, 
+    ErrorMessages 
+} from "./Constants";
+
+import { Logger } from "./Logger";
 
 export class FetchManager {
 
@@ -28,9 +35,8 @@ export class FetchManager {
             }
         };
 
-        console.log("request made to web API at: " + new Date().toString());
-
         try {
+            Logger.logInfo(InfoMessages.REQUEST_FOR_RESOURCE);
             const response: AxiosResponse = await axios.get(endpoint, options);
             return response.data;
         } catch (error) {
