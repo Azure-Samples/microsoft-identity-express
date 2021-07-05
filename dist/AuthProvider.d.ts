@@ -9,7 +9,6 @@ import { AppSettings, InitializationOptions, TokenRequestOptions, GuardOptions, 
  */
 export declare class AuthProvider {
     appSettings: AppSettings;
-    private logger;
     private msalConfig;
     private cryptoProvider;
     private tokenValidator;

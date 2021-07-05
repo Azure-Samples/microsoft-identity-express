@@ -72,6 +72,7 @@ export declare type AppSettings = {
     };
 };
 export declare type AppCredentials = {
+    instance?: string;
     clientId: string;
     tenantId: string;
     clientSecret?: string;
@@ -130,15 +131,19 @@ export declare type IdTokenClaims = TokenClaims & {
     groups?: string[];
     _claim_names?: string[];
     _claim_sources?: string[];
+    xms_cc?: string;
+    acrs?: string[];
 };
 /**
  * Type which describes Access Token claims known by MSAL.
  */
 export declare type AccessTokenClaims = TokenClaims & {
-    aud?: string;
     scp?: string[];
+    aud?: string;
     roles?: string[];
     groups?: string[];
     _claim_names?: string[];
     _claim_sources?: string[];
+    xms_cc?: string;
+    acrs?: string[];
 };

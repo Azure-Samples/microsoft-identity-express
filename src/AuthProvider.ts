@@ -66,7 +66,6 @@ import {
  */
 export class AuthProvider {
     appSettings: AppSettings;
-    private logger: Logger;
     private msalConfig: Configuration;
     private cryptoProvider: CryptoProvider;
     private tokenValidator: TokenValidator;
@@ -179,7 +178,7 @@ export class AuthProvider {
 
             // random GUID for csrf protection
             req.session.nonce = this.cryptoProvider.createNewGuid();
-
+            
             // TODO: encrypt state parameter 
             const state = this.cryptoProvider.base64Encode(
                 JSON.stringify({
@@ -264,12 +263,10 @@ export class AuthProvider {
                                     }
                                 } catch (error) {
                                     Logger.logError(ErrorMessages.CANNOT_VALIDATE_TOKEN);
-                                    console.log(error);
                                     next(error)
                                 }
                             } catch (error) {
                                 Logger.logError(ErrorMessages.TOKEN_ACQUISITION_FAILED);
-                                console.log(error);
                                 next(error)
                             }
                             break;
@@ -287,7 +284,6 @@ export class AuthProvider {
                                 res.redirect(state.path);
                             } catch (error) {
                                 Logger.logError(ErrorMessages.TOKEN_ACQUISITION_FAILED);
-                                console.log(error);
                                 next(error);
                             }
                             break;
@@ -358,7 +354,7 @@ export class AuthProvider {
                     const state = this.cryptoProvider.base64Encode(
                         JSON.stringify({
                             stage: AppStages.ACQUIRE_TOKEN,
-                            path: req.route.path,
+                            path: req.originalUrl,
                             nonce: req.session.nonce,
                         })
                     );
@@ -374,7 +370,6 @@ export class AuthProvider {
                     // initiate the first leg of auth code grant to get token
                     return this.getAuthCode(req, res, next, params);
                 } else {
-                    console.log(error);
                     next(error);
                 }
             }
@@ -411,7 +406,6 @@ export class AuthProvider {
 
                 next();
             } catch (error) {
-                console.log(error);
                 next(error);
             }
         }
@@ -451,7 +445,7 @@ export class AuthProvider {
             const accessToken = req.headers.authorization.split(" ")[1];
 
             if (req.headers.authorization) {
-                if (!(await this.tokenValidator.verifyAccessTokenSignature(accessToken, req.route.path))) {
+                if (!(await this.tokenValidator.verifyAccessTokenSignature(accessToken, `${req.baseUrl}${req.path}`))) {
                     Logger.logError(ErrorMessages.INVALID_TOKEN);
                     return res.redirect(this.appSettings.authRoutes.unauthorized);
                 }
@@ -550,7 +544,6 @@ export class AuthProvider {
             res.redirect(response);
         } catch (error) {
             Logger.logError(ErrorMessages.AUTH_CODE_NOT_OBTAINED);
-            console.log(error);
             next(error);
         }
     };
@@ -598,7 +591,6 @@ export class AuthProvider {
                             return next();
                         }
                     } catch (error) {
-                        console.log(error);
                         next(error);
                     }
                 } else {
@@ -614,11 +606,9 @@ export class AuthProvider {
                     }
                 }
             } catch (error) {
-                console.log(error);
                 next(error);
             }
         } catch (error) {
-            console.log(error);
             next(error);
         }
     }

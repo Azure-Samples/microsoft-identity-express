@@ -1,6 +1,5 @@
 const express = require('express');
 const mainController = require('../controllers/mainController');
-const appSettings = require('../appSettings');
 
 module.exports = (authProvider) => {
     
@@ -33,7 +32,7 @@ module.exports = (authProvider) => {
     router.get('/profile',
         authProvider.isAuthenticated(),
         authProvider.getToken({
-            resource: appSettings.remoteResources.graphAPI
+            resource: authProvider.appSettings.remoteResources.graphAPI
         }),
         mainController.getProfilePage
     ); // get token for this route to call web API
@@ -41,7 +40,7 @@ module.exports = (authProvider) => {
     router.get('/tenant',
         authProvider.isAuthenticated(),
         authProvider.getToken({
-            resource: appSettings.remoteResources.armAPI
+            resource: authProvider.appSettings.remoteResources.armAPI
         }),
         mainController.getTenantPage
     ); // get token for this route to call web API

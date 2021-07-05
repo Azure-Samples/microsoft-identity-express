@@ -1888,19 +1888,19 @@ var AuthProvider = /*#__PURE__*/function () {
               switch (_context.prev = _context.next) {
                 case 0:
                   if (!req.query.state) {
-                    _context.next = 56;
+                    _context.next = 53;
                     break;
                   }
 
                   state = JSON.parse(_this.cryptoProvider.base64Decode(req.query.state)); // check if nonce matches
 
                   if (!(state.nonce === req.session.nonce)) {
-                    _context.next = 52;
+                    _context.next = 49;
                     break;
                   }
 
                   _context.t0 = state.stage;
-                  _context.next = _context.t0 === AppStages.SIGN_IN ? 6 : _context.t0 === AppStages.ACQUIRE_TOKEN ? 31 : 47;
+                  _context.next = _context.t0 === AppStages.SIGN_IN ? 6 : _context.t0 === AppStages.ACQUIRE_TOKEN ? 29 : 44;
                   break;
 
                 case 6:
@@ -1929,82 +1929,79 @@ var AuthProvider = /*#__PURE__*/function () {
                     res.redirect(_this.appSettings.authRoutes.unauthorized);
                   }
 
-                  _context.next = 23;
+                  _context.next = 22;
                   break;
 
                 case 18:
                   _context.prev = 18;
                   _context.t1 = _context["catch"](11);
                   Logger.logError(ErrorMessages.CANNOT_VALIDATE_TOKEN);
-                  console.log(_context.t1);
                   next(_context.t1);
 
-                case 23:
-                  _context.next = 30;
+                case 22:
+                  _context.next = 28;
                   break;
 
-                case 25:
-                  _context.prev = 25;
+                case 24:
+                  _context.prev = 24;
                   _context.t2 = _context["catch"](7);
                   Logger.logError(ErrorMessages.TOKEN_ACQUISITION_FAILED);
-                  console.log(_context.t2);
                   next(_context.t2);
 
-                case 30:
-                  return _context.abrupt("break", 50);
+                case 28:
+                  return _context.abrupt("break", 47);
 
-                case 31:
+                case 29:
                   // get the name of the resource associated with scope
                   resourceName = _this.getResourceNameFromScopes(req.session.tokenRequest.scopes);
                   req.session.tokenRequest.code = req.query.code;
-                  _context.prev = 33;
-                  _context.next = 36;
+                  _context.prev = 31;
+                  _context.next = 34;
                   return _this.msalClient.acquireTokenByCode(req.session.tokenRequest);
 
-                case 36:
+                case 34:
                   _tokenResponse = _context.sent;
                   req.session.remoteResources[resourceName].accessToken = _tokenResponse.accessToken;
                   res.redirect(state.path);
-                  _context.next = 46;
+                  _context.next = 43;
                   break;
 
-                case 41:
-                  _context.prev = 41;
-                  _context.t3 = _context["catch"](33);
+                case 39:
+                  _context.prev = 39;
+                  _context.t3 = _context["catch"](31);
                   Logger.logError(ErrorMessages.TOKEN_ACQUISITION_FAILED);
-                  console.log(_context.t3);
                   next(_context.t3);
 
-                case 46:
-                  return _context.abrupt("break", 50);
+                case 43:
+                  return _context.abrupt("break", 47);
 
-                case 47:
+                case 44:
                   Logger.logError(ErrorMessages.CANNOT_DETERMINE_APP_STAGE);
                   res.redirect(_this.appSettings.authRoutes.error);
-                  return _context.abrupt("break", 50);
+                  return _context.abrupt("break", 47);
 
-                case 50:
-                  _context.next = 54;
+                case 47:
+                  _context.next = 51;
                   break;
 
-                case 52:
+                case 49:
                   Logger.logError(ErrorMessages.NONCE_MISMATCH);
                   res.redirect(_this.appSettings.authRoutes.unauthorized);
 
-                case 54:
-                  _context.next = 58;
+                case 51:
+                  _context.next = 55;
                   break;
 
-                case 56:
+                case 53:
                   Logger.logError(ErrorMessages.STATE_NOT_FOUND);
                   res.redirect(_this.appSettings.authRoutes.unauthorized);
 
-                case 58:
+                case 55:
                 case "end":
                   return _context.stop();
               }
             }
-          }, _callee, null, [[7, 25], [11, 18], [33, 41]]);
+          }, _callee, null, [[7, 24], [11, 18], [31, 39]]);
         }));
 
         return function (_x, _x2, _x3) {
@@ -2064,7 +2061,7 @@ var AuthProvider = /*#__PURE__*/function () {
                 case 12:
                   req.session.remoteResources[resourceName].accessToken = tokenResponse.accessToken;
                   next();
-                  _context2.next = 26;
+                  _context2.next = 25;
                   break;
 
                 case 16:
@@ -2078,7 +2075,7 @@ var AuthProvider = /*#__PURE__*/function () {
 
                   state = _this.cryptoProvider.base64Encode(JSON.stringify({
                     stage: AppStages.ACQUIRE_TOKEN,
-                    path: req.route.path,
+                    path: req.originalUrl,
                     nonce: req.session.nonce
                   }));
                   params = {
@@ -2092,10 +2089,9 @@ var AuthProvider = /*#__PURE__*/function () {
                   return _context2.abrupt("return", _this.getAuthCode(req, res, next, params));
 
                 case 24:
-                  console.log(_context2.t0);
                   next(_context2.t0);
 
-                case 26:
+                case 25:
                 case "end":
                   return _context2.stop();
               }
@@ -2143,16 +2139,15 @@ var AuthProvider = /*#__PURE__*/function () {
                     accessToken: tokenResponse.accessToken
                   }, _req$locals);
                   next();
-                  _context3.next = 16;
+                  _context3.next = 15;
                   break;
 
                 case 12:
                   _context3.prev = 12;
                   _context3.t0 = _context3["catch"](4);
-                  console.log(_context3.t0);
                   next(_context3.t0);
 
-                case 16:
+                case 15:
                 case "end":
                   return _context3.stop();
               }
@@ -2212,7 +2207,7 @@ var AuthProvider = /*#__PURE__*/function () {
                   }
 
                   _context4.next = 4;
-                  return _this.tokenValidator.verifyAccessTokenSignature(accessToken, req.route.path);
+                  return _this.tokenValidator.verifyAccessTokenSignature(accessToken, "" + req.baseUrl + req.path);
 
                 case 4:
                   if (_context4.sent) {
@@ -2450,17 +2445,16 @@ var AuthProvider = /*#__PURE__*/function () {
             case 12:
               response = _context7.sent;
               res.redirect(response);
-              _context7.next = 21;
+              _context7.next = 20;
               break;
 
             case 16:
               _context7.prev = 16;
               _context7.t0 = _context7["catch"](9);
               Logger.logError(ErrorMessages.AUTH_CODE_NOT_OBTAINED);
-              console.log(_context7.t0);
               next(_context7.t0);
 
-            case 21:
+            case 20:
             case "end":
               return _context7.stop();
           }
@@ -2512,7 +2506,7 @@ var AuthProvider = /*#__PURE__*/function () {
               graphResponse = _context8.sent;
 
               if (!graphResponse[AccessConstants.PAGINATION_LINK]) {
-                _context8.next = 29;
+                _context8.next = 28;
                 break;
               }
 
@@ -2537,20 +2531,19 @@ var AuthProvider = /*#__PURE__*/function () {
               return _context8.abrupt("return", next());
 
             case 21:
-              _context8.next = 27;
+              _context8.next = 26;
               break;
 
             case 23:
               _context8.prev = 23;
               _context8.t0 = _context8["catch"](11);
-              console.log(_context8.t0);
               next(_context8.t0);
 
-            case 27:
-              _context8.next = 35;
+            case 26:
+              _context8.next = 34;
               break;
 
-            case 29:
+            case 28:
               req.session.account.idTokenClaims = _extends({}, newIdTokenClaims, {
                 groups: graphResponse["value"].map(function (v) {
                   return v.id;
@@ -2558,41 +2551,39 @@ var AuthProvider = /*#__PURE__*/function () {
               });
 
               if (this.checkAccessRule(req.method, rule, req.session.account.idTokenClaims[AccessConstants.GROUPS], AccessConstants.GROUPS)) {
-                _context8.next = 34;
+                _context8.next = 33;
                 break;
               }
 
               return _context8.abrupt("return", res.redirect(this.appSettings.authRoutes.unauthorized));
 
-            case 34:
+            case 33:
               return _context8.abrupt("return", next());
 
-            case 35:
-              _context8.next = 41;
+            case 34:
+              _context8.next = 39;
               break;
 
-            case 37:
-              _context8.prev = 37;
+            case 36:
+              _context8.prev = 36;
               _context8.t1 = _context8["catch"](6);
-              console.log(_context8.t1);
               next(_context8.t1);
 
-            case 41:
-              _context8.next = 47;
+            case 39:
+              _context8.next = 44;
               break;
 
-            case 43:
-              _context8.prev = 43;
+            case 41:
+              _context8.prev = 41;
               _context8.t2 = _context8["catch"](2);
-              console.log(_context8.t2);
               next(_context8.t2);
 
-            case 47:
+            case 44:
             case "end":
               return _context8.stop();
           }
         }
-      }, _callee8, this, [[2, 43], [6, 37], [11, 23]]);
+      }, _callee8, this, [[2, 41], [6, 36], [11, 23]]);
     }));
 
     function handleOverage(_x22, _x23, _x24, _x25) {
