@@ -25,4 +25,14 @@ export class UrlUtils {
             return url;
         }
     };
+
+    /**
+     * Gets the path segment from a given URL
+     * @param {string} url: a given URL
+     * @returns {string}
+     */
+    static getPathFromUrl = (url: string): string => {
+        const urlComponents: IUri = new UrlString(url).getUrlComponents();
+        return `/${urlComponents.PathSegments.join("/")}`;
+    };
 }

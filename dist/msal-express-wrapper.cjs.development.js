@@ -1745,6 +1745,17 @@ UrlUtils.ensureAbsoluteUrl = function (req, url) {
     return url;
   }
 };
+/**
+ * Gets the path segment from a given URL
+ * @param {string} url: a given URL
+ * @returns {string}
+ */
+
+
+UrlUtils.getPathFromUrl = function (url) {
+  var urlComponents = new msalCommon.UrlString(url).getUrlComponents();
+  return "/" + urlComponents.PathSegments.join("/");
+};
 
 var _excluded = ["_claim_names", "_claim_sources"];
 /**
@@ -1772,7 +1783,7 @@ var AuthProvider = /*#__PURE__*/function () {
       // TODO: initialize app defaults
       var appRouter = express.Router(); // handle redirect
 
-      appRouter.get(_this.appSettings.authRoutes.redirect, _this.handleRedirect());
+      appRouter.get(UrlUtils.getPathFromUrl(_this.appSettings.authRoutes.redirect), _this.handleRedirect());
 
       if (_this.appSettings.authRoutes.frontChannelLogout) {
         /**
