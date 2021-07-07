@@ -116,7 +116,7 @@ export class AuthProvider {
         const appRouter = express.Router();
 
         // handle redirect
-        appRouter.get(this.appSettings.authRoutes.redirect, this.handleRedirect());
+        appRouter.get(UrlUtils.getPathFromUrl(this.appSettings.authRoutes.redirect), this.handleRedirect());
 
         if (this.appSettings.authRoutes.frontChannelLogout) {
             /**

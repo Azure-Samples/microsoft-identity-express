@@ -7,4 +7,10 @@ export declare class UrlUtils {
      * @returns {string}
      */
     static ensureAbsoluteUrl: (req: Request, url: string) => string;
+    /**
+     * Gets the path segment from a given URL
+     * @param {string} url: a given URL
+     * @returns {string}
+     */
+    static getPathFromUrl: (url: string) => string;
 }
