@@ -1,9 +1,8 @@
-export { AuthProvider } from "./AuthProvider";
-export { ConfigurationUtils } from "./ConfigurationUtils";
-export { TokenValidator } from "./TokenValidator";
-export { FetchManager } from "./FetchManager";
-export { KeyVaultManager } from "./KeyVaultManager";
-export { UrlUtils } from "./UrlUtils";
-export { Logger } from "./Logger";
-export * from "./Types";
-export * from "./Constants";
+export { AuthProvider } from "./client/AuthProvider";
+export { ConfigurationUtils } from "./config/ConfigurationUtils";
+export { TokenValidator } from "./token/TokenValidator";
+export { FetchManager } from "./network/FetchManager";
+export { KeyVaultManager } from "./network/KeyVaultManager";
+export { UrlUtils } from "./utils/UrlUtils";
+export * from "./utils/Types";
+export * from "./utils/Constants";

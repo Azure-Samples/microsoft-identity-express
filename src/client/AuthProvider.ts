@@ -2,9 +2,8 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
-import express from "express";
 
-import {
+import express, {
     RequestHandler,
     Request,
     Response,
@@ -13,17 +12,18 @@ import {
 } from "express";
 
 import {
-    InteractionRequiredAuthError,
     OIDC_DEFAULT_SCOPES,
+    InteractionRequiredAuthError,
     PromptValue,
     StringUtils,
+    ICachePlugin,
+    Logger,
 } from "@azure/msal-common";
 
 import {
     ConfidentialClientApplication,
     Configuration,
     AccountInfo,
-    ICachePlugin,
     CryptoProvider,
     AuthorizationUrlRequest,
     AuthorizationCodeRequest,
@@ -31,32 +31,40 @@ import {
     OnBehalfOfRequest,
 } from "@azure/msal-node";
 
-import { ConfigurationUtils } from "./ConfigurationUtils";
-import { TokenValidator } from "./TokenValidator";
-import { KeyVaultManager } from "./KeyVaultManager";
-import { FetchManager } from "./FetchManager";
-import { UrlUtils } from "./UrlUtils";
-import { Logger } from "./Logger";
+import { ConfigurationBuilder } from "../config/ConfigurationBuilder";
+import { ConfigurationUtils } from "../config/ConfigurationUtils";
+import { TokenValidator } from "../token/TokenValidator";
+import { KeyVaultManager } from "../network/KeyVaultManager";
+import { FetchManager } from "../network/FetchManager";
+import { UrlUtils } from "../utils/UrlUtils";
 
-import {
+import { 
     Resource,
     AppSettings,
+    AccessRule,
+} from "../config/AppSettings";
+
+import {
     AuthCodeParams,
     InitializationOptions,
     TokenRequestOptions,
     GuardOptions,
-    AccessRule,
     SignInOptions,
     SignOutOptions,
     HandleRedirectOptions
-} from "./Types";
+} from "../utils/Types";
 
 import {
     AppStages,
     ErrorMessages,
     AccessConstants,
     InfoMessages
-} from "./Constants";
+} from "../utils/Constants";
+
+import {
+    name, 
+    version
+} from "../packageMetadata";
 
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
@@ -66,10 +74,12 @@ import {
  */
 export class AuthProvider {
     appSettings: AppSettings;
-    private msalConfig: Configuration;
+    msalConfig: Configuration;
+    msalClient: ConfidentialClientApplication;
+
+    private logger: Logger;
     private cryptoProvider: CryptoProvider;
     private tokenValidator: TokenValidator;
-    private msalClient: ConfidentialClientApplication;
 
     /**
      * @param {AppSettings} appSettings
@@ -77,13 +87,14 @@ export class AuthProvider {
      * @constructor
      */
     constructor(appSettings: AppSettings, cache?: ICachePlugin) {
-        ConfigurationUtils.validateAppSettings(appSettings);
+        ConfigurationBuilder.validateAppSettings(appSettings);
         this.appSettings = appSettings;
 
-        this.msalConfig = ConfigurationUtils.getMsalConfiguration(appSettings, cache);
+        this.msalConfig = ConfigurationBuilder.getMsalConfiguration(appSettings, cache);
         this.msalClient = new ConfidentialClientApplication(this.msalConfig);
 
-        this.tokenValidator = new TokenValidator(this.appSettings, this.msalConfig);
+        this.logger = new Logger(this.msalConfig.system.loggerOptions, name, version);
+        this.tokenValidator = new TokenValidator(this.appSettings, this.msalConfig, this.logger);
         this.cryptoProvider = new CryptoProvider();
     }
 
@@ -109,7 +120,7 @@ export class AuthProvider {
      * @param {InitializationOptions} options
      * @returns {Router}
      */
-    initialize = (options?: InitializationOptions): Router => {
+    initialize(options?: InitializationOptions): Router {
 
         // TODO: initialize app defaults
 
@@ -133,6 +144,14 @@ export class AuthProvider {
         return appRouter;
     }
 
+    // initializeTokenCache(persistenceManager: IPersistenceManager, session?: SessionData): Router {
+    //     const appRouter = express.Router();
+
+    //     appRouter.use(this.setTokenCachePlugin(persistenceManager, session));
+
+    //     return appRouter;
+    // }
+
     // ========== ROUTE HANDLERS ===========
 
     /**
@@ -140,7 +159,7 @@ export class AuthProvider {
      * @param {SignInOptions} options: options to modify login request
      * @returns {RequestHandler}
      */
-    signIn = (options?: SignInOptions): RequestHandler => {
+    signIn(options?: SignInOptions): RequestHandler {
         return (req: Request, res: Response, next: NextFunction): Promise<void> => {
             /**
              * Request Configuration
@@ -206,7 +225,7 @@ export class AuthProvider {
      * @param options: options to modify logout request 
      * @returns {RequestHandler}
      */
-    signOut = (options?: SignOutOptions): RequestHandler => {
+    signOut(options?: SignOutOptions): RequestHandler {
         return (req: Request, res: Response, next: NextFunction): void => {
             const postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.successRedirect);
 
@@ -232,7 +251,7 @@ export class AuthProvider {
      * @param {HandleRedirectOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    private handleRedirect = (options?: HandleRedirectOptions): RequestHandler => {
+    private handleRedirect(options?: HandleRedirectOptions): RequestHandler {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             if (req.query.state) {
                 const state = JSON.parse(this.cryptoProvider.base64Decode(req.query.state as string));
@@ -258,15 +277,15 @@ export class AuthProvider {
 
                                         res.redirect(state.path);
                                     } else {
-                                        Logger.logError(ErrorMessages.INVALID_TOKEN);
+                                        this.logger.error(ErrorMessages.INVALID_TOKEN);
                                         res.redirect(this.appSettings.authRoutes.unauthorized);
                                     }
                                 } catch (error) {
-                                    Logger.logError(ErrorMessages.CANNOT_VALIDATE_TOKEN);
+                                    this.logger.error(ErrorMessages.CANNOT_VALIDATE_TOKEN);
                                     next(error)
                                 }
                             } catch (error) {
-                                Logger.logError(ErrorMessages.TOKEN_ACQUISITION_FAILED);
+                                this.logger.error(ErrorMessages.TOKEN_ACQUISITION_FAILED);
                                 next(error)
                             }
                             break;
@@ -274,7 +293,7 @@ export class AuthProvider {
 
                         case AppStages.ACQUIRE_TOKEN: {
                             // get the name of the resource associated with scope
-                            const resourceName = this.getResourceNameFromScopes(req.session.tokenRequest.scopes);
+                            const resourceName = ConfigurationUtils.getResourceNameFromScopes(req.session.tokenRequest.scopes, this.appSettings)
 
                             req.session.tokenRequest.code = req.query.code as string
 
@@ -283,23 +302,23 @@ export class AuthProvider {
                                 req.session.remoteResources[resourceName].accessToken = tokenResponse.accessToken;
                                 res.redirect(state.path);
                             } catch (error) {
-                                Logger.logError(ErrorMessages.TOKEN_ACQUISITION_FAILED);
+                                this.logger.error(ErrorMessages.TOKEN_ACQUISITION_FAILED);
                                 next(error);
                             }
                             break;
                         }
 
                         default:
-                            Logger.logError(ErrorMessages.CANNOT_DETERMINE_APP_STAGE);
+                            this.logger.error(ErrorMessages.CANNOT_DETERMINE_APP_STAGE);
                             res.redirect(this.appSettings.authRoutes.error);
                             break;
                     }
                 } else {
-                    Logger.logError(ErrorMessages.NONCE_MISMATCH);
+                    this.logger.error(ErrorMessages.NONCE_MISMATCH);
                     res.redirect(this.appSettings.authRoutes.unauthorized);
                 }
             } else {
-                Logger.logError(ErrorMessages.STATE_NOT_FOUND)
+                this.logger.error(ErrorMessages.STATE_NOT_FOUND);
                 res.redirect(this.appSettings.authRoutes.unauthorized);
             }
         }
@@ -312,12 +331,12 @@ export class AuthProvider {
      * @param {TokenRequestOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    getToken = (options: TokenRequestOptions): RequestHandler => {
+    getToken(options: TokenRequestOptions): RequestHandler {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             // get scopes for token request
             const scopes = options.resource.scopes;
 
-            const resourceName = this.getResourceNameFromScopes(scopes)
+            const resourceName = ConfigurationUtils.getResourceNameFromScopes(scopes, this.appSettings)
 
             if (!req.session.remoteResources) {
                 req.session.remoteResources = {};
@@ -342,7 +361,7 @@ export class AuthProvider {
                 // In B2C scenarios, sometimes an access token is returned empty.
                 // In that case, we will acquire token interactively instead.
                 if (StringUtils.isEmpty(tokenResponse.accessToken)) {
-                    Logger.logError(ErrorMessages.TOKEN_NOT_FOUND);
+                    this.logger.error(ErrorMessages.TOKEN_NOT_FOUND);
                     throw new InteractionRequiredAuthError(ErrorMessages.INTERACTION_REQUIRED);
                 }
 
@@ -381,13 +400,13 @@ export class AuthProvider {
      * @param {TokenRequestOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    getTokenOnBehalf = (options: TokenRequestOptions): RequestHandler => {
+    getTokenOnBehalf(options: TokenRequestOptions): RequestHandler {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             const authHeader = req.headers.authorization;
 
             // get scopes for token request
             const scopes = options.resource.scopes;
-            const resourceName = this.getResourceNameFromScopes(scopes);
+            const resourceName = ConfigurationUtils.getResourceNameFromScopes(scopes, this.appSettings)
 
             const oboRequest: OnBehalfOfRequest = {
                 oboAssertion: authHeader.split(" ")[1],
@@ -418,17 +437,17 @@ export class AuthProvider {
      * @param {GuardOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    isAuthenticated = (options?: GuardOptions): RequestHandler => {
+    isAuthenticated(options?: GuardOptions): RequestHandler {
         return (req: Request, res: Response, next: NextFunction): void => {
             if (req.session) {
                 if (!req.session.isAuthenticated) {
-                    Logger.logError(ErrorMessages.NOT_PERMITTED);
+                    this.logger.error(ErrorMessages.NOT_PERMITTED);
                     return res.redirect(this.appSettings.authRoutes.unauthorized);
                 }
 
                 next();
             } else {
-                Logger.logError(ErrorMessages.SESSION_NOT_FOUND);
+                this.logger.error(ErrorMessages.SESSION_NOT_FOUND);
                 res.redirect(this.appSettings.authRoutes.unauthorized);
             }
         }
@@ -440,19 +459,19 @@ export class AuthProvider {
      * @param {GuardOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    isAuthorized = (options?: GuardOptions): RequestHandler => {
+    isAuthorized(options?: GuardOptions): RequestHandler {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             const accessToken = req.headers.authorization.split(" ")[1];
 
             if (req.headers.authorization) {
-                if (!(await this.tokenValidator.verifyAccessTokenSignature(accessToken, `${req.baseUrl}${req.path}`))) {
-                    Logger.logError(ErrorMessages.INVALID_TOKEN);
+                if (!(await this.tokenValidator.validateAccessToken(accessToken, `${req.baseUrl}${req.path}`))) {
+                    this.logger.error(ErrorMessages.INVALID_TOKEN);
                     return res.redirect(this.appSettings.authRoutes.unauthorized);
                 }
 
                 next();
             } else {
-                Logger.logError(ErrorMessages.TOKEN_NOT_FOUND);
+                this.logger.error(ErrorMessages.TOKEN_NOT_FOUND);
                 res.redirect(this.appSettings.authRoutes.unauthorized);
             }
         }
@@ -463,7 +482,7 @@ export class AuthProvider {
      * @param {GuardOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    hasAccess = (options?: GuardOptions): RequestHandler => {
+    hasAccess(options?: GuardOptions): RequestHandler {
         return async (req: Request, res: Response, next: NextFunction): Promise<any> => {
             if (req.session && this.appSettings.accessMatrix) {
 
@@ -474,10 +493,10 @@ export class AuthProvider {
 
                         if (req.session.account.idTokenClaims[AccessConstants.GROUPS] === undefined) {
                             if (req.session.account.idTokenClaims[AccessConstants.CLAIM_NAMES] || req.session.account.idTokenClaims[AccessConstants.CLAIM_SOURCES]) {
-                                Logger.logWarning(InfoMessages.OVERAGE_OCCURRED)
+                                this.logger.warning(InfoMessages.OVERAGE_OCCURRED);
                                 return await this.handleOverage(req, res, next, options.accessRule);
                             } else {
-                                Logger.logError(ErrorMessages.USER_HAS_NO_GROUP);
+                                this.logger.error(ErrorMessages.USER_HAS_NO_GROUP);
                                 return res.redirect(this.appSettings.authRoutes.unauthorized);
                             }
                         } else {
@@ -493,7 +512,7 @@ export class AuthProvider {
 
                     case AccessConstants.ROLES:
                         if (req.session.account.idTokenClaims[AccessConstants.ROLES] === undefined) {
-                            Logger.logError(ErrorMessages.USER_HAS_NO_ROLE);
+                            this.logger.error(ErrorMessages.USER_HAS_NO_ROLE);
                             return res.redirect(this.appSettings.authRoutes.unauthorized);
                         } else {
                             const roles = req.session.account.idTokenClaims[AccessConstants.ROLES];
@@ -543,7 +562,7 @@ export class AuthProvider {
             const response = await this.msalClient.getAuthCodeUrl(req.session.authCodeRequest);
             res.redirect(response);
         } catch (error) {
-            Logger.logError(ErrorMessages.AUTH_CODE_NOT_OBTAINED);
+            this.logger.error(ErrorMessages.AUTH_CODE_NOT_OBTAINED);
             next(error);
         }
     };
@@ -626,14 +645,14 @@ export class AuthProvider {
             switch (credType) {
                 case AccessConstants.GROUPS:
                     if (rule.groups.filter(elem => creds.includes(elem)).length < 1) {
-                        Logger.logError(ErrorMessages.USER_NOT_IN_GROUP);
+                        this.logger.error(ErrorMessages.USER_NOT_IN_GROUP);
                         return false;
                     }
                     break;
 
                 case AccessConstants.ROLES:
                     if (rule.roles.filter(elem => creds.includes(elem)).length < 1) {
-                        Logger.logError(ErrorMessages.USER_NOT_IN_ROLE);
+                        this.logger.error(ErrorMessages.USER_NOT_IN_ROLE);
                         return false;
                     }
                     break;
@@ -642,25 +661,19 @@ export class AuthProvider {
                     break;
             }
         } else {
-            Logger.logError(ErrorMessages.METHOD_NOT_ALLOWED);
+            this.logger.error(ErrorMessages.METHOD_NOT_ALLOWED);
             return false;
         }
 
         return true;
     }
 
-    /**
-     * Util method to get the resource name for a given scope(s)
-     * @param {Array} scopes: an array of scopes that the resource is associated with
-     * @returns {string}
-     */
-    private getResourceNameFromScopes(scopes: string[]): string {
-        // TODO: deep check equality here 
-
-        const index = Object.values({ ...this.appSettings.remoteResources, ...this.appSettings.ownedResources })
-            .findIndex((resource: Resource) => JSON.stringify(resource.scopes) === JSON.stringify(scopes));
-
-        const resourceName = Object.keys({ ...this.appSettings.remoteResources, ...this.appSettings.ownedResources })[index];
-        return resourceName;
-    };
+    // private setTokenCachePlugin = (persistenceManager, sessionData): RequestHandler => {
+    //     return async(req, res, next) => {
+    //         const cachePlugin = CachePlugin.getInstance(persistenceManager, sessionData);
+    //         this.msalClient.config.cache.cachePlugin = cachePlugin
+    //         this.msalClient.tokenCache.persistence = cachePlugin;
+    //         next();
+    //     }
+    // };
 }

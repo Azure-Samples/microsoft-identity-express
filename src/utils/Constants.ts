@@ -75,6 +75,9 @@ export const ErrorMessages = {
     KEY_VAULT_CONFIG_NOT_FOUND: "No coordinates found for Key Vault"
 };
 
+/**
+ * Various configuration error constants
+ */
 export const ConfigurationErrorMessages = {
     NO_CLIENT_ID: "No clientId provided!",
     INVALID_CLIENT_ID: "Invalid clientId!",

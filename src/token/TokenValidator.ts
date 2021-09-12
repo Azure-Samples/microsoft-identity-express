@@ -6,40 +6,47 @@
 import jwt from "jsonwebtoken";
 import jwksClient from "jwks-rsa";
 
-import { 
-    StringUtils, 
-    Constants, 
-    TokenClaims 
+import {
+    StringUtils,
+    Constants,
+    TokenClaims,
+    Logger
 } from "@azure/msal-common";
 
 import { Configuration } from "@azure/msal-node";
 
-import { Logger } from "./Logger";
+import {
+    AuthToken,
+    TokenHeader,
+    IdTokenClaims,
+    AccessTokenClaims
+} from "./AuthToken";
 
 import { 
+    Resource,
     AppSettings,
-    Resource, 
-    IdTokenClaims, 
-    AccessTokenClaims 
-} from "./Types";
+} from "../config/AppSettings";
 
-import { 
-    ErrorMessages, 
-    AADAuthorityConstants 
-} from "./Constants";
+import {
+    ErrorMessages,
+    AADAuthorityConstants
+} from "../utils/Constants";
 
 export class TokenValidator {
     private appSettings: AppSettings;
     private msalConfig: Configuration;
+    private logger: Logger;
 
     /**
      * @param {AppSettings} appSettings 
      * @param {Configuration} msalConfig
+     * @param {Logger} logger
      * @constructor
      */
-    constructor(appSettings: AppSettings, msalConfig: Configuration) {
+    constructor(appSettings: AppSettings, msalConfig: Configuration, logger: Logger) {
         this.appSettings = appSettings;
         this.msalConfig = msalConfig;
+        this.logger = logger;
     }
 
     /**
@@ -49,18 +56,17 @@ export class TokenValidator {
      */
     async verifyTokenSignature(authToken: string): Promise<TokenClaims | boolean> {
         if (StringUtils.isEmpty(authToken)) {
-            Logger.logError(ErrorMessages.TOKEN_NOT_FOUND);
+            this.logger.error(ErrorMessages.TOKEN_NOT_FOUND);
             return false;
         }
 
         // we will first decode to get kid parameter in header
-        let decodedToken;
+        let decodedToken: AuthToken;
 
         try {
             decodedToken = jwt.decode(authToken, { complete: true });
         } catch (error) {
-            Logger.logError(ErrorMessages.TOKEN_NOT_DECODED);
-            console.log(error);
+            this.logger.error(ErrorMessages.TOKEN_NOT_DECODED);
             return false;
         }
 
@@ -70,8 +76,7 @@ export class TokenValidator {
         try {
             keys = await this.getSigningKeys(decodedToken.header, decodedToken.payload.tid);
         } catch (error) {
-            Logger.logError(ErrorMessages.KEYS_NOT_OBTAINED);
-            console.log(error);
+            this.logger.error(ErrorMessages.KEYS_NOT_OBTAINED);
             return false;
         }
 
@@ -87,27 +92,50 @@ export class TokenValidator {
              * token"s tid claim for verification purposes
              */
             if (
-                this.appSettings.appCredentials.tenantId === AADAuthorityConstants.COMMON ||
-                this.appSettings.appCredentials.tenantId === AADAuthorityConstants.ORGANIZATIONS ||
-                this.appSettings.appCredentials.tenantId === AADAuthorityConstants.CONSUMERS
+                this.appSettings.appCredentials.tenantInfo === AADAuthorityConstants.COMMON ||
+                this.appSettings.appCredentials.tenantInfo === AADAuthorityConstants.ORGANIZATIONS ||
+                this.appSettings.appCredentials.tenantInfo === AADAuthorityConstants.CONSUMERS
             ) {
-                this.appSettings.appCredentials.tenantId = decodedToken.payload.tid;
+                this.appSettings.appCredentials.tenantInfo = decodedToken.payload.tid;
             }
 
             return verifiedToken;
         } catch (error) {
-            Logger.logError(ErrorMessages.TOKEN_NOT_VERIFIED);
-            console.log(error);
+            this.logger.error(ErrorMessages.TOKEN_NOT_VERIFIED);
             return false;
         }
     };
 
     /**
-     * Verifies the access token for signature
+     * Fetches signing keys of an access token
+     * from the authority discovery endpoint
+     * @param {TokenHeader} header: token header
+     * @param {string} tid: tenant id
+     * @returns {Promise}
+     */
+    private async getSigningKeys(header: TokenHeader, tid: string): Promise<string> {
+        let jwksUri;
+
+        // Check if a B2C application i.e. app has b2cPolicies
+        if (this.appSettings.b2cPolicies) {
+            jwksUri = `${this.msalConfig.auth.authority}/discovery/v2.0/keys`;
+        } else {
+            jwksUri = `https://${Constants.DEFAULT_AUTHORITY_HOST}/${tid}/discovery/v2.0/keys`;
+        }
+
+        const client = jwksClient({
+            jwksUri: jwksUri,
+        });
+
+        return (await client.getSigningKeyAsync(header.kid)).getPublicKey();
+    };
+
+    /**
+     * Verifies the access token for signature and claims
      * @param {string} idToken: raw Id token
      * @returns {Promise}
      */
-     async validateIdToken(idToken: string): Promise<boolean> {
+    async validateIdToken(idToken: string): Promise<boolean> {
         try {
             const verifiedToken = await this.verifyTokenSignature(idToken);
 
@@ -117,7 +145,26 @@ export class TokenValidator {
                 return false;
             }
         } catch (error) {
-            console.log(error);
+            return false;
+        }
+    };
+
+    /**
+     * Verifies the access token for signature and claims
+     * @param {string} accessToken: raw access token
+     * @param {string} protectedRoute: used for checking scope
+     * @returns {Promise}
+     */
+    async validateAccessToken(accessToken: string, protectedRoute: string): Promise<boolean> {
+        try {
+            const verifiedToken = await this.verifyTokenSignature(accessToken);
+
+            if (verifiedToken) {
+                return this.validateAccessTokenClaims(verifiedToken as AccessTokenClaims, protectedRoute);
+            } else {
+                return false;
+            }
+        } catch (error) {
             return false;
         }
     };
@@ -135,32 +182,11 @@ export class TokenValidator {
          * For more information on validating id tokens, visit:
          * https://docs.microsoft.com/azure/active-directory/develop/id-tokens#validating-an-id_token
          */
-        const checkIssuer = idTokenClaims.iss.includes(this.appSettings.appCredentials.tenantId) ? true : false;
+        const checkIssuer = idTokenClaims.iss.includes(this.appSettings.appCredentials.tenantInfo) ? true : false;
         const checkAudience = idTokenClaims.aud === this.msalConfig.auth.clientId ? true : false;
         const checkTimestamp = idTokenClaims.iat <= now && idTokenClaims.exp >= now ? true : false;
 
         return checkIssuer && checkAudience && checkTimestamp;
-    };
-
-    /**
-     * Verifies the access token for signature
-     * @param {string} accessToken: raw JWT token
-     * @param {string} protectedRoute: used for checking scope
-     * @returns {Promise}
-     */
-     async verifyAccessTokenSignature(accessToken: string, protectedRoute: string): Promise<boolean> {
-        try {
-            const verifiedToken = await this.verifyTokenSignature(accessToken);
-
-            if (verifiedToken) {
-                return this.validateAccessTokenClaims(verifiedToken as AccessTokenClaims, protectedRoute);
-            } else {
-                return false;
-            }
-        } catch (error) {
-            console.log(error);
-            return false;
-        }
     };
 
     /**
@@ -177,7 +203,7 @@ export class TokenValidator {
          * and timestamp, though implementation and extent vary. For more information, visit:
          * https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validating-tokens
          */
-        const checkIssuer = verifiedToken.iss.includes(this.appSettings.appCredentials.tenantId) ? true : false;
+        const checkIssuer = verifiedToken.iss.includes(this.appSettings.appCredentials.tenantInfo) ? true : false;
         const checkTimestamp = verifiedToken.iat <= now && verifiedToken.iat >= now ? true : false;
 
         const checkAudience = verifiedToken.aud === this.appSettings.appCredentials.clientId ||
@@ -187,29 +213,5 @@ export class TokenValidator {
             .scopes.every(scp => verifiedToken.scp.includes(scp));
 
         return checkAudience && checkIssuer && checkTimestamp && checkScopes;
-    };
-
-    /**
-     * Fetches signing keys of an access token
-     * from the authority discovery endpoint
-     * @param {Object} header: token header
-     * @param {string} tid: tenant id
-     * @returns {Promise}
-     */
-    private async getSigningKeys(header, tid: string): Promise<string> {
-        let jwksUri;
-
-        // Check if a B2C application i.e. app has b2cPolicies
-        if (this.appSettings.b2cPolicies) {
-            jwksUri = `${this.msalConfig.auth.authority}/discovery/v2.0/keys`;
-        } else {
-            jwksUri = `https://${Constants.DEFAULT_AUTHORITY_HOST}/${tid}/discovery/v2.0/keys`;
-        }
-
-        const client = jwksClient({
-            jwksUri: jwksUri,
-        });
-
-        return (await client.getSigningKeyAsync(header.kid)).getPublicKey();
     };
 }

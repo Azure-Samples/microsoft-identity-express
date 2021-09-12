@@ -3,26 +3,30 @@
  * Licensed under the MIT License.
  */
 
-import { 
-    UrlString,  
+import {
+    UrlString,
     StringUtils,
-    Constants, 
+    Constants,
 } from "@azure/msal-common";
 
-import { 
+import {
     ICachePlugin,
-    Configuration,
-    LogLevel 
+    Configuration
 } from "@azure/msal-node";
 
-import { AppSettings } from "./Types";
+import { AppSettings } from "./AppSettings";
+import { ConfigurationUtils } from "./ConfigurationUtils";
 
-import { 
-    AADAuthorityConstants, 
-    ConfigurationErrorMessages 
-} from "./Constants";
+import {
+    AADAuthorityConstants,
+    ConfigurationErrorMessages
+} from "../utils/Constants";
 
-export class ConfigurationUtils {
+import {
+    DEFAULT_LOGGER_OPTIONS
+} from "../utils/Defaults"
+
+export class ConfigurationBuilder {
 
     /**
      * Validates the fields in the configuration file
@@ -36,9 +40,9 @@ export class ConfigurationUtils {
             throw new Error(ConfigurationErrorMessages.INVALID_CLIENT_ID);
         }
 
-        if (StringUtils.isEmpty(config.appCredentials.tenantId)) {
+        if (StringUtils.isEmpty(config.appCredentials.tenantInfo)) {
             throw new Error(ConfigurationErrorMessages.NO_TENANT_INFO);
-        } else if (!ConfigurationUtils.isGuid(config.appCredentials.tenantId) && !Object.values(AADAuthorityConstants).includes(config.appCredentials.tenantId)) {
+        } else if (!ConfigurationUtils.isGuid(config.appCredentials.tenantInfo) && !Object.values(AADAuthorityConstants).includes(config.appCredentials.tenantInfo)) {
             throw new Error(ConfigurationErrorMessages.INVALID_TENANT_INFO);
         }
 
@@ -72,9 +76,11 @@ export class ConfigurationUtils {
             auth: {
                 clientId: config.appCredentials.clientId,
                 authority: config.b2cPolicies ?
-                    Object.entries(config.b2cPolicies)[0][1]["authority"]
+                    Object.entries(config.b2cPolicies)[0][1]["authority"] // the first policy/user-flow is the default authority
                     :
-                    `https://${Constants.DEFAULT_AUTHORITY_HOST}/${config.appCredentials.tenantId}`,
+                    config.appCredentials.instance ? `https://${config.appCredentials.instance}/${config.appCredentials.tenantInfo}` 
+                    :
+                    `https://${Constants.DEFAULT_AUTHORITY_HOST}/${config.appCredentials.tenantInfo}`,
                 ...(config.appCredentials.hasOwnProperty("clientSecret")) && { clientSecret: config.appCredentials.clientSecret },
                 ...(config.appCredentials.hasOwnProperty("clientCertificate")) && { clientCertificate: config.appCredentials.clientCertificate },
                 knownAuthorities: config.b2cPolicies ?
@@ -86,39 +92,8 @@ export class ConfigurationUtils {
                 cachePlugin,
             },
             system: {
-                loggerOptions: {
-                    loggerCallback: (logLevel, message, containsPii) => {
-                        if (containsPii) {
-                            return;
-                        }
-                        switch (logLevel) {
-                            case LogLevel.Error:
-                                console.error(message);
-                                return;
-                            case LogLevel.Info:
-                                console.info(message);
-                                return;
-                            case LogLevel.Verbose:
-                                console.debug(message);
-                                return;
-                            case LogLevel.Warning:
-                                console.warn(message);
-                                return;
-                        }
-                    },
-                    piiLoggingEnabled: false,
-                    logLevel: LogLevel.Verbose,
-                },
+                loggerOptions: config.loggerOptions ? config.loggerOptions : DEFAULT_LOGGER_OPTIONS,
             },
         };
     };
-
-    /**
-     * verifies if a string is  GUID
-     * @param guid
-     */
-    static isGuid(guid: string): boolean {
-        const regexGuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-        return regexGuid.test(guid);
-    }
 }

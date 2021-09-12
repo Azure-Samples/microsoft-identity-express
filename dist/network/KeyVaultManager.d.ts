@@ -1,7 +1,7 @@
-import { KeyVaultCertificate } from "@azure/keyvault-certificates";
 import { DefaultAzureCredential } from "@azure/identity";
+import { KeyVaultCertificate } from "@azure/keyvault-certificates";
 import { KeyVaultSecret } from "@azure/keyvault-secrets";
-import { AppSettings } from "./Types";
+import { AppSettings } from "../config/AppSettings";
 export declare class KeyVaultManager {
     /**
      * Fetches credentials from Key Vault and updates appSettings

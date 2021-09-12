@@ -3,15 +3,16 @@
  * Licensed under the MIT License.
  */
 
-import { AuthProvider } from '../src/AuthProvider';
-import { AppSettings } from '../src/Types';
+import { AuthProvider } from '../src/client/AuthProvider';
+import { AppSettings } from '../src/config/AppSettings';
+
 import { TEST_CONSTANTS } from './TestConstants';
 
 test('instantiates a class', () => {
   let appSettings: AppSettings = {
     appCredentials: {
       clientId: TEST_CONSTANTS.CLIENT_ID,
-      tenantId: TEST_CONSTANTS.TENANT_ID,
+      tenantInfo: TEST_CONSTANTS.TENANT_ID,
       clientSecret: TEST_CONSTANTS.CLIENT_SECRET,
     },
     authRoutes: {

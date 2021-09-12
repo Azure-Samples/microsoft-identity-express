@@ -1,6 +1,6 @@
 import { ICachePlugin, Configuration } from "@azure/msal-node";
-import { AppSettings } from "./Types";
-export declare class ConfigurationUtils {
+import { AppSettings } from "./AppSettings";
+export declare class ConfigurationBuilder {
     /**
      * Validates the fields in the configuration file
      * @param {AppSettings} config: configuration object
@@ -15,9 +15,4 @@ export declare class ConfigurationUtils {
      * @returns {Configuration}
      */
     static getMsalConfiguration(config: AppSettings, cachePlugin?: ICachePlugin): Configuration;
-    /**
-     * verifies if a string is  GUID
-     * @param guid
-     */
-    static isGuid(guid: string): boolean;
 }

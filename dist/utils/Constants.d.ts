@@ -64,6 +64,9 @@ export declare const ErrorMessages: {
     SESSION_NOT_FOUND: string;
     KEY_VAULT_CONFIG_NOT_FOUND: string;
 };
+/**
+ * Various configuration error constants
+ */
 export declare const ConfigurationErrorMessages: {
     NO_CLIENT_ID: string;
     INVALID_CLIENT_ID: string;

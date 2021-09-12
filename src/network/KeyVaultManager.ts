@@ -1,9 +1,14 @@
-import { CertificateClient, KeyVaultCertificate } from "@azure/keyvault-certificates";
+/*
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ */
+
 import { DefaultAzureCredential } from "@azure/identity";
+import { CertificateClient, KeyVaultCertificate } from "@azure/keyvault-certificates";
 import { KeyVaultSecret, SecretClient } from "@azure/keyvault-secrets";
 
-import { AppSettings } from "./Types";
-import { KeyVaultCredentialTypes } from "./Constants";
+import { AppSettings } from "../config/AppSettings";
+import { KeyVaultCredentialTypes } from "../utils/Constants";
 
 export class KeyVaultManager {
 

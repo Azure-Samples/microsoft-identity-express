@@ -1,6 +1,8 @@
 import { RequestHandler, Router } from "express";
-import { ICachePlugin } from "@azure/msal-node";
-import { AppSettings, InitializationOptions, TokenRequestOptions, GuardOptions, SignInOptions, SignOutOptions } from "./Types";
+import { ICachePlugin } from "@azure/msal-common";
+import { ConfidentialClientApplication, Configuration } from "@azure/msal-node";
+import { AppSettings } from "../config/AppSettings";
+import { InitializationOptions, TokenRequestOptions, GuardOptions, SignInOptions, SignOutOptions } from "../utils/Types";
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
  * It offers a collection of middleware and utility methods that automate
@@ -9,10 +11,11 @@ import { AppSettings, InitializationOptions, TokenRequestOptions, GuardOptions, 
  */
 export declare class AuthProvider {
     appSettings: AppSettings;
-    private msalConfig;
+    msalConfig: Configuration;
+    msalClient: ConfidentialClientApplication;
+    private logger;
     private cryptoProvider;
     private tokenValidator;
-    private msalClient;
     /**
      * @param {AppSettings} appSettings
      * @param {ICachePlugin} cache: cachePlugin
@@ -31,19 +34,19 @@ export declare class AuthProvider {
      * @param {InitializationOptions} options
      * @returns {Router}
      */
-    initialize: (options?: InitializationOptions) => Router;
+    initialize(options?: InitializationOptions): Router;
     /**
      * Initiates sign in flow
      * @param {SignInOptions} options: options to modify login request
      * @returns {RequestHandler}
      */
-    signIn: (options?: SignInOptions) => RequestHandler;
+    signIn(options?: SignInOptions): RequestHandler;
     /**
      * Initiate sign out and destroy the session
      * @param options: options to modify logout request
      * @returns {RequestHandler}
      */
-    signOut: (options?: SignOutOptions) => RequestHandler;
+    signOut(options?: SignOutOptions): RequestHandler;
     /**
      * Middleware that handles redirect depending on request state
      * There are basically 2 stages: sign-in and acquire token
@@ -56,32 +59,32 @@ export declare class AuthProvider {
      * @param {TokenRequestOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    getToken: (options: TokenRequestOptions) => RequestHandler;
+    getToken(options: TokenRequestOptions): RequestHandler;
     /**
      * Middleware that gets tokens via OBO flow. Used in web API scenarios
      * @param {TokenRequestOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    getTokenOnBehalf: (options: TokenRequestOptions) => RequestHandler;
+    getTokenOnBehalf(options: TokenRequestOptions): RequestHandler;
     /**
      * Check if authenticated in session
      * @param {GuardOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    isAuthenticated: (options?: GuardOptions) => RequestHandler;
+    isAuthenticated(options?: GuardOptions): RequestHandler;
     /**
      * Receives access token in req authorization header
      * and validates it using the jwt.verify
      * @param {GuardOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    isAuthorized: (options?: GuardOptions) => RequestHandler;
+    isAuthorized(options?: GuardOptions): RequestHandler;
     /**
      * Checks if the user has access for this route, defined in access matrix
      * @param {GuardOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    hasAccess: (options?: GuardOptions) => RequestHandler;
+    hasAccess(options?: GuardOptions): RequestHandler;
     /**
      * This method is used to generate an auth code url request
      * @param {Request} req: express request object
@@ -109,10 +112,4 @@ export declare class AuthProvider {
      * @returns {boolean}
      */
     private checkAccessRule;
-    /**
-     * Util method to get the resource name for a given scope(s)
-     * @param {Array} scopes: an array of scopes that the resource is associated with
-     * @returns {string}
-     */
-    private getResourceNameFromScopes;
 }

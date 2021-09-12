@@ -7,12 +7,9 @@ import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
 import { StringUtils } from "@azure/msal-common";
 
 import { 
-    AccessConstants, 
-    InfoMessages, 
+    AccessConstants,
     ErrorMessages 
-} from "./Constants";
-
-import { Logger } from "./Logger";
+} from "../utils/Constants";
 
 export class FetchManager {
 
@@ -36,11 +33,9 @@ export class FetchManager {
         };
 
         try {
-            Logger.logInfo(InfoMessages.REQUEST_FOR_RESOURCE);
             const response: AxiosResponse = await axios.get(endpoint, options);
             return response.data;
         } catch (error) {
-            console.log(error)
             return error;
         }
     }
@@ -64,7 +59,6 @@ export class FetchManager {
                 return data;
             }
         } catch (error) {
-            console.log(error);
             return error;
         }
     

@@ -8,9 +8,8 @@ const session = require('express-session');
 const path = require('path');
 
 const settings = require('./appSettings');
-const cache = require('./utils/cachePlugin');
 
-const msalWrapper = require('../../dist/index');
+const MsalWrapper = require('../../dist/index');
 const router = require('./routes/router');
 
 const SERVER_PORT = process.env.PORT || 4000;
@@ -51,7 +50,7 @@ async function main() {
 
     try {
         // async building the wrapper as fetching credentials from key vault
-        const authProvider = await msalWrapper.AuthProvider.buildAsync(settings, cache);
+        const authProvider = await MsalWrapper.AuthProvider.buildAsync(settings);
 
         app.use(authProvider.initialize());
     
