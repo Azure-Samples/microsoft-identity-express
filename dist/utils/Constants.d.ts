@@ -1,12 +1,14 @@
+import { LoggerOptions } from "@azure/msal-common";
+export declare const DEFAULT_LOGGER_OPTIONS: LoggerOptions;
 /**
  * Basic authentication stages used to determine
  * appropriate action after redirect occurs
  */
-export declare const AppStages: {
-    SIGN_IN: string;
-    SIGN_OUT: string;
-    ACQUIRE_TOKEN: string;
-};
+export declare enum AppStages {
+    SIGN_IN = "sign_in",
+    SIGN_OUT = "sign_out",
+    ACQUIRE_TOKEN = "acquire_token"
+}
 /**
  * String constants related to AAD Authority
  */
@@ -16,12 +18,12 @@ export declare const AADAuthorityConstants: {
     CONSUMERS: string;
 };
 /**
- * String constants related to AAD Authority
+ * String constants related credential type
  */
-export declare const KeyVaultCredentialTypes: {
-    SECRET: string;
-    CERTIFICATE: string;
-};
+export declare enum KeyVaultCredentialTypes {
+    SECRET = "secret",
+    CERTIFICATE = "certificate"
+}
 /**
  * Constants used in access control scenarios
  */

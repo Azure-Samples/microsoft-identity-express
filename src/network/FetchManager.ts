@@ -6,9 +6,9 @@
 import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
 import { StringUtils } from "@azure/msal-common";
 
-import { 
+import {
     AccessConstants,
-    ErrorMessages 
+    ErrorMessages
 } from "../utils/Constants";
 
 export class FetchManager {
@@ -52,7 +52,7 @@ export class FetchManager {
         try {
             const graphResponse = await FetchManager.callApiEndpoint(nextPage, accessToken);
             graphResponse["value"].map((v) => data.push(v.id));
-    
+
             if (graphResponse[AccessConstants.PAGINATION_LINK]) {
                 return await FetchManager.handlePagination(accessToken, graphResponse[AccessConstants.PAGINATION_LINK], data)
             } else {
@@ -61,7 +61,5 @@ export class FetchManager {
         } catch (error) {
             return error;
         }
-    
     }
-
 }

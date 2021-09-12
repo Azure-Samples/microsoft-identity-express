@@ -15,7 +15,9 @@ import {
 } from "@azure/msal-node";
 
 import { AppSettings } from "./AppSettings";
-import { ConfigurationUtils } from "./ConfigurationUtils";
+import { ConfigHelper } from "./ConfigHelper";
+import { DistributedCachePlugin } from "../cache/DistributedCachePlugin";
+import { IDistributedPersistence } from "../cache/IDistributedPersistence";
 
 import {
     AADAuthorityConstants,
@@ -24,7 +26,7 @@ import {
 
 import {
     DEFAULT_LOGGER_OPTIONS
-} from "../utils/Defaults"
+} from "../utils/Constants"
 
 export class ConfigurationBuilder {
 
@@ -36,13 +38,13 @@ export class ConfigurationBuilder {
     static validateAppSettings(config: AppSettings): void {
         if (StringUtils.isEmpty(config.appCredentials.clientId)) {
             throw new Error(ConfigurationErrorMessages.NO_CLIENT_ID);
-        } else if (!ConfigurationUtils.isGuid(config.appCredentials.clientId)) {
+        } else if (!ConfigHelper.isGuid(config.appCredentials.clientId)) {
             throw new Error(ConfigurationErrorMessages.INVALID_CLIENT_ID);
         }
 
         if (StringUtils.isEmpty(config.appCredentials.tenantInfo)) {
             throw new Error(ConfigurationErrorMessages.NO_TENANT_INFO);
-        } else if (!ConfigurationUtils.isGuid(config.appCredentials.tenantInfo) && !Object.values(AADAuthorityConstants).includes(config.appCredentials.tenantInfo)) {
+        } else if (!ConfigHelper.isGuid(config.appCredentials.tenantInfo) && !Object.values(AADAuthorityConstants).includes(config.appCredentials.tenantInfo)) {
             throw new Error(ConfigurationErrorMessages.INVALID_TENANT_INFO);
         }
 
@@ -67,32 +69,32 @@ export class ConfigurationBuilder {
     /**
      * Maps the custom configuration object to configuration
      * object expected by MSAL Node ConfidentialClientApplication class
-     * @param {AppSettings} config: configuration object
+     * @param {AppSettings} appSettings: configuration object
      * @param {ICachePlugin} cachePlugin: persistent cache implementation
      * @returns {Configuration}
      */
-    static getMsalConfiguration(config: AppSettings, cachePlugin: ICachePlugin = null): Configuration {
+    static getMsalConfiguration(appSettings: AppSettings, persistenceManager?: IDistributedPersistence, cachePlugin?: ICachePlugin): Configuration {
         return {
             auth: {
-                clientId: config.appCredentials.clientId,
-                authority: config.b2cPolicies ?
-                    Object.entries(config.b2cPolicies)[0][1]["authority"] // the first policy/user-flow is the default authority
+                clientId: appSettings.appCredentials.clientId,
+                authority: appSettings.b2cPolicies ?
+                    Object.entries(appSettings.b2cPolicies)[0][1]["authority"] // the first policy/user-flow is the default authority
                     :
-                    config.appCredentials.instance ? `https://${config.appCredentials.instance}/${config.appCredentials.tenantInfo}` 
+                    appSettings.appCredentials.instance ? `https://${appSettings.appCredentials.instance}/${appSettings.appCredentials.tenantInfo}` 
                     :
-                    `https://${Constants.DEFAULT_AUTHORITY_HOST}/${config.appCredentials.tenantInfo}`,
-                ...(config.appCredentials.hasOwnProperty("clientSecret")) && { clientSecret: config.appCredentials.clientSecret },
-                ...(config.appCredentials.hasOwnProperty("clientCertificate")) && { clientCertificate: config.appCredentials.clientCertificate },
-                knownAuthorities: config.b2cPolicies ?
-                    [UrlString.getDomainFromUrl(Object.entries(config.b2cPolicies)[0][1]["authority"])] // in B2C scenarios
+                    `https://${Constants.DEFAULT_AUTHORITY_HOST}/${appSettings.appCredentials.tenantInfo}`,
+                ...(appSettings.appCredentials.hasOwnProperty("clientSecret")) && { clientSecret: appSettings.appCredentials.clientSecret },
+                ...(appSettings.appCredentials.hasOwnProperty("clientCertificate")) && { clientCertificate: appSettings.appCredentials.clientCertificate },
+                knownAuthorities: appSettings.b2cPolicies ?
+                    [UrlString.getDomainFromUrl(Object.entries(appSettings.b2cPolicies)[0][1]["authority"])] // in B2C scenarios
                     :
                     [],
             },
             cache: {
-                cachePlugin,
+                cachePlugin: cachePlugin ? cachePlugin : DistributedCachePlugin.getInstance(persistenceManager),
             },
             system: {
-                loggerOptions: config.loggerOptions ? config.loggerOptions : DEFAULT_LOGGER_OPTIONS,
+                loggerOptions: appSettings.loggerOptions ? appSettings.loggerOptions : DEFAULT_LOGGER_OPTIONS,
             },
         };
     };

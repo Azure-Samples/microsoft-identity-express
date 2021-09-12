@@ -3,7 +3,7 @@
  * Licensed under the MIT License.
  */
 
-import { AuthProvider } from '../src/client/AuthProvider';
+import { MsalMiddleware } from '../src/middleware/MsalMiddleware';
 import { AppSettings } from '../src/config/AppSettings';
 
 import { TEST_CONSTANTS } from './TestConstants';
@@ -22,6 +22,6 @@ test('instantiates a class', () => {
     },
   };
 
-  const authApp = new AuthProvider(appSettings);
-  expect(authApp).toBeInstanceOf(AuthProvider);
+  const authApp = new MsalMiddleware(appSettings);
+  expect(authApp).toBeInstanceOf(MsalMiddleware);
 });

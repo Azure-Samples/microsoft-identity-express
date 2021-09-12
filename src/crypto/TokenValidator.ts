@@ -22,10 +22,9 @@ import {
     AccessTokenClaims
 } from "./AuthToken";
 
-import { 
-    Resource,
-    AppSettings,
-} from "../config/AppSettings";
+import { AppSettings } from "../config/AppSettings";
+
+import { ConfigHelper } from "../config/ConfigHelper";
 
 import {
     ErrorMessages,
@@ -209,8 +208,8 @@ export class TokenValidator {
         const checkAudience = verifiedToken.aud === this.appSettings.appCredentials.clientId ||
             verifiedToken.aud === "api://" + this.appSettings.appCredentials.clientId ? true : false;
 
-        const checkScopes = Object.values(this.appSettings.ownedResources).find((resource: Resource) => resource.endpoint === protectedRoute)
-            .scopes.every(scp => verifiedToken.scp.includes(scp));
+        const checkScopes = ConfigHelper.getScopesFromResourceEndpoint(protectedRoute, this.appSettings)
+            .every(scp => verifiedToken.scp.includes(scp));
 
         return checkAudience && checkIssuer && checkTimestamp && checkScopes;
     };

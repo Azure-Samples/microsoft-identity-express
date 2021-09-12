@@ -50,7 +50,7 @@ async function main() {
 
     try {
         // async building the wrapper as fetching credentials from key vault
-        const authProvider = await MsalWrapper.AuthProvider.buildAsync(settings);
+        const authProvider = await MsalWrapper.MsalMiddleware.buildAsync(settings);
 
         app.use(authProvider.initialize());
     

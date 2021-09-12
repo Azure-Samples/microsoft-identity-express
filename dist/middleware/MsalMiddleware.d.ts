@@ -1,19 +1,21 @@
 import { RequestHandler, Router } from "express";
-import { ICachePlugin } from "@azure/msal-common";
+import { ICachePlugin, Logger } from "@azure/msal-common";
 import { ConfidentialClientApplication, Configuration } from "@azure/msal-node";
+import { IAuthMiddleware } from "./IAuthMiddleware";
+import { IDistributedPersistence } from "../cache/IDistributedPersistence";
 import { AppSettings } from "../config/AppSettings";
-import { InitializationOptions, TokenRequestOptions, GuardOptions, SignInOptions, SignOutOptions } from "../utils/Types";
+import { InitializationOptions, TokenRequestOptions, GuardOptions, SignInOptions, SignOutOptions, HandleRedirectOptions } from "./MiddlewareOptions";
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
  * It offers a collection of middleware and utility methods that automate
  * basic authentication and authorization tasks in Express MVC web apps and
  * RESTful APIs (coming soon).
  */
-export declare class AuthProvider {
+export declare class MsalMiddleware implements IAuthMiddleware {
+    logger: Logger;
     appSettings: AppSettings;
-    msalConfig: Configuration;
-    msalClient: ConfidentialClientApplication;
-    private logger;
+    protected msalConfig: Configuration;
+    protected msalClient: ConfidentialClientApplication;
     private cryptoProvider;
     private tokenValidator;
     /**
@@ -21,14 +23,14 @@ export declare class AuthProvider {
      * @param {ICachePlugin} cache: cachePlugin
      * @constructor
      */
-    constructor(appSettings: AppSettings, cache?: ICachePlugin);
+    constructor(appSettings: AppSettings, persistenceManager?: IDistributedPersistence, cachePlugin?: ICachePlugin);
     /**
      * Asynchronously builds authProvider object with credentials fetched from Key Vault
      * @param {AppSettings} appSettings
      * @param {ICachePlugin} cache: cachePlugin
      * @returns
      */
-    static buildAsync(appSettings: AppSettings, cache?: ICachePlugin): Promise<AuthProvider>;
+    static buildAsync(appSettings: AppSettings, persistenceManager?: IDistributedPersistence, cachePlugin?: ICachePlugin): Promise<MsalMiddleware>;
     /**
      * Initialize AuthProvider and set default routes and handlers
      * @param {InitializationOptions} options
@@ -53,7 +55,7 @@ export declare class AuthProvider {
      * @param {HandleRedirectOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    private handleRedirect;
+    handleRedirect(options?: HandleRedirectOptions): RequestHandler;
     /**
      * Middleware that gets tokens via acquireToken*
      * @param {TokenRequestOptions} options: options to modify this middleware
@@ -95,15 +97,6 @@ export declare class AuthProvider {
      */
     private getAuthCode;
     /**
-     * Handles group overage claims by querying MS Graph /memberOf endpoint
-     * @param {Request} req: express request object
-     * @param {Response} res: express response object
-     * @param {NextFunction} next: express next function
-     * @param {AccessRule} rule: a given access rule
-     * @returns {Promise}
-     */
-    private handleOverage;
-    /**
      * Checks if the request passes a given access rule
      * @param {string} method: HTTP method for this route
      * @param {AccessRule} rule: access rule for this route
@@ -112,4 +105,13 @@ export declare class AuthProvider {
      * @returns {boolean}
      */
     private checkAccessRule;
+    /**
+     * Handles group overage claims by querying MS Graph /memberOf endpoint
+     * @param {Request} req: express request object
+     * @param {Response} res: express response object
+     * @param {NextFunction} next: express next function
+     * @param {AccessRule} rule: a given access rule
+     * @returns {Promise}
+     */
+    private handleOverage;
 }

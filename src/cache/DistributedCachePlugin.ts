@@ -6,23 +6,21 @@
 import { ICachePlugin } from "@azure/msal-node";
 import { IDistributedPersistence } from "./IDistributedPersistence";
 
-import { SessionData } from "express-session";
-
 export class DistributedCachePlugin implements ICachePlugin {
 
     private static instance: DistributedCachePlugin;
 
     private persistenceManager: IDistributedPersistence;
-    private session: SessionData;
+    private sessionId: string;
 
-    private constructor(persistenceManager: IDistributedPersistence, session?: SessionData) {
+    private constructor(persistenceManager: IDistributedPersistence, sessionId?: string) {
         this.persistenceManager = persistenceManager;
-        this.session = session;
+        this.sessionId = sessionId;
     }
 
-    static getInstance(persistenceManager: IDistributedPersistence, session?: SessionData): DistributedCachePlugin {
+    static getInstance(persistenceManager: IDistributedPersistence, sessionId?: string): DistributedCachePlugin {
         if (!DistributedCachePlugin.instance) {
-            DistributedCachePlugin.instance = new DistributedCachePlugin(persistenceManager, session);
+            DistributedCachePlugin.instance = new DistributedCachePlugin(persistenceManager, sessionId);
         }
 
         return DistributedCachePlugin.instance;
@@ -30,7 +28,7 @@ export class DistributedCachePlugin implements ICachePlugin {
 
     async beforeCacheAccess(cacheContext): Promise<void> {
         return new Promise(async (resolve, reject) => {
-            const sessionData = await this.persistenceManager.get("sess:" + this.session.id);
+            const sessionData = await this.persistenceManager.get("sess:" + this.sessionId);
             if (sessionData) {
                 const cacheData = await this.persistenceManager.get(JSON.parse(sessionData).account.homeAccountId);
                 cacheContext.tokenCache.deserialize(cacheData);

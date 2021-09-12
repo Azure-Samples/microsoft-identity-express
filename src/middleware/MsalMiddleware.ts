@@ -31,28 +31,33 @@ import {
     OnBehalfOfRequest,
 } from "@azure/msal-node";
 
-import { ConfigurationBuilder } from "../config/ConfigurationBuilder";
-import { ConfigurationUtils } from "../config/ConfigurationUtils";
-import { TokenValidator } from "../token/TokenValidator";
+import { IAuthMiddleware } from "./IAuthMiddleware";
+import { ConfigurationBuilder } from "../config/MsalConfig";
+import { ConfigHelper } from "../config/ConfigHelper";
+import { TokenValidator } from "../crypto/TokenValidator";
 import { KeyVaultManager } from "../network/KeyVaultManager";
 import { FetchManager } from "../network/FetchManager";
 import { UrlUtils } from "../utils/UrlUtils";
 
-import { 
+import { IDistributedPersistence } from "../cache/IDistributedPersistence";
+import { DistributedCachePlugin } from "../cache/DistributedCachePlugin";
+
+import {
     Resource,
     AppSettings,
     AccessRule,
 } from "../config/AppSettings";
 
+import { AuthCodeParams } from "../utils/Types";
+
 import {
-    AuthCodeParams,
     InitializationOptions,
     TokenRequestOptions,
     GuardOptions,
     SignInOptions,
     SignOutOptions,
     HandleRedirectOptions
-} from "../utils/Types";
+} from "./MiddlewareOptions";
 
 import {
     AppStages,
@@ -62,7 +67,7 @@ import {
 } from "../utils/Constants";
 
 import {
-    name, 
+    name,
     version
 } from "../packageMetadata";
 
@@ -72,12 +77,14 @@ import {
  * basic authentication and authorization tasks in Express MVC web apps and
  * RESTful APIs (coming soon).
  */
-export class AuthProvider {
-    appSettings: AppSettings;
-    msalConfig: Configuration;
-    msalClient: ConfidentialClientApplication;
+export class MsalMiddleware implements IAuthMiddleware {
 
-    private logger: Logger;
+    logger: Logger;
+    appSettings: AppSettings;
+
+    protected msalConfig: Configuration;
+    protected msalClient: ConfidentialClientApplication;
+
     private cryptoProvider: CryptoProvider;
     private tokenValidator: TokenValidator;
 
@@ -86,11 +93,11 @@ export class AuthProvider {
      * @param {ICachePlugin} cache: cachePlugin
      * @constructor
      */
-    constructor(appSettings: AppSettings, cache?: ICachePlugin) {
+    constructor(appSettings: AppSettings, persistenceManager?: IDistributedPersistence, cachePlugin?: ICachePlugin) {
         ConfigurationBuilder.validateAppSettings(appSettings);
         this.appSettings = appSettings;
 
-        this.msalConfig = ConfigurationBuilder.getMsalConfiguration(appSettings, cache);
+        this.msalConfig = ConfigurationBuilder.getMsalConfiguration(appSettings, persistenceManager, cachePlugin);
         this.msalClient = new ConfidentialClientApplication(this.msalConfig);
 
         this.logger = new Logger(this.msalConfig.system.loggerOptions, name, version);
@@ -104,16 +111,32 @@ export class AuthProvider {
      * @param {ICachePlugin} cache: cachePlugin
      * @returns 
      */
-    static async buildAsync(appSettings: AppSettings, cache?: ICachePlugin): Promise<AuthProvider> {
+    static async buildAsync(appSettings: AppSettings, persistenceManager?: IDistributedPersistence, cachePlugin?: ICachePlugin): Promise<MsalMiddleware> {
         try {
             const keyVault = new KeyVaultManager();
             const appSettingsWithKeyVaultCredentials = await keyVault.getCredentialFromKeyVault(appSettings);
-            const authProvider = new AuthProvider(appSettingsWithKeyVaultCredentials, cache);
+            const authProvider = new MsalMiddleware(appSettingsWithKeyVaultCredentials, persistenceManager, cachePlugin);
             return authProvider;
         } catch (error) {
             console.log(error);
         }
     }
+
+    // withKeyVaultCredentials(): Router {
+    //     const appRouter = express.Router();
+
+    //     appRouter.use(this.setKeyVaultCredentials());
+
+    //     return appRouter;
+    // }
+
+    // withDistributedTokenCache(persistenceManager: IDistributedPersistence, sessionId?: string): Router {
+    //     const appRouter = express.Router();
+
+    //     appRouter.use(this.setTokenCachePlugin(persistenceManager, sessionId));
+
+    //     return appRouter;
+    // }
 
     /**
      * Initialize AuthProvider and set default routes and handlers
@@ -122,12 +145,39 @@ export class AuthProvider {
      */
     initialize(options?: InitializationOptions): Router {
 
-        // TODO: initialize app defaults
-
         const appRouter = express.Router();
 
         // handle redirect
         appRouter.get(UrlUtils.getPathFromUrl(this.appSettings.authRoutes.redirect), this.handleRedirect());
+
+        appRouter.use((req, res, next) => {
+
+            /**
+             * Request Configuration
+             * We manipulate these three request objects below
+             * to acquire a token with the appropriate claims
+             */
+            if (!req.session["authCodeRequest"]) {
+                let authCodeRequest: AuthorizationUrlRequest;
+                req.session.authCodeRequest = authCodeRequest;
+            }
+
+            if (!req.session["tokenRequest"]) {
+                let tokenRequest: AuthorizationCodeRequest;
+                req.session.tokenRequest = tokenRequest;
+            }
+
+            // signed-in user's account
+            if (!req.session["account"]) {
+                let account: AccountInfo;
+                req.session.account = account;
+            }
+
+            // random GUID for csrf protection
+            req.session.nonce = this.cryptoProvider.createNewGuid();
+
+            next();
+        })
 
         if (this.appSettings.authRoutes.frontChannelLogout) {
             /**
@@ -144,14 +194,6 @@ export class AuthProvider {
         return appRouter;
     }
 
-    // initializeTokenCache(persistenceManager: IPersistenceManager, session?: SessionData): Router {
-    //     const appRouter = express.Router();
-
-    //     appRouter.use(this.setTokenCachePlugin(persistenceManager, session));
-
-    //     return appRouter;
-    // }
-
     // ========== ROUTE HANDLERS ===========
 
     /**
@@ -161,43 +203,7 @@ export class AuthProvider {
      */
     signIn(options?: SignInOptions): RequestHandler {
         return (req: Request, res: Response, next: NextFunction): Promise<void> => {
-            /**
-             * Request Configuration
-             * We manipulate these three request objects below
-             * to acquire a token with the appropriate claims
-             */
-            if (!req.session["authCodeRequest"]) {
-                req.session.authCodeRequest = {
-                    authority: "",
-                    scopes: [],
-                    state: {},
-                    redirectUri: "",
-                } as AuthorizationUrlRequest;
-            }
 
-            if (!req.session["tokenRequest"]) {
-                req.session.tokenRequest = {
-                    authority: "",
-                    scopes: [],
-                    redirectUri: "",
-                    code: "",
-                } as AuthorizationCodeRequest;
-            }
-
-            // signed-in user's account
-            if (!req.session["account"]) {
-                req.session.account = {
-                    homeAccountId: "",
-                    environment: "",
-                    tenantId: "",
-                    username: "",
-                    idTokenClaims: {},
-                } as AccountInfo;
-            }
-
-            // random GUID for csrf protection
-            req.session.nonce = this.cryptoProvider.createNewGuid();
-            
             // TODO: encrypt state parameter 
             const state = this.cryptoProvider.base64Encode(
                 JSON.stringify({
@@ -235,7 +241,7 @@ export class AuthProvider {
              * (AAD) https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request
              * (B2C) https://docs.microsoft.com/azure/active-directory-b2c/openid-connect#send-a-sign-out-request
              */
-            const logoutURI = `${this.msalConfig.auth.authority}/oauth2/v2.0/logout?post_logout_redirect_uri=${postLogoutRedirectUri}`;
+            const logoutURI = `${req.app.locals.msalConfig.auth.authority}/oauth2/v2.0/logout?post_logout_redirect_uri=${postLogoutRedirectUri}`;
 
             req.session.isAuthenticated = false;
 
@@ -251,7 +257,7 @@ export class AuthProvider {
      * @param {HandleRedirectOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    private handleRedirect(options?: HandleRedirectOptions): RequestHandler {
+    handleRedirect(options?: HandleRedirectOptions): RequestHandler {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             if (req.query.state) {
                 const state = JSON.parse(this.cryptoProvider.base64Decode(req.query.state as string));
@@ -293,7 +299,7 @@ export class AuthProvider {
 
                         case AppStages.ACQUIRE_TOKEN: {
                             // get the name of the resource associated with scope
-                            const resourceName = ConfigurationUtils.getResourceNameFromScopes(req.session.tokenRequest.scopes, this.appSettings)
+                            const resourceName = ConfigHelper.getResourceNameFromScopes(req.session.tokenRequest.scopes, this.appSettings)
 
                             req.session.tokenRequest.code = req.query.code as string
 
@@ -336,7 +342,7 @@ export class AuthProvider {
             // get scopes for token request
             const scopes = options.resource.scopes;
 
-            const resourceName = ConfigurationUtils.getResourceNameFromScopes(scopes, this.appSettings)
+            const resourceName = ConfigHelper.getResourceNameFromScopes(scopes, this.appSettings)
 
             if (!req.session.remoteResources) {
                 req.session.remoteResources = {};
@@ -406,7 +412,7 @@ export class AuthProvider {
 
             // get scopes for token request
             const scopes = options.resource.scopes;
-            const resourceName = ConfigurationUtils.getResourceNameFromScopes(scopes, this.appSettings)
+            const resourceName = ConfigHelper.getResourceNameFromScopes(scopes, this.appSettings)
 
             const oboRequest: OnBehalfOfRequest = {
                 oboAssertion: authHeader.split(" ")[1],
@@ -483,7 +489,7 @@ export class AuthProvider {
      * @returns {RequestHandler}
      */
     hasAccess(options?: GuardOptions): RequestHandler {
-        return async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+        return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             if (req.session && this.appSettings.accessMatrix) {
 
                 const checkFor = options.accessRule.hasOwnProperty(AccessConstants.GROUPS) ? AccessConstants.GROUPS : AccessConstants.ROLES;
@@ -567,6 +573,55 @@ export class AuthProvider {
         }
     };
 
+    // private setTokenCachePlugin = (persistenceManager: IDistributedPersistence, sessionId: string): RequestHandler => {
+    //     return async (req, res, next) => {
+    //         try {
+    //             const distributedcachePlugin = DistributedCachePlugin.getInstance(persistenceManager, sessionId);
+    //             this.msalClient.config.cache.cachePlugin = distributedcachePlugin
+    //             this.msalClient.tokenCache.persistence = distributedcachePlugin;
+    //             next();
+    //         } catch (error) {
+    //             next(error);
+    //         }
+    //     };
+    // };
+
+    /**
+     * Checks if the request passes a given access rule
+     * @param {string} method: HTTP method for this route
+     * @param {AccessRule} rule: access rule for this route
+     * @param {Array} creds: user's credentials i.e. roles or groups
+     * @param {string} credType: roles or groups
+     * @returns {boolean}
+     */
+    private checkAccessRule(method: string, rule: AccessRule, creds: string[], credType: string): boolean {
+        if (rule.methods.includes(method)) {
+            switch (credType) {
+                case AccessConstants.GROUPS:
+                    if (rule.groups.filter(elem => creds.includes(elem)).length < 1) {
+                        this.logger.error(ErrorMessages.USER_NOT_IN_GROUP);
+                        return false;
+                    }
+                    break;
+
+                case AccessConstants.ROLES:
+                    if (rule.roles.filter(elem => creds.includes(elem)).length < 1) {
+                        this.logger.error(ErrorMessages.USER_NOT_IN_ROLE);
+                        return false;
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        } else {
+            this.logger.error(ErrorMessages.METHOD_NOT_ALLOWED);
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * Handles group overage claims by querying MS Graph /memberOf endpoint
      * @param {Request} req: express request object
@@ -631,49 +686,4 @@ export class AuthProvider {
             next(error);
         }
     }
-
-    /**
-     * Checks if the request passes a given access rule
-     * @param {string} method: HTTP method for this route
-     * @param {AccessRule} rule: access rule for this route
-     * @param {Array} creds: user's credentials i.e. roles or groups
-     * @param {string} credType: roles or groups
-     * @returns {boolean}
-     */
-    private checkAccessRule(method: string, rule: AccessRule, creds: string[], credType: string): boolean {
-        if (rule.methods.includes(method)) {
-            switch (credType) {
-                case AccessConstants.GROUPS:
-                    if (rule.groups.filter(elem => creds.includes(elem)).length < 1) {
-                        this.logger.error(ErrorMessages.USER_NOT_IN_GROUP);
-                        return false;
-                    }
-                    break;
-
-                case AccessConstants.ROLES:
-                    if (rule.roles.filter(elem => creds.includes(elem)).length < 1) {
-                        this.logger.error(ErrorMessages.USER_NOT_IN_ROLE);
-                        return false;
-                    }
-                    break;
-
-                default:
-                    break;
-            }
-        } else {
-            this.logger.error(ErrorMessages.METHOD_NOT_ALLOWED);
-            return false;
-        }
-
-        return true;
-    }
-
-    // private setTokenCachePlugin = (persistenceManager, sessionData): RequestHandler => {
-    //     return async(req, res, next) => {
-    //         const cachePlugin = CachePlugin.getInstance(persistenceManager, sessionData);
-    //         this.msalClient.config.cache.cachePlugin = cachePlugin
-    //         this.msalClient.tokenCache.persistence = cachePlugin;
-    //         next();
-    //     }
-    // };
 }

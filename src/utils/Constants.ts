@@ -3,14 +3,30 @@
  * Licensed under the MIT License.
  */
 
+import {
+    LoggerOptions,
+    LogLevel,
+} from "@azure/msal-common";
+
+export const DEFAULT_LOGGER_OPTIONS: LoggerOptions = {
+    loggerCallback: (logLevel, message, containsPii) => {
+        if (containsPii) {
+            return;
+        }
+        console.info(message);
+    },
+    piiLoggingEnabled: false,
+    logLevel: LogLevel.Info,
+};
+
 /**
  * Basic authentication stages used to determine
  * appropriate action after redirect occurs
  */
-export const AppStages = {
-    SIGN_IN: "sign_in",
-    SIGN_OUT: "sign_out",
-    ACQUIRE_TOKEN: "acquire_token",
+export enum AppStages {
+    SIGN_IN = "sign_in",
+    SIGN_OUT = "sign_out",
+    ACQUIRE_TOKEN = "acquire_token",
 };
 
 /**
@@ -23,11 +39,11 @@ export const AADAuthorityConstants = {
 }
 
 /**
- * String constants related to AAD Authority
+ * String constants related credential type
  */
-export const KeyVaultCredentialTypes = {
-    SECRET: "secret",
-    CERTIFICATE: "certificate",
+export enum KeyVaultCredentialTypes {
+    SECRET = "secret",
+    CERTIFICATE = "certificate",
 }
 
 /**
