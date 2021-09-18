@@ -1738,7 +1738,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
 
               case 34:
                 _tokenResponse = _context.sent;
-                req.session.resources.remoteResources[resourceName].accessToken = _tokenResponse.accessToken;
+                req.session.remoteResources[resourceName].accessToken = _tokenResponse.accessToken;
                 res.redirect(state.path);
                 _context.next = 43;
                 break;
@@ -1802,7 +1802,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
 
     return /*#__PURE__*/function () {
       var _ref2 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(req, res, next) {
-        var _req$session$resource;
+        var _req$session$remoteRe;
 
         var scopes, resourceName, silentRequest, tokenResponse, state, params;
         return runtime_1.wrap(function _callee2$(_context2) {
@@ -1813,15 +1813,13 @@ var MsalMiddleware = /*#__PURE__*/function () {
                 scopes = options.resource.scopes;
                 resourceName = ConfigHelper.getResourceNameFromScopes(scopes, _this5.appSettings);
 
-                if (!req.session.resources) {
-                  req.session.resources = {
-                    remoteResources: {}
-                  };
+                if (!req.session.remoteResources) {
+                  req.session.remoteResources = {};
                 }
 
-                req.session.resources.remoteResources = (_req$session$resource = {}, _req$session$resource[resourceName] = _extends({}, _this5.appSettings.remoteResources[resourceName], {
+                req.session.remoteResources = (_req$session$remoteRe = {}, _req$session$remoteRe[resourceName] = _extends({}, _this5.appSettings.remoteResources[resourceName], {
                   accessToken: null
-                }), _req$session$resource);
+                }), _req$session$remoteRe);
                 _context2.prev = 4;
                 silentRequest = {
                   account: req.session.account,
@@ -1844,7 +1842,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
                 throw new InteractionRequiredAuthError(ErrorMessages.INTERACTION_REQUIRED);
 
               case 12:
-                req.session.resources.remoteResources[resourceName].accessToken = tokenResponse.accessToken;
+                req.session.remoteResources[resourceName].accessToken = tokenResponse.accessToken;
                 next();
                 _context2.next = 25;
                 break;

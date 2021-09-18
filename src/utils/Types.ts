@@ -21,14 +21,12 @@ declare module "express-session" {
         account: AccountInfo;
         authCodeRequest: AuthorizationUrlRequest;
         tokenRequest: AuthorizationCodeRequest;
-        resources: {
-            remoteResources?: {
-                [resource: string]: Resource;
-            };
-            ownedResources?: {
-                [resource: string]: Resource;
-            },
+        remoteResources?: {
+            [resource: string]: Resource;
         };
+        ownedResources?: {
+            [resource: string]: Resource;
+        },
     }
 };
 

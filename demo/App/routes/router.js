@@ -1,7 +1,7 @@
 const express = require('express');
 const mainController = require('../controllers/mainController');
 
-module.exports = (msid) => {
+module.exports = (msal) => {
     
     // initialize router
     const router = express.Router();
@@ -12,35 +12,35 @@ module.exports = (msid) => {
 
     // auth routes
     router.get('/signin',
-        msid.signIn({
+        msal.signIn({
             successRedirect: "/",
         }),
     );
 
     router.get('/signout',
-        msid.signOut({
+        msal.signOut({
             successRedirect: "/",
         }),
     );
 
     // secure routes
     router.get('/id',
-        msid.isAuthenticated(),
+        msal.isAuthenticated(),
         mainController.getIdPage
     );
 
     router.get('/profile',
-        msid.isAuthenticated(),
-        msid.getToken({
-            resource: msid.appSettings.remoteResources.graphAPI
+        msal.isAuthenticated(),
+        msal.getToken({
+            resource: msal.appSettings.remoteResources.graphAPI
         }),
         mainController.getProfilePage
     ); // get token for this route to call web API
 
     router.get('/tenant',
-        msid.isAuthenticated(),
-        msid.getToken({
-            resource: msid.appSettings.remoteResources.armAPI
+        msal.isAuthenticated(),
+        msal.getToken({
+            resource: msal.appSettings.remoteResources.armAPI
         }),
         mainController.getTenantPage
     ); // get token for this route to call web API

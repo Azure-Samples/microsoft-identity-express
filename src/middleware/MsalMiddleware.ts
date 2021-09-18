@@ -244,7 +244,7 @@ export class MsalMiddleware implements IAuthMiddleware {
 
                             try {
                                 const tokenResponse = await this.msalClient.acquireTokenByCode(req.session.tokenRequest);
-                                req.session.resources.remoteResources[resourceName].accessToken = tokenResponse.accessToken;
+                                req.session.remoteResources[resourceName].accessToken = tokenResponse.accessToken;
                                 res.redirect(state.path);
                             } catch (error) {
                                 this.logger.error(ErrorMessages.TOKEN_ACQUISITION_FAILED);
@@ -282,13 +282,11 @@ export class MsalMiddleware implements IAuthMiddleware {
 
             const resourceName = ConfigHelper.getResourceNameFromScopes(scopes, this.appSettings)
 
-            if (!req.session.resources) {
-                req.session.resources = {
-                    remoteResources: {}
-                }
+            if (!req.session.remoteResources) {
+                req.session.remoteResources = {}
             }
 
-            req.session.resources.remoteResources = {
+            req.session.remoteResources = {
                 [resourceName]: {
                     ...this.appSettings.remoteResources[resourceName],
                     accessToken: null,
@@ -311,7 +309,7 @@ export class MsalMiddleware implements IAuthMiddleware {
                     throw new InteractionRequiredAuthError(ErrorMessages.INTERACTION_REQUIRED);
                 }
 
-                req.session.resources.remoteResources[resourceName].accessToken = tokenResponse.accessToken;
+                req.session.remoteResources[resourceName].accessToken = tokenResponse.accessToken;
                 next();
             } catch (error) {
                 // in case there are no cached tokens, initiate an interactive call
