@@ -1,6 +1,12 @@
 import { AppSettings } from "./AppSettings";
 export declare class ConfigHelper {
     /**
+     * Validates the fields in the configuration file
+     * @param {AppSettings} appSettings: configuration object
+     * @returns {void}
+     */
+    static validateAppSettings(appSettings: AppSettings): void;
+    /**
      * Verifies if a string is GUID
      * @param {string} guid
      * @returns {boolean}

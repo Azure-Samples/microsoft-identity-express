@@ -7,7 +7,7 @@ import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
 import { StringUtils } from "@azure/msal-common";
 
 import {
-    AccessConstants,
+    AccessControlConstants,
     ErrorMessages
 } from "../utils/Constants";
 
@@ -20,7 +20,23 @@ export class FetchManager {
      * @param {string} accessToken 
      * @returns {Promise}
      */
-    static callApiEndpoint = async (endpoint: string, accessToken: string): Promise<any> => {
+    static callApiEndpoint = async (endpoint: string): Promise<AxiosResponse> => {
+        try {
+            const response: AxiosResponse = await axios.get(endpoint);
+            return response.data;
+        } catch (error) {
+            return error;
+        }
+    }
+
+    /**
+     * Calls a resource endpoint with a raw access token
+     * using the authorization bearer token scheme
+     * @param {string} endpoint 
+     * @param {string} accessToken 
+     * @returns {Promise}
+     */
+    static callApiEndpointWithToken = async (endpoint: string, accessToken: string): Promise<AxiosResponse> => {
 
         if (StringUtils.isEmpty(accessToken)) {
             throw new Error(ErrorMessages.TOKEN_NOT_FOUND)
@@ -47,14 +63,14 @@ export class FetchManager {
      * @param {Array} data: stores data from each page
      * @returns {Promise}
      */
-    static handlePagination = async (accessToken: string, nextPage: string, data: string[] = []): Promise<any> => {
+    static handlePagination = async (accessToken: string, nextPage: string, data: string[] = []): Promise<string[]> => {
 
         try {
-            const graphResponse = await FetchManager.callApiEndpoint(nextPage, accessToken);
+            const graphResponse = await FetchManager.callApiEndpointWithToken(nextPage, accessToken);
             graphResponse["value"].map((v) => data.push(v.id));
 
-            if (graphResponse[AccessConstants.PAGINATION_LINK]) {
-                return await FetchManager.handlePagination(accessToken, graphResponse[AccessConstants.PAGINATION_LINK], data)
+            if (graphResponse[AccessControlConstants.PAGINATION_LINK]) {
+                return await FetchManager.handlePagination(accessToken, graphResponse[AccessControlConstants.PAGINATION_LINK], data)
             } else {
                 return data;
             }

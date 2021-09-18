@@ -8,17 +8,6 @@ import {
     LogLevel,
 } from "@azure/msal-common";
 
-export const DEFAULT_LOGGER_OPTIONS: LoggerOptions = {
-    loggerCallback: (logLevel, message, containsPii) => {
-        if (containsPii) {
-            return;
-        }
-        console.info(message);
-    },
-    piiLoggingEnabled: false,
-    logLevel: LogLevel.Info,
-};
-
 /**
  * Basic authentication stages used to determine
  * appropriate action after redirect occurs
@@ -42,14 +31,49 @@ export const AADAuthorityConstants = {
  * String constants related credential type
  */
 export enum KeyVaultCredentialTypes {
-    SECRET = "secret",
-    CERTIFICATE = "certificate",
+    SECRET = "clientSecret",
+    CERTIFICATE = "clientCertificate",
+}
+
+/**
+ * Request headers used by App Service authentication
+ */
+export const AppServiceAuthenticationHeaders = {
+    APP_SERVICE_AUTHENTICATION_HEADER: "X-MSAL-APP-SERVICE-AUTHENTICATION",
+    APP_SERVICE_ACCESS_TOKEN_HEADER: "X-MS-TOKEN-AAD-ACCESS-TOKEN",
+    APP_SERVICE_ID_TOKEN_HEADER: "X-MS-TOKEN-AAD-ID-TOKEN",
+    APP_SERVICE_REFRESH_TOKEN_HEADER: "X-MS-TOKEN-AAD-REFRESH-TOKEN",
+    APP_SERVICE_ACCESS_TOKEN_EXPIRES_HEADER: "X-MS-TOKEN-AAD-EXPIRES-ON",
+    APP_SERVICE_USER_OID_HEADER: "X-MS-CLIENT-PRINCIPAL-ID", 
+    APP_SERVICE_USER_UPN_HEADER: "X-MS-CLIENT-PRINCIPAL-NAME",
+    APP_SERVICE_IDP_X_HEADER: "X-MS-CLIENT-PRINCIPAL-IDP"
+}
+
+/**
+ * Endpoints used by App Service authentication
+ */
+export const AppServiceAuthenticationEndpoints = {
+    ID_TOKEN_ENDPOINT: "/.auth/me",
+    POST_LOGOUT_DEFAULT_ENDPOINT: "/.auth/logout/done",
+    POST_LOGIN_DEFAULT_ENDPOINT: "/.auth/login/done",
+    AAD_SIGN_IN_ENDPOINT: "/.auth/login/aad",
+    AAD_SIGN_OUT_ENDPOINT: "/.auth/logout",
+    TOKEN_REFRESH_ENDPOINT: "/.auth/refresh",
+    AAD_REDIRECT_ENDPOINT: "/.auth/login/aad/callback",
+}
+
+/**
+ * Query parameters used by App Service authentication endpoints
+ */
+export const AppServiceAuthenticationQueryParameters = {
+    POST_LOGIN_REDIRECT_QUERY_PARAM: "?post_login_redirect_url=",
+    POST_LOGOUT_REDIRECT_QUERY_PARAM: "?post_logout_redirect_uri=",
 }
 
 /**
  * Constants used in access control scenarios
  */
-export const AccessConstants = {
+export const AccessControlConstants = {
     GROUPS: "groups",
     ROLES: "roles",
     CLAIM_NAMES: "_claim_name",
@@ -59,6 +83,9 @@ export const AccessConstants = {
     GRAPH_MEMBER_SCOPES: "User.Read GroupMember.Read.All"
 };
 
+/**
+ * Various information constants
+ */
 export const InfoMessages = {
     REQUEST_FOR_RESOURCE: "Request made to web API",
     OVERAGE_OCCURRED: "User has too many groups. Groups overage claim occurred"
@@ -110,4 +137,15 @@ export const ConfigurationErrorMessages = {
  */
 export const ErrorCodes = {
     65001: "AADSTS65001", // consent required
+};
+
+export const DEFAULT_LOGGER_OPTIONS: LoggerOptions = {
+    loggerCallback: (logLevel, message, containsPii) => {
+        if (containsPii) {
+            return;
+        }
+        console.info(message);
+    },
+    piiLoggingEnabled: false,
+    logLevel: LogLevel.Info,
 };

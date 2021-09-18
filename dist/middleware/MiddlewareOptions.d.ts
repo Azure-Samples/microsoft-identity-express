@@ -1,13 +1,10 @@
 import { Resource, AccessRule } from "../config/AppSettings";
-export declare type InitializationOptions = {
-    saveCacheToDisk?: boolean;
-    useSession?: boolean;
-    customState?: Object;
-};
+export declare type InitializationOptions = {};
 export declare type SignInOptions = {
     successRedirect: string;
     failureRedirect?: string;
     extraScopesToConsent?: string[];
+    customState?: Object;
 };
 export declare type SignOutOptions = {
     successRedirect: string;
@@ -20,5 +17,5 @@ export declare type TokenRequestOptions = {
     skipCache?: boolean;
 };
 export declare type GuardOptions = {
-    accessRule: AccessRule;
+    accessRule?: AccessRule;
 };

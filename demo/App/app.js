@@ -7,9 +7,9 @@ const express = require('express');
 const session = require('express-session');
 const path = require('path');
 
-const settings = require('./appSettings');
+const Msid = require('../../dist/index');
+const appSettings = require('./appSettings');
 
-const MsalWrapper = require('../../dist/index');
 const router = require('./routes/router');
 
 const SERVER_PORT = process.env.PORT || 4000;
@@ -50,13 +50,18 @@ async function main() {
 
     try {
         // async building the wrapper as fetching credentials from key vault
-        const authProvider = await MsalWrapper.MsalMiddleware.buildAsync(settings);
+        const msid = await new Msid.MiddlewareBuilder(appSettings)
+            .withKeyVaultCredentials({
+                credentialType: "clientSecret",
+                credentialName: "WrapperExampleSecret",
+                keyVaultUrl: "https://derisen-test-vault.vault.azure.net/"
+            }).buildAsync();
 
-        app.use(authProvider.initialize());
-    
-        app.use(router(authProvider));
-    
-        app.listen(SERVER_PORT, () => console.log(`Server is listening on port ${SERVER_PORT}!`));   
+        app.use(msid.initialize());
+
+        app.use(router(msid));
+
+        app.listen(SERVER_PORT, () => console.log(`Server is listening on port ${SERVER_PORT}!`));
     } catch (error) {
         console.log(error);
     }

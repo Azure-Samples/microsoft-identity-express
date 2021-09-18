@@ -1,8 +1,7 @@
 import { RequestHandler, Router } from "express";
-import { ICachePlugin, Logger } from "@azure/msal-common";
+import { Logger } from "@azure/msal-common";
 import { ConfidentialClientApplication, Configuration } from "@azure/msal-node";
 import { IAuthMiddleware } from "./IAuthMiddleware";
-import { IDistributedPersistence } from "../cache/IDistributedPersistence";
 import { AppSettings } from "../config/AppSettings";
 import { InitializationOptions, TokenRequestOptions, GuardOptions, SignInOptions, SignOutOptions, HandleRedirectOptions } from "./MiddlewareOptions";
 /**
@@ -14,8 +13,8 @@ import { InitializationOptions, TokenRequestOptions, GuardOptions, SignInOptions
 export declare class MsalMiddleware implements IAuthMiddleware {
     logger: Logger;
     appSettings: AppSettings;
-    protected msalConfig: Configuration;
-    protected msalClient: ConfidentialClientApplication;
+    msalConfig: Configuration;
+    msalClient: ConfidentialClientApplication;
     private cryptoProvider;
     private tokenValidator;
     /**
@@ -23,14 +22,7 @@ export declare class MsalMiddleware implements IAuthMiddleware {
      * @param {ICachePlugin} cache: cachePlugin
      * @constructor
      */
-    constructor(appSettings: AppSettings, persistenceManager?: IDistributedPersistence, cachePlugin?: ICachePlugin);
-    /**
-     * Asynchronously builds authProvider object with credentials fetched from Key Vault
-     * @param {AppSettings} appSettings
-     * @param {ICachePlugin} cache: cachePlugin
-     * @returns
-     */
-    static buildAsync(appSettings: AppSettings, persistenceManager?: IDistributedPersistence, cachePlugin?: ICachePlugin): Promise<MsalMiddleware>;
+    constructor(appSettings: AppSettings, msalConfig: Configuration);
     /**
      * Initialize AuthProvider and set default routes and handlers
      * @param {InitializationOptions} options

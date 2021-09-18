@@ -23,7 +23,6 @@ import {
 } from "./AuthToken";
 
 import { AppSettings } from "../config/AppSettings";
-
 import { ConfigHelper } from "../config/ConfigHelper";
 
 import {

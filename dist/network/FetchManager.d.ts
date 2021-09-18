@@ -1,3 +1,4 @@
+import { AxiosResponse } from "axios";
 export declare class FetchManager {
     /**
      * Calls a resource endpoint with a raw access token
@@ -6,7 +7,15 @@ export declare class FetchManager {
      * @param {string} accessToken
      * @returns {Promise}
      */
-    static callApiEndpoint: (endpoint: string, accessToken: string) => Promise<any>;
+    static callApiEndpoint: (endpoint: string) => Promise<AxiosResponse>;
+    /**
+     * Calls a resource endpoint with a raw access token
+     * using the authorization bearer token scheme
+     * @param {string} endpoint
+     * @param {string} accessToken
+     * @returns {Promise}
+     */
+    static callApiEndpointWithToken: (endpoint: string, accessToken: string) => Promise<AxiosResponse>;
     /**
      * Handles queries against Microsoft Graph that return multiple pages of data
      * @param {string} accessToken: access token required by endpoint
@@ -14,5 +23,5 @@ export declare class FetchManager {
      * @param {Array} data: stores data from each page
      * @returns {Promise}
      */
-    static handlePagination: (accessToken: string, nextPage: string, data?: string[]) => Promise<any>;
+    static handlePagination: (accessToken: string, nextPage: string, data?: string[]) => Promise<string[]>;
 }

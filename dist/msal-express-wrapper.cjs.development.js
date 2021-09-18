@@ -4,15 +4,15 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var express = _interopDefault(require('express'));
 var msalCommon = require('@azure/msal-common');
+var express = _interopDefault(require('express'));
 var msalNode = require('@azure/msal-node');
 var jwt = _interopDefault(require('jsonwebtoken'));
 var jwksClient = _interopDefault(require('jwks-rsa'));
+var axios = _interopDefault(require('axios'));
 var identity = require('@azure/identity');
 var keyvaultCertificates = require('@azure/keyvault-certificates');
 var keyvaultSecrets = require('@azure/keyvault-secrets');
-var axios = _interopDefault(require('axios'));
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
   try {
@@ -841,214 +841,18 @@ try {
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
-var ConfigHelper = /*#__PURE__*/function () {
-  function ConfigHelper() {}
-
-  /**
-   * Verifies if a string is GUID
-   * @param {string} guid
-   * @returns {boolean}
-   */
-  ConfigHelper.isGuid = function isGuid(guid) {
-    var regexGuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    return regexGuid.test(guid);
-  }
-  /**
-   * Util method to get the resource name for a given scope(s)
-   * @param {Array} scopes: an array of scopes that the resource is associated with
-   * @param {AppSettings} appSettings: application authentication parameters
-   * @returns {string}
-   */
-  ;
-
-  ConfigHelper.getResourceNameFromScopes = function getResourceNameFromScopes(scopes, appSettings) {
-    var index = Object.values(_extends({}, appSettings.remoteResources, appSettings.ownedResources)).findIndex(function (resource) {
-      return JSON.stringify(resource.scopes) === JSON.stringify(scopes);
-    });
-    var resourceName = Object.keys(_extends({}, appSettings.remoteResources, appSettings.ownedResources))[index];
-    return resourceName;
-  };
-
-  /**
-   * Util method to get the scopes for a given resource name
-   * @param {string} resourceEndpoint: the resource name
-   * @param {AppSettings} appSettings: application authentication parameters
-   * @returns {string}
-   */
-  ConfigHelper.getScopesFromResourceEndpoint = function getScopesFromResourceEndpoint(resourceEndpoint, appSettings) {
-    var scopes = Object.values(appSettings.ownedResources).find(function (resource) {
-      return resource.endpoint === resourceEndpoint;
-    }).scopes;
-    return scopes;
-  };
-
-  return ConfigHelper;
-}();
-
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License.
+/**
+ * Basic authentication stages used to determine
+ * appropriate action after redirect occurs
  */
-var DistributedCachePlugin = /*#__PURE__*/function () {
-  function DistributedCachePlugin(persistenceManager, sessionId) {
-    this.persistenceManager = persistenceManager;
-    this.sessionId = sessionId;
-  }
 
-  DistributedCachePlugin.getInstance = function getInstance(persistenceManager, sessionId) {
-    if (!DistributedCachePlugin.instance) {
-      DistributedCachePlugin.instance = new DistributedCachePlugin(persistenceManager, sessionId);
-    }
-
-    return DistributedCachePlugin.instance;
-  };
-
-  var _proto = DistributedCachePlugin.prototype;
-
-  _proto.beforeCacheAccess = /*#__PURE__*/function () {
-    var _beforeCacheAccess = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(cacheContext) {
-      var _this = this;
-
-      return runtime_1.wrap(function _callee2$(_context2) {
-        while (1) {
-          switch (_context2.prev = _context2.next) {
-            case 0:
-              return _context2.abrupt("return", new Promise( /*#__PURE__*/function () {
-                var _ref = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(resolve, reject) {
-                  var sessionData, cacheData;
-                  return runtime_1.wrap(function _callee$(_context) {
-                    while (1) {
-                      switch (_context.prev = _context.next) {
-                        case 0:
-                          _context.next = 2;
-                          return _this.persistenceManager.get("sess:" + _this.sessionId);
-
-                        case 2:
-                          sessionData = _context.sent;
-
-                          if (!sessionData) {
-                            _context.next = 8;
-                            break;
-                          }
-
-                          _context.next = 6;
-                          return _this.persistenceManager.get(JSON.parse(sessionData).account.homeAccountId);
-
-                        case 6:
-                          cacheData = _context.sent;
-                          cacheContext.tokenCache.deserialize(cacheData);
-
-                        case 8:
-                          resolve();
-
-                        case 9:
-                        case "end":
-                          return _context.stop();
-                      }
-                    }
-                  }, _callee);
-                }));
-
-                return function (_x2, _x3) {
-                  return _ref.apply(this, arguments);
-                };
-              }()));
-
-            case 1:
-            case "end":
-              return _context2.stop();
-          }
-        }
-      }, _callee2);
-    }));
-
-    function beforeCacheAccess(_x) {
-      return _beforeCacheAccess.apply(this, arguments);
-    }
-
-    return beforeCacheAccess;
-  }();
-
-  _proto.afterCacheAccess = /*#__PURE__*/function () {
-    var _afterCacheAccess = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee4(cacheContext) {
-      var _this2 = this;
-
-      return runtime_1.wrap(function _callee4$(_context4) {
-        while (1) {
-          switch (_context4.prev = _context4.next) {
-            case 0:
-              return _context4.abrupt("return", new Promise( /*#__PURE__*/function () {
-                var _ref2 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee3(resolve, reject) {
-                  var kvStore, homeAccountId;
-                  return runtime_1.wrap(function _callee3$(_context3) {
-                    while (1) {
-                      switch (_context3.prev = _context3.next) {
-                        case 0:
-                          if (!cacheContext.cacheHasChanged) {
-                            _context3.next = 5;
-                            break;
-                          }
-
-                          kvStore = cacheContext.tokenCache.getKVStore();
-                          homeAccountId = Object.values(kvStore)[1]["homeAccountId"];
-                          _context3.next = 5;
-                          return _this2.persistenceManager.set(homeAccountId, cacheContext.tokenCache.serialize());
-
-                        case 5:
-                          resolve();
-
-                        case 6:
-                        case "end":
-                          return _context3.stop();
-                      }
-                    }
-                  }, _callee3);
-                }));
-
-                return function (_x5, _x6) {
-                  return _ref2.apply(this, arguments);
-                };
-              }()));
-
-            case 1:
-            case "end":
-              return _context4.stop();
-          }
-        }
-      }, _callee4);
-    }));
-
-    function afterCacheAccess(_x4) {
-      return _afterCacheAccess.apply(this, arguments);
-    }
-
-    return afterCacheAccess;
-  }();
-
-  return DistributedCachePlugin;
-}();
-
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License.
- */
-var DEFAULT_LOGGER_OPTIONS = {
-  loggerCallback: function loggerCallback(logLevel, message, containsPii) {
-    if (containsPii) {
-      return;
-    }
-
-    console.info(message);
-  },
-  piiLoggingEnabled: false,
-  logLevel: msalCommon.LogLevel.Info
-};
+var AppStages;
 
 (function (AppStages) {
   AppStages["SIGN_IN"] = "sign_in";
   AppStages["SIGN_OUT"] = "sign_out";
   AppStages["ACQUIRE_TOKEN"] = "acquire_token";
-})(exports.AppStages || (exports.AppStages = {}));
+})(AppStages || (AppStages = {}));
 /**
  * String constants related to AAD Authority
  */
@@ -1058,17 +862,21 @@ var AADAuthorityConstants = {
   ORGANIZATIONS: "organizations",
   CONSUMERS: "consumers"
 };
+/**
+ * String constants related credential type
+ */
+
+var KeyVaultCredentialTypes;
 
 (function (KeyVaultCredentialTypes) {
-  KeyVaultCredentialTypes["SECRET"] = "secret";
-  KeyVaultCredentialTypes["CERTIFICATE"] = "certificate";
-})(exports.KeyVaultCredentialTypes || (exports.KeyVaultCredentialTypes = {}));
+  KeyVaultCredentialTypes["SECRET"] = "clientSecret";
+  KeyVaultCredentialTypes["CERTIFICATE"] = "clientCertificate";
+})(KeyVaultCredentialTypes || (KeyVaultCredentialTypes = {}));
 /**
  * Constants used in access control scenarios
  */
 
-
-var AccessConstants = {
+var AccessControlConstants = {
   GROUPS: "groups",
   ROLES: "roles",
   CLAIM_NAMES: "_claim_name",
@@ -1077,6 +885,10 @@ var AccessConstants = {
   GRAPH_MEMBERS_ENDPOINT: "https://graph.microsoft.com/v1.0/me/memberOf",
   GRAPH_MEMBER_SCOPES: "User.Read GroupMember.Read.All"
 };
+/**
+ * Various information constants
+ */
+
 var InfoMessages = {
   REQUEST_FOR_RESOURCE: "Request made to web API",
   OVERAGE_OCCURRED: "User has too many groups. Groups overage claim occurred"
@@ -1122,83 +934,94 @@ var ConfigurationErrorMessages = {
   NO_ERROR_ROUTE: "No error route provided!",
   NO_UNAUTHORIZED_ROUTE: "No unauthorized route provided!"
 };
-/**
- * For more information, visit: https://login.microsoftonline.com/error
- */
+var DEFAULT_LOGGER_OPTIONS = {
+  loggerCallback: function loggerCallback(logLevel, message, containsPii) {
+    if (containsPii) {
+      return;
+    }
 
-var ErrorCodes = {
-  65001: "AADSTS65001"
+    console.info(message);
+  },
+  piiLoggingEnabled: false,
+  logLevel: msalCommon.LogLevel.Info
 };
 
-var ConfigurationBuilder = /*#__PURE__*/function () {
-  function ConfigurationBuilder() {}
+var ConfigHelper = /*#__PURE__*/function () {
+  function ConfigHelper() {}
 
   /**
    * Validates the fields in the configuration file
-   * @param {AppSettings} config: configuration object
+   * @param {AppSettings} appSettings: configuration object
    * @returns {void}
    */
-  ConfigurationBuilder.validateAppSettings = function validateAppSettings(config) {
-    if (msalCommon.StringUtils.isEmpty(config.appCredentials.clientId)) {
+  ConfigHelper.validateAppSettings = function validateAppSettings(appSettings) {
+    if (msalCommon.StringUtils.isEmpty(appSettings.appCredentials.clientId)) {
       throw new Error(ConfigurationErrorMessages.NO_CLIENT_ID);
-    } else if (!ConfigHelper.isGuid(config.appCredentials.clientId)) {
+    } else if (!ConfigHelper.isGuid(appSettings.appCredentials.clientId)) {
       throw new Error(ConfigurationErrorMessages.INVALID_CLIENT_ID);
     }
 
-    if (msalCommon.StringUtils.isEmpty(config.appCredentials.tenantInfo)) {
+    if (msalCommon.StringUtils.isEmpty(appSettings.appCredentials.tenantInfo)) {
       throw new Error(ConfigurationErrorMessages.NO_TENANT_INFO);
-    } else if (!ConfigHelper.isGuid(config.appCredentials.tenantInfo) && !Object.values(AADAuthorityConstants).includes(config.appCredentials.tenantInfo)) {
+    } else if (!ConfigHelper.isGuid(appSettings.appCredentials.tenantInfo) && !Object.values(AADAuthorityConstants).includes(appSettings.appCredentials.tenantInfo)) {
       throw new Error(ConfigurationErrorMessages.INVALID_TENANT_INFO);
-    }
+    } // if (StringUtils.isEmpty(appSettings.appCredentials.clientSecret) && !appSettings.appCredentials.clientCertificate && !appSettings.appCredentials.clientAssertion) {
+    //     throw new Error(ConfigurationErrorMessages.NO_CLIENT_CREDENTIAL);
+    // }
 
-    if (msalCommon.StringUtils.isEmpty(config.appCredentials.clientSecret) && !config.appCredentials.clientCertificate) {
-      throw new Error(ConfigurationErrorMessages.NO_CLIENT_CREDENTIAL);
-    }
 
-    if (msalCommon.StringUtils.isEmpty(config.authRoutes.redirect)) {
+    if (msalCommon.StringUtils.isEmpty(appSettings.authRoutes.redirect)) {
       throw new Error(ConfigurationErrorMessages.NO_REDIRECT_URI);
     }
 
-    if (msalCommon.StringUtils.isEmpty(config.authRoutes.error)) {
+    if (msalCommon.StringUtils.isEmpty(appSettings.authRoutes.error)) {
       throw new Error(ConfigurationErrorMessages.NO_ERROR_ROUTE);
     }
 
-    if (msalCommon.StringUtils.isEmpty(config.authRoutes.unauthorized)) {
+    if (msalCommon.StringUtils.isEmpty(appSettings.authRoutes.unauthorized)) {
       throw new Error(ConfigurationErrorMessages.NO_UNAUTHORIZED_ROUTE);
     }
   };
 
   /**
-   * Maps the custom configuration object to configuration
-   * object expected by MSAL Node ConfidentialClientApplication class
-   * @param {AppSettings} appSettings: configuration object
-   * @param {ICachePlugin} cachePlugin: persistent cache implementation
-   * @returns {Configuration}
+   * Verifies if a string is GUID
+   * @param {string} guid
+   * @returns {boolean}
    */
-  ConfigurationBuilder.getMsalConfiguration = function getMsalConfiguration(appSettings, persistenceManager, cachePlugin) {
-    return {
-      auth: _extends({
-        clientId: appSettings.appCredentials.clientId,
-        authority: appSettings.b2cPolicies ? Object.entries(appSettings.b2cPolicies)[0][1]["authority"] // the first policy/user-flow is the default authority
-        : appSettings.appCredentials.instance ? "https://" + appSettings.appCredentials.instance + "/" + appSettings.appCredentials.tenantInfo : "https://" + msalCommon.Constants.DEFAULT_AUTHORITY_HOST + "/" + appSettings.appCredentials.tenantInfo
-      }, appSettings.appCredentials.hasOwnProperty("clientSecret") && {
-        clientSecret: appSettings.appCredentials.clientSecret
-      }, appSettings.appCredentials.hasOwnProperty("clientCertificate") && {
-        clientCertificate: appSettings.appCredentials.clientCertificate
-      }, {
-        knownAuthorities: appSettings.b2cPolicies ? [msalCommon.UrlString.getDomainFromUrl(Object.entries(appSettings.b2cPolicies)[0][1]["authority"])] // in B2C scenarios
-        : []
-      }),
-      cache: {
-        cachePlugin: cachePlugin ? cachePlugin : DistributedCachePlugin.getInstance(persistenceManager)
-      },
-      system: {
-        loggerOptions: appSettings.loggerOptions ? appSettings.loggerOptions : DEFAULT_LOGGER_OPTIONS
-      }
-    };
+  ConfigHelper.isGuid = function isGuid(guid) {
+    var regexGuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return regexGuid.test(guid);
+  }
+  /**
+   * Util method to get the resource name for a given scope(s)
+   * @param {Array} scopes: an array of scopes that the resource is associated with
+   * @param {AppSettings} appSettings: application authentication parameters
+   * @returns {string}
+   */
+  ;
+
+  ConfigHelper.getResourceNameFromScopes = function getResourceNameFromScopes(scopes, appSettings) {
+    var index = Object.values(_extends({}, appSettings.remoteResources, appSettings.ownedResources)).findIndex(function (resource) {
+      return JSON.stringify(resource.scopes) === JSON.stringify(scopes);
+    });
+    var resourceName = Object.keys(_extends({}, appSettings.remoteResources, appSettings.ownedResources))[index];
+    return resourceName;
   };
 
-  return ConfigurationBuilder;
+  /**
+   * Util method to get the scopes for a given resource name
+   * @param {string} resourceEndpoint: the resource name
+   * @param {AppSettings} appSettings: application authentication parameters
+   * @returns {string}
+   */
+  ConfigHelper.getScopesFromResourceEndpoint = function getScopesFromResourceEndpoint(resourceEndpoint, appSettings) {
+    var scopes = Object.values(appSettings.ownedResources).find(function (resource) {
+      return resource.endpoint === resourceEndpoint;
+    }).scopes;
+    return scopes;
+  };
+
+  return ConfigHelper;
 }();
 
 var TokenValidator = /*#__PURE__*/function () {
@@ -1510,198 +1333,6 @@ var TokenValidator = /*#__PURE__*/function () {
   return TokenValidator;
 }();
 
-var KeyVaultManager = /*#__PURE__*/function () {
-  function KeyVaultManager() {}
-
-  var _proto = KeyVaultManager.prototype;
-
-  /**
-   * Fetches credentials from Key Vault and updates appSettings
-   * @param {AppSettings} config
-   * @returns {Promise}
-   */
-  _proto.getCredentialFromKeyVault =
-  /*#__PURE__*/
-  function () {
-    var _getCredentialFromKeyVault = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(config) {
-      var credential, secretResponse, certificateResponse, _secretResponse;
-
-      return runtime_1.wrap(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              credential = new identity.DefaultAzureCredential();
-
-              if (config.appCredentials.keyVaultCredential) {
-                _context.next = 3;
-                break;
-              }
-
-              return _context.abrupt("return", config);
-
-            case 3:
-              _context.t0 = config.appCredentials.keyVaultCredential.credentialType;
-              _context.next = _context.t0 === exports.KeyVaultCredentialTypes.SECRET ? 6 : _context.t0 === exports.KeyVaultCredentialTypes.CERTIFICATE ? 18 : 33;
-              break;
-
-            case 6:
-              _context.prev = 6;
-              _context.next = 9;
-              return this.getSecretCredential(config, credential);
-
-            case 9:
-              secretResponse = _context.sent;
-              config.appCredentials.clientSecret = secretResponse.value;
-              return _context.abrupt("return", config);
-
-            case 14:
-              _context.prev = 14;
-              _context.t1 = _context["catch"](6);
-              console.log(_context.t1);
-
-            case 17:
-              return _context.abrupt("break", 34);
-
-            case 18:
-              _context.prev = 18;
-              _context.next = 21;
-              return this.getCertificateCredential(config, credential);
-
-            case 21:
-              certificateResponse = _context.sent;
-              _context.next = 24;
-              return this.getSecretCredential(config, credential);
-
-            case 24:
-              _secretResponse = _context.sent;
-              config.appCredentials.clientCertificate = {
-                thumbprint: certificateResponse.properties.x509Thumbprint.toString(),
-                privateKey: _secretResponse.value.split('-----BEGIN CERTIFICATE-----\n')[0]
-              };
-              return _context.abrupt("return", config);
-
-            case 29:
-              _context.prev = 29;
-              _context.t2 = _context["catch"](18);
-              console.log(_context.t2);
-
-            case 32:
-              return _context.abrupt("break", 34);
-
-            case 33:
-              return _context.abrupt("break", 34);
-
-            case 34:
-            case "end":
-              return _context.stop();
-          }
-        }
-      }, _callee, this, [[6, 14], [18, 29]]);
-    }));
-
-    function getCredentialFromKeyVault(_x) {
-      return _getCredentialFromKeyVault.apply(this, arguments);
-    }
-
-    return getCredentialFromKeyVault;
-  }();
-
-  /**
-   * Gets a certificate credential from Key Vault
-   * @param {AppSettings} config
-   * @param {DefaultAzureCredential} credential
-   * @returns {Promise}
-   */
-  _proto.getCertificateCredential =
-  /*#__PURE__*/
-  function () {
-    var _getCertificateCredential = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(config, credential) {
-      var secretClient, keyVaultCertificate;
-      return runtime_1.wrap(function _callee2$(_context2) {
-        while (1) {
-          switch (_context2.prev = _context2.next) {
-            case 0:
-              // Initialize secretClient with credentials
-              secretClient = new keyvaultCertificates.CertificateClient(config.appCredentials.keyVaultCredential.keyVaultUrl, credential);
-              _context2.prev = 1;
-              _context2.next = 4;
-              return secretClient.getCertificate(config.appCredentials.keyVaultCredential.credentialName);
-
-            case 4:
-              keyVaultCertificate = _context2.sent;
-              return _context2.abrupt("return", keyVaultCertificate);
-
-            case 8:
-              _context2.prev = 8;
-              _context2.t0 = _context2["catch"](1);
-              console.log(_context2.t0);
-              return _context2.abrupt("return", _context2.t0);
-
-            case 12:
-            case "end":
-              return _context2.stop();
-          }
-        }
-      }, _callee2, null, [[1, 8]]);
-    }));
-
-    function getCertificateCredential(_x2, _x3) {
-      return _getCertificateCredential.apply(this, arguments);
-    }
-
-    return getCertificateCredential;
-  }()
-  /**
-   * Gets a secret credential from Key Vault
-   * @param {AppSettings} config
-   * @param {DefaultAzureCredential} credential
-   * @returns {Promise}
-   */
-  ;
-
-  _proto.getSecretCredential =
-  /*#__PURE__*/
-  function () {
-    var _getSecretCredential = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee3(config, credential) {
-      var secretClient, keyVaultSecret;
-      return runtime_1.wrap(function _callee3$(_context3) {
-        while (1) {
-          switch (_context3.prev = _context3.next) {
-            case 0:
-              // Initialize secretClient with credentials
-              secretClient = new keyvaultSecrets.SecretClient(config.appCredentials.keyVaultCredential.keyVaultUrl, credential);
-              _context3.prev = 1;
-              _context3.next = 4;
-              return secretClient.getSecret(config.appCredentials.keyVaultCredential.credentialName);
-
-            case 4:
-              keyVaultSecret = _context3.sent;
-              return _context3.abrupt("return", keyVaultSecret);
-
-            case 8:
-              _context3.prev = 8;
-              _context3.t0 = _context3["catch"](1);
-              console.log(_context3.t0);
-              return _context3.abrupt("return", _context3.t0);
-
-            case 12:
-            case "end":
-              return _context3.stop();
-          }
-        }
-      }, _callee3, null, [[1, 8]]);
-    }));
-
-    function getSecretCredential(_x4, _x5) {
-      return _getSecretCredential.apply(this, arguments);
-    }
-
-    return getSecretCredential;
-  }();
-
-  return KeyVaultManager;
-}();
-
 var FetchManager = function FetchManager() {};
 /**
  * Calls a resource endpoint with a raw access token
@@ -1712,14 +1343,55 @@ var FetchManager = function FetchManager() {};
  */
 
 FetchManager.callApiEndpoint = /*#__PURE__*/function () {
-  var _ref = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(endpoint, accessToken) {
-    var options, response;
+  var _ref = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(endpoint) {
+    var response;
     return runtime_1.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
+            _context.prev = 0;
+            _context.next = 3;
+            return axios.get(endpoint);
+
+          case 3:
+            response = _context.sent;
+            return _context.abrupt("return", response.data);
+
+          case 7:
+            _context.prev = 7;
+            _context.t0 = _context["catch"](0);
+            return _context.abrupt("return", _context.t0);
+
+          case 10:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, null, [[0, 7]]);
+  }));
+
+  return function (_x) {
+    return _ref.apply(this, arguments);
+  };
+}();
+/**
+ * Calls a resource endpoint with a raw access token
+ * using the authorization bearer token scheme
+ * @param {string} endpoint
+ * @param {string} accessToken
+ * @returns {Promise}
+ */
+
+
+FetchManager.callApiEndpointWithToken = /*#__PURE__*/function () {
+  var _ref2 = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(endpoint, accessToken) {
+    var options, response;
+    return runtime_1.wrap(function _callee2$(_context2) {
+      while (1) {
+        switch (_context2.prev = _context2.next) {
+          case 0:
             if (!msalCommon.StringUtils.isEmpty(accessToken)) {
-              _context.next = 2;
+              _context2.next = 2;
               break;
             }
 
@@ -1731,29 +1403,29 @@ FetchManager.callApiEndpoint = /*#__PURE__*/function () {
                 Authorization: "Bearer " + accessToken
               }
             };
-            _context.prev = 3;
-            _context.next = 6;
+            _context2.prev = 3;
+            _context2.next = 6;
             return axios.get(endpoint, options);
 
           case 6:
-            response = _context.sent;
-            return _context.abrupt("return", response.data);
+            response = _context2.sent;
+            return _context2.abrupt("return", response.data);
 
           case 10:
-            _context.prev = 10;
-            _context.t0 = _context["catch"](3);
-            return _context.abrupt("return", _context.t0);
+            _context2.prev = 10;
+            _context2.t0 = _context2["catch"](3);
+            return _context2.abrupt("return", _context2.t0);
 
           case 13:
           case "end":
-            return _context.stop();
+            return _context2.stop();
         }
       }
-    }, _callee, null, [[3, 10]]);
+    }, _callee2, null, [[3, 10]]);
   }));
 
-  return function (_x, _x2) {
-    return _ref.apply(this, arguments);
+  return function (_x2, _x3) {
+    return _ref2.apply(this, arguments);
   };
 }();
 /**
@@ -1766,59 +1438,59 @@ FetchManager.callApiEndpoint = /*#__PURE__*/function () {
 
 
 FetchManager.handlePagination = /*#__PURE__*/function () {
-  var _ref2 = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(accessToken, nextPage, data) {
+  var _ref3 = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee3(accessToken, nextPage, data) {
     var graphResponse;
-    return runtime_1.wrap(function _callee2$(_context2) {
+    return runtime_1.wrap(function _callee3$(_context3) {
       while (1) {
-        switch (_context2.prev = _context2.next) {
+        switch (_context3.prev = _context3.next) {
           case 0:
             if (data === void 0) {
               data = [];
             }
 
-            _context2.prev = 1;
-            _context2.next = 4;
-            return FetchManager.callApiEndpoint(nextPage, accessToken);
+            _context3.prev = 1;
+            _context3.next = 4;
+            return FetchManager.callApiEndpointWithToken(nextPage, accessToken);
 
           case 4:
-            graphResponse = _context2.sent;
+            graphResponse = _context3.sent;
             graphResponse["value"].map(function (v) {
               return data.push(v.id);
             });
 
-            if (!graphResponse[AccessConstants.PAGINATION_LINK]) {
-              _context2.next = 12;
+            if (!graphResponse[AccessControlConstants.PAGINATION_LINK]) {
+              _context3.next = 12;
               break;
             }
 
-            _context2.next = 9;
-            return FetchManager.handlePagination(accessToken, graphResponse[AccessConstants.PAGINATION_LINK], data);
+            _context3.next = 9;
+            return FetchManager.handlePagination(accessToken, graphResponse[AccessControlConstants.PAGINATION_LINK], data);
 
           case 9:
-            return _context2.abrupt("return", _context2.sent);
+            return _context3.abrupt("return", _context3.sent);
 
           case 12:
-            return _context2.abrupt("return", data);
+            return _context3.abrupt("return", data);
 
           case 13:
-            _context2.next = 18;
+            _context3.next = 18;
             break;
 
           case 15:
-            _context2.prev = 15;
-            _context2.t0 = _context2["catch"](1);
-            return _context2.abrupt("return", _context2.t0);
+            _context3.prev = 15;
+            _context3.t0 = _context3["catch"](1);
+            return _context3.abrupt("return", _context3.t0);
 
           case 18:
           case "end":
-            return _context2.stop();
+            return _context3.stop();
         }
       }
-    }, _callee2, null, [[1, 15]]);
+    }, _callee3, null, [[1, 15]]);
   }));
 
-  return function (_x3, _x4, _x5) {
-    return _ref2.apply(this, arguments);
+  return function (_x4, _x5, _x6) {
+    return _ref3.apply(this, arguments);
   };
 }();
 
@@ -1859,8 +1531,8 @@ UrlUtils.getPathFromUrl = function (url) {
   return "/" + urlComponents.PathSegments.join("/");
 };
 
-var name = "@azure-samples/msal-express-wrapper";
-var version = "0.1.0";
+var packageName = "@azure-samples/msal-express-wrapper";
+var packageVersion = "0.1.0";
 
 var _excluded = ["_claim_names", "_claim_sources"];
 /**
@@ -1876,77 +1548,20 @@ var MsalMiddleware = /*#__PURE__*/function () {
    * @param {ICachePlugin} cache: cachePlugin
    * @constructor
    */
-  function MsalMiddleware(appSettings, persistenceManager, cachePlugin) {
-    ConfigurationBuilder.validateAppSettings(appSettings);
+  function MsalMiddleware(appSettings, msalConfig) {
     this.appSettings = appSettings;
-    this.msalConfig = ConfigurationBuilder.getMsalConfiguration(appSettings, persistenceManager, cachePlugin);
-    this.msalClient = new msalNode.ConfidentialClientApplication(this.msalConfig);
-    this.logger = new msalCommon.Logger(this.msalConfig.system.loggerOptions, name, version);
-    this.tokenValidator = new TokenValidator(this.appSettings, this.msalConfig, this.logger);
+    this.msalConfig = msalConfig;
     this.cryptoProvider = new msalNode.CryptoProvider();
+    this.tokenValidator = new TokenValidator(this.appSettings, this.msalConfig, this.logger);
+    this.logger = new msalCommon.Logger(this.msalConfig.system.loggerOptions, packageName, packageVersion);
+    this.msalClient = new msalNode.ConfidentialClientApplication(this.msalConfig);
   }
-  /**
-   * Asynchronously builds authProvider object with credentials fetched from Key Vault
-   * @param {AppSettings} appSettings
-   * @param {ICachePlugin} cache: cachePlugin
-   * @returns
-   */
-
-
-  MsalMiddleware.buildAsync =
-  /*#__PURE__*/
-  function () {
-    var _buildAsync = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(appSettings, persistenceManager, cachePlugin) {
-      var keyVault, appSettingsWithKeyVaultCredentials, authProvider;
-      return runtime_1.wrap(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              _context.prev = 0;
-              keyVault = new KeyVaultManager();
-              _context.next = 4;
-              return keyVault.getCredentialFromKeyVault(appSettings);
-
-            case 4:
-              appSettingsWithKeyVaultCredentials = _context.sent;
-              authProvider = new MsalMiddleware(appSettingsWithKeyVaultCredentials, persistenceManager, cachePlugin);
-              return _context.abrupt("return", authProvider);
-
-            case 9:
-              _context.prev = 9;
-              _context.t0 = _context["catch"](0);
-              console.log(_context.t0);
-
-            case 12:
-            case "end":
-              return _context.stop();
-          }
-        }
-      }, _callee, null, [[0, 9]]);
-    }));
-
-    function buildAsync(_x, _x2, _x3) {
-      return _buildAsync.apply(this, arguments);
-    }
-
-    return buildAsync;
-  }() // withKeyVaultCredentials(): Router {
-  //     const appRouter = express.Router();
-  //     appRouter.use(this.setKeyVaultCredentials());
-  //     return appRouter;
-  // }
-  // withDistributedTokenCache(persistenceManager: IDistributedPersistence, sessionId?: string): Router {
-  //     const appRouter = express.Router();
-  //     appRouter.use(this.setTokenCachePlugin(persistenceManager, sessionId));
-  //     return appRouter;
-  // }
-
   /**
    * Initialize AuthProvider and set default routes and handlers
    * @param {InitializationOptions} options
    * @returns {Router}
    */
-  ;
+
 
   var _proto = MsalMiddleware.prototype;
 
@@ -1957,27 +1572,9 @@ var MsalMiddleware = /*#__PURE__*/function () {
 
     appRouter.get(UrlUtils.getPathFromUrl(this.appSettings.authRoutes.redirect), this.handleRedirect());
     appRouter.use(function (req, res, next) {
-      /**
-       * Request Configuration
-       * We manipulate these three request objects below
-       * to acquire a token with the appropriate claims
-       */
-      if (!req.session["authCodeRequest"]) {
-        var authCodeRequest;
-        req.session.authCodeRequest = authCodeRequest;
+      if (!req.session) {
+        throw new Error(ErrorMessages.SESSION_NOT_FOUND);
       }
-
-      if (!req.session["tokenRequest"]) {
-        var tokenRequest;
-        req.session.tokenRequest = tokenRequest;
-      } // signed-in user's account
-
-
-      if (!req.session["account"]) {
-        var account;
-        req.session.account = account;
-      } // random GUID for csrf protection
-
 
       req.session.nonce = _this.cryptoProvider.createNewGuid();
       next();
@@ -1996,8 +1593,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
     }
 
     return appRouter;
-  } // ========== ROUTE HANDLERS ===========
-
+  }
   /**
    * Initiates sign in flow
    * @param {SignInOptions} options: options to modify login request
@@ -2011,7 +1607,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
     return function (req, res, next) {
       // TODO: encrypt state parameter 
       var state = _this2.cryptoProvider.base64Encode(JSON.stringify({
-        stage: exports.AppStages.SIGN_IN,
+        stage: AppStages.SIGN_IN,
         path: options.successRedirect,
         nonce: req.session.nonce
       }));
@@ -2020,8 +1616,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
         authority: _this2.msalConfig.auth.authority,
         scopes: msalCommon.OIDC_DEFAULT_SCOPES,
         state: state,
-        redirect: UrlUtils.ensureAbsoluteUrl(req, _this2.appSettings.authRoutes.redirect),
-        prompt: msalCommon.PromptValue.SELECT_ACCOUNT
+        redirect: UrlUtils.ensureAbsoluteUrl(req, _this2.appSettings.authRoutes.redirect)
       }; // get url to sign user in
 
       return _this2.getAuthCode(req, res, next, params);
@@ -2034,6 +1629,8 @@ var MsalMiddleware = /*#__PURE__*/function () {
    * @returns {RequestHandler}
    */
   _proto.signOut = function signOut(options) {
+    var _this3 = this;
+
     return function (req, res, next) {
       var postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.successRedirect);
       /**
@@ -2043,7 +1640,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
        * (B2C) https://docs.microsoft.com/azure/active-directory-b2c/openid-connect#send-a-sign-out-request
        */
 
-      var logoutURI = req.app.locals.msalConfig.auth.authority + "/oauth2/v2.0/logout?post_logout_redirect_uri=" + postLogoutRedirectUri;
+      var logoutURI = _this3.msalConfig.auth.authority + "/oauth2/v2.0/logout?post_logout_redirect_uri=" + postLogoutRedirectUri;
       req.session.isAuthenticated = false;
       req.session.destroy(function () {
         res.redirect(logoutURI);
@@ -2058,150 +1655,148 @@ var MsalMiddleware = /*#__PURE__*/function () {
    * @returns {RequestHandler}
    */
   _proto.handleRedirect = function handleRedirect(options) {
-    var _this3 = this;
+    var _this4 = this;
 
     return /*#__PURE__*/function () {
-      var _ref = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(req, res, next) {
+      var _ref = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(req, res, next) {
         var state, tokenResponse, isIdTokenValid, resourceName, _tokenResponse;
 
-        return runtime_1.wrap(function _callee2$(_context2) {
+        return runtime_1.wrap(function _callee$(_context) {
           while (1) {
-            switch (_context2.prev = _context2.next) {
+            switch (_context.prev = _context.next) {
               case 0:
                 if (!req.query.state) {
-                  _context2.next = 53;
+                  _context.next = 53;
                   break;
                 }
 
-                state = JSON.parse(_this3.cryptoProvider.base64Decode(req.query.state)); // check if nonce matches
+                state = JSON.parse(_this4.cryptoProvider.base64Decode(req.query.state)); // check if nonce matches
 
                 if (!(state.nonce === req.session.nonce)) {
-                  _context2.next = 49;
+                  _context.next = 49;
                   break;
                 }
 
-                _context2.t0 = state.stage;
-                _context2.next = _context2.t0 === exports.AppStages.SIGN_IN ? 6 : _context2.t0 === exports.AppStages.ACQUIRE_TOKEN ? 29 : 44;
+                _context.t0 = state.stage;
+                _context.next = _context.t0 === AppStages.SIGN_IN ? 6 : _context.t0 === AppStages.ACQUIRE_TOKEN ? 29 : 44;
                 break;
 
               case 6:
                 // token request should have auth code
                 req.session.tokenRequest.code = req.query.code;
-                _context2.prev = 7;
-                _context2.next = 10;
-                return _this3.msalClient.acquireTokenByCode(req.session.tokenRequest);
+                _context.prev = 7;
+                _context.next = 10;
+                return _this4.msalClient.acquireTokenByCode(req.session.tokenRequest);
 
               case 10:
-                tokenResponse = _context2.sent;
-                _context2.prev = 11;
-                _context2.next = 14;
-                return _this3.tokenValidator.validateIdToken(tokenResponse.idToken);
+                tokenResponse = _context.sent;
+                _context.prev = 11;
+                _context.next = 14;
+                return _this4.tokenValidator.validateIdToken(tokenResponse.idToken);
 
               case 14:
-                isIdTokenValid = _context2.sent;
+                isIdTokenValid = _context.sent;
 
                 if (isIdTokenValid) {
                   // assign session variables
-                  req.session.account = tokenResponse.account;
                   req.session.isAuthenticated = true;
+                  req.session.account = tokenResponse.account;
                   res.redirect(state.path);
                 } else {
-                  _this3.logger.error(ErrorMessages.INVALID_TOKEN);
+                  _this4.logger.error(ErrorMessages.INVALID_TOKEN);
 
-                  res.redirect(_this3.appSettings.authRoutes.unauthorized);
+                  res.redirect(_this4.appSettings.authRoutes.unauthorized);
                 }
 
-                _context2.next = 22;
+                _context.next = 22;
                 break;
 
               case 18:
-                _context2.prev = 18;
-                _context2.t1 = _context2["catch"](11);
+                _context.prev = 18;
+                _context.t1 = _context["catch"](11);
 
-                _this3.logger.error(ErrorMessages.CANNOT_VALIDATE_TOKEN);
+                _this4.logger.error(ErrorMessages.CANNOT_VALIDATE_TOKEN);
 
-                next(_context2.t1);
+                next(_context.t1);
 
               case 22:
-                _context2.next = 28;
+                _context.next = 28;
                 break;
 
               case 24:
-                _context2.prev = 24;
-                _context2.t2 = _context2["catch"](7);
+                _context.prev = 24;
+                _context.t2 = _context["catch"](7);
 
-                _this3.logger.error(ErrorMessages.TOKEN_ACQUISITION_FAILED);
+                _this4.logger.error(ErrorMessages.TOKEN_ACQUISITION_FAILED);
 
-                next(_context2.t2);
+                next(_context.t2);
 
               case 28:
-                return _context2.abrupt("break", 47);
+                return _context.abrupt("break", 47);
 
               case 29:
                 // get the name of the resource associated with scope
-                resourceName = ConfigHelper.getResourceNameFromScopes(req.session.tokenRequest.scopes, _this3.appSettings);
+                resourceName = ConfigHelper.getResourceNameFromScopes(req.session.tokenRequest.scopes, _this4.appSettings);
                 req.session.tokenRequest.code = req.query.code;
-                _context2.prev = 31;
-                _context2.next = 34;
-                return _this3.msalClient.acquireTokenByCode(req.session.tokenRequest);
+                _context.prev = 31;
+                _context.next = 34;
+                return _this4.msalClient.acquireTokenByCode(req.session.tokenRequest);
 
               case 34:
-                _tokenResponse = _context2.sent;
-                req.session.remoteResources[resourceName].accessToken = _tokenResponse.accessToken;
+                _tokenResponse = _context.sent;
+                req.session.resources.remoteResources[resourceName].accessToken = _tokenResponse.accessToken;
                 res.redirect(state.path);
-                _context2.next = 43;
+                _context.next = 43;
                 break;
 
               case 39:
-                _context2.prev = 39;
-                _context2.t3 = _context2["catch"](31);
+                _context.prev = 39;
+                _context.t3 = _context["catch"](31);
 
-                _this3.logger.error(ErrorMessages.TOKEN_ACQUISITION_FAILED);
+                _this4.logger.error(ErrorMessages.TOKEN_ACQUISITION_FAILED);
 
-                next(_context2.t3);
+                next(_context.t3);
 
               case 43:
-                return _context2.abrupt("break", 47);
+                return _context.abrupt("break", 47);
 
               case 44:
-                _this3.logger.error(ErrorMessages.CANNOT_DETERMINE_APP_STAGE);
+                _this4.logger.error(ErrorMessages.CANNOT_DETERMINE_APP_STAGE);
 
-                res.redirect(_this3.appSettings.authRoutes.error);
-                return _context2.abrupt("break", 47);
+                res.redirect(_this4.appSettings.authRoutes.error);
+                return _context.abrupt("break", 47);
 
               case 47:
-                _context2.next = 51;
+                _context.next = 51;
                 break;
 
               case 49:
-                _this3.logger.error(ErrorMessages.NONCE_MISMATCH);
+                _this4.logger.error(ErrorMessages.NONCE_MISMATCH);
 
-                res.redirect(_this3.appSettings.authRoutes.unauthorized);
+                res.redirect(_this4.appSettings.authRoutes.unauthorized);
 
               case 51:
-                _context2.next = 55;
+                _context.next = 55;
                 break;
 
               case 53:
-                _this3.logger.error(ErrorMessages.STATE_NOT_FOUND);
+                _this4.logger.error(ErrorMessages.STATE_NOT_FOUND);
 
-                res.redirect(_this3.appSettings.authRoutes.unauthorized);
+                res.redirect(_this4.appSettings.authRoutes.unauthorized);
 
               case 55:
               case "end":
-                return _context2.stop();
+                return _context.stop();
             }
           }
-        }, _callee2, null, [[7, 24], [11, 18], [31, 39]]);
+        }, _callee, null, [[7, 24], [11, 18], [31, 39]]);
       }));
 
-      return function (_x4, _x5, _x6) {
+      return function (_x, _x2, _x3) {
         return _ref.apply(this, arguments);
       };
     }();
   };
-
-  // ========== MIDDLEWARE ===========
 
   /**
    * Middleware that gets tokens via acquireToken*
@@ -2209,91 +1804,93 @@ var MsalMiddleware = /*#__PURE__*/function () {
    * @returns {RequestHandler}
    */
   _proto.getToken = function getToken(options) {
-    var _this4 = this;
+    var _this5 = this;
 
     return /*#__PURE__*/function () {
-      var _ref2 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee3(req, res, next) {
-        var _req$session$remoteRe;
+      var _ref2 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(req, res, next) {
+        var _req$session$resource;
 
         var scopes, resourceName, silentRequest, tokenResponse, state, params;
-        return runtime_1.wrap(function _callee3$(_context3) {
+        return runtime_1.wrap(function _callee2$(_context2) {
           while (1) {
-            switch (_context3.prev = _context3.next) {
+            switch (_context2.prev = _context2.next) {
               case 0:
                 // get scopes for token request
                 scopes = options.resource.scopes;
-                resourceName = ConfigHelper.getResourceNameFromScopes(scopes, _this4.appSettings);
+                resourceName = ConfigHelper.getResourceNameFromScopes(scopes, _this5.appSettings);
 
-                if (!req.session.remoteResources) {
-                  req.session.remoteResources = {};
+                if (!req.session.resources) {
+                  req.session.resources = {
+                    remoteResources: {}
+                  };
                 }
 
-                req.session.remoteResources = (_req$session$remoteRe = {}, _req$session$remoteRe[resourceName] = _extends({}, _this4.appSettings.remoteResources[resourceName], {
+                req.session.resources.remoteResources = (_req$session$resource = {}, _req$session$resource[resourceName] = _extends({}, _this5.appSettings.remoteResources[resourceName], {
                   accessToken: null
-                }), _req$session$remoteRe);
-                _context3.prev = 4;
+                }), _req$session$resource);
+                _context2.prev = 4;
                 silentRequest = {
                   account: req.session.account,
                   scopes: scopes
                 }; // acquire token silently to be used in resource call
 
-                _context3.next = 8;
-                return _this4.msalClient.acquireTokenSilent(silentRequest);
+                _context2.next = 8;
+                return _this5.msalClient.acquireTokenSilent(silentRequest);
 
               case 8:
-                tokenResponse = _context3.sent;
+                tokenResponse = _context2.sent;
 
                 if (!msalCommon.StringUtils.isEmpty(tokenResponse.accessToken)) {
-                  _context3.next = 12;
+                  _context2.next = 12;
                   break;
                 }
 
-                _this4.logger.error(ErrorMessages.TOKEN_NOT_FOUND);
+                _this5.logger.error(ErrorMessages.TOKEN_NOT_FOUND);
 
                 throw new msalCommon.InteractionRequiredAuthError(ErrorMessages.INTERACTION_REQUIRED);
 
               case 12:
-                req.session.remoteResources[resourceName].accessToken = tokenResponse.accessToken;
+                req.session.resources.remoteResources[resourceName].accessToken = tokenResponse.accessToken;
                 next();
-                _context3.next = 25;
+                _context2.next = 25;
                 break;
 
               case 16:
-                _context3.prev = 16;
-                _context3.t0 = _context3["catch"](4);
+                _context2.prev = 16;
+                _context2.t0 = _context2["catch"](4);
 
-                if (!(_context3.t0 instanceof msalCommon.InteractionRequiredAuthError)) {
-                  _context3.next = 24;
+                if (!(_context2.t0 instanceof msalCommon.InteractionRequiredAuthError)) {
+                  _context2.next = 24;
                   break;
                 }
 
-                state = _this4.cryptoProvider.base64Encode(JSON.stringify({
-                  stage: exports.AppStages.ACQUIRE_TOKEN,
+                state = _this5.cryptoProvider.base64Encode(JSON.stringify({
+                  stage: AppStages.ACQUIRE_TOKEN,
                   path: req.originalUrl,
                   nonce: req.session.nonce
                 }));
                 params = {
-                  authority: _this4.msalConfig.auth.authority,
+                  authority: _this5.msalConfig.auth.authority,
                   scopes: scopes,
                   state: state,
-                  redirect: UrlUtils.ensureAbsoluteUrl(req, _this4.appSettings.authRoutes.redirect),
+                  redirect: UrlUtils.ensureAbsoluteUrl(req, _this5.appSettings.authRoutes.redirect),
                   account: req.session.account
                 }; // initiate the first leg of auth code grant to get token
 
-                return _context3.abrupt("return", _this4.getAuthCode(req, res, next, params));
+                return _context2.abrupt("return", _this5.getAuthCode(req, res, next, params));
 
               case 24:
-                next(_context3.t0);
+                next(_context2.t0);
 
               case 25:
               case "end":
-                return _context3.stop();
+                return _context2.stop();
             }
           }
-        }, _callee3, null, [[4, 16]]);
+        }, _callee2, null, [[4, 16]]);
       }));
 
-      return function (_x7, _x8, _x9) {
+      return function (_x4, _x5, _x6) {
         return _ref2.apply(this, arguments);
       };
     }();
@@ -2305,57 +1902,51 @@ var MsalMiddleware = /*#__PURE__*/function () {
    * @returns {RequestHandler}
    */
   _proto.getTokenOnBehalf = function getTokenOnBehalf(options) {
-    var _this5 = this;
+    var _this6 = this;
 
     return /*#__PURE__*/function () {
-      var _ref3 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee4(req, res, next) {
-        var authHeader, scopes, resourceName, oboRequest, _req$locals, tokenResponse;
-
-        return runtime_1.wrap(function _callee4$(_context4) {
+      var _ref3 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee3(req, res, next) {
+        var authHeader, scopes, oboRequest, tokenResponse;
+        return runtime_1.wrap(function _callee3$(_context3) {
           while (1) {
-            switch (_context4.prev = _context4.next) {
+            switch (_context3.prev = _context3.next) {
               case 0:
                 authHeader = req.headers.authorization; // get scopes for token request
 
                 scopes = options.resource.scopes;
-                resourceName = ConfigHelper.getResourceNameFromScopes(scopes, _this5.appSettings);
                 oboRequest = {
                   oboAssertion: authHeader.split(" ")[1],
                   scopes: scopes
                 };
-                _context4.prev = 4;
-                _context4.next = 7;
-                return _this5.msalClient.acquireTokenOnBehalfOf(oboRequest);
+                _context3.prev = 3;
+                _context3.next = 6;
+                return _this6.msalClient.acquireTokenOnBehalfOf(oboRequest);
 
-              case 7:
-                tokenResponse = _context4.sent;
-                // as OBO is commonly used in middle-tier web APIs without sessions, attach AT to req
-                req["locals"] = (_req$locals = {}, _req$locals[resourceName] = {
-                  accessToken: tokenResponse.accessToken
-                }, _req$locals);
+              case 6:
+                tokenResponse = _context3.sent;
+                req.oboToken = tokenResponse.accessToken;
                 next();
-                _context4.next = 15;
+                _context3.next = 14;
                 break;
 
-              case 12:
-                _context4.prev = 12;
-                _context4.t0 = _context4["catch"](4);
-                next(_context4.t0);
+              case 11:
+                _context3.prev = 11;
+                _context3.t0 = _context3["catch"](3);
+                next(_context3.t0);
 
-              case 15:
+              case 14:
               case "end":
-                return _context4.stop();
+                return _context3.stop();
             }
           }
-        }, _callee4, null, [[4, 12]]);
+        }, _callee3, null, [[3, 11]]);
       }));
 
-      return function (_x10, _x11, _x12) {
+      return function (_x7, _x8, _x9) {
         return _ref3.apply(this, arguments);
       };
     }();
-  } // ============== GUARDS ===============
-
+  }
   /**
    * Check if authenticated in session
    * @param {GuardOptions} options: options to modify this middleware
@@ -2364,21 +1955,21 @@ var MsalMiddleware = /*#__PURE__*/function () {
   ;
 
   _proto.isAuthenticated = function isAuthenticated(options) {
-    var _this6 = this;
+    var _this7 = this;
 
     return function (req, res, next) {
       if (req.session) {
         if (!req.session.isAuthenticated) {
-          _this6.logger.error(ErrorMessages.NOT_PERMITTED);
+          _this7.logger.error(ErrorMessages.NOT_PERMITTED);
 
-          return res.redirect(_this6.appSettings.authRoutes.unauthorized);
+          return res.redirect(_this7.appSettings.authRoutes.unauthorized);
         }
 
         next();
       } else {
-        _this6.logger.error(ErrorMessages.SESSION_NOT_FOUND);
+        _this7.logger.error(ErrorMessages.SESSION_NOT_FOUND);
 
-        res.redirect(_this6.appSettings.authRoutes.unauthorized);
+        res.redirect(_this7.appSettings.authRoutes.unauthorized);
       }
     };
   };
@@ -2390,54 +1981,54 @@ var MsalMiddleware = /*#__PURE__*/function () {
    * @returns {RequestHandler}
    */
   _proto.isAuthorized = function isAuthorized(options) {
-    var _this7 = this;
+    var _this8 = this;
 
     return /*#__PURE__*/function () {
-      var _ref4 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee5(req, res, next) {
+      var _ref4 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee4(req, res, next) {
         var accessToken;
-        return runtime_1.wrap(function _callee5$(_context5) {
+        return runtime_1.wrap(function _callee4$(_context4) {
           while (1) {
-            switch (_context5.prev = _context5.next) {
+            switch (_context4.prev = _context4.next) {
               case 0:
                 accessToken = req.headers.authorization.split(" ")[1];
 
                 if (!req.headers.authorization) {
-                  _context5.next = 10;
+                  _context4.next = 10;
                   break;
                 }
 
-                _context5.next = 4;
-                return _this7.tokenValidator.validateAccessToken(accessToken, "" + req.baseUrl + req.path);
+                _context4.next = 4;
+                return _this8.tokenValidator.validateAccessToken(accessToken, "" + req.baseUrl + req.path);
 
               case 4:
-                if (_context5.sent) {
-                  _context5.next = 7;
+                if (_context4.sent) {
+                  _context4.next = 7;
                   break;
                 }
 
-                _this7.logger.error(ErrorMessages.INVALID_TOKEN);
+                _this8.logger.error(ErrorMessages.INVALID_TOKEN);
 
-                return _context5.abrupt("return", res.redirect(_this7.appSettings.authRoutes.unauthorized));
+                return _context4.abrupt("return", res.redirect(_this8.appSettings.authRoutes.unauthorized));
 
               case 7:
                 next();
-                _context5.next = 12;
+                _context4.next = 12;
                 break;
 
               case 10:
-                _this7.logger.error(ErrorMessages.TOKEN_NOT_FOUND);
+                _this8.logger.error(ErrorMessages.TOKEN_NOT_FOUND);
 
-                res.redirect(_this7.appSettings.authRoutes.unauthorized);
+                res.redirect(_this8.appSettings.authRoutes.unauthorized);
 
               case 12:
               case "end":
-                return _context5.stop();
+                return _context4.stop();
             }
           }
-        }, _callee5);
+        }, _callee4);
       }));
 
-      return function (_x13, _x14, _x15) {
+      return function (_x10, _x11, _x12) {
         return _ref4.apply(this, arguments);
       };
     }();
@@ -2449,110 +2040,110 @@ var MsalMiddleware = /*#__PURE__*/function () {
    * @returns {RequestHandler}
    */
   _proto.hasAccess = function hasAccess(options) {
-    var _this8 = this;
+    var _this9 = this;
 
     return /*#__PURE__*/function () {
-      var _ref5 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee6(req, res, next) {
+      var _ref5 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee5(req, res, next) {
         var checkFor, groups, roles;
-        return runtime_1.wrap(function _callee6$(_context6) {
+        return runtime_1.wrap(function _callee5$(_context5) {
           while (1) {
-            switch (_context6.prev = _context6.next) {
+            switch (_context5.prev = _context5.next) {
               case 0:
-                if (!(req.session && _this8.appSettings.accessMatrix)) {
-                  _context6.next = 35;
+                if (!(req.session && _this9.appSettings.accessMatrix)) {
+                  _context5.next = 35;
                   break;
                 }
 
-                checkFor = options.accessRule.hasOwnProperty(AccessConstants.GROUPS) ? AccessConstants.GROUPS : AccessConstants.ROLES;
-                _context6.t0 = checkFor;
-                _context6.next = _context6.t0 === AccessConstants.GROUPS ? 5 : _context6.t0 === AccessConstants.ROLES ? 22 : 32;
+                checkFor = options.accessRule.hasOwnProperty(AccessControlConstants.GROUPS) ? AccessControlConstants.GROUPS : AccessControlConstants.ROLES;
+                _context5.t0 = checkFor;
+                _context5.next = _context5.t0 === AccessControlConstants.GROUPS ? 5 : _context5.t0 === AccessControlConstants.ROLES ? 22 : 32;
                 break;
 
               case 5:
-                if (!(req.session.account.idTokenClaims[AccessConstants.GROUPS] === undefined)) {
-                  _context6.next = 17;
+                if (!(req.session.account.idTokenClaims[AccessControlConstants.GROUPS] === undefined)) {
+                  _context5.next = 17;
                   break;
                 }
 
-                if (!(req.session.account.idTokenClaims[AccessConstants.CLAIM_NAMES] || req.session.account.idTokenClaims[AccessConstants.CLAIM_SOURCES])) {
-                  _context6.next = 13;
+                if (!(req.session.account.idTokenClaims[AccessControlConstants.CLAIM_NAMES] || req.session.account.idTokenClaims[AccessControlConstants.CLAIM_SOURCES])) {
+                  _context5.next = 13;
                   break;
                 }
 
-                _this8.logger.warning(InfoMessages.OVERAGE_OCCURRED);
+                _this9.logger.warning(InfoMessages.OVERAGE_OCCURRED);
 
-                _context6.next = 10;
-                return _this8.handleOverage(req, res, next, options.accessRule);
+                _context5.next = 10;
+                return _this9.handleOverage(req, res, next, options.accessRule);
 
               case 10:
-                return _context6.abrupt("return", _context6.sent);
+                return _context5.abrupt("return", _context5.sent);
 
               case 13:
-                _this8.logger.error(ErrorMessages.USER_HAS_NO_GROUP);
+                _this9.logger.error(ErrorMessages.USER_HAS_NO_GROUP);
 
-                return _context6.abrupt("return", res.redirect(_this8.appSettings.authRoutes.unauthorized));
+                return _context5.abrupt("return", res.redirect(_this9.appSettings.authRoutes.unauthorized));
 
               case 15:
-                _context6.next = 20;
+                _context5.next = 20;
                 break;
 
               case 17:
-                groups = req.session.account.idTokenClaims[AccessConstants.GROUPS];
+                groups = req.session.account.idTokenClaims[AccessControlConstants.GROUPS];
 
-                if (_this8.checkAccessRule(req.method, options.accessRule, groups, AccessConstants.GROUPS)) {
-                  _context6.next = 20;
+                if (_this9.checkAccessRule(req.method, options.accessRule, groups, AccessControlConstants.GROUPS)) {
+                  _context5.next = 20;
                   break;
                 }
 
-                return _context6.abrupt("return", res.redirect(_this8.appSettings.authRoutes.unauthorized));
+                return _context5.abrupt("return", res.redirect(_this9.appSettings.authRoutes.unauthorized));
 
               case 20:
                 next();
-                return _context6.abrupt("break", 33);
+                return _context5.abrupt("break", 33);
 
               case 22:
-                if (!(req.session.account.idTokenClaims[AccessConstants.ROLES] === undefined)) {
-                  _context6.next = 27;
+                if (!(req.session.account.idTokenClaims[AccessControlConstants.ROLES] === undefined)) {
+                  _context5.next = 27;
                   break;
                 }
 
-                _this8.logger.error(ErrorMessages.USER_HAS_NO_ROLE);
+                _this9.logger.error(ErrorMessages.USER_HAS_NO_ROLE);
 
-                return _context6.abrupt("return", res.redirect(_this8.appSettings.authRoutes.unauthorized));
+                return _context5.abrupt("return", res.redirect(_this9.appSettings.authRoutes.unauthorized));
 
               case 27:
-                roles = req.session.account.idTokenClaims[AccessConstants.ROLES];
+                roles = req.session.account.idTokenClaims[AccessControlConstants.ROLES];
 
-                if (_this8.checkAccessRule(req.method, options.accessRule, roles, AccessConstants.ROLES)) {
-                  _context6.next = 30;
+                if (_this9.checkAccessRule(req.method, options.accessRule, roles, AccessControlConstants.ROLES)) {
+                  _context5.next = 30;
                   break;
                 }
 
-                return _context6.abrupt("return", res.redirect(_this8.appSettings.authRoutes.unauthorized));
+                return _context5.abrupt("return", res.redirect(_this9.appSettings.authRoutes.unauthorized));
 
               case 30:
                 next();
-                return _context6.abrupt("break", 33);
+                return _context5.abrupt("break", 33);
 
               case 32:
-                return _context6.abrupt("break", 33);
+                return _context5.abrupt("break", 33);
 
               case 33:
-                _context6.next = 36;
+                _context5.next = 36;
                 break;
 
               case 35:
-                res.redirect(_this8.appSettings.authRoutes.unauthorized);
+                res.redirect(_this9.appSettings.authRoutes.unauthorized);
 
               case 36:
               case "end":
-                return _context6.stop();
+                return _context5.stop();
             }
           }
-        }, _callee6);
+        }, _callee5);
       }));
 
-      return function (_x16, _x17, _x18) {
+      return function (_x13, _x14, _x15) {
         return _ref5.apply(this, arguments);
       };
     }();
@@ -2571,66 +2162,58 @@ var MsalMiddleware = /*#__PURE__*/function () {
   _proto.getAuthCode =
   /*#__PURE__*/
   function () {
-    var _getAuthCode = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee7(req, res, next, params) {
+    var _getAuthCode = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee6(req, res, next, params) {
       var response;
-      return runtime_1.wrap(function _callee7$(_context7) {
+      return runtime_1.wrap(function _callee6$(_context6) {
         while (1) {
-          switch (_context7.prev = _context7.next) {
+          switch (_context6.prev = _context6.next) {
             case 0:
               // prepare the request
-              req.session.authCodeRequest.authority = params.authority;
-              req.session.authCodeRequest.scopes = params.scopes;
-              req.session.authCodeRequest.state = params.state;
-              req.session.authCodeRequest.redirectUri = params.redirect;
-              req.session.authCodeRequest.prompt = params.prompt;
-              req.session.authCodeRequest.account = params.account;
-              req.session.tokenRequest.authority = params.authority;
-              req.session.tokenRequest.scopes = params.scopes;
-              req.session.tokenRequest.redirectUri = params.redirect; // request an authorization code to exchange for tokens
+              req.session.authCodeRequest = {
+                authority: params.authority,
+                scopes: params.scopes,
+                state: params.state,
+                redirectUri: params.redirect,
+                prompt: params.prompt,
+                account: params.account
+              };
+              req.session.tokenRequest = {
+                authority: params.authority,
+                scopes: params.scopes,
+                redirectUri: params.redirect,
+                code: undefined
+              }; // request an authorization code to exchange for tokens
 
-              _context7.prev = 9;
-              _context7.next = 12;
+              _context6.prev = 2;
+              _context6.next = 5;
               return this.msalClient.getAuthCodeUrl(req.session.authCodeRequest);
 
-            case 12:
-              response = _context7.sent;
+            case 5:
+              response = _context6.sent;
               res.redirect(response);
-              _context7.next = 20;
+              _context6.next = 13;
               break;
 
-            case 16:
-              _context7.prev = 16;
-              _context7.t0 = _context7["catch"](9);
+            case 9:
+              _context6.prev = 9;
+              _context6.t0 = _context6["catch"](2);
               this.logger.error(ErrorMessages.AUTH_CODE_NOT_OBTAINED);
-              next(_context7.t0);
+              next(_context6.t0);
 
-            case 20:
+            case 13:
             case "end":
-              return _context7.stop();
+              return _context6.stop();
           }
         }
-      }, _callee7, this, [[9, 16]]);
+      }, _callee6, this, [[2, 9]]);
     }));
 
-    function getAuthCode(_x19, _x20, _x21, _x22) {
+    function getAuthCode(_x16, _x17, _x18, _x19) {
       return _getAuthCode.apply(this, arguments);
     }
 
     return getAuthCode;
   }();
-
-  // private setTokenCachePlugin = (persistenceManager: IDistributedPersistence, sessionId: string): RequestHandler => {
-  //     return async (req, res, next) => {
-  //         try {
-  //             const distributedcachePlugin = DistributedCachePlugin.getInstance(persistenceManager, sessionId);
-  //             this.msalClient.config.cache.cachePlugin = distributedcachePlugin
-  //             this.msalClient.tokenCache.persistence = distributedcachePlugin;
-  //             next();
-  //         } catch (error) {
-  //             next(error);
-  //         }
-  //     };
-  // };
 
   /**
    * Checks if the request passes a given access rule
@@ -2643,7 +2226,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
   _proto.checkAccessRule = function checkAccessRule(method, rule, creds, credType) {
     if (rule.methods.includes(method)) {
       switch (credType) {
-        case AccessConstants.GROUPS:
+        case AccessControlConstants.GROUPS:
           if (rule.groups.filter(function (elem) {
             return creds.includes(elem);
           }).length < 1) {
@@ -2653,7 +2236,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
 
           break;
 
-        case AccessConstants.ROLES:
+        case AccessControlConstants.ROLES:
           if (rule.roles.filter(function (elem) {
             return creds.includes(elem);
           }).length < 1) {
@@ -2683,67 +2266,67 @@ var MsalMiddleware = /*#__PURE__*/function () {
   _proto.handleOverage =
   /*#__PURE__*/
   function () {
-    var _handleOverage = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee8(req, res, next, rule) {
+    var _handleOverage = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee7(req, res, next, rule) {
       var _req$session$account$, newIdTokenClaims, silentRequest, tokenResponse, graphResponse, userGroups;
 
-      return runtime_1.wrap(function _callee8$(_context8) {
+      return runtime_1.wrap(function _callee7$(_context7) {
         while (1) {
-          switch (_context8.prev = _context8.next) {
+          switch (_context7.prev = _context7.next) {
             case 0:
               _req$session$account$ = req.session.account.idTokenClaims, newIdTokenClaims = _objectWithoutPropertiesLoose(_req$session$account$, _excluded);
               silentRequest = {
                 account: req.session.account,
-                scopes: AccessConstants.GRAPH_MEMBER_SCOPES.split(" ")
+                scopes: AccessControlConstants.GRAPH_MEMBER_SCOPES.split(" ")
               };
-              _context8.prev = 2;
-              _context8.next = 5;
+              _context7.prev = 2;
+              _context7.next = 5;
               return this.msalClient.acquireTokenSilent(silentRequest);
 
             case 5:
-              tokenResponse = _context8.sent;
-              _context8.prev = 6;
-              _context8.next = 9;
-              return FetchManager.callApiEndpoint(AccessConstants.GRAPH_MEMBERS_ENDPOINT, tokenResponse.accessToken);
+              tokenResponse = _context7.sent;
+              _context7.prev = 6;
+              _context7.next = 9;
+              return FetchManager.callApiEndpointWithToken(AccessControlConstants.GRAPH_MEMBERS_ENDPOINT, tokenResponse.accessToken);
 
             case 9:
-              graphResponse = _context8.sent;
+              graphResponse = _context7.sent;
 
-              if (!graphResponse[AccessConstants.PAGINATION_LINK]) {
-                _context8.next = 28;
+              if (!graphResponse[AccessControlConstants.PAGINATION_LINK]) {
+                _context7.next = 28;
                 break;
               }
 
-              _context8.prev = 11;
-              _context8.next = 14;
-              return FetchManager.handlePagination(tokenResponse.accessToken, graphResponse[AccessConstants.PAGINATION_LINK]);
+              _context7.prev = 11;
+              _context7.next = 14;
+              return FetchManager.handlePagination(tokenResponse.accessToken, graphResponse[AccessControlConstants.PAGINATION_LINK]);
 
             case 14:
-              userGroups = _context8.sent;
+              userGroups = _context7.sent;
               req.session.account.idTokenClaims = _extends({}, newIdTokenClaims, {
                 groups: userGroups
               });
 
-              if (this.checkAccessRule(req.method, rule, req.session.account.idTokenClaims[AccessConstants.GROUPS], AccessConstants.GROUPS)) {
-                _context8.next = 20;
+              if (this.checkAccessRule(req.method, rule, req.session.account.idTokenClaims[AccessControlConstants.GROUPS], AccessControlConstants.GROUPS)) {
+                _context7.next = 20;
                 break;
               }
 
-              return _context8.abrupt("return", res.redirect(this.appSettings.authRoutes.unauthorized));
+              return _context7.abrupt("return", res.redirect(this.appSettings.authRoutes.unauthorized));
 
             case 20:
-              return _context8.abrupt("return", next());
+              return _context7.abrupt("return", next());
 
             case 21:
-              _context8.next = 26;
+              _context7.next = 26;
               break;
 
             case 23:
-              _context8.prev = 23;
-              _context8.t0 = _context8["catch"](11);
-              next(_context8.t0);
+              _context7.prev = 23;
+              _context7.t0 = _context7["catch"](11);
+              next(_context7.t0);
 
             case 26:
-              _context8.next = 34;
+              _context7.next = 34;
               break;
 
             case 28:
@@ -2753,43 +2336,43 @@ var MsalMiddleware = /*#__PURE__*/function () {
                 })
               });
 
-              if (this.checkAccessRule(req.method, rule, req.session.account.idTokenClaims[AccessConstants.GROUPS], AccessConstants.GROUPS)) {
-                _context8.next = 33;
+              if (this.checkAccessRule(req.method, rule, req.session.account.idTokenClaims[AccessControlConstants.GROUPS], AccessControlConstants.GROUPS)) {
+                _context7.next = 33;
                 break;
               }
 
-              return _context8.abrupt("return", res.redirect(this.appSettings.authRoutes.unauthorized));
+              return _context7.abrupt("return", res.redirect(this.appSettings.authRoutes.unauthorized));
 
             case 33:
-              return _context8.abrupt("return", next());
+              return _context7.abrupt("return", next());
 
             case 34:
-              _context8.next = 39;
+              _context7.next = 39;
               break;
 
             case 36:
-              _context8.prev = 36;
-              _context8.t1 = _context8["catch"](6);
-              next(_context8.t1);
+              _context7.prev = 36;
+              _context7.t1 = _context7["catch"](6);
+              next(_context7.t1);
 
             case 39:
-              _context8.next = 44;
+              _context7.next = 44;
               break;
 
             case 41:
-              _context8.prev = 41;
-              _context8.t2 = _context8["catch"](2);
-              next(_context8.t2);
+              _context7.prev = 41;
+              _context7.t2 = _context7["catch"](2);
+              next(_context7.t2);
 
             case 44:
             case "end":
-              return _context8.stop();
+              return _context7.stop();
           }
         }
-      }, _callee8, this, [[2, 41], [6, 36], [11, 23]]);
+      }, _callee7, this, [[2, 41], [6, 36], [11, 23]]);
     }));
 
-    function handleOverage(_x23, _x24, _x25, _x26) {
+    function handleOverage(_x20, _x21, _x22, _x23) {
       return _handleOverage.apply(this, arguments);
     }
 
@@ -2799,17 +2382,460 @@ var MsalMiddleware = /*#__PURE__*/function () {
   return MsalMiddleware;
 }();
 
-exports.AADAuthorityConstants = AADAuthorityConstants;
-exports.AccessConstants = AccessConstants;
-exports.ConfigHelper = ConfigHelper;
-exports.ConfigurationErrorMessages = ConfigurationErrorMessages;
-exports.DEFAULT_LOGGER_OPTIONS = DEFAULT_LOGGER_OPTIONS;
-exports.ErrorCodes = ErrorCodes;
-exports.ErrorMessages = ErrorMessages;
-exports.FetchManager = FetchManager;
-exports.InfoMessages = InfoMessages;
-exports.KeyVaultManager = KeyVaultManager;
-exports.MsalMiddleware = MsalMiddleware;
-exports.TokenValidator = TokenValidator;
-exports.UrlUtils = UrlUtils;
+var KeyVaultManager = /*#__PURE__*/function () {
+  function KeyVaultManager() {}
+
+  var _proto = KeyVaultManager.prototype;
+
+  /**
+   * Fetches credentials from Key Vault and updates appSettings
+   * @param {AppSettings} appSettings
+   * @returns {Promise}
+   */
+  _proto.getCredentialFromKeyVault =
+  /*#__PURE__*/
+  function () {
+    var _getCredentialFromKeyVault = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(keyVaultCredential) {
+      var credential, secretResponse, certificateResponse, _secretResponse;
+
+      return runtime_1.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              credential = new identity.DefaultAzureCredential();
+              _context.t0 = keyVaultCredential.credentialType;
+              _context.next = _context.t0 === KeyVaultCredentialTypes.SECRET ? 4 : _context.t0 === KeyVaultCredentialTypes.CERTIFICATE ? 15 : 29;
+              break;
+
+            case 4:
+              _context.prev = 4;
+              _context.next = 7;
+              return this.getSecretCredential(keyVaultCredential, credential);
+
+            case 7:
+              secretResponse = _context.sent;
+              return _context.abrupt("return", {
+                type: KeyVaultCredentialTypes.SECRET,
+                value: secretResponse.value
+              });
+
+            case 11:
+              _context.prev = 11;
+              _context.t1 = _context["catch"](4);
+              console.log(_context.t1);
+
+            case 14:
+              return _context.abrupt("break", 30);
+
+            case 15:
+              _context.prev = 15;
+              _context.next = 18;
+              return this.getCertificateCredential(keyVaultCredential, credential);
+
+            case 18:
+              certificateResponse = _context.sent;
+              _context.next = 21;
+              return this.getSecretCredential(keyVaultCredential, credential);
+
+            case 21:
+              _secretResponse = _context.sent;
+              return _context.abrupt("return", {
+                type: KeyVaultCredentialTypes.CERTIFICATE,
+                value: {
+                  thumbprint: certificateResponse.properties.x509Thumbprint.toString(),
+                  privateKey: _secretResponse.value.split('-----BEGIN CERTIFICATE-----\n')[0]
+                }
+              });
+
+            case 25:
+              _context.prev = 25;
+              _context.t2 = _context["catch"](15);
+              console.log(_context.t2);
+
+            case 28:
+              return _context.abrupt("break", 30);
+
+            case 29:
+              return _context.abrupt("break", 30);
+
+            case 30:
+            case "end":
+              return _context.stop();
+          }
+        }
+      }, _callee, this, [[4, 11], [15, 25]]);
+    }));
+
+    function getCredentialFromKeyVault(_x) {
+      return _getCredentialFromKeyVault.apply(this, arguments);
+    }
+
+    return getCredentialFromKeyVault;
+  }();
+
+  /**
+   * Gets a certificate credential from Key Vault
+   * @param {AppSettings} config
+   * @param {DefaultAzureCredential} credential
+   * @returns {Promise}
+   */
+  _proto.getCertificateCredential =
+  /*#__PURE__*/
+  function () {
+    var _getCertificateCredential = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(keyVaultCredential, credential) {
+      var secretClient, keyVaultCertificate;
+      return runtime_1.wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              // Initialize secretClient with credentials
+              secretClient = new keyvaultCertificates.CertificateClient(keyVaultCredential.keyVaultUrl, credential);
+              _context2.prev = 1;
+              _context2.next = 4;
+              return secretClient.getCertificate(keyVaultCredential.credentialName);
+
+            case 4:
+              keyVaultCertificate = _context2.sent;
+              return _context2.abrupt("return", keyVaultCertificate);
+
+            case 8:
+              _context2.prev = 8;
+              _context2.t0 = _context2["catch"](1);
+              console.log(_context2.t0);
+              return _context2.abrupt("return", _context2.t0);
+
+            case 12:
+            case "end":
+              return _context2.stop();
+          }
+        }
+      }, _callee2, null, [[1, 8]]);
+    }));
+
+    function getCertificateCredential(_x2, _x3) {
+      return _getCertificateCredential.apply(this, arguments);
+    }
+
+    return getCertificateCredential;
+  }()
+  /**
+   * Gets a secret credential from Key Vault
+   * @param {AppSettings} config
+   * @param {DefaultAzureCredential} credential
+   * @returns {Promise}
+   */
+  ;
+
+  _proto.getSecretCredential =
+  /*#__PURE__*/
+  function () {
+    var _getSecretCredential = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee3(keyVaultCredential, credential) {
+      var secretClient, keyVaultSecret;
+      return runtime_1.wrap(function _callee3$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              // Initialize secretClient with credentials
+              secretClient = new keyvaultSecrets.SecretClient(keyVaultCredential.keyVaultUrl, credential);
+              _context3.prev = 1;
+              _context3.next = 4;
+              return secretClient.getSecret(keyVaultCredential.credentialName);
+
+            case 4:
+              keyVaultSecret = _context3.sent;
+              return _context3.abrupt("return", keyVaultSecret);
+
+            case 8:
+              _context3.prev = 8;
+              _context3.t0 = _context3["catch"](1);
+              console.log(_context3.t0);
+              return _context3.abrupt("return", _context3.t0);
+
+            case 12:
+            case "end":
+              return _context3.stop();
+          }
+        }
+      }, _callee3, null, [[1, 8]]);
+    }));
+
+    function getSecretCredential(_x4, _x5) {
+      return _getSecretCredential.apply(this, arguments);
+    }
+
+    return getSecretCredential;
+  }();
+
+  return KeyVaultManager;
+}();
+
+/*
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ */
+var DistributedCachePlugin = /*#__PURE__*/function () {
+  function DistributedCachePlugin(persistenceManager, sessionId) {
+    this.persistenceManager = persistenceManager;
+    this.sessionId = sessionId;
+  }
+
+  DistributedCachePlugin.getInstance = function getInstance(persistenceManager, sessionId) {
+    if (!DistributedCachePlugin.instance) {
+      DistributedCachePlugin.instance = new DistributedCachePlugin(persistenceManager, sessionId);
+    }
+
+    return DistributedCachePlugin.instance;
+  };
+
+  var _proto = DistributedCachePlugin.prototype;
+
+  _proto.beforeCacheAccess = /*#__PURE__*/function () {
+    var _beforeCacheAccess = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(cacheContext) {
+      var _this = this;
+
+      return runtime_1.wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              return _context2.abrupt("return", new Promise( /*#__PURE__*/function () {
+                var _ref = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(resolve, reject) {
+                  var sessionData, cacheData;
+                  return runtime_1.wrap(function _callee$(_context) {
+                    while (1) {
+                      switch (_context.prev = _context.next) {
+                        case 0:
+                          _context.next = 2;
+                          return _this.persistenceManager.get("sess:" + _this.sessionId);
+
+                        case 2:
+                          sessionData = _context.sent;
+
+                          if (!sessionData) {
+                            _context.next = 8;
+                            break;
+                          }
+
+                          _context.next = 6;
+                          return _this.persistenceManager.get(JSON.parse(sessionData).account.homeAccountId);
+
+                        case 6:
+                          cacheData = _context.sent;
+                          cacheContext.tokenCache.deserialize(cacheData);
+
+                        case 8:
+                          resolve();
+
+                        case 9:
+                        case "end":
+                          return _context.stop();
+                      }
+                    }
+                  }, _callee);
+                }));
+
+                return function (_x2, _x3) {
+                  return _ref.apply(this, arguments);
+                };
+              }()));
+
+            case 1:
+            case "end":
+              return _context2.stop();
+          }
+        }
+      }, _callee2);
+    }));
+
+    function beforeCacheAccess(_x) {
+      return _beforeCacheAccess.apply(this, arguments);
+    }
+
+    return beforeCacheAccess;
+  }();
+
+  _proto.afterCacheAccess = /*#__PURE__*/function () {
+    var _afterCacheAccess = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee4(cacheContext) {
+      var _this2 = this;
+
+      return runtime_1.wrap(function _callee4$(_context4) {
+        while (1) {
+          switch (_context4.prev = _context4.next) {
+            case 0:
+              return _context4.abrupt("return", new Promise( /*#__PURE__*/function () {
+                var _ref2 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee3(resolve, reject) {
+                  var kvStore, homeAccountId;
+                  return runtime_1.wrap(function _callee3$(_context3) {
+                    while (1) {
+                      switch (_context3.prev = _context3.next) {
+                        case 0:
+                          if (!cacheContext.cacheHasChanged) {
+                            _context3.next = 5;
+                            break;
+                          }
+
+                          kvStore = cacheContext.tokenCache.getKVStore();
+                          homeAccountId = Object.values(kvStore)[1]["homeAccountId"];
+                          _context3.next = 5;
+                          return _this2.persistenceManager.set(homeAccountId, cacheContext.tokenCache.serialize());
+
+                        case 5:
+                          resolve();
+
+                        case 6:
+                        case "end":
+                          return _context3.stop();
+                      }
+                    }
+                  }, _callee3);
+                }));
+
+                return function (_x5, _x6) {
+                  return _ref2.apply(this, arguments);
+                };
+              }()));
+
+            case 1:
+            case "end":
+              return _context4.stop();
+          }
+        }
+      }, _callee4);
+    }));
+
+    function afterCacheAccess(_x4) {
+      return _afterCacheAccess.apply(this, arguments);
+    }
+
+    return afterCacheAccess;
+  }();
+
+  return DistributedCachePlugin;
+}();
+
+var MsalConfiguration = /*#__PURE__*/function () {
+  function MsalConfiguration() {}
+
+  /**
+   * Maps the custom configuration object to configuration
+   * object expected by MSAL Node ConfidentialClientApplication class
+   * @param {AppSettings} appSettings: configuration object
+   * @param {ICachePlugin} cachePlugin: persistent cache implementation
+   * @returns {Configuration}
+   */
+  MsalConfiguration.getMsalConfiguration = function getMsalConfiguration(appSettings, persistenceManager) {
+    return {
+      auth: _extends({
+        clientId: appSettings.appCredentials.clientId,
+        authority: appSettings.b2cPolicies ? Object.entries(appSettings.b2cPolicies)[0][1]["authority"] // the first policy/user-flow is the default authority
+        : appSettings.appCredentials.instance ? "https://" + appSettings.appCredentials.instance + "/" + appSettings.appCredentials.tenantInfo : "https://" + msalCommon.Constants.DEFAULT_AUTHORITY_HOST + "/" + appSettings.appCredentials.tenantInfo
+      }, appSettings.appCredentials.hasOwnProperty("clientSecret") && {
+        clientSecret: appSettings.appCredentials.clientSecret
+      }, appSettings.appCredentials.hasOwnProperty("clientCertificate") && {
+        clientCertificate: appSettings.appCredentials.clientCertificate
+      }, {
+        knownAuthorities: appSettings.b2cPolicies ? [msalCommon.UrlString.getDomainFromUrl(Object.entries(appSettings.b2cPolicies)[0][1]["authority"])] // in B2C scenarios
+        : []
+      }),
+      cache: {
+        cachePlugin: persistenceManager ? DistributedCachePlugin.getInstance(persistenceManager) : null
+      },
+      system: {
+        loggerOptions: appSettings.loggerOptions ? appSettings.loggerOptions : DEFAULT_LOGGER_OPTIONS
+      }
+    };
+  };
+
+  return MsalConfiguration;
+}();
+
+var MiddlewareBuilder = /*#__PURE__*/function () {
+  function MiddlewareBuilder(appSettings) {
+    ConfigHelper.validateAppSettings(appSettings);
+    this.appSettings = appSettings;
+  }
+
+  var _proto = MiddlewareBuilder.prototype;
+
+  _proto.withKeyVaultCredentials = function withKeyVaultCredentials(keyVaultCredential) {
+    this._keyVaultCredential = keyVaultCredential;
+    return this;
+  };
+
+  _proto.withDistributedTokenCache = function withDistributedTokenCache(persistenceManager) {
+    this._persistenceManager = persistenceManager;
+    return this;
+  }
+  /**
+   * Synchronously builds the MSAL middleware with the provided configuration.
+   * @returns {MsalMiddleware}
+   */
+  ;
+
+  _proto.build = function build() {
+    this._msalConfig = MsalConfiguration.getMsalConfiguration(this.appSettings, this._persistenceManager);
+    return new MsalMiddleware(this.appSettings, this._msalConfig);
+  }
+  /**
+   * Asynchronously builds the MSAL middleware with the provided configuration.
+   * @returns {Promise}
+   */
+  ;
+
+  _proto.buildAsync =
+  /*#__PURE__*/
+  function () {
+    var _buildAsync = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee() {
+      var keyVaultManager, credential;
+      return runtime_1.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              _context.prev = 0;
+
+              if (!this._keyVaultCredential) {
+                _context.next = 7;
+                break;
+              }
+
+              keyVaultManager = new KeyVaultManager();
+              _context.next = 5;
+              return keyVaultManager.getCredentialFromKeyVault(this._keyVaultCredential);
+
+            case 5:
+              credential = _context.sent;
+              this.appSettings.appCredentials[credential.type] = credential.value;
+
+            case 7:
+              if (this._persistenceManager) {
+                this._msalConfig = MsalConfiguration.getMsalConfiguration(this.appSettings, this._persistenceManager);
+              } else {
+                this._msalConfig = MsalConfiguration.getMsalConfiguration(this.appSettings);
+              }
+
+              return _context.abrupt("return", new MsalMiddleware(this.appSettings, this._msalConfig));
+
+            case 11:
+              _context.prev = 11;
+              _context.t0 = _context["catch"](0);
+              throw new Error(_context.t0);
+
+            case 14:
+            case "end":
+              return _context.stop();
+          }
+        }
+      }, _callee, this, [[0, 11]]);
+    }));
+
+    function buildAsync() {
+      return _buildAsync.apply(this, arguments);
+    }
+
+    return buildAsync;
+  }();
+
+  return MiddlewareBuilder;
+}();
+
+exports.MiddlewareBuilder = MiddlewareBuilder;
 //# sourceMappingURL=msal-express-wrapper.cjs.development.js.map

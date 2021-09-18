@@ -11,23 +11,40 @@ import {
 
 import { Resource } from "../config/AppSettings";
 
-// extending express Request object
+// extending express session
 declare module "express-session" {
     interface SessionData {
         id: string;
+        nonce: string;
+        isAuthenticated: boolean;
+        hasAccess: boolean;
+        account: AccountInfo;
         authCodeRequest: AuthorizationUrlRequest;
         tokenRequest: AuthorizationCodeRequest;
-        account: AccountInfo;
-        nonce: string;
-        isAuthenticated?: boolean;
-        remoteResources?: {
-            [resource: string]: Resource;
+        resources: {
+            remoteResources?: {
+                [resource: string]: Resource;
+            };
+            ownedResources?: {
+                [resource: string]: Resource;
+            },
         };
-        ownedResources?: {
-            [resource: string]: Resource;
-        },
     }
-}
+};
+
+// extending express request
+declare module "express" {
+    export interface Request {
+        authInfo?: object,
+        oboToken?: string;
+    }
+};
+
+export type User = {
+    account: AccountInfo;
+    isAuthenticated: boolean;
+    hasAccess: boolean;
+};
 
 export type AuthCodeParams = {
     authority: string;

@@ -1,5 +1,4 @@
 import { LoggerOptions } from "@azure/msal-common";
-export declare const DEFAULT_LOGGER_OPTIONS: LoggerOptions;
 /**
  * Basic authentication stages used to determine
  * appropriate action after redirect occurs
@@ -21,13 +20,45 @@ export declare const AADAuthorityConstants: {
  * String constants related credential type
  */
 export declare enum KeyVaultCredentialTypes {
-    SECRET = "secret",
-    CERTIFICATE = "certificate"
+    SECRET = "clientSecret",
+    CERTIFICATE = "clientCertificate"
 }
+/**
+ * Request headers used by App Service authentication
+ */
+export declare const AppServiceAuthenticationHeaders: {
+    APP_SERVICE_AUTHENTICATION_HEADER: string;
+    APP_SERVICE_ACCESS_TOKEN_HEADER: string;
+    APP_SERVICE_ID_TOKEN_HEADER: string;
+    APP_SERVICE_REFRESH_TOKEN_HEADER: string;
+    APP_SERVICE_ACCESS_TOKEN_EXPIRES_HEADER: string;
+    APP_SERVICE_USER_OID_HEADER: string;
+    APP_SERVICE_USER_UPN_HEADER: string;
+    APP_SERVICE_IDP_X_HEADER: string;
+};
+/**
+ * Endpoints used by App Service authentication
+ */
+export declare const AppServiceAuthenticationEndpoints: {
+    ID_TOKEN_ENDPOINT: string;
+    POST_LOGOUT_DEFAULT_ENDPOINT: string;
+    POST_LOGIN_DEFAULT_ENDPOINT: string;
+    AAD_SIGN_IN_ENDPOINT: string;
+    AAD_SIGN_OUT_ENDPOINT: string;
+    TOKEN_REFRESH_ENDPOINT: string;
+    AAD_REDIRECT_ENDPOINT: string;
+};
+/**
+ * Query parameters used by App Service authentication endpoints
+ */
+export declare const AppServiceAuthenticationQueryParameters: {
+    POST_LOGIN_REDIRECT_QUERY_PARAM: string;
+    POST_LOGOUT_REDIRECT_QUERY_PARAM: string;
+};
 /**
  * Constants used in access control scenarios
  */
-export declare const AccessConstants: {
+export declare const AccessControlConstants: {
     GROUPS: string;
     ROLES: string;
     CLAIM_NAMES: string;
@@ -36,6 +67,9 @@ export declare const AccessConstants: {
     GRAPH_MEMBERS_ENDPOINT: string;
     GRAPH_MEMBER_SCOPES: string;
 };
+/**
+ * Various information constants
+ */
 export declare const InfoMessages: {
     REQUEST_FOR_RESOURCE: string;
     OVERAGE_OCCURRED: string;
@@ -85,3 +119,4 @@ export declare const ConfigurationErrorMessages: {
 export declare const ErrorCodes: {
     65001: string;
 };
+export declare const DEFAULT_LOGGER_OPTIONS: LoggerOptions;

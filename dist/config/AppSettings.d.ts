@@ -22,7 +22,6 @@ export declare type AppCredentials = {
     tenantInfo: string;
     clientSecret?: string;
     clientCertificate?: ClientCertificate;
-    keyVaultCredential?: KeyVaultCredential;
 };
 export declare type ClientCertificate = {
     thumbprint: string;

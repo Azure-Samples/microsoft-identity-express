@@ -3,12 +3,47 @@
  * Licensed under the MIT License.
  */
 
-import {
-    AppSettings,
-    Resource
-} from "./AppSettings";
+import { StringUtils } from "@azure/msal-common";
+
+import { AADAuthorityConstants, ConfigurationErrorMessages } from "../utils/Constants";
+import { AppSettings, Resource } from "./AppSettings";
 
 export class ConfigHelper {
+
+    /**
+     * Validates the fields in the configuration file
+     * @param {AppSettings} appSettings: configuration object
+     * @returns {void}
+     */
+    static validateAppSettings(appSettings: AppSettings): void {
+        if (StringUtils.isEmpty(appSettings.appCredentials.clientId)) {
+            throw new Error(ConfigurationErrorMessages.NO_CLIENT_ID);
+        } else if (!ConfigHelper.isGuid(appSettings.appCredentials.clientId)) {
+            throw new Error(ConfigurationErrorMessages.INVALID_CLIENT_ID);
+        }
+
+        if (StringUtils.isEmpty(appSettings.appCredentials.tenantInfo)) {
+            throw new Error(ConfigurationErrorMessages.NO_TENANT_INFO);
+        } else if (!ConfigHelper.isGuid(appSettings.appCredentials.tenantInfo) && !Object.values(AADAuthorityConstants).includes(appSettings.appCredentials.tenantInfo)) {
+            throw new Error(ConfigurationErrorMessages.INVALID_TENANT_INFO);
+        }
+
+        // if (StringUtils.isEmpty(appSettings.appCredentials.clientSecret) && !appSettings.appCredentials.clientCertificate && !appSettings.appCredentials.clientAssertion) {
+        //     throw new Error(ConfigurationErrorMessages.NO_CLIENT_CREDENTIAL);
+        // }
+
+        if (StringUtils.isEmpty(appSettings.authRoutes.redirect)) {
+            throw new Error(ConfigurationErrorMessages.NO_REDIRECT_URI);
+        }
+
+        if (StringUtils.isEmpty(appSettings.authRoutes.error)) {
+            throw new Error(ConfigurationErrorMessages.NO_ERROR_ROUTE);
+        }
+
+        if (StringUtils.isEmpty(appSettings.authRoutes.unauthorized)) {
+            throw new Error(ConfigurationErrorMessages.NO_UNAUTHORIZED_ROUTE);
+        }
+    };
 
     /**
      * Verifies if a string is GUID
@@ -31,7 +66,7 @@ export class ConfigHelper {
             .findIndex((resource: Resource) => JSON.stringify(resource.scopes) === JSON.stringify(scopes));
 
         const resourceName = Object.keys({ ...appSettings.remoteResources, ...appSettings.ownedResources })[index];
-        
+
         return resourceName;
     };
 

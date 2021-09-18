@@ -29,7 +29,6 @@ export type AppCredentials = {
     tenantInfo: string;
     clientSecret?: string;
     clientCertificate?: ClientCertificate;
-    keyVaultCredential?: KeyVaultCredential;
 };
 
 export type ClientCertificate = {
