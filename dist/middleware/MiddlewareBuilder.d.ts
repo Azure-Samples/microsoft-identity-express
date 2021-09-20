@@ -1,6 +1,6 @@
-import { AppSettings, KeyVaultCredential } from "../config/AppSettings";
 import { MsalMiddleware } from "./MsalMiddleware";
 import { IDistributedPersistence } from "../cache/IDistributedPersistence";
+import { AppSettings, KeyVaultCredential } from "../config/AppSettings";
 export declare class MiddlewareBuilder {
     appSettings: AppSettings;
     private _msalConfig;

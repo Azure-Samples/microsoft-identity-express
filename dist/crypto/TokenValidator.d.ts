@@ -1,11 +1,11 @@
 import { TokenClaims, Logger } from "@azure/msal-common";
 import { Configuration } from "@azure/msal-node";
-import { IdTokenClaims, AccessTokenClaims } from "./AuthToken";
+import { AuthToken, IdTokenClaims, AccessTokenClaims } from "./AuthToken";
 import { AppSettings } from "../config/AppSettings";
 export declare class TokenValidator {
-    private appSettings;
-    private msalConfig;
-    private logger;
+    private _appSettings;
+    private _msalConfig;
+    private _logger;
     /**
      * @param {AppSettings} appSettings
      * @param {Configuration} msalConfig
@@ -53,4 +53,5 @@ export declare class TokenValidator {
      * @returns {boolean}
      */
     validateAccessTokenClaims(verifiedToken: AccessTokenClaims, protectedRoute: string): boolean;
+    static decodeAuthToken(authToken: string): AuthToken;
 }

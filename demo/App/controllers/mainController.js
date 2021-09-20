@@ -6,6 +6,9 @@ exports.getHomePage = (req, res, next) => {
 }
 
 exports.getIdPage = (req, res, next) => {
+
+    console.log(req.session.account);
+    
     const claims = {
         name: req.session.account.idTokenClaims.name,
         preferred_username: req.session.account.idTokenClaims.preferred_username,

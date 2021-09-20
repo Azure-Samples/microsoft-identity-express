@@ -1,11 +1,16 @@
+/*
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ */
+
 import { Configuration } from "@azure/msal-node";
 
-import { AppSettings, ClientCertificate, KeyVaultCredential } from "../config/AppSettings";
-import { ConfigHelper } from "../config/ConfigHelper";
 import { MsalMiddleware } from "./MsalMiddleware";
 import { IDistributedPersistence } from "../cache/IDistributedPersistence";
 import { KeyVaultManager } from "../network/KeyVaultManager";
 import { MsalConfiguration } from "../config/MsalConfiguration";
+import { ConfigHelper } from "../config/ConfigHelper";
+import { AppSettings, KeyVaultCredential } from "../config/AppSettings";
 
 export class MiddlewareBuilder {
 

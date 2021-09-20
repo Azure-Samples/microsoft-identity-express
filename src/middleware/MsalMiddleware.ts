@@ -34,6 +34,7 @@ import { IdTokenClaims } from "../crypto/AuthToken";
 import { TokenValidator } from "../crypto/TokenValidator";
 import { FetchManager } from "../network/FetchManager";
 import { UrlUtils } from "../utils/UrlUtils";
+import { AppServiceAuth } from "./AppServiceAuth";
 
 import {
     Resource,
@@ -72,13 +73,12 @@ import {
  */
 export class MsalMiddleware implements IAuthMiddleware {
 
-    logger: Logger;
     appSettings: AppSettings;
-    msalConfig: Configuration;
-    msalClient: ConfidentialClientApplication;
-
-    private cryptoProvider: CryptoProvider;
-    private tokenValidator: TokenValidator;
+    private _msalConfig: Configuration;
+    private _msalClient: ConfidentialClientApplication;
+    private _cryptoProvider: CryptoProvider;
+    private _tokenValidator: TokenValidator;
+    private _logger: Logger;
 
     /**
      * @param {AppSettings} appSettings
@@ -88,12 +88,11 @@ export class MsalMiddleware implements IAuthMiddleware {
     constructor(appSettings: AppSettings, msalConfig: Configuration) {
 
         this.appSettings = appSettings;
-        this.msalConfig = msalConfig;
-
-        this.cryptoProvider = new CryptoProvider();
-        this.tokenValidator = new TokenValidator(this.appSettings, this.msalConfig, this.logger);
-        this.logger = new Logger(this.msalConfig.system.loggerOptions, packageName, packageVersion);
-        this.msalClient = new ConfidentialClientApplication(this.msalConfig);
+        this._msalConfig = msalConfig;
+        this._cryptoProvider = new CryptoProvider();
+        this._tokenValidator = new TokenValidator(this.appSettings, this._msalConfig, this._logger);
+        this._logger = new Logger(this._msalConfig.system.loggerOptions, packageName, packageVersion);
+        this._msalClient = new ConfidentialClientApplication(this._msalConfig);
     }
 
     /**
@@ -111,13 +110,22 @@ export class MsalMiddleware implements IAuthMiddleware {
         appRouter.use((req: Request, res: Response, next: NextFunction) => {
 
             if (!req.session) {
+                // TODO: handle gracefully
                 throw new Error(ErrorMessages.SESSION_NOT_FOUND);
             }
-            
-            req.session.nonce = this.cryptoProvider.createNewGuid();
 
+            // add session nonce for crsf
+            req.session.nonce = this._cryptoProvider.createNewGuid();
             next();
-        })
+        });
+
+        if (AppServiceAuth.isAppServiceAuthEnabled()) {
+            /**
+             * Add a handler to handle App Service Auth
+             */
+            const appServiceAuthHandler = new AppServiceAuth();
+            appRouter.use(appServiceAuthHandler.handleAppServiceAuth(this.appSettings));
+        }
 
         if (this.appSettings.authRoutes.frontChannelLogout) {
             /**
@@ -142,24 +150,35 @@ export class MsalMiddleware implements IAuthMiddleware {
     signIn(options?: SignInOptions): RequestHandler {
         return (req: Request, res: Response, next: NextFunction): Promise<void> => {
 
-            // TODO: encrypt state parameter 
-            const state = this.cryptoProvider.base64Encode(
-                JSON.stringify({
-                    stage: AppStages.SIGN_IN,
-                    path: options.successRedirect,
-                    nonce: req.session.nonce,
-                })
-            );
+            let loginUri; // redirect after destroying session
+            const postLoginRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.successRedirect);
 
-            const params: AuthCodeParams = {
-                authority: this.msalConfig.auth.authority,
-                scopes: OIDC_DEFAULT_SCOPES,
-                state: state,
-                redirect: UrlUtils.ensureAbsoluteUrl(req, this.appSettings.authRoutes.redirect)
-            };
+            if (AppServiceAuth.isAppServiceAuthEnabled()) {
+                /**
+                 * App Service Auth is enabled. Use App Service Auth logout endpoint.
+                 */
+                loginUri = AppServiceAuth.getLoginUri(postLoginRedirectUri);
+                res.redirect(loginUri);
+            } else {
+                // TODO: encrypt state parameter 
+                const state = this._cryptoProvider.base64Encode(
+                    JSON.stringify({
+                        stage: AppStages.SIGN_IN,
+                        path: options.successRedirect,
+                        nonce: req.session.nonce,
+                    })
+                );
 
-            // get url to sign user in
-            return this.getAuthCode(req, res, next, params);
+                const params: AuthCodeParams = {
+                    authority: this._msalConfig.auth.authority,
+                    scopes: OIDC_DEFAULT_SCOPES,
+                    state: state,
+                    redirect: UrlUtils.ensureAbsoluteUrl(req, this.appSettings.authRoutes.redirect)
+                };
+
+                // get url to sign user in
+                return this.getAuthCode(req, res, next, params);
+            }
         }
     };
 
@@ -171,20 +190,26 @@ export class MsalMiddleware implements IAuthMiddleware {
     signOut(options?: SignOutOptions): RequestHandler {
         return (req: Request, res: Response, next: NextFunction): void => {
 
+            let logoutUri; // redirect after destroying session
             const postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.successRedirect);
 
-            /**
-             * Construct a logout URI and redirect the user to end the
-             * session with Azure AD/B2C. For more information, visit:
-             * (AAD) https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request
-             * (B2C) https://docs.microsoft.com/azure/active-directory-b2c/openid-connect#send-a-sign-out-request
-             */
-            const logoutURI = `${this.msalConfig.auth.authority}/oauth2/v2.0/logout?post_logout_redirect_uri=${postLogoutRedirectUri}`;
-
-            req.session.isAuthenticated = false;
+            if (AppServiceAuth.isAppServiceAuthEnabled()) {
+                /**
+                 * App Service Auth is enabled. Use App Service Auth logout endpoint.
+                 */
+                logoutUri = AppServiceAuth.getLogoutUri(postLogoutRedirectUri);
+            } else {
+                /**
+                 * Construct a logout URI and redirect the user to end the
+                 * session with Azure AD/B2C. For more information, visit:
+                 * (AAD) https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request
+                 * (B2C) https://docs.microsoft.com/azure/active-directory-b2c/openid-connect#send-a-sign-out-request
+                 */
+                logoutUri = `${this._msalConfig.auth.authority}/oauth2/v2.0/logout?post_logout_redirect_uri=${postLogoutRedirectUri}`;
+            }
 
             req.session.destroy(() => {
-                res.redirect(logoutURI);
+                res.redirect(logoutUri);
             });
         }
     };
@@ -198,7 +223,7 @@ export class MsalMiddleware implements IAuthMiddleware {
     handleRedirect(options?: HandleRedirectOptions): RequestHandler {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             if (req.query.state) {
-                const state = JSON.parse(this.cryptoProvider.base64Decode(req.query.state as string));
+                const state = JSON.parse(this._cryptoProvider.base64Decode(req.query.state as string));
 
                 // check if nonce matches
                 if (state.nonce === req.session.nonce) {
@@ -209,10 +234,10 @@ export class MsalMiddleware implements IAuthMiddleware {
 
                             try {
                                 // exchange auth code for tokens
-                                const tokenResponse = await this.msalClient.acquireTokenByCode(req.session.tokenRequest);
+                                const tokenResponse = await this._msalClient.acquireTokenByCode(req.session.tokenRequest);
 
                                 try {
-                                    const isIdTokenValid = await this.tokenValidator.validateIdToken(tokenResponse.idToken);
+                                    const isIdTokenValid = await this._tokenValidator.validateIdToken(tokenResponse.idToken);
 
                                     if (isIdTokenValid) {
 
@@ -222,15 +247,15 @@ export class MsalMiddleware implements IAuthMiddleware {
 
                                         res.redirect(state.path);
                                     } else {
-                                        this.logger.error(ErrorMessages.INVALID_TOKEN);
+                                        this._logger.error(ErrorMessages.INVALID_TOKEN);
                                         res.redirect(this.appSettings.authRoutes.unauthorized);
                                     }
                                 } catch (error) {
-                                    this.logger.error(ErrorMessages.CANNOT_VALIDATE_TOKEN);
+                                    this._logger.error(ErrorMessages.CANNOT_VALIDATE_TOKEN);
                                     next(error)
                                 }
                             } catch (error) {
-                                this.logger.error(ErrorMessages.TOKEN_ACQUISITION_FAILED);
+                                this._logger.error(ErrorMessages.TOKEN_ACQUISITION_FAILED);
                                 next(error)
                             }
                             break;
@@ -243,27 +268,27 @@ export class MsalMiddleware implements IAuthMiddleware {
                             req.session.tokenRequest.code = req.query.code as string;
 
                             try {
-                                const tokenResponse = await this.msalClient.acquireTokenByCode(req.session.tokenRequest);
+                                const tokenResponse = await this._msalClient.acquireTokenByCode(req.session.tokenRequest);
                                 req.session.remoteResources[resourceName].accessToken = tokenResponse.accessToken;
                                 res.redirect(state.path);
                             } catch (error) {
-                                this.logger.error(ErrorMessages.TOKEN_ACQUISITION_FAILED);
+                                this._logger.error(ErrorMessages.TOKEN_ACQUISITION_FAILED);
                                 next(error);
                             }
                             break;
                         }
 
                         default:
-                            this.logger.error(ErrorMessages.CANNOT_DETERMINE_APP_STAGE);
+                            this._logger.error(ErrorMessages.CANNOT_DETERMINE_APP_STAGE);
                             res.redirect(this.appSettings.authRoutes.error);
                             break;
                     }
                 } else {
-                    this.logger.error(ErrorMessages.NONCE_MISMATCH);
+                    this._logger.error(ErrorMessages.NONCE_MISMATCH);
                     res.redirect(this.appSettings.authRoutes.unauthorized);
                 }
             } else {
-                this.logger.error(ErrorMessages.STATE_NOT_FOUND);
+                this._logger.error(ErrorMessages.STATE_NOT_FOUND);
                 res.redirect(this.appSettings.authRoutes.unauthorized);
             }
         }
@@ -276,7 +301,7 @@ export class MsalMiddleware implements IAuthMiddleware {
      */
     getToken(options: TokenRequestOptions): RequestHandler {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-            
+
             // get scopes for token request
             const scopes = options.resource.scopes;
 
@@ -300,12 +325,12 @@ export class MsalMiddleware implements IAuthMiddleware {
                 };
 
                 // acquire token silently to be used in resource call
-                const tokenResponse = await this.msalClient.acquireTokenSilent(silentRequest);
+                const tokenResponse = await this._msalClient.acquireTokenSilent(silentRequest);
 
                 // In B2C scenarios, sometimes an access token is returned empty.
                 // In that case, we will acquire token interactively instead.
                 if (StringUtils.isEmpty(tokenResponse.accessToken)) {
-                    this.logger.error(ErrorMessages.TOKEN_NOT_FOUND);
+                    this._logger.error(ErrorMessages.TOKEN_NOT_FOUND);
                     throw new InteractionRequiredAuthError(ErrorMessages.INTERACTION_REQUIRED);
                 }
 
@@ -314,7 +339,7 @@ export class MsalMiddleware implements IAuthMiddleware {
             } catch (error) {
                 // in case there are no cached tokens, initiate an interactive call
                 if (error instanceof InteractionRequiredAuthError) {
-                    const state = this.cryptoProvider.base64Encode(
+                    const state = this._cryptoProvider.base64Encode(
                         JSON.stringify({
                             stage: AppStages.ACQUIRE_TOKEN,
                             path: req.originalUrl,
@@ -323,7 +348,7 @@ export class MsalMiddleware implements IAuthMiddleware {
                     );
 
                     const params: AuthCodeParams = {
-                        authority: this.msalConfig.auth.authority,
+                        authority: this._msalConfig.auth.authority,
                         scopes: scopes,
                         state: state,
                         redirect: UrlUtils.ensureAbsoluteUrl(req, this.appSettings.authRoutes.redirect),
@@ -357,7 +382,7 @@ export class MsalMiddleware implements IAuthMiddleware {
             }
 
             try {
-                const tokenResponse: AuthenticationResult = await this.msalClient.acquireTokenOnBehalfOf(oboRequest);
+                const tokenResponse: AuthenticationResult = await this._msalClient.acquireTokenOnBehalfOf(oboRequest);
                 req.oboToken = tokenResponse.accessToken;
 
                 next();
@@ -376,13 +401,13 @@ export class MsalMiddleware implements IAuthMiddleware {
         return (req: Request, res: Response, next: NextFunction): void => {
             if (req.session) {
                 if (!req.session.isAuthenticated) {
-                    this.logger.error(ErrorMessages.NOT_PERMITTED);
+                    this._logger.error(ErrorMessages.NOT_PERMITTED);
                     return res.redirect(this.appSettings.authRoutes.unauthorized);
                 }
 
                 next();
             } else {
-                this.logger.error(ErrorMessages.SESSION_NOT_FOUND);
+                this._logger.error(ErrorMessages.SESSION_NOT_FOUND);
                 res.redirect(this.appSettings.authRoutes.unauthorized);
             }
         }
@@ -399,14 +424,14 @@ export class MsalMiddleware implements IAuthMiddleware {
             const accessToken = req.headers.authorization.split(" ")[1];
 
             if (req.headers.authorization) {
-                if (!(await this.tokenValidator.validateAccessToken(accessToken, `${req.baseUrl}${req.path}`))) {
-                    this.logger.error(ErrorMessages.INVALID_TOKEN);
+                if (!(await this._tokenValidator.validateAccessToken(accessToken, `${req.baseUrl}${req.path}`))) {
+                    this._logger.error(ErrorMessages.INVALID_TOKEN);
                     return res.redirect(this.appSettings.authRoutes.unauthorized);
                 }
 
                 next();
             } else {
-                this.logger.error(ErrorMessages.TOKEN_NOT_FOUND);
+                this._logger.error(ErrorMessages.TOKEN_NOT_FOUND);
                 res.redirect(this.appSettings.authRoutes.unauthorized);
             }
         }
@@ -427,12 +452,12 @@ export class MsalMiddleware implements IAuthMiddleware {
                     case AccessControlConstants.GROUPS:
 
                         if (req.session.account.idTokenClaims[AccessControlConstants.GROUPS] === undefined) {
-                            if (req.session.account.idTokenClaims[AccessControlConstants.CLAIM_NAMES] 
+                            if (req.session.account.idTokenClaims[AccessControlConstants.CLAIM_NAMES]
                                 || req.session.account.idTokenClaims[AccessControlConstants.CLAIM_SOURCES]) {
-                                this.logger.warning(InfoMessages.OVERAGE_OCCURRED);
+                                this._logger.warning(InfoMessages.OVERAGE_OCCURRED);
                                 return await this.handleOverage(req, res, next, options.accessRule);
                             } else {
-                                this.logger.error(ErrorMessages.USER_HAS_NO_GROUP);
+                                this._logger.error(ErrorMessages.USER_HAS_NO_GROUP);
                                 return res.redirect(this.appSettings.authRoutes.unauthorized);
                             }
                         } else {
@@ -448,7 +473,7 @@ export class MsalMiddleware implements IAuthMiddleware {
 
                     case AccessControlConstants.ROLES:
                         if (req.session.account.idTokenClaims[AccessControlConstants.ROLES] === undefined) {
-                            this.logger.error(ErrorMessages.USER_HAS_NO_ROLE);
+                            this._logger.error(ErrorMessages.USER_HAS_NO_ROLE);
                             return res.redirect(this.appSettings.authRoutes.unauthorized);
                         } else {
                             const roles = req.session.account.idTokenClaims[AccessControlConstants.ROLES];
@@ -501,10 +526,10 @@ export class MsalMiddleware implements IAuthMiddleware {
 
         // request an authorization code to exchange for tokens
         try {
-            const response = await this.msalClient.getAuthCodeUrl(req.session.authCodeRequest);
+            const response = await this._msalClient.getAuthCodeUrl(req.session.authCodeRequest);
             res.redirect(response);
         } catch (error) {
-            this.logger.error(ErrorMessages.AUTH_CODE_NOT_OBTAINED);
+            this._logger.error(ErrorMessages.AUTH_CODE_NOT_OBTAINED);
             next(error);
         }
     };
@@ -522,14 +547,14 @@ export class MsalMiddleware implements IAuthMiddleware {
             switch (credType) {
                 case AccessControlConstants.GROUPS:
                     if (rule.groups.filter(elem => creds.includes(elem)).length < 1) {
-                        this.logger.error(ErrorMessages.USER_NOT_IN_GROUP);
+                        this._logger.error(ErrorMessages.USER_NOT_IN_GROUP);
                         return false;
                     }
                     break;
 
                 case AccessControlConstants.ROLES:
                     if (rule.roles.filter(elem => creds.includes(elem)).length < 1) {
-                        this.logger.error(ErrorMessages.USER_NOT_IN_ROLE);
+                        this._logger.error(ErrorMessages.USER_NOT_IN_ROLE);
                         return false;
                     }
                     break;
@@ -538,7 +563,7 @@ export class MsalMiddleware implements IAuthMiddleware {
                     break;
             }
         } else {
-            this.logger.error(ErrorMessages.METHOD_NOT_ALLOWED);
+            this._logger.error(ErrorMessages.METHOD_NOT_ALLOWED);
             return false;
         }
 
@@ -563,7 +588,7 @@ export class MsalMiddleware implements IAuthMiddleware {
 
         try {
             // acquire token silently to be used in resource call
-            const tokenResponse = await this.msalClient.acquireTokenSilent(silentRequest);
+            const tokenResponse = await this._msalClient.acquireTokenSilent(silentRequest);
             try {
                 const graphResponse = await FetchManager.callApiEndpointWithToken(AccessControlConstants.GRAPH_MEMBERS_ENDPOINT, tokenResponse.accessToken);
 

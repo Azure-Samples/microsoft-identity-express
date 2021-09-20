@@ -44,7 +44,7 @@ export const AppServiceAuthenticationHeaders = {
     APP_SERVICE_ID_TOKEN_HEADER: "X-MS-TOKEN-AAD-ID-TOKEN",
     APP_SERVICE_REFRESH_TOKEN_HEADER: "X-MS-TOKEN-AAD-REFRESH-TOKEN",
     APP_SERVICE_ACCESS_TOKEN_EXPIRES_HEADER: "X-MS-TOKEN-AAD-EXPIRES-ON",
-    APP_SERVICE_USER_OID_HEADER: "X-MS-CLIENT-PRINCIPAL-ID", 
+    APP_SERVICE_USER_OID_HEADER: "X-MS-CLIENT-PRINCIPAL-ID",
     APP_SERVICE_USER_UPN_HEADER: "X-MS-CLIENT-PRINCIPAL-NAME",
     APP_SERVICE_IDP_X_HEADER: "X-MS-CLIENT-PRINCIPAL-IDP"
 }
@@ -71,6 +71,26 @@ export const AppServiceAuthenticationQueryParameters = {
 }
 
 /**
+ * Environment variables used by App Service authentication
+ */
+export const AppServiceEnvironmentVariables = {
+    WEBSITE_AUTH_ENABLED: "WEBSITE_AUTH_ENABLED",
+    WEBSITE_AUTH_ALLOWED_AUDIENCES: "WEBSITE_AUTH_ALLOWED_AUDIENCES",
+    WEBSITE_AUTH_DEFAULT_PROVIDER: "WEBSITE_AUTH_DEFAULT_PROVIDER",
+    WEBSITE_AUTH_TOKEN_STORE: "WEBSITE_AUTH_TOKEN_STORE",
+    WEBSITE_AUTH_LOGIN_PARAMS: "WEBSITE_AUTH_LOGIN_PARAMS",
+    WEBSITE_AUTH_PRESERVE_URL_FRAGMENT: "WEBSITE_AUTH_PRESERVE_URL_FRAGMENT",
+    WEBSITE_AUTH_OPENID_ISSUER: "WEBSITE_AUTH_OPENID_ISSUER",
+    WEBSITE_AUTH_CLIENT_ID: "WEBSITE_AUTH_CLIENT_ID",
+    WEBSITE_HOSTNAME: "WEBSITE_HOSTNAME",
+    WEBSITE_SITE_NAME: "WEBSITE_SITE_NAME",
+    WEBSITE_AUTH_REQUIRE_HTTPS: "WEBSITE_AUTH_REQUIRE_HTTPS",
+    WEBSITE_AUTH_UNAUTHENTICATED_ACTION: "WEBSITE_AUTH_UNAUTHENTICATED_ACTION",
+    WEBSITE_AUTH_API_PREFIX: "WEBSITE_AUTH_API_PREFIX",
+    MICROSOFT_PROVIDER_AUTHENTICATION_SECRET: "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET",
+}
+
+/**
  * Constants used in access control scenarios
  */
 export const AccessControlConstants = {
@@ -87,6 +107,7 @@ export const AccessControlConstants = {
  * Various information constants
  */
 export const InfoMessages = {
+    APP_SERVICE_AUTH_DETECTED: "App Service Authentication detected",
     REQUEST_FOR_RESOURCE: "Request made to web API",
     OVERAGE_OCCURRED: "User has too many groups. Groups overage claim occurred"
 }
@@ -137,6 +158,14 @@ export const ConfigurationErrorMessages = {
  */
 export const ErrorCodes = {
     65001: "AADSTS65001", // consent required
+    50076: "AADSTS50076", // mfa required
+    50079: "AADSTS50079", // mfa enrollment required
+    50001: "AADSTS50001", // invalid resource uri
+    65004: "AADSTS65004", // user declined consent
+    70011: "AADSTS70011", // invalid scope
+    700022: "AADSTS700022", // multiple resources
+    700020: "AADSTS700020", // interaction required
+    90118: "AADB2C90118", // password forgotten (B2C)
 };
 
 export const DEFAULT_LOGGER_OPTIONS: LoggerOptions = {

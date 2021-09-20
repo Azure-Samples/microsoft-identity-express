@@ -28,10 +28,6 @@ export class ConfigHelper {
             throw new Error(ConfigurationErrorMessages.INVALID_TENANT_INFO);
         }
 
-        // if (StringUtils.isEmpty(appSettings.appCredentials.clientSecret) && !appSettings.appCredentials.clientCertificate && !appSettings.appCredentials.clientAssertion) {
-        //     throw new Error(ConfigurationErrorMessages.NO_CLIENT_CREDENTIAL);
-        // }
-
         if (StringUtils.isEmpty(appSettings.authRoutes.redirect)) {
             throw new Error(ConfigurationErrorMessages.NO_REDIRECT_URI);
         }

@@ -56,6 +56,25 @@ export declare const AppServiceAuthenticationQueryParameters: {
     POST_LOGOUT_REDIRECT_QUERY_PARAM: string;
 };
 /**
+ * Environment variables used by App Service authentication
+ */
+export declare const AppServiceEnvironmentVariables: {
+    WEBSITE_AUTH_ENABLED: string;
+    WEBSITE_AUTH_ALLOWED_AUDIENCES: string;
+    WEBSITE_AUTH_DEFAULT_PROVIDER: string;
+    WEBSITE_AUTH_TOKEN_STORE: string;
+    WEBSITE_AUTH_LOGIN_PARAMS: string;
+    WEBSITE_AUTH_PRESERVE_URL_FRAGMENT: string;
+    WEBSITE_AUTH_OPENID_ISSUER: string;
+    WEBSITE_AUTH_CLIENT_ID: string;
+    WEBSITE_HOSTNAME: string;
+    WEBSITE_SITE_NAME: string;
+    WEBSITE_AUTH_REQUIRE_HTTPS: string;
+    WEBSITE_AUTH_UNAUTHENTICATED_ACTION: string;
+    WEBSITE_AUTH_API_PREFIX: string;
+    MICROSOFT_PROVIDER_AUTHENTICATION_SECRET: string;
+};
+/**
  * Constants used in access control scenarios
  */
 export declare const AccessControlConstants: {
@@ -71,6 +90,7 @@ export declare const AccessControlConstants: {
  * Various information constants
  */
 export declare const InfoMessages: {
+    APP_SERVICE_AUTH_DETECTED: string;
     REQUEST_FOR_RESOURCE: string;
     OVERAGE_OCCURRED: string;
 };
@@ -118,5 +138,13 @@ export declare const ConfigurationErrorMessages: {
  */
 export declare const ErrorCodes: {
     65001: string;
+    50076: string;
+    50079: string;
+    50001: string;
+    65004: string;
+    70011: string;
+    700022: string;
+    700020: string;
+    90118: string;
 };
 export declare const DEFAULT_LOGGER_OPTIONS: LoggerOptions;

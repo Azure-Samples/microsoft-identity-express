@@ -1,5 +1,5 @@
-import { LogLevel, StringUtils, Constants, UrlString, Logger, OIDC_DEFAULT_SCOPES, InteractionRequiredAuthError } from '@azure/msal-common';
 import express from 'express';
+import { LogLevel, StringUtils, Constants, UrlString, OIDC_DEFAULT_SCOPES, Logger, InteractionRequiredAuthError } from '@azure/msal-common';
 import { CryptoProvider, ConfidentialClientApplication } from '@azure/msal-node';
 import jwt from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
@@ -867,6 +867,62 @@ var KeyVaultCredentialTypes;
   KeyVaultCredentialTypes["CERTIFICATE"] = "clientCertificate";
 })(KeyVaultCredentialTypes || (KeyVaultCredentialTypes = {}));
 /**
+ * Request headers used by App Service authentication
+ */
+
+
+var AppServiceAuthenticationHeaders = {
+  APP_SERVICE_AUTHENTICATION_HEADER: "X-MSAL-APP-SERVICE-AUTHENTICATION",
+  APP_SERVICE_ACCESS_TOKEN_HEADER: "X-MS-TOKEN-AAD-ACCESS-TOKEN",
+  APP_SERVICE_ID_TOKEN_HEADER: "X-MS-TOKEN-AAD-ID-TOKEN",
+  APP_SERVICE_REFRESH_TOKEN_HEADER: "X-MS-TOKEN-AAD-REFRESH-TOKEN",
+  APP_SERVICE_ACCESS_TOKEN_EXPIRES_HEADER: "X-MS-TOKEN-AAD-EXPIRES-ON",
+  APP_SERVICE_USER_OID_HEADER: "X-MS-CLIENT-PRINCIPAL-ID",
+  APP_SERVICE_USER_UPN_HEADER: "X-MS-CLIENT-PRINCIPAL-NAME",
+  APP_SERVICE_IDP_X_HEADER: "X-MS-CLIENT-PRINCIPAL-IDP"
+};
+/**
+ * Endpoints used by App Service authentication
+ */
+
+var AppServiceAuthenticationEndpoints = {
+  ID_TOKEN_ENDPOINT: "/.auth/me",
+  POST_LOGOUT_DEFAULT_ENDPOINT: "/.auth/logout/done",
+  POST_LOGIN_DEFAULT_ENDPOINT: "/.auth/login/done",
+  AAD_SIGN_IN_ENDPOINT: "/.auth/login/aad",
+  AAD_SIGN_OUT_ENDPOINT: "/.auth/logout",
+  TOKEN_REFRESH_ENDPOINT: "/.auth/refresh",
+  AAD_REDIRECT_ENDPOINT: "/.auth/login/aad/callback"
+};
+/**
+ * Query parameters used by App Service authentication endpoints
+ */
+
+var AppServiceAuthenticationQueryParameters = {
+  POST_LOGIN_REDIRECT_QUERY_PARAM: "?post_login_redirect_url=",
+  POST_LOGOUT_REDIRECT_QUERY_PARAM: "?post_logout_redirect_uri="
+};
+/**
+ * Environment variables used by App Service authentication
+ */
+
+var AppServiceEnvironmentVariables = {
+  WEBSITE_AUTH_ENABLED: "WEBSITE_AUTH_ENABLED",
+  WEBSITE_AUTH_ALLOWED_AUDIENCES: "WEBSITE_AUTH_ALLOWED_AUDIENCES",
+  WEBSITE_AUTH_DEFAULT_PROVIDER: "WEBSITE_AUTH_DEFAULT_PROVIDER",
+  WEBSITE_AUTH_TOKEN_STORE: "WEBSITE_AUTH_TOKEN_STORE",
+  WEBSITE_AUTH_LOGIN_PARAMS: "WEBSITE_AUTH_LOGIN_PARAMS",
+  WEBSITE_AUTH_PRESERVE_URL_FRAGMENT: "WEBSITE_AUTH_PRESERVE_URL_FRAGMENT",
+  WEBSITE_AUTH_OPENID_ISSUER: "WEBSITE_AUTH_OPENID_ISSUER",
+  WEBSITE_AUTH_CLIENT_ID: "WEBSITE_AUTH_CLIENT_ID",
+  WEBSITE_HOSTNAME: "WEBSITE_HOSTNAME",
+  WEBSITE_SITE_NAME: "WEBSITE_SITE_NAME",
+  WEBSITE_AUTH_REQUIRE_HTTPS: "WEBSITE_AUTH_REQUIRE_HTTPS",
+  WEBSITE_AUTH_UNAUTHENTICATED_ACTION: "WEBSITE_AUTH_UNAUTHENTICATED_ACTION",
+  WEBSITE_AUTH_API_PREFIX: "WEBSITE_AUTH_API_PREFIX",
+  MICROSOFT_PROVIDER_AUTHENTICATION_SECRET: "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
+};
+/**
  * Constants used in access control scenarios
  */
 
@@ -884,6 +940,7 @@ var AccessControlConstants = {
  */
 
 var InfoMessages = {
+  APP_SERVICE_AUTH_DETECTED: "App Service Authentication detected",
   REQUEST_FOR_RESOURCE: "Request made to web API",
   OVERAGE_OCCURRED: "User has too many groups. Groups overage claim occurred"
 };
@@ -959,10 +1016,7 @@ var ConfigHelper = /*#__PURE__*/function () {
       throw new Error(ConfigurationErrorMessages.NO_TENANT_INFO);
     } else if (!ConfigHelper.isGuid(appSettings.appCredentials.tenantInfo) && !Object.values(AADAuthorityConstants).includes(appSettings.appCredentials.tenantInfo)) {
       throw new Error(ConfigurationErrorMessages.INVALID_TENANT_INFO);
-    } // if (StringUtils.isEmpty(appSettings.appCredentials.clientSecret) && !appSettings.appCredentials.clientCertificate && !appSettings.appCredentials.clientAssertion) {
-    //     throw new Error(ConfigurationErrorMessages.NO_CLIENT_CREDENTIAL);
-    // }
-
+    }
 
     if (StringUtils.isEmpty(appSettings.authRoutes.redirect)) {
       throw new Error(ConfigurationErrorMessages.NO_REDIRECT_URI);
@@ -1026,9 +1080,9 @@ var TokenValidator = /*#__PURE__*/function () {
    * @constructor
    */
   function TokenValidator(appSettings, msalConfig, logger) {
-    this.appSettings = appSettings;
-    this.msalConfig = msalConfig;
-    this.logger = logger;
+    this._appSettings = appSettings;
+    this._msalConfig = msalConfig;
+    this._logger = logger;
   }
   /**
    * Verifies a given token's signature using jwks-rsa
@@ -1053,41 +1107,33 @@ var TokenValidator = /*#__PURE__*/function () {
                 break;
               }
 
-              this.logger.error(ErrorMessages.TOKEN_NOT_FOUND);
+              this._logger.error(ErrorMessages.TOKEN_NOT_FOUND);
+
               return _context.abrupt("return", false);
 
             case 3:
-              _context.prev = 3;
-              decodedToken = jwt.decode(authToken, {
-                complete: true
-              });
-              _context.next = 11;
-              break;
+              // we will first decode to get kid parameter in header
+              decodedToken = TokenValidator.decodeAuthToken(authToken); // obtains signing keys from discovery endpoint
 
-            case 7:
-              _context.prev = 7;
-              _context.t0 = _context["catch"](3);
-              this.logger.error(ErrorMessages.TOKEN_NOT_DECODED);
-              return _context.abrupt("return", false);
-
-            case 11:
-              _context.prev = 11;
-              _context.next = 14;
+              _context.prev = 4;
+              _context.next = 7;
               return this.getSigningKeys(decodedToken.header, decodedToken.payload.tid);
 
-            case 14:
+            case 7:
               keys = _context.sent;
-              _context.next = 21;
+              _context.next = 14;
               break;
 
-            case 17:
-              _context.prev = 17;
-              _context.t1 = _context["catch"](11);
-              this.logger.error(ErrorMessages.KEYS_NOT_OBTAINED);
+            case 10:
+              _context.prev = 10;
+              _context.t0 = _context["catch"](4);
+
+              this._logger.error(ErrorMessages.KEYS_NOT_OBTAINED);
+
               return _context.abrupt("return", false);
 
-            case 21:
-              _context.prev = 21;
+            case 14:
+              _context.prev = 14;
               verifiedToken = jwt.verify(authToken, keys);
               /**
                * if a multiplexer was used in place of tenantId i.e. if the app
@@ -1095,24 +1141,26 @@ var TokenValidator = /*#__PURE__*/function () {
                * token"s tid claim for verification purposes
                */
 
-              if (this.appSettings.appCredentials.tenantInfo === AADAuthorityConstants.COMMON || this.appSettings.appCredentials.tenantInfo === AADAuthorityConstants.ORGANIZATIONS || this.appSettings.appCredentials.tenantInfo === AADAuthorityConstants.CONSUMERS) {
-                this.appSettings.appCredentials.tenantInfo = decodedToken.payload.tid;
+              if (this._appSettings.appCredentials.tenantInfo === AADAuthorityConstants.COMMON || this._appSettings.appCredentials.tenantInfo === AADAuthorityConstants.ORGANIZATIONS || this._appSettings.appCredentials.tenantInfo === AADAuthorityConstants.CONSUMERS) {
+                this._appSettings.appCredentials.tenantInfo = decodedToken.payload.tid;
               }
 
               return _context.abrupt("return", verifiedToken);
 
-            case 27:
-              _context.prev = 27;
-              _context.t2 = _context["catch"](21);
-              this.logger.error(ErrorMessages.TOKEN_NOT_VERIFIED);
+            case 20:
+              _context.prev = 20;
+              _context.t1 = _context["catch"](14);
+
+              this._logger.error(ErrorMessages.TOKEN_NOT_VERIFIED);
+
               return _context.abrupt("return", false);
 
-            case 31:
+            case 24:
             case "end":
               return _context.stop();
           }
         }
-      }, _callee, this, [[3, 7], [11, 17], [21, 27]]);
+      }, _callee, this, [[4, 10], [14, 20]]);
     }));
 
     function verifyTokenSignature(_x) {
@@ -1139,8 +1187,8 @@ var TokenValidator = /*#__PURE__*/function () {
           switch (_context2.prev = _context2.next) {
             case 0:
               // Check if a B2C application i.e. app has b2cPolicies
-              if (this.appSettings.b2cPolicies) {
-                jwksUri = this.msalConfig.auth.authority + "/discovery/v2.0/keys";
+              if (this._appSettings.b2cPolicies) {
+                jwksUri = this._msalConfig.auth.authority + "/discovery/v2.0/keys";
               } else {
                 jwksUri = "https://" + Constants.DEFAULT_AUTHORITY_HOST + "/" + tid + "/discovery/v2.0/keys";
               }
@@ -1294,8 +1342,8 @@ var TokenValidator = /*#__PURE__*/function () {
      * https://docs.microsoft.com/azure/active-directory/develop/id-tokens#validating-an-id_token
      */
 
-    var checkIssuer = idTokenClaims.iss.includes(this.appSettings.appCredentials.tenantInfo) ? true : false;
-    var checkAudience = idTokenClaims.aud === this.msalConfig.auth.clientId ? true : false;
+    var checkIssuer = idTokenClaims.iss.includes(this._appSettings.appCredentials.tenantInfo) ? true : false;
+    var checkAudience = idTokenClaims.aud === this._msalConfig.auth.clientId ? true : false;
     var checkTimestamp = idTokenClaims.iat <= now && idTokenClaims.exp >= now ? true : false;
     return checkIssuer && checkAudience && checkTimestamp;
   };
@@ -1315,13 +1363,23 @@ var TokenValidator = /*#__PURE__*/function () {
      * https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validating-tokens
      */
 
-    var checkIssuer = verifiedToken.iss.includes(this.appSettings.appCredentials.tenantInfo) ? true : false;
+    var checkIssuer = verifiedToken.iss.includes(this._appSettings.appCredentials.tenantInfo) ? true : false;
     var checkTimestamp = verifiedToken.iat <= now && verifiedToken.iat >= now ? true : false;
-    var checkAudience = verifiedToken.aud === this.appSettings.appCredentials.clientId || verifiedToken.aud === "api://" + this.appSettings.appCredentials.clientId ? true : false;
-    var checkScopes = ConfigHelper.getScopesFromResourceEndpoint(protectedRoute, this.appSettings).every(function (scp) {
+    var checkAudience = verifiedToken.aud === this._appSettings.appCredentials.clientId || verifiedToken.aud === "api://" + this._appSettings.appCredentials.clientId ? true : false;
+    var checkScopes = ConfigHelper.getScopesFromResourceEndpoint(protectedRoute, this._appSettings).every(function (scp) {
       return verifiedToken.scp.includes(scp);
     });
     return checkAudience && checkIssuer && checkTimestamp && checkScopes;
+  };
+
+  TokenValidator.decodeAuthToken = function decodeAuthToken(authToken) {
+    try {
+      return jwt.decode(authToken, {
+        complete: true
+      });
+    } catch (error) {
+      throw new Error(ErrorMessages.TOKEN_NOT_DECODED);
+    }
   };
 
   return TokenValidator;
@@ -1525,6 +1583,101 @@ UrlUtils.getPathFromUrl = function (url) {
   return "/" + urlComponents.PathSegments.join("/");
 };
 
+var AppServiceAuth = /*#__PURE__*/function () {
+  function AppServiceAuth() {}
+
+  AppServiceAuth.isAppServiceAuthEnabled = function isAppServiceAuthEnabled() {
+    if (process.env[AppServiceEnvironmentVariables.WEBSITE_AUTH_ENABLED] === "True") {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  AppServiceAuth.getEffectiveScopesFromLoginParams = function getEffectiveScopesFromLoginParams() {
+    var loginParams = process.env[AppServiceEnvironmentVariables.WEBSITE_AUTH_LOGIN_PARAMS];
+    var scopesList = loginParams.split("scope=")[1].split(" ");
+    var effectiveScopesList = scopesList.filter(function (scope) {
+      return !OIDC_DEFAULT_SCOPES.includes(scope);
+    });
+    return effectiveScopesList;
+  };
+
+  AppServiceAuth.getLoginUri = function getLoginUri(postLoginRedirectUri) {
+    var loginUri = "https://" + process.env[AppServiceEnvironmentVariables.WEBSITE_HOSTNAME] + AppServiceAuthenticationEndpoints.AAD_SIGN_IN_ENDPOINT + AppServiceAuthenticationQueryParameters.POST_LOGIN_REDIRECT_QUERY_PARAM + postLoginRedirectUri;
+    return loginUri;
+  };
+
+  AppServiceAuth.getLogoutUri = function getLogoutUri(postLogoutRedirectUri) {
+    var logoutUri = "https://" + process.env[AppServiceEnvironmentVariables.WEBSITE_HOSTNAME] + AppServiceAuthenticationEndpoints.AAD_SIGN_OUT_ENDPOINT + AppServiceAuthenticationQueryParameters.POST_LOGOUT_REDIRECT_QUERY_PARAM + postLogoutRedirectUri;
+    return logoutUri;
+  };
+
+  var _proto = AppServiceAuth.prototype;
+
+  _proto.handleAppServiceAuth = function handleAppServiceAuth(appSettings) {
+    return /*#__PURE__*/function () {
+      var _ref = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(req, res, next) {
+        var rawIdToken, rawAccessToken, idTokenClaims, _req$session$remoteRe, accessTokenClaims, scopes, resourceName;
+
+        return runtime_1.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                // check headers for id and access tokens
+                rawIdToken = req.headers[AppServiceAuthenticationHeaders.APP_SERVICE_ID_TOKEN_HEADER.toLowerCase()];
+                rawAccessToken = req.headers[AppServiceAuthenticationHeaders.APP_SERVICE_ACCESS_TOKEN_HEADER.toLowerCase()];
+
+                if (rawIdToken && !req.session.isAuthenticated) {
+                  // parse the id token
+                  idTokenClaims = TokenValidator.decodeAuthToken(rawIdToken).payload; // TODO: validate the id token
+
+                  req.session.isAuthenticated = true;
+                  req.session.account = {
+                    tenantId: idTokenClaims.tid,
+                    homeAccountId: idTokenClaims.oid + "." + idTokenClaims.tid,
+                    localAccountId: idTokenClaims.oid,
+                    environment: idTokenClaims.iss.split("://")[1].split("/")[0],
+                    username: idTokenClaims.preferred_username,
+                    name: idTokenClaims.name,
+                    idTokenClaims: idTokenClaims
+                  };
+                }
+
+                if (rawAccessToken) {
+                  accessTokenClaims = TokenValidator.decodeAuthToken(rawAccessToken).payload; // get the name of the resource associated with scope
+
+                  scopes = accessTokenClaims.scp;
+                  resourceName = ConfigHelper.getResourceNameFromScopes(scopes, appSettings);
+
+                  if (!req.session.remoteResources) {
+                    req.session.remoteResources = {};
+                  }
+
+                  req.session.remoteResources = (_req$session$remoteRe = {}, _req$session$remoteRe[resourceName] = _extends({}, appSettings.remoteResources[resourceName], {
+                    accessToken: rawAccessToken
+                  }), _req$session$remoteRe);
+                }
+
+                next();
+
+              case 5:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee);
+      }));
+
+      return function (_x, _x2, _x3) {
+        return _ref.apply(this, arguments);
+      };
+    }();
+  };
+
+  return AppServiceAuth;
+}();
+
 var packageName = "@azure-samples/msal-express-wrapper";
 var packageVersion = "0.1.0";
 
@@ -1544,11 +1697,11 @@ var MsalMiddleware = /*#__PURE__*/function () {
    */
   function MsalMiddleware(appSettings, msalConfig) {
     this.appSettings = appSettings;
-    this.msalConfig = msalConfig;
-    this.cryptoProvider = new CryptoProvider();
-    this.tokenValidator = new TokenValidator(this.appSettings, this.msalConfig, this.logger);
-    this.logger = new Logger(this.msalConfig.system.loggerOptions, packageName, packageVersion);
-    this.msalClient = new ConfidentialClientApplication(this.msalConfig);
+    this._msalConfig = msalConfig;
+    this._cryptoProvider = new CryptoProvider();
+    this._tokenValidator = new TokenValidator(this.appSettings, this._msalConfig, this._logger);
+    this._logger = new Logger(this._msalConfig.system.loggerOptions, packageName, packageVersion);
+    this._msalClient = new ConfidentialClientApplication(this._msalConfig);
   }
   /**
    * Initialize AuthProvider and set default routes and handlers
@@ -1567,12 +1720,22 @@ var MsalMiddleware = /*#__PURE__*/function () {
     appRouter.get(UrlUtils.getPathFromUrl(this.appSettings.authRoutes.redirect), this.handleRedirect());
     appRouter.use(function (req, res, next) {
       if (!req.session) {
+        // TODO: handle gracefully
         throw new Error(ErrorMessages.SESSION_NOT_FOUND);
-      }
+      } // add session nonce for crsf
 
-      req.session.nonce = _this.cryptoProvider.createNewGuid();
+
+      req.session.nonce = _this._cryptoProvider.createNewGuid();
       next();
     });
+
+    if (AppServiceAuth.isAppServiceAuthEnabled()) {
+      /**
+       * Add a handler to handle App Service Auth
+       */
+      var appServiceAuthHandler = new AppServiceAuth();
+      appRouter.use(appServiceAuthHandler.handleAppServiceAuth(this.appSettings));
+    }
 
     if (this.appSettings.authRoutes.frontChannelLogout) {
       /**
@@ -1599,21 +1762,33 @@ var MsalMiddleware = /*#__PURE__*/function () {
     var _this2 = this;
 
     return function (req, res, next) {
-      // TODO: encrypt state parameter 
-      var state = _this2.cryptoProvider.base64Encode(JSON.stringify({
-        stage: AppStages.SIGN_IN,
-        path: options.successRedirect,
-        nonce: req.session.nonce
-      }));
+      var loginUri; // redirect after destroying session
 
-      var params = {
-        authority: _this2.msalConfig.auth.authority,
-        scopes: OIDC_DEFAULT_SCOPES,
-        state: state,
-        redirect: UrlUtils.ensureAbsoluteUrl(req, _this2.appSettings.authRoutes.redirect)
-      }; // get url to sign user in
+      var postLoginRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.successRedirect);
 
-      return _this2.getAuthCode(req, res, next, params);
+      if (AppServiceAuth.isAppServiceAuthEnabled()) {
+        /**
+         * App Service Auth is enabled. Use App Service Auth logout endpoint.
+         */
+        loginUri = AppServiceAuth.getLoginUri(postLoginRedirectUri);
+        res.redirect(loginUri);
+      } else {
+        // TODO: encrypt state parameter 
+        var state = _this2._cryptoProvider.base64Encode(JSON.stringify({
+          stage: AppStages.SIGN_IN,
+          path: options.successRedirect,
+          nonce: req.session.nonce
+        }));
+
+        var params = {
+          authority: _this2._msalConfig.auth.authority,
+          scopes: OIDC_DEFAULT_SCOPES,
+          state: state,
+          redirect: UrlUtils.ensureAbsoluteUrl(req, _this2.appSettings.authRoutes.redirect)
+        }; // get url to sign user in
+
+        return _this2.getAuthCode(req, res, next, params);
+      }
     };
   };
 
@@ -1626,18 +1801,27 @@ var MsalMiddleware = /*#__PURE__*/function () {
     var _this3 = this;
 
     return function (req, res, next) {
-      var postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.successRedirect);
-      /**
-       * Construct a logout URI and redirect the user to end the
-       * session with Azure AD/B2C. For more information, visit:
-       * (AAD) https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request
-       * (B2C) https://docs.microsoft.com/azure/active-directory-b2c/openid-connect#send-a-sign-out-request
-       */
+      var logoutUri; // redirect after destroying session
 
-      var logoutURI = _this3.msalConfig.auth.authority + "/oauth2/v2.0/logout?post_logout_redirect_uri=" + postLogoutRedirectUri;
-      req.session.isAuthenticated = false;
+      var postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.successRedirect);
+
+      if (AppServiceAuth.isAppServiceAuthEnabled()) {
+        /**
+         * App Service Auth is enabled. Use App Service Auth logout endpoint.
+         */
+        logoutUri = AppServiceAuth.getLogoutUri(postLogoutRedirectUri);
+      } else {
+        /**
+         * Construct a logout URI and redirect the user to end the
+         * session with Azure AD/B2C. For more information, visit:
+         * (AAD) https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request
+         * (B2C) https://docs.microsoft.com/azure/active-directory-b2c/openid-connect#send-a-sign-out-request
+         */
+        logoutUri = _this3._msalConfig.auth.authority + "/oauth2/v2.0/logout?post_logout_redirect_uri=" + postLogoutRedirectUri;
+      }
+
       req.session.destroy(function () {
-        res.redirect(logoutURI);
+        res.redirect(logoutUri);
       });
     };
   };
@@ -1664,7 +1848,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
                   break;
                 }
 
-                state = JSON.parse(_this4.cryptoProvider.base64Decode(req.query.state)); // check if nonce matches
+                state = JSON.parse(_this4._cryptoProvider.base64Decode(req.query.state)); // check if nonce matches
 
                 if (!(state.nonce === req.session.nonce)) {
                   _context.next = 49;
@@ -1680,13 +1864,13 @@ var MsalMiddleware = /*#__PURE__*/function () {
                 req.session.tokenRequest.code = req.query.code;
                 _context.prev = 7;
                 _context.next = 10;
-                return _this4.msalClient.acquireTokenByCode(req.session.tokenRequest);
+                return _this4._msalClient.acquireTokenByCode(req.session.tokenRequest);
 
               case 10:
                 tokenResponse = _context.sent;
                 _context.prev = 11;
                 _context.next = 14;
-                return _this4.tokenValidator.validateIdToken(tokenResponse.idToken);
+                return _this4._tokenValidator.validateIdToken(tokenResponse.idToken);
 
               case 14:
                 isIdTokenValid = _context.sent;
@@ -1697,7 +1881,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
                   req.session.account = tokenResponse.account;
                   res.redirect(state.path);
                 } else {
-                  _this4.logger.error(ErrorMessages.INVALID_TOKEN);
+                  _this4._logger.error(ErrorMessages.INVALID_TOKEN);
 
                   res.redirect(_this4.appSettings.authRoutes.unauthorized);
                 }
@@ -1709,7 +1893,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
                 _context.prev = 18;
                 _context.t1 = _context["catch"](11);
 
-                _this4.logger.error(ErrorMessages.CANNOT_VALIDATE_TOKEN);
+                _this4._logger.error(ErrorMessages.CANNOT_VALIDATE_TOKEN);
 
                 next(_context.t1);
 
@@ -1721,7 +1905,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
                 _context.prev = 24;
                 _context.t2 = _context["catch"](7);
 
-                _this4.logger.error(ErrorMessages.TOKEN_ACQUISITION_FAILED);
+                _this4._logger.error(ErrorMessages.TOKEN_ACQUISITION_FAILED);
 
                 next(_context.t2);
 
@@ -1734,7 +1918,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
                 req.session.tokenRequest.code = req.query.code;
                 _context.prev = 31;
                 _context.next = 34;
-                return _this4.msalClient.acquireTokenByCode(req.session.tokenRequest);
+                return _this4._msalClient.acquireTokenByCode(req.session.tokenRequest);
 
               case 34:
                 _tokenResponse = _context.sent;
@@ -1747,7 +1931,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
                 _context.prev = 39;
                 _context.t3 = _context["catch"](31);
 
-                _this4.logger.error(ErrorMessages.TOKEN_ACQUISITION_FAILED);
+                _this4._logger.error(ErrorMessages.TOKEN_ACQUISITION_FAILED);
 
                 next(_context.t3);
 
@@ -1755,7 +1939,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
                 return _context.abrupt("break", 47);
 
               case 44:
-                _this4.logger.error(ErrorMessages.CANNOT_DETERMINE_APP_STAGE);
+                _this4._logger.error(ErrorMessages.CANNOT_DETERMINE_APP_STAGE);
 
                 res.redirect(_this4.appSettings.authRoutes.error);
                 return _context.abrupt("break", 47);
@@ -1765,7 +1949,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
                 break;
 
               case 49:
-                _this4.logger.error(ErrorMessages.NONCE_MISMATCH);
+                _this4._logger.error(ErrorMessages.NONCE_MISMATCH);
 
                 res.redirect(_this4.appSettings.authRoutes.unauthorized);
 
@@ -1774,7 +1958,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
                 break;
 
               case 53:
-                _this4.logger.error(ErrorMessages.STATE_NOT_FOUND);
+                _this4._logger.error(ErrorMessages.STATE_NOT_FOUND);
 
                 res.redirect(_this4.appSettings.authRoutes.unauthorized);
 
@@ -1827,7 +2011,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
                 }; // acquire token silently to be used in resource call
 
                 _context2.next = 8;
-                return _this5.msalClient.acquireTokenSilent(silentRequest);
+                return _this5._msalClient.acquireTokenSilent(silentRequest);
 
               case 8:
                 tokenResponse = _context2.sent;
@@ -1837,7 +2021,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
                   break;
                 }
 
-                _this5.logger.error(ErrorMessages.TOKEN_NOT_FOUND);
+                _this5._logger.error(ErrorMessages.TOKEN_NOT_FOUND);
 
                 throw new InteractionRequiredAuthError(ErrorMessages.INTERACTION_REQUIRED);
 
@@ -1856,13 +2040,13 @@ var MsalMiddleware = /*#__PURE__*/function () {
                   break;
                 }
 
-                state = _this5.cryptoProvider.base64Encode(JSON.stringify({
+                state = _this5._cryptoProvider.base64Encode(JSON.stringify({
                   stage: AppStages.ACQUIRE_TOKEN,
                   path: req.originalUrl,
                   nonce: req.session.nonce
                 }));
                 params = {
-                  authority: _this5.msalConfig.auth.authority,
+                  authority: _this5._msalConfig.auth.authority,
                   scopes: scopes,
                   state: state,
                   redirect: UrlUtils.ensureAbsoluteUrl(req, _this5.appSettings.authRoutes.redirect),
@@ -1912,7 +2096,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
                 };
                 _context3.prev = 3;
                 _context3.next = 6;
-                return _this6.msalClient.acquireTokenOnBehalfOf(oboRequest);
+                return _this6._msalClient.acquireTokenOnBehalfOf(oboRequest);
 
               case 6:
                 tokenResponse = _context3.sent;
@@ -1952,14 +2136,14 @@ var MsalMiddleware = /*#__PURE__*/function () {
     return function (req, res, next) {
       if (req.session) {
         if (!req.session.isAuthenticated) {
-          _this7.logger.error(ErrorMessages.NOT_PERMITTED);
+          _this7._logger.error(ErrorMessages.NOT_PERMITTED);
 
           return res.redirect(_this7.appSettings.authRoutes.unauthorized);
         }
 
         next();
       } else {
-        _this7.logger.error(ErrorMessages.SESSION_NOT_FOUND);
+        _this7._logger.error(ErrorMessages.SESSION_NOT_FOUND);
 
         res.redirect(_this7.appSettings.authRoutes.unauthorized);
       }
@@ -1990,7 +2174,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
                 }
 
                 _context4.next = 4;
-                return _this8.tokenValidator.validateAccessToken(accessToken, "" + req.baseUrl + req.path);
+                return _this8._tokenValidator.validateAccessToken(accessToken, "" + req.baseUrl + req.path);
 
               case 4:
                 if (_context4.sent) {
@@ -1998,7 +2182,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
                   break;
                 }
 
-                _this8.logger.error(ErrorMessages.INVALID_TOKEN);
+                _this8._logger.error(ErrorMessages.INVALID_TOKEN);
 
                 return _context4.abrupt("return", res.redirect(_this8.appSettings.authRoutes.unauthorized));
 
@@ -2008,7 +2192,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
                 break;
 
               case 10:
-                _this8.logger.error(ErrorMessages.TOKEN_NOT_FOUND);
+                _this8._logger.error(ErrorMessages.TOKEN_NOT_FOUND);
 
                 res.redirect(_this8.appSettings.authRoutes.unauthorized);
 
@@ -2062,7 +2246,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
                   break;
                 }
 
-                _this9.logger.warning(InfoMessages.OVERAGE_OCCURRED);
+                _this9._logger.warning(InfoMessages.OVERAGE_OCCURRED);
 
                 _context5.next = 10;
                 return _this9.handleOverage(req, res, next, options.accessRule);
@@ -2071,7 +2255,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
                 return _context5.abrupt("return", _context5.sent);
 
               case 13:
-                _this9.logger.error(ErrorMessages.USER_HAS_NO_GROUP);
+                _this9._logger.error(ErrorMessages.USER_HAS_NO_GROUP);
 
                 return _context5.abrupt("return", res.redirect(_this9.appSettings.authRoutes.unauthorized));
 
@@ -2099,7 +2283,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
                   break;
                 }
 
-                _this9.logger.error(ErrorMessages.USER_HAS_NO_ROLE);
+                _this9._logger.error(ErrorMessages.USER_HAS_NO_ROLE);
 
                 return _context5.abrupt("return", res.redirect(_this9.appSettings.authRoutes.unauthorized));
 
@@ -2178,7 +2362,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
 
               _context6.prev = 2;
               _context6.next = 5;
-              return this.msalClient.getAuthCodeUrl(req.session.authCodeRequest);
+              return this._msalClient.getAuthCodeUrl(req.session.authCodeRequest);
 
             case 5:
               response = _context6.sent;
@@ -2189,7 +2373,9 @@ var MsalMiddleware = /*#__PURE__*/function () {
             case 9:
               _context6.prev = 9;
               _context6.t0 = _context6["catch"](2);
-              this.logger.error(ErrorMessages.AUTH_CODE_NOT_OBTAINED);
+
+              this._logger.error(ErrorMessages.AUTH_CODE_NOT_OBTAINED);
+
               next(_context6.t0);
 
             case 13:
@@ -2222,7 +2408,8 @@ var MsalMiddleware = /*#__PURE__*/function () {
           if (rule.groups.filter(function (elem) {
             return creds.includes(elem);
           }).length < 1) {
-            this.logger.error(ErrorMessages.USER_NOT_IN_GROUP);
+            this._logger.error(ErrorMessages.USER_NOT_IN_GROUP);
+
             return false;
           }
 
@@ -2232,14 +2419,16 @@ var MsalMiddleware = /*#__PURE__*/function () {
           if (rule.roles.filter(function (elem) {
             return creds.includes(elem);
           }).length < 1) {
-            this.logger.error(ErrorMessages.USER_NOT_IN_ROLE);
+            this._logger.error(ErrorMessages.USER_NOT_IN_ROLE);
+
             return false;
           }
 
           break;
       }
     } else {
-      this.logger.error(ErrorMessages.METHOD_NOT_ALLOWED);
+      this._logger.error(ErrorMessages.METHOD_NOT_ALLOWED);
+
       return false;
     }
 
@@ -2272,7 +2461,7 @@ var MsalMiddleware = /*#__PURE__*/function () {
               };
               _context7.prev = 2;
               _context7.next = 5;
-              return this.msalClient.acquireTokenSilent(silentRequest);
+              return this._msalClient.acquireTokenSilent(silentRequest);
 
             case 5:
               tokenResponse = _context7.sent;

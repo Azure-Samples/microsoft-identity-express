@@ -1,6 +1,5 @@
 import { RequestHandler, Router } from "express";
-import { Logger } from "@azure/msal-common";
-import { ConfidentialClientApplication, Configuration } from "@azure/msal-node";
+import { Configuration } from "@azure/msal-node";
 import { IAuthMiddleware } from "./IAuthMiddleware";
 import { AppSettings } from "../config/AppSettings";
 import { InitializationOptions, TokenRequestOptions, GuardOptions, SignInOptions, SignOutOptions, HandleRedirectOptions } from "./MiddlewareOptions";
@@ -11,12 +10,12 @@ import { InitializationOptions, TokenRequestOptions, GuardOptions, SignInOptions
  * RESTful APIs (coming soon).
  */
 export declare class MsalMiddleware implements IAuthMiddleware {
-    logger: Logger;
     appSettings: AppSettings;
-    msalConfig: Configuration;
-    msalClient: ConfidentialClientApplication;
-    private cryptoProvider;
-    private tokenValidator;
+    private _msalConfig;
+    private _msalClient;
+    private _cryptoProvider;
+    private _tokenValidator;
+    private _logger;
     /**
      * @param {AppSettings} appSettings
      * @param {ICachePlugin} cache: cachePlugin

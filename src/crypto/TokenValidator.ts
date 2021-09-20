@@ -31,9 +31,9 @@ import {
 } from "../utils/Constants";
 
 export class TokenValidator {
-    private appSettings: AppSettings;
-    private msalConfig: Configuration;
-    private logger: Logger;
+    private _appSettings: AppSettings;
+    private _msalConfig: Configuration;
+    private _logger: Logger;
 
     /**
      * @param {AppSettings} appSettings 
@@ -42,9 +42,9 @@ export class TokenValidator {
      * @constructor
      */
     constructor(appSettings: AppSettings, msalConfig: Configuration, logger: Logger) {
-        this.appSettings = appSettings;
-        this.msalConfig = msalConfig;
-        this.logger = logger;
+        this._appSettings = appSettings;
+        this._msalConfig = msalConfig;
+        this._logger = logger;
     }
 
     /**
@@ -54,19 +54,12 @@ export class TokenValidator {
      */
     async verifyTokenSignature(authToken: string): Promise<TokenClaims | boolean> {
         if (StringUtils.isEmpty(authToken)) {
-            this.logger.error(ErrorMessages.TOKEN_NOT_FOUND);
+            this._logger.error(ErrorMessages.TOKEN_NOT_FOUND);
             return false;
         }
 
         // we will first decode to get kid parameter in header
-        let decodedToken: AuthToken;
-
-        try {
-            decodedToken = jwt.decode(authToken, { complete: true });
-        } catch (error) {
-            this.logger.error(ErrorMessages.TOKEN_NOT_DECODED);
-            return false;
-        }
+        let decodedToken: AuthToken = TokenValidator.decodeAuthToken(authToken);
 
         // obtains signing keys from discovery endpoint
         let keys;
@@ -74,7 +67,7 @@ export class TokenValidator {
         try {
             keys = await this.getSigningKeys(decodedToken.header, decodedToken.payload.tid);
         } catch (error) {
-            this.logger.error(ErrorMessages.KEYS_NOT_OBTAINED);
+            this._logger.error(ErrorMessages.KEYS_NOT_OBTAINED);
             return false;
         }
 
@@ -90,16 +83,16 @@ export class TokenValidator {
              * token"s tid claim for verification purposes
              */
             if (
-                this.appSettings.appCredentials.tenantInfo === AADAuthorityConstants.COMMON ||
-                this.appSettings.appCredentials.tenantInfo === AADAuthorityConstants.ORGANIZATIONS ||
-                this.appSettings.appCredentials.tenantInfo === AADAuthorityConstants.CONSUMERS
+                this._appSettings.appCredentials.tenantInfo === AADAuthorityConstants.COMMON ||
+                this._appSettings.appCredentials.tenantInfo === AADAuthorityConstants.ORGANIZATIONS ||
+                this._appSettings.appCredentials.tenantInfo === AADAuthorityConstants.CONSUMERS
             ) {
-                this.appSettings.appCredentials.tenantInfo = decodedToken.payload.tid;
+                this._appSettings.appCredentials.tenantInfo = decodedToken.payload.tid;
             }
 
             return verifiedToken;
         } catch (error) {
-            this.logger.error(ErrorMessages.TOKEN_NOT_VERIFIED);
+            this._logger.error(ErrorMessages.TOKEN_NOT_VERIFIED);
             return false;
         }
     };
@@ -115,8 +108,8 @@ export class TokenValidator {
         let jwksUri;
 
         // Check if a B2C application i.e. app has b2cPolicies
-        if (this.appSettings.b2cPolicies) {
-            jwksUri = `${this.msalConfig.auth.authority}/discovery/v2.0/keys`;
+        if (this._appSettings.b2cPolicies) {
+            jwksUri = `${this._msalConfig.auth.authority}/discovery/v2.0/keys`;
         } else {
             jwksUri = `https://${Constants.DEFAULT_AUTHORITY_HOST}/${tid}/discovery/v2.0/keys`;
         }
@@ -180,8 +173,8 @@ export class TokenValidator {
          * For more information on validating id tokens, visit:
          * https://docs.microsoft.com/azure/active-directory/develop/id-tokens#validating-an-id_token
          */
-        const checkIssuer = idTokenClaims.iss.includes(this.appSettings.appCredentials.tenantInfo) ? true : false;
-        const checkAudience = idTokenClaims.aud === this.msalConfig.auth.clientId ? true : false;
+        const checkIssuer = idTokenClaims.iss.includes(this._appSettings.appCredentials.tenantInfo) ? true : false;
+        const checkAudience = idTokenClaims.aud === this._msalConfig.auth.clientId ? true : false;
         const checkTimestamp = idTokenClaims.iat <= now && idTokenClaims.exp >= now ? true : false;
 
         return checkIssuer && checkAudience && checkTimestamp;
@@ -201,15 +194,24 @@ export class TokenValidator {
          * and timestamp, though implementation and extent vary. For more information, visit:
          * https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validating-tokens
          */
-        const checkIssuer = verifiedToken.iss.includes(this.appSettings.appCredentials.tenantInfo) ? true : false;
+        const checkIssuer = verifiedToken.iss.includes(this._appSettings.appCredentials.tenantInfo) ? true : false;
         const checkTimestamp = verifiedToken.iat <= now && verifiedToken.iat >= now ? true : false;
 
-        const checkAudience = verifiedToken.aud === this.appSettings.appCredentials.clientId ||
-            verifiedToken.aud === "api://" + this.appSettings.appCredentials.clientId ? true : false;
+        const checkAudience = verifiedToken.aud === this._appSettings.appCredentials.clientId ||
+            verifiedToken.aud === "api://" + this._appSettings.appCredentials.clientId ? true : false;
 
-        const checkScopes = ConfigHelper.getScopesFromResourceEndpoint(protectedRoute, this.appSettings)
+        const checkScopes = ConfigHelper.getScopesFromResourceEndpoint(protectedRoute, this._appSettings)
             .every(scp => verifiedToken.scp.includes(scp));
 
         return checkAudience && checkIssuer && checkTimestamp && checkScopes;
     };
+
+    static decodeAuthToken(authToken: string): AuthToken {
+
+        try {
+            return jwt.decode(authToken, { complete: true });
+        } catch (error) {
+            throw new Error(ErrorMessages.TOKEN_NOT_DECODED);
+        }
+    }
 }

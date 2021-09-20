@@ -14,6 +14,7 @@ module.exports = (msal) => {
     router.get('/signin',
         msal.signIn({
             successRedirect: "/",
+            failureRedirect: "/signin"
         }),
     );
 
