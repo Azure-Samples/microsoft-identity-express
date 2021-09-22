@@ -16,6 +16,7 @@ import {
     InteractionRequiredAuthError,
     PromptValue,
     StringUtils,
+    ClientAuthError,
 } from "@azure/msal-common";
 
 import {
@@ -329,7 +330,7 @@ export class WebAppAuthMiddleware extends BaseAuthMiddleware {
                 next();
             } catch (error) {
                 // in case there are no cached tokens, initiate an interactive call
-                if (error instanceof InteractionRequiredAuthError) {
+                if (error instanceof InteractionRequiredAuthError || (error instanceof ClientAuthError && error.errorCode === "no_tokens_found")) {
                     const state = this._cryptoProvider.base64Encode(
                         JSON.stringify({
                             stage: AppStages.ACQUIRE_TOKEN,

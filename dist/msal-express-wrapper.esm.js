@@ -1,4 +1,4 @@
-import { LogLevel, StringUtils, Constants, Logger, UrlString, OIDC_DEFAULT_SCOPES, InteractionRequiredAuthError } from '@azure/msal-common';
+import { LogLevel, StringUtils, Constants, Logger, UrlString, OIDC_DEFAULT_SCOPES, InteractionRequiredAuthError, ClientAuthError } from '@azure/msal-common';
 import express from 'express';
 import { ConfidentialClientApplication, CryptoProvider } from '@azure/msal-node';
 import jwt from 'jsonwebtoken';
@@ -1716,8 +1716,9 @@ var AppServiceAuthHelper = /*#__PURE__*/function () {
                   accessTokenClaims = TokenValidator.decodeAuthToken(rawAccessToken).payload; // get the name of the resource associated with scope
 
                   scopes = accessTokenClaims.scp;
+                  console.log('inAuthHelper', scopes);
                   resourceName = ConfigHelper.getResourceNameFromScopes(scopes, appSettings);
-                  console.log(resourceName);
+                  console.log('inAuthHelper', resourceName);
 
                   if (!req.session.protectedResources) {
                     req.session.protectedResources = {};
@@ -2121,7 +2122,7 @@ var WebAppAuthMiddleware = /*#__PURE__*/function (_BaseAuthMiddleware) {
                 _context2.prev = 22;
                 _context2.t0 = _context2["catch"](10);
 
-                if (!(_context2.t0 instanceof InteractionRequiredAuthError)) {
+                if (!(_context2.t0 instanceof InteractionRequiredAuthError || _context2.t0 instanceof ClientAuthError && _context2.t0.errorCode === "no_tokens_found")) {
                   _context2.next = 30;
                   break;
                 }
