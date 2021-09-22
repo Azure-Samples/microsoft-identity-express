@@ -1717,6 +1717,7 @@ var AppServiceAuthHelper = /*#__PURE__*/function () {
 
                   scopes = accessTokenClaims.scp;
                   resourceName = ConfigHelper.getResourceNameFromScopes(scopes, appSettings);
+                  console.log(resourceName);
 
                   if (!req.session.protectedResources) {
                     req.session.protectedResources = {};
@@ -2060,21 +2061,28 @@ var WebAppAuthMiddleware = /*#__PURE__*/function (_BaseAuthMiddleware) {
               case 0:
                 // get scopes for token request
                 scopes = options.resource.scopes;
+                console.log(scopes);
                 resourceName = ConfigHelper.getResourceNameFromScopes(scopes, _this6.appSettings);
+                console.log(resourceName);
 
                 if (!AppServiceAuthHelper.isAppServiceAuthEnabled()) {
-                  _context2.next = 5;
+                  _context2.next = 8;
+                  break;
+                }
+
+                if (!req.session.protectedResources[resourceName]) {
+                  _context2.next = 8;
                   break;
                 }
 
                 if (!req.session.protectedResources[resourceName].accessToken) {
-                  _context2.next = 5;
+                  _context2.next = 8;
                   break;
                 }
 
                 return _context2.abrupt("return", next());
 
-              case 5:
+              case 8:
                 if (!req.session.protectedResources) {
                   req.session.protectedResources = {};
                 }
@@ -2082,20 +2090,20 @@ var WebAppAuthMiddleware = /*#__PURE__*/function (_BaseAuthMiddleware) {
                 req.session.protectedResources = (_req$session$protecte = {}, _req$session$protecte[resourceName] = _extends({}, _this6.appSettings.protectedResources[resourceName], {
                   accessToken: null
                 }), _req$session$protecte);
-                _context2.prev = 7;
+                _context2.prev = 10;
                 silentRequest = {
                   account: req.session.account,
                   scopes: scopes
                 }; // acquire token silently to be used in resource call
 
-                _context2.next = 11;
+                _context2.next = 14;
                 return _this6.msalClient.acquireTokenSilent(silentRequest);
 
-              case 11:
+              case 14:
                 tokenResponse = _context2.sent;
 
                 if (!StringUtils.isEmpty(tokenResponse.accessToken)) {
-                  _context2.next = 15;
+                  _context2.next = 18;
                   break;
                 }
 
@@ -2103,18 +2111,18 @@ var WebAppAuthMiddleware = /*#__PURE__*/function (_BaseAuthMiddleware) {
 
                 throw new InteractionRequiredAuthError(ErrorMessages.INTERACTION_REQUIRED);
 
-              case 15:
+              case 18:
                 req.session.protectedResources[resourceName].accessToken = tokenResponse.accessToken;
                 next();
-                _context2.next = 28;
+                _context2.next = 31;
                 break;
 
-              case 19:
-                _context2.prev = 19;
-                _context2.t0 = _context2["catch"](7);
+              case 22:
+                _context2.prev = 22;
+                _context2.t0 = _context2["catch"](10);
 
                 if (!(_context2.t0 instanceof InteractionRequiredAuthError)) {
-                  _context2.next = 27;
+                  _context2.next = 30;
                   break;
                 }
 
@@ -2133,15 +2141,15 @@ var WebAppAuthMiddleware = /*#__PURE__*/function (_BaseAuthMiddleware) {
 
                 return _context2.abrupt("return", _this6.getAuthCode(req, res, next, params));
 
-              case 27:
+              case 30:
                 next(_context2.t0);
 
-              case 28:
+              case 31:
               case "end":
                 return _context2.stop();
             }
           }
-        }, _callee2, null, [[7, 19]]);
+        }, _callee2, null, [[10, 22]]);
       }));
 
       return function (_x4, _x5, _x6) {

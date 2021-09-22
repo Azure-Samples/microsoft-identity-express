@@ -286,12 +286,15 @@ export class WebAppAuthMiddleware extends BaseAuthMiddleware {
 
             // get scopes for token request
             const scopes = options.resource.scopes;
-
+            console.log(scopes);
             const resourceName = ConfigHelper.getResourceNameFromScopes(scopes, this.appSettings)
+            console.log(resourceName);
 
             if (AppServiceAuthHelper.isAppServiceAuthEnabled()) {
-                if (req.session.protectedResources[resourceName].accessToken) {
-                    return next();
+                if (req.session.protectedResources[resourceName]) {
+                    if (req.session.protectedResources[resourceName].accessToken) {
+                        return next();
+                    }
                 }
             }
 

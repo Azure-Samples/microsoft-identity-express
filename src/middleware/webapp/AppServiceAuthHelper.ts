@@ -90,7 +90,7 @@ export class AppServiceAuthHelper {
                 // get the name of the resource associated with scope
                 const scopes = accessTokenClaims.scp;
                 const resourceName = ConfigHelper.getResourceNameFromScopes(scopes, appSettings);
-
+                console.log(resourceName);
                 if (!req.session.protectedResources) {
                     req.session.protectedResources = {}
                 }
