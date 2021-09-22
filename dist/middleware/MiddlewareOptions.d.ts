@@ -15,6 +15,7 @@ export declare type TokenRequestOptions = {
     resource: Resource;
     claims?: string;
     skipCache?: boolean;
+    customState?: Object;
 };
 export declare type GuardOptions = {
     accessRule?: AccessRule;

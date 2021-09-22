@@ -9,10 +9,7 @@ declare module "express-session" {
         account: AccountInfo;
         authCodeRequest: AuthorizationUrlRequest;
         tokenRequest: AuthorizationCodeRequest;
-        remoteResources?: {
-            [resource: string]: Resource;
-        };
-        ownedResources?: {
+        protectedResources?: {
             [resource: string]: Resource;
         };
     }
@@ -21,13 +18,9 @@ declare module "express" {
     interface Request {
         authInfo?: object;
         oboToken?: string;
+        oboAssertion?: string;
     }
 }
-export declare type User = {
-    account: AccountInfo;
-    isAuthenticated: boolean;
-    hasAccess: boolean;
-};
 export declare type AuthCodeParams = {
     authority: string;
     scopes: string[];

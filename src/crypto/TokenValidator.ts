@@ -12,7 +12,6 @@ import {
     TokenClaims,
     Logger
 } from "@azure/msal-common";
-
 import { Configuration } from "@azure/msal-node";
 
 import {
@@ -31,9 +30,10 @@ import {
 } from "../utils/Constants";
 
 export class TokenValidator {
+
+    logger: Logger;
     private _appSettings: AppSettings;
     private _msalConfig: Configuration;
-    private _logger: Logger;
 
     /**
      * @param {AppSettings} appSettings 
@@ -44,82 +44,8 @@ export class TokenValidator {
     constructor(appSettings: AppSettings, msalConfig: Configuration, logger: Logger) {
         this._appSettings = appSettings;
         this._msalConfig = msalConfig;
-        this._logger = logger;
+        this.logger = logger;
     }
-
-    /**
-     * Verifies a given token's signature using jwks-rsa
-     * @param {string} authToken 
-     * @returns {Promise}
-     */
-    async verifyTokenSignature(authToken: string): Promise<TokenClaims | boolean> {
-        if (StringUtils.isEmpty(authToken)) {
-            this._logger.error(ErrorMessages.TOKEN_NOT_FOUND);
-            return false;
-        }
-
-        // we will first decode to get kid parameter in header
-        let decodedToken: AuthToken = TokenValidator.decodeAuthToken(authToken);
-
-        // obtains signing keys from discovery endpoint
-        let keys;
-
-        try {
-            keys = await this.getSigningKeys(decodedToken.header, decodedToken.payload.tid);
-        } catch (error) {
-            this._logger.error(ErrorMessages.KEYS_NOT_OBTAINED);
-            return false;
-        }
-
-        // verify the signature at header section using keys
-        let verifiedToken: TokenClaims;
-
-        try {
-            verifiedToken = jwt.verify(authToken, keys);
-
-            /**
-             * if a multiplexer was used in place of tenantId i.e. if the app
-             * is multi-tenant, the tenantId should be obtained from the user"s
-             * token"s tid claim for verification purposes
-             */
-            if (
-                this._appSettings.appCredentials.tenantInfo === AADAuthorityConstants.COMMON ||
-                this._appSettings.appCredentials.tenantInfo === AADAuthorityConstants.ORGANIZATIONS ||
-                this._appSettings.appCredentials.tenantInfo === AADAuthorityConstants.CONSUMERS
-            ) {
-                this._appSettings.appCredentials.tenantInfo = decodedToken.payload.tid;
-            }
-
-            return verifiedToken;
-        } catch (error) {
-            this._logger.error(ErrorMessages.TOKEN_NOT_VERIFIED);
-            return false;
-        }
-    };
-
-    /**
-     * Fetches signing keys of an access token
-     * from the authority discovery endpoint
-     * @param {TokenHeader} header: token header
-     * @param {string} tid: tenant id
-     * @returns {Promise}
-     */
-    private async getSigningKeys(header: TokenHeader, tid: string): Promise<string> {
-        let jwksUri;
-
-        // Check if a B2C application i.e. app has b2cPolicies
-        if (this._appSettings.b2cPolicies) {
-            jwksUri = `${this._msalConfig.auth.authority}/discovery/v2.0/keys`;
-        } else {
-            jwksUri = `https://${Constants.DEFAULT_AUTHORITY_HOST}/${tid}/discovery/v2.0/keys`;
-        }
-
-        const client = jwksClient({
-            jwksUri: jwksUri,
-        });
-
-        return (await client.getSigningKeyAsync(header.kid)).getPublicKey();
-    };
 
     /**
      * Verifies the access token for signature and claims
@@ -161,11 +87,85 @@ export class TokenValidator {
     };
 
     /**
+     * Verifies a given token's signature using jwks-rsa
+     * @param {string} authToken 
+     * @returns {Promise}
+     */
+    private async verifyTokenSignature(authToken: string): Promise<TokenClaims | boolean> {
+        if (StringUtils.isEmpty(authToken)) {
+            this.logger.error(ErrorMessages.TOKEN_NOT_FOUND);
+            return false;
+        }
+
+        // we will first decode to get kid parameter in header
+        let decodedToken: AuthToken = TokenValidator.decodeAuthToken(authToken);
+
+        // obtains signing keys from discovery endpoint
+        let keys;
+
+        try {
+            keys = await this.getSigningKeys(decodedToken.header, decodedToken.payload.tid);
+        } catch (error) {
+            this.logger.error(ErrorMessages.KEYS_NOT_OBTAINED);
+            return false;
+        }
+
+        // verify the signature at header section using keys
+        let verifiedToken: TokenClaims;
+
+        try {
+            verifiedToken = jwt.verify(authToken, keys);
+
+            /**
+             * if a multiplexer was used in place of tenantId i.e. if the app
+             * is multi-tenant, the tenantId should be obtained from the user"s
+             * token"s tid claim for verification purposes
+             */
+            if (
+                this._appSettings.appCredentials.tenantInfo === AADAuthorityConstants.COMMON ||
+                this._appSettings.appCredentials.tenantInfo === AADAuthorityConstants.ORGANIZATIONS ||
+                this._appSettings.appCredentials.tenantInfo === AADAuthorityConstants.CONSUMERS
+            ) {
+                this._appSettings.appCredentials.tenantInfo = decodedToken.payload.tid;
+            }
+
+            return verifiedToken;
+        } catch (error) {
+            this.logger.error(ErrorMessages.TOKEN_NOT_VERIFIED);
+            return false;
+        }
+    };
+
+    /**
+     * Fetches signing keys of an access token
+     * from the authority discovery endpoint
+     * @param {TokenHeader} header: token header
+     * @param {string} tid: tenant id
+     * @returns {Promise}
+     */
+    private async getSigningKeys(header: TokenHeader, tid: string): Promise<string> {
+        let jwksUri;
+
+        // Check if a B2C application i.e. app has b2cPolicies
+        if (this._appSettings.b2cPolicies) {
+            jwksUri = `${this._msalConfig.auth.authority}/discovery/v2.0/keys`;
+        } else {
+            jwksUri = `https://${Constants.DEFAULT_AUTHORITY_HOST}/${tid}/discovery/v2.0/keys`;
+        }
+
+        const client = jwksClient({
+            jwksUri: jwksUri,
+        });
+
+        return (await client.getSigningKeyAsync(header.kid)).getPublicKey();
+    };
+
+    /**
      * Validates the id token for a set of claims
      * @param {IdTokenClaims} idTokenClaims: decoded id token claims
      * @returns {boolean}
      */
-    validateIdTokenClaims(idTokenClaims: IdTokenClaims): boolean {
+    private validateIdTokenClaims(idTokenClaims: IdTokenClaims): boolean {
         const now = Math.round(new Date().getTime() / 1000); // in UNIX format
 
         /**
@@ -186,7 +186,7 @@ export class TokenValidator {
      * @param {string} protectedRoute: route where this token is required to access
      * @returns {boolean}
      */
-    validateAccessTokenClaims(verifiedToken: AccessTokenClaims, protectedRoute: string): boolean {
+    private validateAccessTokenClaims(verifiedToken: AccessTokenClaims, protectedRoute: string): boolean {
         const now = Math.round(new Date().getTime() / 1000); // in UNIX format
 
         /**

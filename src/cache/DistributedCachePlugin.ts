@@ -11,16 +11,16 @@ export class DistributedCachePlugin implements ICachePlugin {
     private static instance: DistributedCachePlugin;
 
     private persistenceManager: IDistributedPersistence;
-    private sessionId: string;
+    private persistenceKey: string;
 
-    private constructor(persistenceManager: IDistributedPersistence, sessionId?: string) {
+    private constructor(persistenceManager: IDistributedPersistence, persistenceKey?: string) {
         this.persistenceManager = persistenceManager;
-        this.sessionId = sessionId;
+        this.persistenceKey = persistenceKey;
     }
 
-    static getInstance(persistenceManager: IDistributedPersistence, sessionId?: string): DistributedCachePlugin {
+    static getInstance(persistenceManager: IDistributedPersistence, persistenceKey?: string): DistributedCachePlugin {
         if (!DistributedCachePlugin.instance) {
-            DistributedCachePlugin.instance = new DistributedCachePlugin(persistenceManager, sessionId);
+            DistributedCachePlugin.instance = new DistributedCachePlugin(persistenceManager, persistenceKey);
         }
 
         return DistributedCachePlugin.instance;
@@ -28,7 +28,7 @@ export class DistributedCachePlugin implements ICachePlugin {
 
     async beforeCacheAccess(cacheContext): Promise<void> {
         return new Promise(async (resolve, reject) => {
-            const sessionData = await this.persistenceManager.get("sess:" + this.sessionId);
+            const sessionData = await this.persistenceManager.get(this.persistenceKey);
             if (sessionData) {
                 const cacheData = await this.persistenceManager.get(JSON.parse(sessionData).account.homeAccountId);
                 cacheContext.tokenCache.deserialize(cacheData);

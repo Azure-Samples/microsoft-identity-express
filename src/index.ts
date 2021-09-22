@@ -3,4 +3,5 @@
  * Licensed under the MIT License.
  */
 
-export { MiddlewareBuilder } from "./middleware/MiddlewareBuilder";
+export { WebAppMiddlewareBuilder } from "./middleware/webapp/WebAppMiddlewareBuilder";
+export { WebApiMiddlewareBuilder } from "./middleware/webapi/WebApiMiddlewareBuilder";

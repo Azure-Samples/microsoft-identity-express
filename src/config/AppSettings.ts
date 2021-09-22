@@ -12,15 +12,15 @@ export type AppSettings = {
     b2cPolicies?: {
         [policy: string]: Policy;
     };
-    remoteResources?: {
+    accessMatrix?: {
+        [accessRule: string]: AccessRule
+    };
+    protectedResources?: {
         [resource: string]: Resource;
     };
     ownedResources?: {
         [resource: string]: Resource
-    },
-    accessMatrix?: {
-        [accessRule: string]: AccessRule
-    }
+    };
 };
 
 export type AppCredentials = {
@@ -34,7 +34,7 @@ export type AppCredentials = {
 export type ClientCertificate = {
     thumbprint: string;
     privateKey: string;
-    x5c?: string
+    x5c?: string;
 };
 
 export type KeyVaultCredential = {

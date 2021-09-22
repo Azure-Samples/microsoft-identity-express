@@ -2,6 +2,7 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
+import { Express } from "express";
 
 import {
     AccountInfo,
@@ -21,29 +22,22 @@ declare module "express-session" {
         account: AccountInfo;
         authCodeRequest: AuthorizationUrlRequest;
         tokenRequest: AuthorizationCodeRequest;
-        remoteResources?: {
+        protectedResources?: {
             [resource: string]: Resource;
         };
-        ownedResources?: {
-            [resource: string]: Resource;
-        },
     }
 };
 
 // extending express request
 declare module "express" {
     export interface Request {
-        authInfo?: object,
+        authInfo?: object;
         oboToken?: string;
+        oboAssertion?: string;
     }
 };
 
-export type User = {
-    account: AccountInfo;
-    isAuthenticated: boolean;
-    hasAccess: boolean;
-};
-
+// prepare auth code and token requests
 export type AuthCodeParams = {
     authority: string;
     scopes: string[];

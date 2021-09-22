@@ -6,14 +6,14 @@ export declare type AppSettings = {
     b2cPolicies?: {
         [policy: string]: Policy;
     };
-    remoteResources?: {
+    accessMatrix?: {
+        [accessRule: string]: AccessRule;
+    };
+    protectedResources?: {
         [resource: string]: Resource;
     };
     ownedResources?: {
         [resource: string]: Resource;
-    };
-    accessMatrix?: {
-        [accessRule: string]: AccessRule;
     };
 };
 export declare type AppCredentials = {

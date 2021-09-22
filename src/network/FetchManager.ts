@@ -14,10 +14,8 @@ import {
 export class FetchManager {
 
     /**
-     * Calls a resource endpoint with a raw access token
-     * using the authorization bearer token scheme
-     * @param {string} endpoint 
-     * @param {string} accessToken 
+     * Calls a resource endpoint
+     * @param {string} endpoint
      * @returns {Promise}
      */
     static callApiEndpoint = async (endpoint: string): Promise<AxiosResponse> => {

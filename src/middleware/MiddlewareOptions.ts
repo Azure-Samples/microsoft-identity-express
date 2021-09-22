@@ -32,6 +32,7 @@ export type TokenRequestOptions = {
     resource: Resource;
     claims?: string;
     skipCache?: boolean;
+    customState?: Object;
 };
 
 export type GuardOptions = {

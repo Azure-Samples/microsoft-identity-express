@@ -1,11 +1,11 @@
-import { TokenClaims, Logger } from "@azure/msal-common";
+import { Logger } from "@azure/msal-common";
 import { Configuration } from "@azure/msal-node";
-import { AuthToken, IdTokenClaims, AccessTokenClaims } from "./AuthToken";
+import { AuthToken } from "./AuthToken";
 import { AppSettings } from "../config/AppSettings";
 export declare class TokenValidator {
+    logger: Logger;
     private _appSettings;
     private _msalConfig;
-    private _logger;
     /**
      * @param {AppSettings} appSettings
      * @param {Configuration} msalConfig
@@ -13,20 +13,6 @@ export declare class TokenValidator {
      * @constructor
      */
     constructor(appSettings: AppSettings, msalConfig: Configuration, logger: Logger);
-    /**
-     * Verifies a given token's signature using jwks-rsa
-     * @param {string} authToken
-     * @returns {Promise}
-     */
-    verifyTokenSignature(authToken: string): Promise<TokenClaims | boolean>;
-    /**
-     * Fetches signing keys of an access token
-     * from the authority discovery endpoint
-     * @param {TokenHeader} header: token header
-     * @param {string} tid: tenant id
-     * @returns {Promise}
-     */
-    private getSigningKeys;
     /**
      * Verifies the access token for signature and claims
      * @param {string} idToken: raw Id token
@@ -41,17 +27,31 @@ export declare class TokenValidator {
      */
     validateAccessToken(accessToken: string, protectedRoute: string): Promise<boolean>;
     /**
+     * Verifies a given token's signature using jwks-rsa
+     * @param {string} authToken
+     * @returns {Promise}
+     */
+    private verifyTokenSignature;
+    /**
+     * Fetches signing keys of an access token
+     * from the authority discovery endpoint
+     * @param {TokenHeader} header: token header
+     * @param {string} tid: tenant id
+     * @returns {Promise}
+     */
+    private getSigningKeys;
+    /**
      * Validates the id token for a set of claims
      * @param {IdTokenClaims} idTokenClaims: decoded id token claims
      * @returns {boolean}
      */
-    validateIdTokenClaims(idTokenClaims: IdTokenClaims): boolean;
+    private validateIdTokenClaims;
     /**
      * Validates the access token for a set of claims
      * @param {TokenClaims} verifiedToken: token with a verified signature
      * @param {string} protectedRoute: route where this token is required to access
      * @returns {boolean}
      */
-    validateAccessTokenClaims(verifiedToken: AccessTokenClaims, protectedRoute: string): boolean;
+    private validateAccessTokenClaims;
     static decodeAuthToken(authToken: string): AuthToken;
 }

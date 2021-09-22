@@ -13,19 +13,23 @@ import {
 
 import { AccountInfo, OIDC_DEFAULT_SCOPES } from "@azure/msal-common";
 
-import { TokenValidator } from "../crypto/TokenValidator";
-import { AccessTokenClaims, IdTokenClaims } from "../crypto/AuthToken";
-import { Resource } from "../config/AppSettings";
-import { ConfigHelper } from "../config/ConfigHelper";
+import { TokenValidator } from "../../crypto/TokenValidator";
+import { AccessTokenClaims, IdTokenClaims } from "../../crypto/AuthToken";
+import { Resource } from "../../config/AppSettings";
+import { ConfigHelper } from "../../config/ConfigHelper";
 
 import {
     AppServiceAuthenticationHeaders,
     AppServiceEnvironmentVariables,
     AppServiceAuthenticationEndpoints,
     AppServiceAuthenticationQueryParameters
-} from "../utils/Constants";
+} from "../../utils/Constants";
 
-export class AppServiceAuth {
+export class AppServiceAuthHelper {
+
+    constructor() {
+    
+    }
 
     static isAppServiceAuthEnabled(): boolean {
         if (process.env[AppServiceEnvironmentVariables.WEBSITE_AUTH_ENABLED] === "True") {
@@ -61,10 +65,10 @@ export class AppServiceAuth {
 
             if (rawIdToken && !req.session.isAuthenticated) {
 
+                // TODO: validate the id token
+
                 // parse the id token
                 const idTokenClaims: IdTokenClaims = TokenValidator.decodeAuthToken(rawIdToken).payload;
-
-                // TODO: validate the id token
 
                 req.session.isAuthenticated = true;
 
@@ -87,13 +91,13 @@ export class AppServiceAuth {
                 const scopes = accessTokenClaims.scp;
                 const resourceName = ConfigHelper.getResourceNameFromScopes(scopes, appSettings);
 
-                if (!req.session.remoteResources) {
-                    req.session.remoteResources = {}
+                if (!req.session.protectedResources) {
+                    req.session.protectedResources = {}
                 }
 
-                req.session.remoteResources = {
+                req.session.protectedResources = {
                     [resourceName]: {
-                        ...appSettings.remoteResources[resourceName],
+                        ...appSettings.protectedResources[resourceName],
                         accessToken: rawAccessToken,
                     } as Resource
                 };
