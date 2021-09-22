@@ -2062,28 +2062,40 @@ var WebAppAuthMiddleware = /*#__PURE__*/function (_BaseAuthMiddleware) {
                 scopes = options.resource.scopes;
                 resourceName = ConfigHelper.getResourceNameFromScopes(scopes, _this6.appSettings);
 
+                if (!AppServiceAuthHelper.isAppServiceAuthEnabled()) {
+                  _context2.next = 5;
+                  break;
+                }
+
+                if (!req.session.protectedResources[resourceName].accessToken) {
+                  _context2.next = 5;
+                  break;
+                }
+
+                return _context2.abrupt("return", next());
+
+              case 5:
                 if (!req.session.protectedResources) {
                   req.session.protectedResources = {};
                 }
 
                 req.session.protectedResources = (_req$session$protecte = {}, _req$session$protecte[resourceName] = _extends({}, _this6.appSettings.protectedResources[resourceName], {
                   accessToken: null
-                }), _req$session$protecte); // TODO: handle app service auth -this will need a new middleware build approach
-
-                _context2.prev = 4;
+                }), _req$session$protecte);
+                _context2.prev = 7;
                 silentRequest = {
                   account: req.session.account,
                   scopes: scopes
                 }; // acquire token silently to be used in resource call
 
-                _context2.next = 8;
+                _context2.next = 11;
                 return _this6.msalClient.acquireTokenSilent(silentRequest);
 
-              case 8:
+              case 11:
                 tokenResponse = _context2.sent;
 
                 if (!StringUtils.isEmpty(tokenResponse.accessToken)) {
-                  _context2.next = 12;
+                  _context2.next = 15;
                   break;
                 }
 
@@ -2091,18 +2103,18 @@ var WebAppAuthMiddleware = /*#__PURE__*/function (_BaseAuthMiddleware) {
 
                 throw new InteractionRequiredAuthError(ErrorMessages.INTERACTION_REQUIRED);
 
-              case 12:
+              case 15:
                 req.session.protectedResources[resourceName].accessToken = tokenResponse.accessToken;
                 next();
-                _context2.next = 25;
+                _context2.next = 28;
                 break;
 
-              case 16:
-                _context2.prev = 16;
-                _context2.t0 = _context2["catch"](4);
+              case 19:
+                _context2.prev = 19;
+                _context2.t0 = _context2["catch"](7);
 
                 if (!(_context2.t0 instanceof InteractionRequiredAuthError)) {
-                  _context2.next = 24;
+                  _context2.next = 27;
                   break;
                 }
 
@@ -2121,15 +2133,15 @@ var WebAppAuthMiddleware = /*#__PURE__*/function (_BaseAuthMiddleware) {
 
                 return _context2.abrupt("return", _this6.getAuthCode(req, res, next, params));
 
-              case 24:
+              case 27:
                 next(_context2.t0);
 
-              case 25:
+              case 28:
               case "end":
                 return _context2.stop();
             }
           }
-        }, _callee2, null, [[4, 16]]);
+        }, _callee2, null, [[7, 19]]);
       }));
 
       return function (_x4, _x5, _x6) {

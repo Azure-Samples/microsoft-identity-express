@@ -53,7 +53,8 @@ import {
     AppStages,
     ErrorMessages,
     AccessControlConstants,
-    InfoMessages
+    InfoMessages,
+    AppServiceAuthenticationHeaders
 } from "../../utils/Constants";
 
 
@@ -288,6 +289,12 @@ export class WebAppAuthMiddleware extends BaseAuthMiddleware {
 
             const resourceName = ConfigHelper.getResourceNameFromScopes(scopes, this.appSettings)
 
+            if (AppServiceAuthHelper.isAppServiceAuthEnabled()) {
+                if (req.session.protectedResources[resourceName].accessToken) {
+                    return next();
+                }
+            }
+
             if (!req.session.protectedResources) {
                 req.session.protectedResources = {}
             }
@@ -299,7 +306,6 @@ export class WebAppAuthMiddleware extends BaseAuthMiddleware {
                 } as Resource
             };
 
-            // TODO: handle app service auth -this will need a new middleware build approach
             try {
                 const silentRequest: SilentFlowRequest = {
                     account: req.session.account,
