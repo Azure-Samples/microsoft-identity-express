@@ -1662,9 +1662,7 @@ var AppServiceAuthHelper = /*#__PURE__*/function () {
     }
   };
 
-  AppServiceAuthHelper.getEffectiveScopesFromLoginParams = function getEffectiveScopesFromLoginParams() {
-    var loginParams = process.env[AppServiceEnvironmentVariables.WEBSITE_AUTH_LOGIN_PARAMS];
-    var scopesList = loginParams.split("scope=")[1].split(" ");
+  AppServiceAuthHelper.getEffectiveScopes = function getEffectiveScopes(scopesList) {
     var effectiveScopesList = scopesList.filter(function (scope) {
       return !OIDC_DEFAULT_SCOPES.includes(scope);
     });
@@ -1717,7 +1715,7 @@ var AppServiceAuthHelper = /*#__PURE__*/function () {
 
                   scopes = accessTokenClaims.scp;
                   console.log('inAuthHelper', scopes);
-                  resourceName = ConfigHelper.getResourceNameFromScopes(scopes, appSettings);
+                  resourceName = ConfigHelper.getResourceNameFromScopes(AppServiceAuthHelper.getEffectiveScopes(scopes), appSettings);
                   console.log('inAuthHelper', resourceName);
 
                   if (!req.session.protectedResources) {

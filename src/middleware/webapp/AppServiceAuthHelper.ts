@@ -39,9 +39,7 @@ export class AppServiceAuthHelper {
         }
     }
 
-    static getEffectiveScopesFromLoginParams(): string[] {
-        const loginParams = process.env[AppServiceEnvironmentVariables.WEBSITE_AUTH_LOGIN_PARAMS] as string;
-        const scopesList = loginParams.split("scope=")[1].split(" ");
+    static getEffectiveScopes(scopesList: string[]): string[] {
         const effectiveScopesList = scopesList.filter(scope => !OIDC_DEFAULT_SCOPES.includes(scope));
         return effectiveScopesList;
     }
@@ -90,7 +88,7 @@ export class AppServiceAuthHelper {
                 // get the name of the resource associated with scope
                 const scopes = accessTokenClaims.scp;
                 console.log('inAuthHelper', scopes)
-                const resourceName = ConfigHelper.getResourceNameFromScopes(scopes, appSettings);
+                const resourceName = ConfigHelper.getResourceNameFromScopes(AppServiceAuthHelper.getEffectiveScopes(scopes), appSettings);
                 
                 console.log('inAuthHelper', resourceName);
 
