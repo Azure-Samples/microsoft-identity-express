@@ -1713,7 +1713,7 @@ var AppServiceAuthHelper = /*#__PURE__*/function () {
                 if (rawAccessToken) {
                   accessTokenClaims = TokenValidator.decodeAuthToken(rawAccessToken).payload; // get the name of the resource associated with scope
 
-                  scopes = accessTokenClaims.scp;
+                  scopes = accessTokenClaims.scp.split(" ");
                   console.log('inAuthHelper', scopes);
                   resourceName = ConfigHelper.getResourceNameFromScopes(AppServiceAuthHelper.getEffectiveScopes(scopes), appSettings);
                   console.log('inAuthHelper', resourceName);

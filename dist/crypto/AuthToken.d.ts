@@ -20,7 +20,7 @@ export declare type IdTokenClaims = TokenClaims & {
     acrs?: string[];
 };
 export declare type AccessTokenClaims = TokenClaims & {
-    scp?: string[];
+    scp?: string;
     aud?: string;
     roles?: string[];
     groups?: string[];

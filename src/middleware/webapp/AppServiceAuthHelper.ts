@@ -86,7 +86,7 @@ export class AppServiceAuthHelper {
                 const accessTokenClaims: AccessTokenClaims = TokenValidator.decodeAuthToken(rawAccessToken).payload;
 
                 // get the name of the resource associated with scope
-                const scopes = accessTokenClaims.scp;
+                const scopes = accessTokenClaims.scp.split(" ");
                 console.log('inAuthHelper', scopes)
                 const resourceName = ConfigHelper.getResourceNameFromScopes(AppServiceAuthHelper.getEffectiveScopes(scopes), appSettings);
                 

@@ -29,7 +29,7 @@ export type IdTokenClaims = TokenClaims & {
 };
 
 export type AccessTokenClaims = TokenClaims & {
-    scp?: string[],
+    scp?: string,
     aud?: string,
     roles?: string[],
     groups?: string[],
