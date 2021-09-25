@@ -73,7 +73,7 @@ export class ConfigHelper {
      * @returns {string}
      */
     static getScopesFromResourceEndpoint(resourceEndpoint: string, appSettings: AppSettings): string[] {
-        const scopes = Object.values(appSettings.ownedResources)
+        const scopes = Object.values({ ...appSettings.protectedResources, ...appSettings.ownedResources })
             .find((resource: Resource) => resource.endpoint === resourceEndpoint).scopes;
 
         return scopes;

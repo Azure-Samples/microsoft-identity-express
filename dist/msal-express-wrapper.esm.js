@@ -1080,7 +1080,7 @@ var ConfigHelper = /*#__PURE__*/function () {
    * @returns {string}
    */
   ConfigHelper.getScopesFromResourceEndpoint = function getScopesFromResourceEndpoint(resourceEndpoint, appSettings) {
-    var scopes = Object.values(appSettings.ownedResources).find(function (resource) {
+    var scopes = Object.values(_extends({}, appSettings.protectedResources, appSettings.ownedResources)).find(function (resource) {
       return resource.endpoint === resourceEndpoint;
     }).scopes;
     return scopes;
@@ -2994,10 +2994,12 @@ var AppServiceAuthMiddleware = /*#__PURE__*/function (_BaseAuthMiddleware) {
                 req.session.protectedResources = (_req$session$protecte = {}, _req$session$protecte[resourceName] = _extends({}, _this.appSettings.protectedResources[resourceName], {
                   accessToken: null
                 }), _req$session$protecte);
+                console.log(req.headers);
                 rawAccessToken = req.headers[AppServiceAuthenticationHeaders.APP_SERVICE_ACCESS_TOKEN_HEADER.toLowerCase()];
+                console.log(rawAccessToken);
 
                 if (!rawAccessToken) {
-                  _context2.next = 14;
+                  _context2.next = 16;
                   break;
                 }
 
@@ -3007,19 +3009,19 @@ var AppServiceAuthMiddleware = /*#__PURE__*/function (_BaseAuthMiddleware) {
                 effectiveScopes = ConfigHelper.getEffectiveScopes(scopes);
 
                 if (!options.resource.scopes.every(function (elem) {
-                  return effectiveScopes.includes(elem);
+                  return effectiveScopes.includes(elem.toLowerCase());
                 })) {
-                  _context2.next = 13;
+                  _context2.next = 15;
                   break;
                 }
 
                 _this.appSettings.protectedResources[resourceName].accessToken = rawAccessToken;
                 return _context2.abrupt("return", next());
 
-              case 13:
+              case 15:
                 return _context2.abrupt("return", next(new Error("No tokens found for given scopes")));
 
-              case 14:
+              case 16:
               case "end":
                 return _context2.stop();
             }

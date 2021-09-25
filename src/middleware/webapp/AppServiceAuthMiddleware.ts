@@ -162,8 +162,9 @@ export class AppServiceAuthMiddleware extends BaseAuthMiddleware {
                 } as Resource
             };
 
+            console.log(req.headers);
             const rawAccessToken = req.headers[AppServiceAuthenticationHeaders.APP_SERVICE_ACCESS_TOKEN_HEADER.toLowerCase()] as string;
-
+            console.log(rawAccessToken);
             if (rawAccessToken) {
 
                 const accessTokenClaims: AccessTokenClaims = TokenValidator.decodeAuthToken(rawAccessToken).payload;
@@ -172,7 +173,7 @@ export class AppServiceAuthMiddleware extends BaseAuthMiddleware {
                 const scopes = accessTokenClaims.scp.split(" ");
                 const effectiveScopes = ConfigHelper.getEffectiveScopes(scopes);
 
-                if (options.resource.scopes.every(elem => effectiveScopes.includes(elem))) {
+                if (options.resource.scopes.every(elem => effectiveScopes.includes(elem.toLowerCase()))) {
                     this.appSettings.protectedResources[resourceName].accessToken = rawAccessToken;
                     return next();
                 } else {

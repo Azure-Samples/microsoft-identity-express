@@ -34,3 +34,26 @@ export const TEST_CONSTANTS = {
         -----END CERTIFICATE-----
             `,
 };
+
+export const TEST_APP_SETTINGS = {
+  appCredentials: {
+    clientId: TEST_CONSTANTS.CLIENT_ID,
+    tenantInfo: TEST_CONSTANTS.TENANT_ID,
+    clientSecret: TEST_CONSTANTS.CLIENT_SECRET
+  },
+  authRoutes: {
+    redirect: "/redirect",
+    error: "/error",
+    unauthorized: "/unauthorized"
+  },
+  protectedResources: {
+    graphAPI: {
+      endpoint: "https://graph.microsoft.com/v1.0/me",
+      scopes: TEST_CONSTANTS.DEFAULT_GRAPH_SCOPE
+    },
+    armAPI: {
+      endpoint: "https://management.azure.com/tenants?api-version=2020-01-01",
+      scopes: ["https://management.azure.com/user_impersonation"]
+    }
+  }
+}
