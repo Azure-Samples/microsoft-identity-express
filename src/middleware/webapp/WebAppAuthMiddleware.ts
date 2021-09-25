@@ -31,7 +31,6 @@ import { ConfigHelper } from "../../config/ConfigHelper";
 import { IdTokenClaims } from "../../crypto/AuthToken";
 import { FetchManager } from "../../network/FetchManager";
 import { UrlUtils } from "../../utils/UrlUtils";
-import { AppServiceAuthHelper } from "./AppServiceAuthHelper";
 
 import {
     Resource,
@@ -70,7 +69,7 @@ export class WebAppAuthMiddleware extends BaseAuthMiddleware {
 
     /**
      * @param {AppSettings} appSettings
-     * @param {ICachePlugin} cache: cachePlugin
+     * @param {Configuration} msalConfig
      * @constructor
      */
     constructor(appSettings: AppSettings, msalConfig: Configuration) {
@@ -89,6 +88,7 @@ export class WebAppAuthMiddleware extends BaseAuthMiddleware {
 
         // handle redirect
         appRouter.get(UrlUtils.getPathFromUrl(this.appSettings.authRoutes.redirect), this.handleRedirect());
+        appRouter.post(UrlUtils.getPathFromUrl(this.appSettings.authRoutes.redirect), this.handleRedirect());
 
         appRouter.use((req: Request, res: Response, next: NextFunction) => {
 
@@ -101,14 +101,6 @@ export class WebAppAuthMiddleware extends BaseAuthMiddleware {
             req.session.nonce = this._cryptoProvider.createNewGuid();
             next();
         });
-
-        if (AppServiceAuthHelper.isAppServiceAuthEnabled()) {
-            /**
-             * Add a handler to handle App Service Auth
-             */
-            const appServiceAuthHandler = new AppServiceAuthHelper();
-            appRouter.use(appServiceAuthHandler.handleAppServiceAuth(this.appSettings));
-        }
 
         if (this.appSettings.authRoutes.frontChannelLogout) {
             /**
@@ -133,35 +125,25 @@ export class WebAppAuthMiddleware extends BaseAuthMiddleware {
     signIn(options?: SignInOptions): RequestHandler {
         return (req: Request, res: Response, next: NextFunction): Promise<void> => {
 
-            let loginUri; // redirect after destroying session
-            const postLoginRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.successRedirect);
+            // TODO: encrypt state parameter 
+            const state = this._cryptoProvider.base64Encode(
+                JSON.stringify({
+                    stage: AppStages.SIGN_IN,
+                    path: options.successRedirect,
+                    nonce: req.session.nonce,
+                })
+            );
 
-            if (AppServiceAuthHelper.isAppServiceAuthEnabled()) {
-                /**
-                 * App Service Auth is enabled. Use App Service Auth logout endpoint.
-                 */
-                loginUri = AppServiceAuthHelper.getLoginUri(postLoginRedirectUri);
-                res.redirect(loginUri);
-            } else {
-                // TODO: encrypt state parameter 
-                const state = this._cryptoProvider.base64Encode(
-                    JSON.stringify({
-                        stage: AppStages.SIGN_IN,
-                        path: options.successRedirect,
-                        nonce: req.session.nonce,
-                    })
-                );
+            const params: AuthCodeParams = {
+                authority: this.msalConfig.auth.authority,
+                scopes: OIDC_DEFAULT_SCOPES,
+                state: state,
+                redirect: UrlUtils.ensureAbsoluteUrl(req, this.appSettings.authRoutes.redirect)
+            };
 
-                const params: AuthCodeParams = {
-                    authority: this.msalConfig.auth.authority,
-                    scopes: OIDC_DEFAULT_SCOPES,
-                    state: state,
-                    redirect: UrlUtils.ensureAbsoluteUrl(req, this.appSettings.authRoutes.redirect)
-                };
+            // get url to sign user in
+            return this.getAuthCode(req, res, next, params);
 
-                // get url to sign user in
-                return this.getAuthCode(req, res, next, params);
-            }
         }
     };
 
@@ -176,20 +158,13 @@ export class WebAppAuthMiddleware extends BaseAuthMiddleware {
             let logoutUri; // redirect after destroying session
             const postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.successRedirect);
 
-            if (AppServiceAuthHelper.isAppServiceAuthEnabled()) {
-                /**
-                 * App Service Auth is enabled. Use App Service Auth logout endpoint.
-                 */
-                logoutUri = AppServiceAuthHelper.getLogoutUri(postLogoutRedirectUri);
-            } else {
-                /**
-                 * Construct a logout URI and redirect the user to end the
-                 * session with Azure AD/B2C. For more information, visit:
-                 * (AAD) https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request
-                 * (B2C) https://docs.microsoft.com/azure/active-directory-b2c/openid-connect#send-a-sign-out-request
-                 */
-                logoutUri = `${this.msalConfig.auth.authority}/oauth2/v2.0/logout?post_logout_redirect_uri=${postLogoutRedirectUri}`;
-            }
+            /**
+             * Construct a logout URI and redirect the user to end the
+             * session with Azure AD/B2C. For more information, visit:
+             * (AAD) https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request
+             * (B2C) https://docs.microsoft.com/azure/active-directory-b2c/openid-connect#send-a-sign-out-request
+             */
+            logoutUri = `${this.msalConfig.auth.authority}/oauth2/v2.0/logout?post_logout_redirect_uri=${postLogoutRedirectUri}`;
 
             req.session.destroy(() => {
                 res.redirect(logoutUri);
@@ -287,17 +262,7 @@ export class WebAppAuthMiddleware extends BaseAuthMiddleware {
 
             // get scopes for token request
             const scopes = options.resource.scopes;
-            console.log(scopes);
             const resourceName = ConfigHelper.getResourceNameFromScopes(scopes, this.appSettings)
-            console.log(resourceName);
-
-            if (AppServiceAuthHelper.isAppServiceAuthEnabled()) {
-                if (req.session.protectedResources[resourceName]) {
-                    if (req.session.protectedResources[resourceName].accessToken) {
-                        return next();
-                    }
-                }
-            }
 
             if (!req.session.protectedResources) {
                 req.session.protectedResources = {}

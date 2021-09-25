@@ -10,4 +10,6 @@ export declare abstract class BaseMiddlewareBuilder {
     withKeyVaultCredentials(keyVaultCredential: KeyVaultCredential): BaseMiddlewareBuilder;
     withDistributedTokenCache(persistenceManager: IDistributedPersistence): BaseMiddlewareBuilder;
     withCustomCachePlugin(cachePlugin: ICachePlugin): BaseMiddlewareBuilder;
+    abstract build(): any;
+    abstract buildAsync(): Promise<any>;
 }

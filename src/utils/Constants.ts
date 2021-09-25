@@ -6,6 +6,7 @@
 import {
     LoggerOptions,
     LogLevel,
+    OIDC_DEFAULT_SCOPES,
 } from "@azure/msal-common";
 
 /**
@@ -35,6 +36,10 @@ export enum KeyVaultCredentialTypes {
     CERTIFICATE = "clientCertificate",
 }
 
+export const OIDC_SCOPES = {
+    ...OIDC_DEFAULT_SCOPES,
+    EMAIL_SCOPE: "email"
+}
 /**
  * Request headers used by App Service authentication
  */

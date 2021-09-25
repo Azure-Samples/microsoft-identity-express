@@ -35,4 +35,8 @@ export abstract class BaseMiddlewareBuilder {
         this.customCachePlugin = cachePlugin;
         return this;
     }
+
+    abstract build(): any;
+
+    abstract buildAsync(): Promise<any>;
 }

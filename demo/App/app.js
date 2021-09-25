@@ -37,7 +37,7 @@ async function main() {
         resave: false,
         saveUninitialized: false,
         cookie: {
-            secure: false, 
+            secure: false,
         }
     }
 
@@ -48,34 +48,23 @@ async function main() {
 
     app.use(session(sessionConfig));
 
-    // try {
-    //     // async building the wrapper as fetching credentials from key vault
-    //     const msal = await new MsalExpress.WebAppMiddlewareBuilder(appSettings)
-    //         .withKeyVaultCredentials({
-    //             credentialType: "clientSecret",
-    //             credentialName: "WrapperExampleSecret",
-    //             keyVaultUrl: "https://derisen-test-vault.vault.azure.net/"
-    //         }).buildAsync();
+    try {
+        // async building the wrapper as fetching credentials from key vault
+        const msal = await new MsalExpress.WebAppMiddlewareBuilder(appSettings)
+            .withKeyVaultCredentials({
+                credentialType: "clientSecret",
+                credentialName: "WrapperExampleSecret",
+                keyVaultUrl: "https://derisen-test-vault.vault.azure.net/"
+            }).buildAsync();
 
-    //     app.use(msal.initialize());
+        app.use(msal.initialize());
 
-    //     app.use(router(msal));
+        app.use(router(msal));
 
-    //     app.listen(SERVER_PORT, () => console.log(`Server is listening on port ${SERVER_PORT}!`));
-    // } catch (error) {
-    //     console.log(error);
-    // }
-
-    new MsalExpress.WebAppMiddlewareBuilder(appSettings)
-        .build()
-        .then(msal => {
-            console.log("msal", msal);
-            app.use(msal.initialize());
-            app.use(router(msal));
-            app.listen(SERVER_PORT, () => console.log(`Server is listening on port ${SERVER_PORT}!`));
-        }).catch(error => {
-            console.log(error);
-        })
+        app.listen(SERVER_PORT, () => console.log(`Server is listening on port ${SERVER_PORT}!`));
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 main();

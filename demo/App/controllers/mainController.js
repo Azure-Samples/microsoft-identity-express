@@ -6,9 +6,6 @@ exports.getHomePage = (req, res, next) => {
 }
 
 exports.getIdPage = (req, res, next) => {
-
-    console.log(req.session.account);
-    
     const claims = {
         name: req.session.account.idTokenClaims.name,
         preferred_username: req.session.account.idTokenClaims.preferred_username,
@@ -23,7 +20,7 @@ exports.getProfilePage = async(req, res, next) => {
     let profile;
 
     try {
-        profile = await fetchManager.callAPI(appSettings.remoteResources.graphAPI.endpoint, req.session.remoteResources["graphAPI"].accessToken);
+        profile = await fetchManager.callAPI(appSettings.protectedResources.graphAPI.endpoint, req.session.protectedResources["graphAPI"].accessToken);
         res.render('profile', { isAuthenticated: req.session.isAuthenticated, profile: profile });        
     } catch (error) {
         console.log(error);
@@ -35,7 +32,7 @@ exports.getTenantPage = async(req, res, next) => {
     let tenant;
 
     try {
-        tenant = await fetchManager.callAPI(appSettings.remoteResources.armAPI.endpoint, req.session.remoteResources["armAPI"].accessToken);
+        tenant = await fetchManager.callAPI(appSettings.protectedResources.armAPI.endpoint, req.session.protectedResources["armAPI"].accessToken);
         res.render('tenant', { isAuthenticated: req.session.isAuthenticated, tenant: tenant.value[0] });
     } catch (error) {
         console.log(error);

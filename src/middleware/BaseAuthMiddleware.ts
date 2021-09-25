@@ -21,7 +21,7 @@ import {
 } from "../packageMetadata";
 
 export abstract class BaseAuthMiddleware {
-    
+
     appSettings: AppSettings;
     protected msalConfig: Configuration;
     protected msalClient: ConfidentialClientApplication;
@@ -36,6 +36,11 @@ export abstract class BaseAuthMiddleware {
         this.msalClient = new ConfidentialClientApplication(this.msalConfig);
     }
 
+    /**
+     * Initialize AuthProvider and set default routes and handlers
+     * @param {InitializationOptions} options
+     * @returns {Router}
+     */
     abstract initialize(options: InitializationOptions): Router;
 
     getMsalClient(): ConfidentialClientApplication {
@@ -45,4 +50,20 @@ export abstract class BaseAuthMiddleware {
     getLogger(): Logger {
         return this.logger;
     }
+
+    /**
+     * Replaces the default logger set in configurations with new Logger with new configurations
+     * @param {Logger} logger - Logger instance
+     */
+    setLogger(logger: Logger): void {
+        this.logger = logger;
+    }
+
+    /**
+     * Gets the token cache for the application.
+     */
+    // getTokenCache(): TokenCache {
+    //     this.logger.info("getTokenCache called");
+    //     return this.tokenCache;
+    // }
 }

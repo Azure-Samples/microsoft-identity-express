@@ -8,7 +8,7 @@ const appSettings = {
         error: "/error",
         unauthorized: "/unauthorized"
     },
-    remoteResources: {
+    protectedResources: {
         graphAPI: {
             endpoint: "https://graph.microsoft.com/v1.0/me",
             scopes: ["user.read"]

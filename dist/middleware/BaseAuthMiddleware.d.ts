@@ -11,7 +11,17 @@ export declare abstract class BaseAuthMiddleware {
     protected tokenValidator: TokenValidator;
     protected logger: Logger;
     protected constructor(appSettings: AppSettings, msalConfig: Configuration);
+    /**
+     * Initialize AuthProvider and set default routes and handlers
+     * @param {InitializationOptions} options
+     * @returns {Router}
+     */
     abstract initialize(options: InitializationOptions): Router;
     getMsalClient(): ConfidentialClientApplication;
     getLogger(): Logger;
+    /**
+     * Replaces the default logger set in configurations with new Logger with new configurations
+     * @param {Logger} logger - Logger instance
+     */
+    setLogger(logger: Logger): void;
 }

@@ -12,7 +12,7 @@ export declare class WebAppAuthMiddleware extends BaseAuthMiddleware {
     private _cryptoProvider;
     /**
      * @param {AppSettings} appSettings
-     * @param {ICachePlugin} cache: cachePlugin
+     * @param {Configuration} msalConfig
      * @constructor
      */
     constructor(appSettings: AppSettings, msalConfig: Configuration);

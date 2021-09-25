@@ -5,7 +5,7 @@
 
 import { StringUtils } from "@azure/msal-common";
 
-import { AADAuthorityConstants, ConfigurationErrorMessages } from "../utils/Constants";
+import { AADAuthorityConstants, ConfigurationErrorMessages, OIDC_SCOPES } from "../utils/Constants";
 import { AppSettings, Resource } from "./AppSettings";
 
 export class ConfigHelper {
@@ -78,4 +78,9 @@ export class ConfigHelper {
 
         return scopes;
     };
+
+    static getEffectiveScopes(scopesList: string[]): string[] {
+        const effectiveScopesList = scopesList.filter(scope => !OIDC_SCOPES.includes(scope));
+        return effectiveScopesList;
+    }
 }

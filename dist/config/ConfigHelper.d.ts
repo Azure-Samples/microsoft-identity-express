@@ -26,4 +26,5 @@ export declare class ConfigHelper {
      * @returns {string}
      */
     static getScopesFromResourceEndpoint(resourceEndpoint: string, appSettings: AppSettings): string[];
+    static getEffectiveScopes(scopesList: string[]): string[];
 }

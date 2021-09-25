@@ -61,8 +61,6 @@ export class WebApiAuthMiddleware extends BaseAuthMiddleware {
         const appRouter = express.Router();
 
         appRouter.use((req: Request, res: Response, next: NextFunction) => {
-            // req.app.getMsalClient = () => this.getMsalClient();
-            // req.app.getLogger = () => this.getLogger();
             next();
         });
 

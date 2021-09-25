@@ -33,7 +33,7 @@ module.exports = (msal) => {
     router.get('/profile',
         msal.isAuthenticated(),
         msal.getToken({
-            resource: msal.appSettings.remoteResources.graphAPI
+            resource: msal.appSettings.protectedResources.graphAPI
         }),
         mainController.getProfilePage
     ); // get token for this route to call web API
@@ -41,7 +41,7 @@ module.exports = (msal) => {
     router.get('/tenant',
         msal.isAuthenticated(),
         msal.getToken({
-            resource: msal.appSettings.remoteResources.armAPI
+            resource: msal.appSettings.protectedResources.armAPI
         }),
         mainController.getTenantPage
     ); // get token for this route to call web API
