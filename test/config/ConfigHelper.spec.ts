@@ -23,9 +23,10 @@ describe('ClientConfiguration tests', () => {
     });
 
     it('Gets effective scopes from a given list of scopes', () => {
-        const scopes = ["openid", "email", "User.Read", "calendars.read"];
+        const scopes = "email openid profile User.Read calendars.read".split(" ");
         const effectiveScopes = ConfigHelper.getEffectiveScopes(scopes);
         expect(effectiveScopes).toEqual(["User.Read", "calendars.read"]);
+        expect(["User.Read", "calendars.read"].every(elem => effectiveScopes.includes(elem))).toBe(true);
     });
     
 })

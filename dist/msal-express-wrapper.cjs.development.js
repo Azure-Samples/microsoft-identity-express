@@ -3000,34 +3000,38 @@ var AppServiceAuthMiddleware = /*#__PURE__*/function (_BaseAuthMiddleware) {
                 req.session.protectedResources = (_req$session$protecte = {}, _req$session$protecte[resourceName] = _extends({}, _this.appSettings.protectedResources[resourceName], {
                   accessToken: null
                 }), _req$session$protecte);
-                console.log(req.headers);
                 rawAccessToken = req.headers[AppServiceAuthenticationHeaders.APP_SERVICE_ACCESS_TOKEN_HEADER.toLowerCase()];
                 console.log(rawAccessToken);
 
                 if (!rawAccessToken) {
-                  _context2.next = 16;
+                  _context2.next = 20;
                   break;
                 }
 
-                accessTokenClaims = TokenValidator.decodeAuthToken(rawAccessToken).payload; // get the name of the resource associated with scope
+                console.log('access Token found');
+                accessTokenClaims = TokenValidator.decodeAuthToken(rawAccessToken).payload;
+                console.log(accessTokenClaims); // get the name of the resource associated with scope
 
                 scopes = accessTokenClaims.scp.split(" ");
                 effectiveScopes = ConfigHelper.getEffectiveScopes(scopes);
+                console.log(scopes);
+                console.log(effectiveScopes);
 
                 if (!options.resource.scopes.every(function (elem) {
-                  return effectiveScopes.includes(elem.toLowerCase());
+                  return effectiveScopes.includes(elem);
                 })) {
-                  _context2.next = 15;
+                  _context2.next = 19;
                   break;
                 }
 
+                console.log('includes');
                 _this.appSettings.protectedResources[resourceName].accessToken = rawAccessToken;
                 return _context2.abrupt("return", next());
 
-              case 15:
+              case 19:
                 return _context2.abrupt("return", next(new Error("No tokens found for given scopes")));
 
-              case 16:
+              case 20:
               case "end":
                 return _context2.stop();
             }

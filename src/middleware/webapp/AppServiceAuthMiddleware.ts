@@ -162,18 +162,19 @@ export class AppServiceAuthMiddleware extends BaseAuthMiddleware {
                 } as Resource
             };
 
-            console.log(req.headers);
             const rawAccessToken = req.headers[AppServiceAuthenticationHeaders.APP_SERVICE_ACCESS_TOKEN_HEADER.toLowerCase()] as string;
             console.log(rawAccessToken);
             if (rawAccessToken) {
-
+                console.log('access Token found')
                 const accessTokenClaims: AccessTokenClaims = TokenValidator.decodeAuthToken(rawAccessToken).payload;
-
+                console.log(accessTokenClaims)
                 // get the name of the resource associated with scope
                 const scopes = accessTokenClaims.scp.split(" ");
                 const effectiveScopes = ConfigHelper.getEffectiveScopes(scopes);
-
-                if (options.resource.scopes.every(elem => effectiveScopes.includes(elem.toLowerCase()))) {
+                console.log(scopes);
+                console.log(effectiveScopes);
+                if (options.resource.scopes.every(elem => effectiveScopes.includes(elem))) {
+                    console.log('includes')
                     this.appSettings.protectedResources[resourceName].accessToken = rawAccessToken;
                     return next();
                 } else {
