@@ -847,6 +847,10 @@ try {
 }
 });
 
+/*
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ */
 /**
  * Basic authentication stages used to determine
  * appropriate action after redirect occurs
@@ -879,9 +883,7 @@ var KeyVaultCredentialTypes;
   KeyVaultCredentialTypes["CERTIFICATE"] = "clientCertificate";
 })(KeyVaultCredentialTypes || (KeyVaultCredentialTypes = {}));
 
-var OIDC_SCOPES = /*#__PURE__*/_extends({}, OIDC_DEFAULT_SCOPES, {
-  EMAIL_SCOPE: "email"
-});
+var OIDC_SCOPES = /*#__PURE__*/[].concat(OIDC_DEFAULT_SCOPES, ["email"]);
 /**
  * Request headers used by App Service authentication
  */

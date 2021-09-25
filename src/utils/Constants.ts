@@ -36,10 +36,11 @@ export enum KeyVaultCredentialTypes {
     CERTIFICATE = "clientCertificate",
 }
 
-export const OIDC_SCOPES = {
+export const OIDC_SCOPES = [
     ...OIDC_DEFAULT_SCOPES,
-    EMAIL_SCOPE: "email"
-}
+    "email"
+]
+
 /**
  * Request headers used by App Service authentication
  */
