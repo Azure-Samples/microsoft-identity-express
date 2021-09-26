@@ -47,5 +47,4 @@ export declare class AppServiceAuthMiddleware extends BaseAuthMiddleware {
      * @returns {RequestHandler}
      */
     isAuthenticated(options?: GuardOptions): RequestHandler;
-    static isAppServiceAuthEnabled(): boolean;
 }

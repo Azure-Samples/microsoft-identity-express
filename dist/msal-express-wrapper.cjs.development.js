@@ -2001,7 +2001,7 @@ var WebAppAuthMiddleware = /*#__PURE__*/function (_BaseAuthMiddleware) {
                 _context2.prev = 16;
                 _context2.t0 = _context2["catch"](4);
 
-                if (!(_context2.t0 instanceof msalCommon.InteractionRequiredAuthError || _context2.t0 instanceof msalCommon.ClientAuthError && _context2.t0.errorCode === "no_tokens_found")) {
+                if (!(_context2.t0 instanceof msalCommon.InteractionRequiredAuthError)) {
                   _context2.next = 24;
                   break;
                 }
@@ -3001,37 +3001,31 @@ var AppServiceAuthMiddleware = /*#__PURE__*/function (_BaseAuthMiddleware) {
                   accessToken: null
                 }), _req$session$protecte);
                 rawAccessToken = req.headers[AppServiceAuthenticationHeaders.APP_SERVICE_ACCESS_TOKEN_HEADER.toLowerCase()];
-                console.log(rawAccessToken);
 
                 if (!rawAccessToken) {
-                  _context2.next = 20;
+                  _context2.next = 14;
                   break;
                 }
 
-                console.log('access Token found');
-                accessTokenClaims = TokenValidator.decodeAuthToken(rawAccessToken).payload;
-                console.log(accessTokenClaims); // get the name of the resource associated with scope
+                accessTokenClaims = TokenValidator.decodeAuthToken(rawAccessToken).payload; // get the name of the resource associated with scope
 
                 scopes = accessTokenClaims.scp.split(" ");
                 effectiveScopes = ConfigHelper.getEffectiveScopes(scopes);
-                console.log(scopes);
-                console.log(effectiveScopes);
 
                 if (!options.resource.scopes.every(function (elem) {
                   return effectiveScopes.includes(elem);
                 })) {
-                  _context2.next = 19;
+                  _context2.next = 13;
                   break;
                 }
 
-                console.log('includes');
-                _this.appSettings.protectedResources[resourceName].accessToken = rawAccessToken;
+                req.session.protectedResources[resourceName].accessToken = rawAccessToken;
                 return _context2.abrupt("return", next());
 
-              case 19:
+              case 13:
                 return _context2.abrupt("return", next(new Error("No tokens found for given scopes")));
 
-              case 20:
+              case 14:
               case "end":
                 return _context2.stop();
             }
@@ -3069,14 +3063,6 @@ var AppServiceAuthMiddleware = /*#__PURE__*/function (_BaseAuthMiddleware) {
         res.redirect(_this2.appSettings.authRoutes.unauthorized);
       }
     };
-  };
-
-  AppServiceAuthMiddleware.isAppServiceAuthEnabled = function isAppServiceAuthEnabled() {
-    if (process.env[AppServiceEnvironmentVariables.WEBSITE_AUTH_ENABLED] === "True") {
-      return true;
-    } else {
-      return false;
-    }
   };
 
   return AppServiceAuthMiddleware;
