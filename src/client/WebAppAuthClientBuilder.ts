@@ -26,7 +26,12 @@ export class WebAppAuthClientBuilder extends BaseAuthClientBuilder {
         // TODO: throw error if key vault credential is being built
         
         this.msalConfig = MsalConfiguration.getMsalConfiguration(this.appSettings, this.persistenceManager);
-        return new MsalWebAppAuthMiddleware(this.appSettings, this.msalConfig);
+        
+        if (EnvironmentUtils.isAppServiceAuthEnabled()) {
+            return new AppServiceWebAppAuthMiddleware(this.appSettings, this.msalConfig);
+        } else {
+            return new MsalWebAppAuthMiddleware(this.appSettings, this.msalConfig);
+        }
     }
 
     async buildAsync(): Promise<MsalWebAppAuthMiddleware | AppServiceWebAppAuthMiddleware> {

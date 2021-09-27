@@ -3008,7 +3008,12 @@ var WebAppAuthClientBuilder = /*#__PURE__*/function (_BaseAuthClientBuilde) {
   _proto.build = function build() {
     // TODO: throw error if key vault credential is being built
     this.msalConfig = MsalConfiguration.getMsalConfiguration(this.appSettings, this.persistenceManager);
-    return new MsalWebAppAuthMiddleware(this.appSettings, this.msalConfig);
+
+    if (EnvironmentUtils.isAppServiceAuthEnabled()) {
+      return new AppServiceWebAppAuthMiddleware(this.appSettings, this.msalConfig);
+    } else {
+      return new MsalWebAppAuthMiddleware(this.appSettings, this.msalConfig);
+    }
   };
 
   _proto.buildAsync = /*#__PURE__*/function () {
