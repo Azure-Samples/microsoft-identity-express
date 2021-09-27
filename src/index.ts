@@ -3,6 +3,5 @@
  * Licensed under the MIT License.
  */
 
-export { WebAppMiddlewareBuilder } from "./middleware/webapp/WebAppMiddlewareBuilder";
-export { AppServiceMiddlewareBuilder } from "./middleware/webapp/AppServiceMiddlewareBuilder";
-export { WebApiMiddlewareBuilder } from "./middleware/webapi/WebApiMiddlewareBuilder";
+export { WebAppAuthClientBuilder } from "./client/WebAppAuthClientBuilder";
+export { WebApiAuthClientBuilder } from "./client/WebApiAuthClientBuilder";

@@ -5,13 +5,13 @@
 
 import { Configuration } from "@azure/msal-node";
 
-import { BaseMiddlewareBuilder } from "../BaseMiddlewareBuilder";
-import { WebAppAuthMiddleware } from "./WebAppAuthMiddleware";
-import { KeyVaultManager } from "../../network/KeyVaultManager";
-import { MsalConfiguration } from "../../config/MsalConfiguration";
-import { AppSettings } from "../../config/AppSettings";
+import { BaseAuthClientBuilder } from "./BaseAuthClientBuilder";
+import { MsalWebApiAuthMiddleware } from "../middleware/MsalWebApiAuthMiddleware";
+import { KeyVaultManager } from "../network/KeyVaultManager";
+import { MsalConfiguration } from "../config/MsalConfiguration";
+import { AppSettings } from "../config/AppSettings";
 
-export class WebAppMiddlewareBuilder extends BaseMiddlewareBuilder {
+export class WebApiAuthClientBuilder extends BaseAuthClientBuilder {
 
     appSettings: AppSettings;
     private msalConfig: Configuration;
@@ -22,20 +22,21 @@ export class WebAppMiddlewareBuilder extends BaseMiddlewareBuilder {
 
     /**
      * Synchronously builds the MSAL middleware with the provided configuration.
-     * @returns {WebAppAuthMiddleware}
+     * @returns {MsalWebApiAuthMiddleware}
      */
-    build(): WebAppAuthMiddleware {
+    build(): MsalWebApiAuthMiddleware {
         // TODO: throw error if key vault credential is being built
         this.msalConfig = MsalConfiguration.getMsalConfiguration(this.appSettings, this.persistenceManager);
-        return new WebAppAuthMiddleware(this.appSettings, this.msalConfig);
+        return new MsalWebApiAuthMiddleware(this.appSettings, this.msalConfig);
     }
 
     /**
      * Asynchronously builds the MSAL middleware with the provided configuration.
      * @returns {Promise}
      */
-    async buildAsync(): Promise<WebAppAuthMiddleware> {
+    async buildAsync(): Promise<MsalWebApiAuthMiddleware> {
         try {
+
             if (this.keyVaultCredential) {
                 const keyVaultManager = new KeyVaultManager();
                 const credential = await keyVaultManager.getCredentialFromKeyVault(this.keyVaultCredential);
@@ -48,7 +49,7 @@ export class WebAppMiddlewareBuilder extends BaseMiddlewareBuilder {
                 this.msalConfig = MsalConfiguration.getMsalConfiguration(this.appSettings);
             }
 
-            return new WebAppAuthMiddleware(this.appSettings, this.msalConfig);
+            return new MsalWebApiAuthMiddleware(this.appSettings, this.msalConfig);
         } catch (error) {
             throw new Error(error);
         }

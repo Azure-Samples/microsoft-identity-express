@@ -14,9 +14,7 @@ import express, {
 import {
     OIDC_DEFAULT_SCOPES,
     InteractionRequiredAuthError,
-    PromptValue,
     StringUtils,
-    ClientAuthError,
 } from "@azure/msal-common";
 
 import {
@@ -26,19 +24,19 @@ import {
     AuthenticationResult
 } from "@azure/msal-node";
 
-import { BaseAuthMiddleware } from "../BaseAuthMiddleware";
-import { ConfigHelper } from "../../config/ConfigHelper";
-import { IdTokenClaims } from "../../crypto/AuthToken";
-import { FetchManager } from "../../network/FetchManager";
-import { UrlUtils } from "../../utils/UrlUtils";
+import { BaseAuthMiddleware } from "./BaseAuthMiddleware";
+import { ConfigHelper } from "../config/ConfigHelper";
+import { IdTokenClaims } from "../crypto/AuthToken";
+import { FetchManager } from "../network/FetchManager";
+import { UrlUtils } from "../utils/UrlUtils";
 
 import {
     Resource,
     AppSettings,
     AccessRule,
-} from "../../config/AppSettings";
+} from "../config/AppSettings";
 
-import { AuthCodeParams } from "../../utils/Types";
+import { AuthCodeParams } from "../utils/Types";
 
 import {
     InitializationOptions,
@@ -47,14 +45,14 @@ import {
     SignInOptions,
     SignOutOptions,
     HandleRedirectOptions
-} from "../MiddlewareOptions";
+} from "./MiddlewareOptions";
 
 import {
     AppStages,
     ErrorMessages,
     AccessControlConstants,
     InfoMessages
-} from "../../utils/Constants";
+} from "../utils/Constants";
 
 
 /**
@@ -62,10 +60,10 @@ import {
  * It offers a collection of middleware and utility methods that automate
  * basic authentication and authorization tasks in Express MVC web apps
  */
-export class WebAppAuthMiddleware extends BaseAuthMiddleware {
+export class MsalWebAppAuthMiddleware extends BaseAuthMiddleware {
 
-    private _cryptoProvider: CryptoProvider;
-
+    private authStrategy;
+    
     /**
      * @param {AppSettings} appSettings
      * @param {Configuration} msalConfig
@@ -73,7 +71,6 @@ export class WebAppAuthMiddleware extends BaseAuthMiddleware {
      */
     constructor(appSettings: AppSettings, msalConfig: Configuration) {
         super(appSettings, msalConfig);
-        this._cryptoProvider = new CryptoProvider();
     }
 
     /**
@@ -97,7 +94,7 @@ export class WebAppAuthMiddleware extends BaseAuthMiddleware {
             }
 
             // add session nonce for crsf
-            req.session.nonce = this._cryptoProvider.createNewGuid();
+            req.session.nonce = this.cryptoProvider.createNewGuid();
             next();
         });
 
@@ -125,7 +122,7 @@ export class WebAppAuthMiddleware extends BaseAuthMiddleware {
         return (req: Request, res: Response, next: NextFunction): Promise<void> => {
 
             // TODO: encrypt state parameter 
-            const state = this._cryptoProvider.base64Encode(
+            const state = this.cryptoProvider.base64Encode(
                 JSON.stringify({
                     stage: AppStages.SIGN_IN,
                     path: options.successRedirect,
@@ -177,10 +174,10 @@ export class WebAppAuthMiddleware extends BaseAuthMiddleware {
      * @param {HandleRedirectOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    handleRedirect(options?: HandleRedirectOptions): RequestHandler {
+    private handleRedirect(options?: HandleRedirectOptions): RequestHandler {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             if (req.query.state) {
-                const state = JSON.parse(this._cryptoProvider.base64Decode(req.query.state as string));
+                const state = JSON.parse(this.cryptoProvider.base64Decode(req.query.state as string));
 
                 // check if nonce matches
                 if (state.nonce === req.session.nonce) {
@@ -295,7 +292,7 @@ export class WebAppAuthMiddleware extends BaseAuthMiddleware {
             } catch (error) {
                 // in case there are no cached tokens, initiate an interactive call
                 if (error instanceof InteractionRequiredAuthError) {
-                    const state = this._cryptoProvider.base64Encode(
+                    const state = this.cryptoProvider.base64Encode(
                         JSON.stringify({
                             stage: AppStages.ACQUIRE_TOKEN,
                             path: req.originalUrl,
@@ -499,6 +496,7 @@ export class WebAppAuthMiddleware extends BaseAuthMiddleware {
                 next(error);
             }
         } catch (error) {
+            // TODO: handle silent token acquisition error
             next(error);
         }
     }

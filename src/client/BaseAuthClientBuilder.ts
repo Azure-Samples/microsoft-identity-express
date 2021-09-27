@@ -9,7 +9,7 @@ import { IDistributedPersistence } from "../cache/IDistributedPersistence";
 import { ConfigHelper } from "../config/ConfigHelper";
 import { AppSettings, KeyVaultCredential } from "../config/AppSettings";
 
-export abstract class BaseMiddlewareBuilder {
+export abstract class BaseAuthClientBuilder {
 
     appSettings: AppSettings;
     protected persistenceManager: IDistributedPersistence;
@@ -21,18 +21,18 @@ export abstract class BaseMiddlewareBuilder {
         this.appSettings = appSettings;
     };
 
-    withKeyVaultCredentials(keyVaultCredential: KeyVaultCredential): BaseMiddlewareBuilder {
+    withKeyVaultCredentials(keyVaultCredential: KeyVaultCredential): BaseAuthClientBuilder {
         this.keyVaultCredential = keyVaultCredential;
         return this;
     }
 
-    withDistributedTokenCache(persistenceManager: IDistributedPersistence): BaseMiddlewareBuilder {
-        this.persistenceManager = persistenceManager;
+    withCustomCachePlugin(cachePlugin: ICachePlugin): BaseAuthClientBuilder {
+        this.customCachePlugin = cachePlugin;
         return this;
     }
-
-    withCustomCachePlugin(cachePlugin: ICachePlugin): BaseMiddlewareBuilder {
-        this.customCachePlugin = cachePlugin;
+    
+    withDistributedTokenCache(persistenceManager: IDistributedPersistence): BaseAuthClientBuilder {
+        this.persistenceManager = persistenceManager;
         return this;
     }
 

@@ -1,15 +1,15 @@
 import { RequestHandler, Router } from "express";
 import { Configuration } from "@azure/msal-node";
-import { BaseAuthMiddleware } from "../BaseAuthMiddleware";
-import { AppSettings } from "../../config/AppSettings";
-import { InitializationOptions, TokenRequestOptions, GuardOptions, SignInOptions, SignOutOptions, HandleRedirectOptions } from "../MiddlewareOptions";
+import { BaseAuthMiddleware } from "./BaseAuthMiddleware";
+import { AppSettings } from "../config/AppSettings";
+import { InitializationOptions, TokenRequestOptions, GuardOptions, SignInOptions, SignOutOptions } from "./MiddlewareOptions";
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
  * It offers a collection of middleware and utility methods that automate
  * basic authentication and authorization tasks in Express MVC web apps
  */
-export declare class WebAppAuthMiddleware extends BaseAuthMiddleware {
-    private _cryptoProvider;
+export declare class MsalWebAppAuthMiddleware extends BaseAuthMiddleware {
+    private authStrategy;
     /**
      * @param {AppSettings} appSettings
      * @param {Configuration} msalConfig
@@ -40,7 +40,7 @@ export declare class WebAppAuthMiddleware extends BaseAuthMiddleware {
      * @param {HandleRedirectOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    handleRedirect(options?: HandleRedirectOptions): RequestHandler;
+    private handleRedirect;
     /**
      * Middleware that gets tokens via acquireToken*
      * @param {TokenRequestOptions} options: options to modify this middleware

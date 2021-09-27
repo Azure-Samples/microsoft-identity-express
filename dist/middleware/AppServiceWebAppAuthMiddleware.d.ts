@@ -1,9 +1,9 @@
 import { Router, RequestHandler } from "express";
-import { BaseAuthMiddleware } from "../BaseAuthMiddleware";
+import { BaseAuthMiddleware } from "./BaseAuthMiddleware";
 import { Configuration } from "@azure/msal-node";
-import { AppSettings } from "../../config/AppSettings";
-import { GuardOptions, InitializationOptions, SignInOptions, SignOutOptions, TokenRequestOptions } from "../MiddlewareOptions";
-export declare class AppServiceAuthMiddleware extends BaseAuthMiddleware {
+import { AppSettings } from "../config/AppSettings";
+import { GuardOptions, InitializationOptions, SignInOptions, SignOutOptions, TokenRequestOptions } from "./MiddlewareOptions";
+export declare class AppServiceWebAppAuthMiddleware extends BaseAuthMiddleware {
     /**
      * @param {AppSettings} appSettings
      * @param {Configuration} msalConfig

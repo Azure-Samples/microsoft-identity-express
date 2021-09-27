@@ -20,28 +20,28 @@ import {
     OnBehalfOfRequest,
 } from "@azure/msal-node";
 
-import { BaseAuthMiddleware } from "../BaseAuthMiddleware";
+import { BaseAuthMiddleware } from "./BaseAuthMiddleware";
 
 import {
     AppSettings,
-} from "../../config/AppSettings";
+} from "../config/AppSettings";
 
 import {
     InitializationOptions,
     TokenRequestOptions,
     GuardOptions,
-} from "../MiddlewareOptions";
+} from "./MiddlewareOptions";
 
 import {
     ErrorMessages,
-} from "../../utils/Constants";
+} from "../utils/Constants";
 
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
  * It offers a collection of middleware and utility methods that automate
  * basic authentication and authorization tasks in RESTful APIs.
  */
-export class WebApiAuthMiddleware extends BaseAuthMiddleware {
+export class MsalWebApiAuthMiddleware extends BaseAuthMiddleware {
 
     /**
      * @param {AppSettings} appSettings

@@ -5,13 +5,15 @@
 
 import { Configuration } from "@azure/msal-node";
 
-import { BaseMiddlewareBuilder } from "../BaseMiddlewareBuilder";
-import { AppServiceAuthMiddleware } from "./AppServiceAuthMiddleware";
-import { KeyVaultManager } from "../../network/KeyVaultManager";
-import { MsalConfiguration } from "../../config/MsalConfiguration";
-import { AppSettings } from "../../config/AppSettings";
+import { BaseAuthClientBuilder } from "./BaseAuthClientBuilder";
+import { MsalWebAppAuthMiddleware } from "../middleware/MsalWebAppAuthMiddleware";
+import { AppServiceWebAppAuthMiddleware } from "../middleware/AppServiceWebAppAuthMiddleware";
+import { KeyVaultManager } from "../network/KeyVaultManager";
+import { MsalConfiguration } from "../config/MsalConfiguration";
+import { AppSettings } from "../config/AppSettings";
+import { EnvironmentUtils } from "../utils/EnvironmentUtils";
 
-export class AppServiceMiddlewareBuilder extends BaseMiddlewareBuilder {
+export class WebAppAuthClientBuilder extends BaseAuthClientBuilder {
 
     appSettings: AppSettings;
     private msalConfig: Configuration;
@@ -20,21 +22,14 @@ export class AppServiceMiddlewareBuilder extends BaseMiddlewareBuilder {
         super(appSettings)
     };
 
-    /**
-     * Synchronously builds the MSAL middleware with the provided configuration.
-     * @returns {AppServiceAuthMiddleware}
-     */
-    build(): AppServiceAuthMiddleware {
+    build(): MsalWebAppAuthMiddleware | AppServiceWebAppAuthMiddleware {
         // TODO: throw error if key vault credential is being built
+        
         this.msalConfig = MsalConfiguration.getMsalConfiguration(this.appSettings, this.persistenceManager);
-        return new AppServiceAuthMiddleware(this.appSettings, this.msalConfig);
+        return new MsalWebAppAuthMiddleware(this.appSettings, this.msalConfig);
     }
 
-    /**
-     * Asynchronously builds the MSAL middleware with the provided configuration.
-     * @returns {Promise}
-     */
-    async buildAsync(): Promise<AppServiceAuthMiddleware> {
+    async buildAsync(): Promise<MsalWebAppAuthMiddleware | AppServiceWebAppAuthMiddleware> {
         try {
             if (this.keyVaultCredential) {
                 const keyVaultManager = new KeyVaultManager();
@@ -48,7 +43,11 @@ export class AppServiceMiddlewareBuilder extends BaseMiddlewareBuilder {
                 this.msalConfig = MsalConfiguration.getMsalConfiguration(this.appSettings);
             }
 
-            return new AppServiceAuthMiddleware(this.appSettings, this.msalConfig);
+            if (EnvironmentUtils.isAppServiceAuthEnabled()) {
+                return new AppServiceWebAppAuthMiddleware(this.appSettings, this.msalConfig);
+            } else {
+                return new MsalWebAppAuthMiddleware(this.appSettings, this.msalConfig);
+            }
         } catch (error) {
             throw new Error(error);
         }
