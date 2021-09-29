@@ -1643,7 +1643,11 @@ UrlUtils.ensureAbsoluteUrl = function (req, url) {
   var urlComponents = new UrlString(url).getUrlComponents();
 
   if (!urlComponents.Protocol) {
-    if (!urlComponents.HostNameAndPort) {
+    if (!urlComponents.HostNameAndPort && !url.startsWith("www")) {
+      if (!url.startsWith("/")) {
+        return req.protocol + "://" + req.get("host") + "/" + url;
+      }
+
       return req.protocol + "://" + req.get("host") + url;
     }
 
