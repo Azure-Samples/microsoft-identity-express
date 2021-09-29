@@ -19,7 +19,7 @@ import {
     packageVersion
 } from "../packageMetadata";
 
-export abstract class BaseAuthMiddleware {
+export abstract class BaseAuthClient {
 
     appSettings: AppSettings;
     protected msalConfig: Configuration;

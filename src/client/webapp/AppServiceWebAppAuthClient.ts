@@ -13,14 +13,14 @@ import express, {
 } from "express";
 
 import { AccountInfo } from "@azure/msal-common";
-import { BaseAuthMiddleware } from "./BaseAuthMiddleware";
+import { BaseAuthClient } from "../BaseAuthClient";
 import { Configuration } from "@azure/msal-node";
 
-import { TokenValidator } from "../crypto/TokenValidator";
-import { AccessTokenClaims, IdTokenClaims } from "../crypto/AuthToken";
-import { AppSettings, Resource } from "../config/AppSettings";
-import { ConfigHelper } from "../config/ConfigHelper";
-import { UrlUtils } from "../utils/UrlUtils";
+import { TokenValidator } from "../../crypto/TokenValidator";
+import { AccessTokenClaims, IdTokenClaims } from "../../crypto/AuthToken";
+import { AppSettings, Resource } from "../../config/AppSettings";
+import { ConfigHelper } from "../../config/ConfigHelper";
+import { UrlUtils } from "../../utils/UrlUtils";
 
 import {
     GuardOptions,
@@ -29,7 +29,7 @@ import {
     SignInOptions,
     SignOutOptions,
     TokenRequestOptions
-} from "./MiddlewareOptions";
+} from "../MiddlewareOptions";
 
 import {
     AppServiceAuthenticationHeaders,
@@ -37,9 +37,9 @@ import {
     AppServiceAuthenticationEndpoints,
     AppServiceAuthenticationQueryParameters,
     ErrorMessages
-} from "../utils/Constants";
+} from "../../utils/Constants";
 
-export class AppServiceWebAppAuthMiddleware extends BaseAuthMiddleware {
+export class AppServiceWebAppAuthClient extends BaseAuthClient {
 
     /**
      * @param {AppSettings} appSettings

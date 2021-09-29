@@ -3,5 +3,5 @@
  * Licensed under the MIT License.
  */
 
-export { WebAppAuthClientBuilder } from "./client/WebAppAuthClientBuilder";
-export { WebApiAuthClientBuilder } from "./client/WebApiAuthClientBuilder";
+export { WebAppAuthClientBuilder } from "./client/webapp/WebAppAuthClientBuilder";
+export { WebApiAuthClientBuilder } from "./client/webapi/WebApiAuthClientBuilder";

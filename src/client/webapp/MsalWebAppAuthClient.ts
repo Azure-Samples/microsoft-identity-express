@@ -24,19 +24,19 @@ import {
     AuthenticationResult
 } from "@azure/msal-node";
 
-import { BaseAuthMiddleware } from "./BaseAuthMiddleware";
-import { ConfigHelper } from "../config/ConfigHelper";
-import { IdTokenClaims } from "../crypto/AuthToken";
-import { FetchManager } from "../network/FetchManager";
-import { UrlUtils } from "../utils/UrlUtils";
+import { BaseAuthClient } from "../BaseAuthClient";
+import { ConfigHelper } from "../../config/ConfigHelper";
+import { IdTokenClaims } from "../../crypto/AuthToken";
+import { FetchManager } from "../../network/FetchManager";
+import { UrlUtils } from "../../utils/UrlUtils";
 
 import {
     Resource,
     AppSettings,
     AccessRule,
-} from "../config/AppSettings";
+} from "../../config/AppSettings";
 
-import { AuthCodeParams } from "../utils/Types";
+import { AuthCodeParams } from "../../utils/Types";
 
 import {
     InitializationOptions,
@@ -45,14 +45,14 @@ import {
     SignInOptions,
     SignOutOptions,
     HandleRedirectOptions
-} from "./MiddlewareOptions";
+} from "../MiddlewareOptions";
 
 import {
     AppStages,
     ErrorMessages,
     AccessControlConstants,
     InfoMessages
-} from "../utils/Constants";
+} from "../../utils/Constants";
 
 
 /**
@@ -60,9 +60,7 @@ import {
  * It offers a collection of middleware and utility methods that automate
  * basic authentication and authorization tasks in Express MVC web apps
  */
-export class MsalWebAppAuthMiddleware extends BaseAuthMiddleware {
-
-    private authStrategy;
+export class MsalWebAppAuthClient extends BaseAuthClient {
     
     /**
      * @param {AppSettings} appSettings

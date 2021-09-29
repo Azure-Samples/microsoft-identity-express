@@ -1435,14 +1435,14 @@ var TokenValidator = /*#__PURE__*/function () {
 }();
 
 var packageName = "@azure-samples/msal-express-wrapper";
-var packageVersion = "0.1.0";
+var packageVersion = "beta";
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
-var BaseAuthMiddleware = /*#__PURE__*/function () {
-  function BaseAuthMiddleware(appSettings, msalConfig) {
+var BaseAuthClient = /*#__PURE__*/function () {
+  function BaseAuthClient(appSettings, msalConfig) {
     this.appSettings = appSettings;
     this.msalConfig = msalConfig;
     this.tokenValidator = new TokenValidator(this.appSettings, this.msalConfig, this.logger);
@@ -1451,7 +1451,7 @@ var BaseAuthMiddleware = /*#__PURE__*/function () {
     this.msalClient = new ConfidentialClientApplication(this.msalConfig);
   }
 
-  var _proto = BaseAuthMiddleware.prototype;
+  var _proto = BaseAuthClient.prototype;
 
   _proto.getMsalClient = function getMsalClient() {
     return this.msalClient;
@@ -1465,7 +1465,7 @@ var BaseAuthMiddleware = /*#__PURE__*/function () {
     return this.logger;
   };
 
-  return BaseAuthMiddleware;
+  return BaseAuthClient;
 }();
 
 var FetchManager = function FetchManager() {};
@@ -1671,16 +1671,16 @@ var _excluded = ["_claim_names", "_claim_sources"];
  * basic authentication and authorization tasks in Express MVC web apps
  */
 
-var MsalWebAppAuthMiddleware = /*#__PURE__*/function (_BaseAuthMiddleware) {
-  _inheritsLoose(MsalWebAppAuthMiddleware, _BaseAuthMiddleware);
+var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
+  _inheritsLoose(MsalWebAppAuthClient, _BaseAuthClient);
 
   /**
    * @param {AppSettings} appSettings
    * @param {Configuration} msalConfig
    * @constructor
    */
-  function MsalWebAppAuthMiddleware(appSettings, msalConfig) {
-    return _BaseAuthMiddleware.call(this, appSettings, msalConfig) || this;
+  function MsalWebAppAuthClient(appSettings, msalConfig) {
+    return _BaseAuthClient.call(this, appSettings, msalConfig) || this;
   }
   /**
    * Initialize AuthProvider and set default routes and handlers
@@ -1689,7 +1689,7 @@ var MsalWebAppAuthMiddleware = /*#__PURE__*/function (_BaseAuthMiddleware) {
    */
 
 
-  var _proto = MsalWebAppAuthMiddleware.prototype;
+  var _proto = MsalWebAppAuthClient.prototype;
 
   _proto.initialize = function initialize(options) {
     var _this = this;
@@ -2395,19 +2395,19 @@ var MsalWebAppAuthMiddleware = /*#__PURE__*/function (_BaseAuthMiddleware) {
     return true;
   };
 
-  return MsalWebAppAuthMiddleware;
-}(BaseAuthMiddleware);
+  return MsalWebAppAuthClient;
+}(BaseAuthClient);
 
-var AppServiceWebAppAuthMiddleware = /*#__PURE__*/function (_BaseAuthMiddleware) {
-  _inheritsLoose(AppServiceWebAppAuthMiddleware, _BaseAuthMiddleware);
+var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
+  _inheritsLoose(AppServiceWebAppAuthClient, _BaseAuthClient);
 
   /**
    * @param {AppSettings} appSettings
    * @param {Configuration} msalConfig
    * @constructor
    */
-  function AppServiceWebAppAuthMiddleware(appSettings, msalConfig) {
-    return _BaseAuthMiddleware.call(this, appSettings, msalConfig) || this;
+  function AppServiceWebAppAuthClient(appSettings, msalConfig) {
+    return _BaseAuthClient.call(this, appSettings, msalConfig) || this;
   }
   /**
    * Initialize AuthProvider and set default routes and handlers
@@ -2416,7 +2416,7 @@ var AppServiceWebAppAuthMiddleware = /*#__PURE__*/function (_BaseAuthMiddleware)
    */
 
 
-  var _proto = AppServiceWebAppAuthMiddleware.prototype;
+  var _proto = AppServiceWebAppAuthClient.prototype;
 
   _proto.initialize = function initialize(options) {
     var appRouter = express.Router(); // handle redirect
@@ -2604,8 +2604,8 @@ var AppServiceWebAppAuthMiddleware = /*#__PURE__*/function (_BaseAuthMiddleware)
     };
   };
 
-  return AppServiceWebAppAuthMiddleware;
-}(BaseAuthMiddleware);
+  return AppServiceWebAppAuthClient;
+}(BaseAuthClient);
 
 var KeyVaultManager = /*#__PURE__*/function () {
   function KeyVaultManager() {}
@@ -3010,9 +3010,9 @@ var WebAppAuthClientBuilder = /*#__PURE__*/function (_BaseAuthClientBuilde) {
     this.msalConfig = MsalConfiguration.getMsalConfiguration(this.appSettings, this.persistenceManager);
 
     if (EnvironmentUtils.isAppServiceAuthEnabled()) {
-      return new AppServiceWebAppAuthMiddleware(this.appSettings, this.msalConfig);
+      return new AppServiceWebAppAuthClient(this.appSettings, this.msalConfig);
     } else {
-      return new MsalWebAppAuthMiddleware(this.appSettings, this.msalConfig);
+      return new MsalWebAppAuthClient(this.appSettings, this.msalConfig);
     }
   };
 
@@ -3050,10 +3050,10 @@ var WebAppAuthClientBuilder = /*#__PURE__*/function (_BaseAuthClientBuilde) {
                 break;
               }
 
-              return _context.abrupt("return", new AppServiceWebAppAuthMiddleware(this.appSettings, this.msalConfig));
+              return _context.abrupt("return", new AppServiceWebAppAuthClient(this.appSettings, this.msalConfig));
 
             case 12:
-              return _context.abrupt("return", new MsalWebAppAuthMiddleware(this.appSettings, this.msalConfig));
+              return _context.abrupt("return", new MsalWebAppAuthClient(this.appSettings, this.msalConfig));
 
             case 13:
               _context.next = 18;
@@ -3088,16 +3088,16 @@ var WebAppAuthClientBuilder = /*#__PURE__*/function (_BaseAuthClientBuilde) {
  * basic authentication and authorization tasks in RESTful APIs.
  */
 
-var MsalWebApiAuthMiddleware = /*#__PURE__*/function (_BaseAuthMiddleware) {
-  _inheritsLoose(MsalWebApiAuthMiddleware, _BaseAuthMiddleware);
+var MsalWebApiAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
+  _inheritsLoose(MsalWebApiAuthClient, _BaseAuthClient);
 
   /**
    * @param {AppSettings} appSettings
    * @param {Configuration} msalConfig
    * @constructor
    */
-  function MsalWebApiAuthMiddleware(appSettings, msalConfig) {
-    return _BaseAuthMiddleware.call(this, appSettings, msalConfig) || this;
+  function MsalWebApiAuthClient(appSettings, msalConfig) {
+    return _BaseAuthClient.call(this, appSettings, msalConfig) || this;
   }
   /**
    * Initialize AuthProvider and set default routes and handlers
@@ -3106,7 +3106,7 @@ var MsalWebApiAuthMiddleware = /*#__PURE__*/function (_BaseAuthMiddleware) {
    */
 
 
-  var _proto = MsalWebApiAuthMiddleware.prototype;
+  var _proto = MsalWebApiAuthClient.prototype;
 
   _proto.initialize = function initialize(options) {
     var appRouter = express.Router();
@@ -3233,8 +3233,8 @@ var MsalWebApiAuthMiddleware = /*#__PURE__*/function (_BaseAuthMiddleware) {
     }();
   };
 
-  return MsalWebApiAuthMiddleware;
-}(BaseAuthMiddleware);
+  return MsalWebApiAuthClient;
+}(BaseAuthClient);
 
 var WebApiAuthClientBuilder = /*#__PURE__*/function (_BaseAuthClientBuilde) {
   _inheritsLoose(WebApiAuthClientBuilder, _BaseAuthClientBuilde);
@@ -3247,12 +3247,12 @@ var WebApiAuthClientBuilder = /*#__PURE__*/function (_BaseAuthClientBuilde) {
 
   /**
    * Synchronously builds the MSAL middleware with the provided configuration.
-   * @returns {MsalWebApiAuthMiddleware}
+   * @returns {MsalWebApiAuthClient}
    */
   _proto.build = function build() {
     // TODO: throw error if key vault credential is being built
     this.msalConfig = MsalConfiguration.getMsalConfiguration(this.appSettings, this.persistenceManager);
-    return new MsalWebApiAuthMiddleware(this.appSettings, this.msalConfig);
+    return new MsalWebApiAuthClient(this.appSettings, this.msalConfig);
   }
   /**
    * Asynchronously builds the MSAL middleware with the provided configuration.
@@ -3291,7 +3291,7 @@ var WebApiAuthClientBuilder = /*#__PURE__*/function (_BaseAuthClientBuilde) {
                 this.msalConfig = MsalConfiguration.getMsalConfiguration(this.appSettings);
               }
 
-              return _context.abrupt("return", new MsalWebApiAuthMiddleware(this.appSettings, this.msalConfig));
+              return _context.abrupt("return", new MsalWebApiAuthClient(this.appSettings, this.msalConfig));
 
             case 11:
               _context.prev = 11;

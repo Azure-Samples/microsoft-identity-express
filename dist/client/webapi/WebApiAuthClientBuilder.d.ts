@@ -1,18 +1,18 @@
-import { BaseAuthClientBuilder } from "./BaseAuthClientBuilder";
-import { MsalWebApiAuthMiddleware } from "../middleware/MsalWebApiAuthMiddleware";
-import { AppSettings } from "../config/AppSettings";
+import { BaseAuthClientBuilder } from "../BaseAuthClientBuilder";
+import { MsalWebApiAuthClient } from "./MsalWebApiAuthClient";
+import { AppSettings } from "../../config/AppSettings";
 export declare class WebApiAuthClientBuilder extends BaseAuthClientBuilder {
     appSettings: AppSettings;
     private msalConfig;
     constructor(appSettings: AppSettings);
     /**
      * Synchronously builds the MSAL middleware with the provided configuration.
-     * @returns {MsalWebApiAuthMiddleware}
+     * @returns {MsalWebApiAuthClient}
      */
-    build(): MsalWebApiAuthMiddleware;
+    build(): MsalWebApiAuthClient;
     /**
      * Asynchronously builds the MSAL middleware with the provided configuration.
      * @returns {Promise}
      */
-    buildAsync(): Promise<MsalWebApiAuthMiddleware>;
+    buildAsync(): Promise<MsalWebApiAuthClient>;
 }

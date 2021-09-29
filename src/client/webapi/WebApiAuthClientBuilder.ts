@@ -5,11 +5,11 @@
 
 import { Configuration } from "@azure/msal-node";
 
-import { BaseAuthClientBuilder } from "./BaseAuthClientBuilder";
-import { MsalWebApiAuthMiddleware } from "../middleware/MsalWebApiAuthMiddleware";
-import { KeyVaultManager } from "../network/KeyVaultManager";
-import { MsalConfiguration } from "../config/MsalConfiguration";
-import { AppSettings } from "../config/AppSettings";
+import { BaseAuthClientBuilder } from "../BaseAuthClientBuilder";
+import { MsalWebApiAuthClient } from "./MsalWebApiAuthClient";
+import { KeyVaultManager } from "../../network/KeyVaultManager";
+import { MsalConfiguration } from "../../config/MsalConfiguration";
+import { AppSettings } from "../../config/AppSettings";
 
 export class WebApiAuthClientBuilder extends BaseAuthClientBuilder {
 
@@ -22,19 +22,19 @@ export class WebApiAuthClientBuilder extends BaseAuthClientBuilder {
 
     /**
      * Synchronously builds the MSAL middleware with the provided configuration.
-     * @returns {MsalWebApiAuthMiddleware}
+     * @returns {MsalWebApiAuthClient}
      */
-    build(): MsalWebApiAuthMiddleware {
+    build(): MsalWebApiAuthClient {
         // TODO: throw error if key vault credential is being built
         this.msalConfig = MsalConfiguration.getMsalConfiguration(this.appSettings, this.persistenceManager);
-        return new MsalWebApiAuthMiddleware(this.appSettings, this.msalConfig);
+        return new MsalWebApiAuthClient(this.appSettings, this.msalConfig);
     }
 
     /**
      * Asynchronously builds the MSAL middleware with the provided configuration.
      * @returns {Promise}
      */
-    async buildAsync(): Promise<MsalWebApiAuthMiddleware> {
+    async buildAsync(): Promise<MsalWebApiAuthClient> {
         try {
 
             if (this.keyVaultCredential) {
@@ -49,7 +49,7 @@ export class WebApiAuthClientBuilder extends BaseAuthClientBuilder {
                 this.msalConfig = MsalConfiguration.getMsalConfiguration(this.appSettings);
             }
 
-            return new MsalWebApiAuthMiddleware(this.appSettings, this.msalConfig);
+            return new MsalWebApiAuthClient(this.appSettings, this.msalConfig);
         } catch (error) {
             throw new Error(error);
         }

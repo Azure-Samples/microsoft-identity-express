@@ -5,13 +5,13 @@
 
 import { Configuration } from "@azure/msal-node";
 
-import { BaseAuthClientBuilder } from "./BaseAuthClientBuilder";
-import { MsalWebAppAuthMiddleware } from "../middleware/MsalWebAppAuthMiddleware";
-import { AppServiceWebAppAuthMiddleware } from "../middleware/AppServiceWebAppAuthMiddleware";
-import { KeyVaultManager } from "../network/KeyVaultManager";
-import { MsalConfiguration } from "../config/MsalConfiguration";
-import { AppSettings } from "../config/AppSettings";
-import { EnvironmentUtils } from "../utils/EnvironmentUtils";
+import { BaseAuthClientBuilder } from "../BaseAuthClientBuilder";
+import { MsalWebAppAuthClient } from "./MsalWebAppAuthClient";
+import { AppServiceWebAppAuthClient } from "./AppServiceWebAppAuthClient";
+import { KeyVaultManager } from "../../network/KeyVaultManager";
+import { MsalConfiguration } from "../../config/MsalConfiguration";
+import { AppSettings } from "../../config/AppSettings";
+import { EnvironmentUtils } from "../../utils/EnvironmentUtils";
 
 export class WebAppAuthClientBuilder extends BaseAuthClientBuilder {
 
@@ -22,19 +22,19 @@ export class WebAppAuthClientBuilder extends BaseAuthClientBuilder {
         super(appSettings)
     };
 
-    build(): MsalWebAppAuthMiddleware | AppServiceWebAppAuthMiddleware {
+    build(): MsalWebAppAuthClient | AppServiceWebAppAuthClient {
         // TODO: throw error if key vault credential is being built
         
         this.msalConfig = MsalConfiguration.getMsalConfiguration(this.appSettings, this.persistenceManager);
         
         if (EnvironmentUtils.isAppServiceAuthEnabled()) {
-            return new AppServiceWebAppAuthMiddleware(this.appSettings, this.msalConfig);
+            return new AppServiceWebAppAuthClient(this.appSettings, this.msalConfig);
         } else {
-            return new MsalWebAppAuthMiddleware(this.appSettings, this.msalConfig);
+            return new MsalWebAppAuthClient(this.appSettings, this.msalConfig);
         }
     }
 
-    async buildAsync(): Promise<MsalWebAppAuthMiddleware | AppServiceWebAppAuthMiddleware> {
+    async buildAsync(): Promise<MsalWebAppAuthClient | AppServiceWebAppAuthClient> {
         try {
             if (this.keyVaultCredential) {
                 const keyVaultManager = new KeyVaultManager();
@@ -49,9 +49,9 @@ export class WebAppAuthClientBuilder extends BaseAuthClientBuilder {
             }
 
             if (EnvironmentUtils.isAppServiceAuthEnabled()) {
-                return new AppServiceWebAppAuthMiddleware(this.appSettings, this.msalConfig);
+                return new AppServiceWebAppAuthClient(this.appSettings, this.msalConfig);
             } else {
-                return new MsalWebAppAuthMiddleware(this.appSettings, this.msalConfig);
+                return new MsalWebAppAuthClient(this.appSettings, this.msalConfig);
             }
         } catch (error) {
             throw new Error(error);

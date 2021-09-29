@@ -7,7 +7,7 @@ const express = require('express');
 const session = require('express-session');
 const path = require('path');
 
-const MsalExpress = require('../../dist/index');
+const MsIdExpress = require('../../dist/index');
 const appSettings = require('./appSettings');
 
 const router = require('./routes/router');
@@ -50,7 +50,7 @@ async function main() {
 
     try {
         // async building the wrapper as fetching credentials from key vault
-        const msal = await new MsalExpress.WebAppMiddlewareBuilder(appSettings)
+        const msal = await new MsIdExpress.WebAppAuthClientBuilder(appSettings)
             .withKeyVaultCredentials({
                 credentialType: "clientSecret",
                 credentialName: "WrapperExampleSecret",
