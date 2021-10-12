@@ -4,6 +4,7 @@ import { CryptoProvider, ConfidentialClientApplication } from '@azure/msal-node'
 import jwt from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
 import axios from 'axios';
+import { RateLimit } from 'express-rate-limit';
 import { DefaultAzureCredential } from '@azure/identity';
 import { CertificateClient } from '@azure/keyvault-certificates';
 import { SecretClient } from '@azure/keyvault-secrets';
@@ -2432,7 +2433,12 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
     var appRouter = express.Router(); // handle redirect
 
     appRouter.get(UrlUtils.getPathFromUrl(this.appSettings.authRoutes.redirect), this.handleRedirect());
-    appRouter.post(UrlUtils.getPathFromUrl(this.appSettings.authRoutes.redirect), this.handleRedirect());
+    appRouter.post(UrlUtils.getPathFromUrl(this.appSettings.authRoutes.redirect), this.handleRedirect()); // apply rate limiter to all requests
+
+    appRouter.use(new RateLimit({
+      windowMs: 1 * 60 * 1000,
+      max: 5
+    }));
     appRouter.use(function (req, res, next) {
       if (!req.session.isAuthenticated) {
         // check headers for id token

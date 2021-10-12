@@ -12,6 +12,8 @@ import express, {
     NextFunction
 } from "express";
 
+import { RateLimit } from "express-rate-limit";
+
 import { AccountInfo } from "@azure/msal-common";
 import { BaseAuthClient } from "../BaseAuthClient";
 import { Configuration } from "@azure/msal-node";
@@ -62,9 +64,16 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
         // handle redirect
         appRouter.get(UrlUtils.getPathFromUrl(this.appSettings.authRoutes.redirect), this.handleRedirect());
         appRouter.post(UrlUtils.getPathFromUrl(this.appSettings.authRoutes.redirect), this.handleRedirect());
+          
+        // apply rate limiter to all requests
+        appRouter.use(new RateLimit({
+            windowMs: 1*60*1000, // 1 minute
+            max: 5
+        }));
 
         appRouter.use((req: Request, res: Response, next: NextFunction): void => {
 
+            
             if (!req.session.isAuthenticated) {
                 // check headers for id token
                 const rawIdToken = req.headers[AppServiceAuthenticationHeaders.APP_SERVICE_ID_TOKEN_HEADER.toLowerCase()] as string;

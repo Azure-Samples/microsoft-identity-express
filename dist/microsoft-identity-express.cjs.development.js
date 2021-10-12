@@ -10,6 +10,7 @@ var msalNode = require('@azure/msal-node');
 var jwt = _interopDefault(require('jsonwebtoken'));
 var jwksClient = _interopDefault(require('jwks-rsa'));
 var axios = _interopDefault(require('axios'));
+var expressRateLimit = require('express-rate-limit');
 var identity = require('@azure/identity');
 var keyvaultCertificates = require('@azure/keyvault-certificates');
 var keyvaultSecrets = require('@azure/keyvault-secrets');
@@ -2438,7 +2439,12 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
     var appRouter = express.Router(); // handle redirect
 
     appRouter.get(UrlUtils.getPathFromUrl(this.appSettings.authRoutes.redirect), this.handleRedirect());
-    appRouter.post(UrlUtils.getPathFromUrl(this.appSettings.authRoutes.redirect), this.handleRedirect());
+    appRouter.post(UrlUtils.getPathFromUrl(this.appSettings.authRoutes.redirect), this.handleRedirect()); // apply rate limiter to all requests
+
+    appRouter.use(new expressRateLimit.RateLimit({
+      windowMs: 1 * 60 * 1000,
+      max: 5
+    }));
     appRouter.use(function (req, res, next) {
       if (!req.session.isAuthenticated) {
         // check headers for id token

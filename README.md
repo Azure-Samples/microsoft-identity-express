@@ -7,7 +7,7 @@
 
 ---
 
-This project illustrates a simple wrapper around the [ConfidentialClientApplication](https://azuread.github.io/microsoft-authentication-library-for-js/ref/classes/_azure_msal_node.confidentialclientapplication.html) class of the [Microsoft Authentication Library for Node.js](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-node#microsoft-authentication-library-for-node-msal-node) (MSAL Node), in order to streamline routine authentication tasks such as login, logout and token acquisition, as well as securing routes and controlling access.
+This project illustrates a simple wrapper around the [ConfidentialClientApplication](https://azuread.github.io/microsoft-authentication-library-for-js/ref/classes/_azure_msal_node.confidentialclientapplication.html) class of the [Microsoft Authentication Library for Node.js](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-node#microsoft-authentication-library-for-node-msal-node) (MSAL Node), in order to streamline routine authentication tasks such as login, logout and token acquisition, as well as securing routes and controlling access. In doing so it takes inspiration from the [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) with respect to developer experience.
 
 This is an open source project. [Suggestions](https://github.com/Azure-Samples/msal-express-wrapper/issues/new) and [contributions](https://github.com/Azure-Samples/msal-express-wrapper/blob/dev/CONTRIBUTING.md) are welcome!
 
