@@ -87,7 +87,7 @@ const appSettings = {
 ```javascript
 const appSettings = {
         // ...
-        policies: {
+        b2cPolicies: {
             signUpSignIn: {
                 authority: "https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/B2C_1_susi"
             }
