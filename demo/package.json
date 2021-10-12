@@ -11,7 +11,8 @@
   "author": "derisen",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.21.0",
+    "@azure/msal-node": "^1.1.0",
+    "axios": "^0.21.2",
     "bootstrap": "^4.5.3",
     "ejs": "^3.0.1",
     "express": "^4.17.1",
