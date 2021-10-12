@@ -39,9 +39,9 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "msal-express-wrapper",
+  "name": "microsoft-identity-express",
   "author": "derisen",
-  "module": "dist/msal-express-wrapper.esm.js",
+  "module": "dist/microsoft-identity-express.esm.js",
   "devDependencies": {
     "@types/express": "^4.17.8",
     "@types/express-session": "^1.17.3",

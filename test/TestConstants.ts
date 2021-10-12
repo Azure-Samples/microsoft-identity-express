@@ -5,9 +5,10 @@
 
 export const TEST_CONSTANTS = {
   CLIENT_ID: '81b8a568-2442-4d53-8d6c-ededab4b7c62',
-  TENANT_ID: '3fc8a568-4551-4d73-8k6c-abedab4b7c63',
+  TENANT_ID: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
   DEFAULT_AUTHORITY: 'https://login.microsoftonline.com/common/',
   AUTHORITY: 'https://login.microsoftonline.com/TenantId',
+  DEFAULT_AUTHORITY_HOST: 'login.microsoftonline.com',
   ALTERNATE_AUTHORITY: 'https://login.microsoftonline.com/alternate',
   REDIRECT_URI: 'http://localhost:8080',
   CLIENT_SECRET: 'MOCK_CLIENT_SECRET',
@@ -31,6 +32,45 @@ export const TEST_CONSTANTS = {
         line4
         -----END CERTIFICATE-----
             `,
+  ACCESS_TOKEN_CLAIMS: {
+    aud: "6e74172b-be56-4843-9ff4-e66a39bb12e3",
+    iss: "https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/v2.0",
+    iat: 1537231048,
+    nbf: 1537231048,
+    exp: 1537234948,
+    aio: "AXQAi/8IAAAAtAaZLo3ChMif6KOnttRB7eBq4/DccQzjcJGxPYy/C3jDaNGxXd6wNIIVGRghNRnwJ1lOcAnNZcjvkoyrFxCttv33140RioOFJ4bCCGVuoCag1uOTT22222gHwLPYQ/uf79QX+0KIijdrmp69RctzmQ==",
+    azp: "6e74172b-be56-4843-9ff4-e66a39bb12e3",
+    azpacr: "0",
+    name: "Abe Lincoln",
+    oid: "690222be-ff1a-4d56-abd1-7e4f7d38e474",
+    preferred_username: "abeli@microsoft.com",
+    rh: "I",
+    scp: "access_as_user",
+    sub: "HKZpfaHyWadeOouYlitjrI-KffTm222X5rrV3xDqfKQ",
+    tid: "72f988bf-86f1-41af-91ab-2d7cd011db47",
+    uti: "fqiBqXLPj0eQa82S-IYFAA",
+    ver: "2.0"
+  },
+  ID_TOKEN_HEADER: {
+    typ: "JWT",
+    alg: "RS256",
+    kid: "1LTMzakihiRla_8z2BEJVXeWMqo"
+  },
+  ID_TOKEN_CLAIMS: {
+    ver: "2.0",
+    iss: "https://login.microsoftonline.com/9122040d-6c67-4c5b-b112-36a304b66dad/v2.0",
+    sub: "AAAAAAAAAAAAAAAAAAAAAIkzqFVrSaSaFHy782bbtaQ",
+    aud: "6cb04018-a3f5-46a7-b995-940c78f5aef3",
+    exp: 1536361411,
+    iat: 1536274711,
+    nbf: 1536274711,
+    name: "Abe Lincoln",
+    preferred_username: "AbeLi@microsoft.com",
+    oid: "00000000-0000-0000-66f3-3332eca7ea81",
+    tid: "9122040d-6c67-4c5b-b112-36a304b66dad",
+    nonce: "123523",
+    aio: "Df2UVXL1ix!lMCWMSOJBcFatzcGfvFGhjKv8q5g0x732dR5MB5BisvGQO7YWByjd8iQDLq!eGbIDakyp5mnOrcdqHeYSnltepQmRp6AIZ8jY"
+  }
 };
 
 export const TEST_APP_SETTINGS = {
@@ -53,5 +93,14 @@ export const TEST_APP_SETTINGS = {
       endpoint: "https://management.azure.com/tenants?api-version=2020-01-01",
       scopes: ["https://management.azure.com/user_impersonation"]
     }
+  }
+}
+
+export const TEST_MSAL_CONFIG = {
+  auth: {
+    clientId: TEST_APP_SETTINGS.appCredentials.clientId,
+    authority: `https://${TEST_CONSTANTS.DEFAULT_AUTHORITY_HOST}/${TEST_APP_SETTINGS.appCredentials.tenantInfo}`,
+    clientSecret: TEST_APP_SETTINGS.appCredentials.clientSecret,
+    knownAuthorities: []
   }
 }

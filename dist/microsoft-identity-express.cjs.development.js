@@ -1,12 +1,18 @@
-import { LogLevel, OIDC_DEFAULT_SCOPES, StringUtils, Constants, Logger, UrlString, InteractionRequiredAuthError } from '@azure/msal-common';
-import express from 'express';
-import { CryptoProvider, ConfidentialClientApplication } from '@azure/msal-node';
-import jwt from 'jsonwebtoken';
-import jwksClient from 'jwks-rsa';
-import axios from 'axios';
-import { DefaultAzureCredential } from '@azure/identity';
-import { CertificateClient } from '@azure/keyvault-certificates';
-import { SecretClient } from '@azure/keyvault-secrets';
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
+var msalCommon = require('@azure/msal-common');
+var express = _interopDefault(require('express'));
+var msalNode = require('@azure/msal-node');
+var jwt = _interopDefault(require('jsonwebtoken'));
+var jwksClient = _interopDefault(require('jwks-rsa'));
+var axios = _interopDefault(require('axios'));
+var identity = require('@azure/identity');
+var keyvaultCertificates = require('@azure/keyvault-certificates');
+var keyvaultSecrets = require('@azure/keyvault-secrets');
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
   try {
@@ -185,9 +191,9 @@ var runtime = (function (exports) {
   // This is a polyfill for %IteratorPrototype% for environments that
   // don't natively support it.
   var IteratorPrototype = {};
-  IteratorPrototype[iteratorSymbol] = function () {
+  define(IteratorPrototype, iteratorSymbol, function () {
     return this;
-  };
+  });
 
   var getProto = Object.getPrototypeOf;
   var NativeIteratorPrototype = getProto && getProto(getProto(values([])));
@@ -201,8 +207,9 @@ var runtime = (function (exports) {
 
   var Gp = GeneratorFunctionPrototype.prototype =
     Generator.prototype = Object.create(IteratorPrototype);
-  GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
-  GeneratorFunctionPrototype.constructor = GeneratorFunction;
+  GeneratorFunction.prototype = GeneratorFunctionPrototype;
+  define(Gp, "constructor", GeneratorFunctionPrototype);
+  define(GeneratorFunctionPrototype, "constructor", GeneratorFunction);
   GeneratorFunction.displayName = define(
     GeneratorFunctionPrototype,
     toStringTagSymbol,
@@ -316,9 +323,9 @@ var runtime = (function (exports) {
   }
 
   defineIteratorMethods(AsyncIterator.prototype);
-  AsyncIterator.prototype[asyncIteratorSymbol] = function () {
+  define(AsyncIterator.prototype, asyncIteratorSymbol, function () {
     return this;
-  };
+  });
   exports.AsyncIterator = AsyncIterator;
 
   // Note that simple async functions are implemented on top of
@@ -511,13 +518,13 @@ var runtime = (function (exports) {
   // iterator prototype chain incorrectly implement this, causing the Generator
   // object to not be returned from this call. This ensures that doesn't happen.
   // See https://github.com/facebook/regenerator/issues/274 for more details.
-  Gp[iteratorSymbol] = function() {
+  define(Gp, iteratorSymbol, function() {
     return this;
-  };
+  });
 
-  Gp.toString = function() {
+  define(Gp, "toString", function() {
     return "[object Generator]";
-  };
+  });
 
   function pushTryEntry(locs) {
     var entry = { tryLoc: locs[0] };
@@ -836,14 +843,19 @@ try {
 } catch (accidentalStrictMode) {
   // This module should not be running in strict mode, so the above
   // assignment should always work unless something is misconfigured. Just
-  // in case runtime.js accidentally runs in strict mode, we can escape
+  // in case runtime.js accidentally runs in strict mode, in modern engines
+  // we can explicitly access globalThis. In older engines we can escape
   // strict mode using a global Function call. This could conceivably fail
   // if a Content Security Policy forbids using Function, but in that case
   // the proper solution is to fix the accidental strict mode problem. If
   // you've misconfigured your bundler to force strict mode and applied a
   // CSP to forbid Function, and you're not willing to fix either of those
   // problems, please detail your unique predicament in a GitHub issue.
-  Function("r", "regeneratorRuntime = r")(runtime);
+  if (typeof globalThis === "object") {
+    globalThis.regeneratorRuntime = runtime;
+  } else {
+    Function("r", "regeneratorRuntime = r")(runtime);
+  }
 }
 });
 
@@ -883,7 +895,7 @@ var KeyVaultCredentialTypes;
   KeyVaultCredentialTypes["CERTIFICATE"] = "clientCertificate";
 })(KeyVaultCredentialTypes || (KeyVaultCredentialTypes = {}));
 
-var OIDC_SCOPES = /*#__PURE__*/[].concat(OIDC_DEFAULT_SCOPES, ["email"]);
+var OIDC_SCOPES = /*#__PURE__*/[].concat(msalCommon.OIDC_DEFAULT_SCOPES, ["email"]);
 /**
  * Request headers used by App Service authentication
  */
@@ -1011,7 +1023,7 @@ var DEFAULT_LOGGER_OPTIONS = {
     console.info(message);
   },
   piiLoggingEnabled: false,
-  logLevel: LogLevel.Info
+  logLevel: msalCommon.LogLevel.Info
 };
 
 var ConfigHelper = /*#__PURE__*/function () {
@@ -1023,27 +1035,27 @@ var ConfigHelper = /*#__PURE__*/function () {
    * @returns {void}
    */
   ConfigHelper.validateAppSettings = function validateAppSettings(appSettings) {
-    if (StringUtils.isEmpty(appSettings.appCredentials.clientId)) {
+    if (msalCommon.StringUtils.isEmpty(appSettings.appCredentials.clientId)) {
       throw new Error(ConfigurationErrorMessages.NO_CLIENT_ID);
     } else if (!ConfigHelper.isGuid(appSettings.appCredentials.clientId)) {
       throw new Error(ConfigurationErrorMessages.INVALID_CLIENT_ID);
     }
 
-    if (StringUtils.isEmpty(appSettings.appCredentials.tenantInfo)) {
+    if (msalCommon.StringUtils.isEmpty(appSettings.appCredentials.tenantInfo)) {
       throw new Error(ConfigurationErrorMessages.NO_TENANT_INFO);
     } else if (!ConfigHelper.isGuid(appSettings.appCredentials.tenantInfo) && !Object.values(AADAuthorityConstants).includes(appSettings.appCredentials.tenantInfo)) {
       throw new Error(ConfigurationErrorMessages.INVALID_TENANT_INFO);
     }
 
-    if (StringUtils.isEmpty(appSettings.authRoutes.redirect)) {
+    if (msalCommon.StringUtils.isEmpty(appSettings.authRoutes.redirect)) {
       throw new Error(ConfigurationErrorMessages.NO_REDIRECT_URI);
     }
 
-    if (StringUtils.isEmpty(appSettings.authRoutes.error)) {
+    if (msalCommon.StringUtils.isEmpty(appSettings.authRoutes.error)) {
       throw new Error(ConfigurationErrorMessages.NO_ERROR_ROUTE);
     }
 
-    if (StringUtils.isEmpty(appSettings.authRoutes.unauthorized)) {
+    if (msalCommon.StringUtils.isEmpty(appSettings.authRoutes.unauthorized)) {
       throw new Error(ConfigurationErrorMessages.NO_UNAUTHORIZED_ROUTE);
     }
   };
@@ -1267,7 +1279,7 @@ var TokenValidator = /*#__PURE__*/function () {
         while (1) {
           switch (_context3.prev = _context3.next) {
             case 0:
-              if (!StringUtils.isEmpty(authToken)) {
+              if (!msalCommon.StringUtils.isEmpty(authToken)) {
                 _context3.next = 3;
                 break;
               }
@@ -1350,7 +1362,7 @@ var TokenValidator = /*#__PURE__*/function () {
               if (this._appSettings.b2cPolicies) {
                 jwksUri = this._msalConfig.auth.authority + "/discovery/v2.0/keys";
               } else {
-                jwksUri = "https://" + Constants.DEFAULT_AUTHORITY_HOST + "/" + tid + "/discovery/v2.0/keys";
+                jwksUri = "https://" + msalCommon.Constants.DEFAULT_AUTHORITY_HOST + "/" + tid + "/discovery/v2.0/keys";
               }
 
               client = jwksClient({
@@ -1434,7 +1446,7 @@ var TokenValidator = /*#__PURE__*/function () {
   return TokenValidator;
 }();
 
-var packageName = "@azure-samples/msal-express-wrapper";
+var packageName = "@azure-samples/microsoft-identity-express";
 var packageVersion = "beta";
 
 /*
@@ -1446,9 +1458,9 @@ var BaseAuthClient = /*#__PURE__*/function () {
     this.appSettings = appSettings;
     this.msalConfig = msalConfig;
     this.tokenValidator = new TokenValidator(this.appSettings, this.msalConfig, this.logger);
-    this.cryptoProvider = new CryptoProvider();
-    this.logger = new Logger(this.msalConfig.system.loggerOptions, packageName, packageVersion);
-    this.msalClient = new ConfidentialClientApplication(this.msalConfig);
+    this.cryptoProvider = new msalNode.CryptoProvider();
+    this.logger = new msalCommon.Logger(this.msalConfig.system.loggerOptions, packageName, packageVersion);
+    this.msalClient = new msalNode.ConfidentialClientApplication(this.msalConfig);
   }
 
   var _proto = BaseAuthClient.prototype;
@@ -1523,7 +1535,7 @@ FetchManager.callApiEndpointWithToken = /*#__PURE__*/function () {
       while (1) {
         switch (_context2.prev = _context2.next) {
           case 0:
-            if (!StringUtils.isEmpty(accessToken)) {
+            if (!msalCommon.StringUtils.isEmpty(accessToken)) {
               _context2.next = 2;
               break;
             }
@@ -1640,7 +1652,7 @@ var UrlUtils = function UrlUtils() {};
  */
 
 UrlUtils.ensureAbsoluteUrl = function (req, url) {
-  var urlComponents = new UrlString(url).getUrlComponents();
+  var urlComponents = new msalCommon.UrlString(url).getUrlComponents();
 
   if (!urlComponents.Protocol) {
     if (!urlComponents.HostNameAndPort && !url.startsWith("www")) {
@@ -1664,7 +1676,7 @@ UrlUtils.ensureAbsoluteUrl = function (req, url) {
 
 
 UrlUtils.getPathFromUrl = function (url) {
-  var urlComponents = new UrlString(url).getUrlComponents();
+  var urlComponents = new msalCommon.UrlString(url).getUrlComponents();
   return "/" + urlComponents.PathSegments.join("/");
 };
 
@@ -1747,7 +1759,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
 
       var params = {
         authority: _this2.msalConfig.auth.authority,
-        scopes: OIDC_DEFAULT_SCOPES,
+        scopes: msalCommon.OIDC_DEFAULT_SCOPES,
         state: state,
         redirect: UrlUtils.ensureAbsoluteUrl(req, _this2.appSettings.authRoutes.redirect)
       }; // get url to sign user in
@@ -1972,14 +1984,14 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
               case 8:
                 tokenResponse = _context2.sent;
 
-                if (!StringUtils.isEmpty(tokenResponse.accessToken)) {
+                if (!msalCommon.StringUtils.isEmpty(tokenResponse.accessToken)) {
                   _context2.next = 12;
                   break;
                 }
 
                 _this5.logger.error(ErrorMessages.TOKEN_NOT_FOUND);
 
-                throw new InteractionRequiredAuthError(ErrorMessages.INTERACTION_REQUIRED);
+                throw new msalCommon.InteractionRequiredAuthError(ErrorMessages.INTERACTION_REQUIRED);
 
               case 12:
                 req.session.protectedResources[resourceName].accessToken = tokenResponse.accessToken;
@@ -1991,7 +2003,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
                 _context2.prev = 16;
                 _context2.t0 = _context2["catch"](4);
 
-                if (!(_context2.t0 instanceof InteractionRequiredAuthError)) {
+                if (!(_context2.t0 instanceof msalCommon.InteractionRequiredAuthError)) {
                   _context2.next = 24;
                   break;
                 }
@@ -2631,7 +2643,7 @@ var KeyVaultManager = /*#__PURE__*/function () {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
-              credential = new DefaultAzureCredential();
+              credential = new identity.DefaultAzureCredential();
               _context.t0 = keyVaultCredential.credentialType;
               _context.next = _context.t0 === KeyVaultCredentialTypes.SECRET ? 4 : _context.t0 === KeyVaultCredentialTypes.CERTIFICATE ? 15 : 29;
               break;
@@ -2718,7 +2730,7 @@ var KeyVaultManager = /*#__PURE__*/function () {
           switch (_context2.prev = _context2.next) {
             case 0:
               // Initialize secretClient with credentials
-              secretClient = new CertificateClient(keyVaultCredential.keyVaultUrl, credential);
+              secretClient = new keyvaultCertificates.CertificateClient(keyVaultCredential.keyVaultUrl, credential);
               _context2.prev = 1;
               _context2.next = 4;
               return secretClient.getCertificate(keyVaultCredential.credentialName);
@@ -2765,7 +2777,7 @@ var KeyVaultManager = /*#__PURE__*/function () {
           switch (_context3.prev = _context3.next) {
             case 0:
               // Initialize secretClient with credentials
-              secretClient = new SecretClient(keyVaultCredential.keyVaultUrl, credential);
+              secretClient = new keyvaultSecrets.SecretClient(keyVaultCredential.keyVaultUrl, credential);
               _context3.prev = 1;
               _context3.next = 4;
               return secretClient.getSecret(keyVaultCredential.credentialName);
@@ -2957,13 +2969,13 @@ var MsalConfiguration = /*#__PURE__*/function () {
       auth: _extends({
         clientId: appSettings.appCredentials.clientId,
         authority: appSettings.b2cPolicies ? Object.entries(appSettings.b2cPolicies)[0][1]["authority"] // the first policy/user-flow is the default authority
-        : appSettings.appCredentials.instance ? "https://" + appSettings.appCredentials.instance + "/" + appSettings.appCredentials.tenantInfo : "https://" + Constants.DEFAULT_AUTHORITY_HOST + "/" + appSettings.appCredentials.tenantInfo
+        : appSettings.appCredentials.instance ? "https://" + appSettings.appCredentials.instance + "/" + appSettings.appCredentials.tenantInfo : "https://" + msalCommon.Constants.DEFAULT_AUTHORITY_HOST + "/" + appSettings.appCredentials.tenantInfo
       }, appSettings.appCredentials.hasOwnProperty("clientSecret") && {
         clientSecret: appSettings.appCredentials.clientSecret
       }, appSettings.appCredentials.hasOwnProperty("clientCertificate") && {
         clientCertificate: appSettings.appCredentials.clientCertificate
       }, {
-        knownAuthorities: appSettings.b2cPolicies ? [UrlString.getDomainFromUrl(Object.entries(appSettings.b2cPolicies)[0][1]["authority"])] // in B2C scenarios
+        knownAuthorities: appSettings.b2cPolicies ? [msalCommon.UrlString.getDomainFromUrl(Object.entries(appSettings.b2cPolicies)[0][1]["authority"])] // in B2C scenarios
         : []
       }),
       cache: {
@@ -2986,11 +2998,11 @@ var EnvironmentUtils = /*#__PURE__*/function () {
   function EnvironmentUtils() {}
 
   EnvironmentUtils.isProduction = function isProduction() {
-    return process.env.NODE_ENV === 'production';
+    return "development" === 'production';
   };
 
   EnvironmentUtils.isDevelopment = function isDevelopment() {
-    return process.env.NODE_ENV === 'development';
+    return "development" === 'development';
   };
 
   EnvironmentUtils.isAppServiceAuthEnabled = function isAppServiceAuthEnabled() {
@@ -3115,6 +3127,7 @@ var MsalWebApiAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
   _proto.initialize = function initialize(options) {
     var appRouter = express.Router();
     appRouter.use(function (req, res, next) {
+      // TODO: add defaults
       next();
     });
     return appRouter;
@@ -3320,5 +3333,6 @@ var WebApiAuthClientBuilder = /*#__PURE__*/function (_BaseAuthClientBuilde) {
   return WebApiAuthClientBuilder;
 }(BaseAuthClientBuilder);
 
-export { WebApiAuthClientBuilder, WebAppAuthClientBuilder };
-//# sourceMappingURL=msal-express-wrapper.esm.js.map
+exports.WebApiAuthClientBuilder = WebApiAuthClientBuilder;
+exports.WebAppAuthClientBuilder = WebAppAuthClientBuilder;
+//# sourceMappingURL=microsoft-identity-express.cjs.development.js.map

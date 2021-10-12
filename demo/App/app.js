@@ -50,16 +50,16 @@ async function main() {
 
     try {
         // async building the wrapper as fetching credentials from key vault
-        const msal = await new MsIdExpress.WebAppAuthClientBuilder(appSettings)
+        const msid = await new MsIdExpress.WebAppAuthClientBuilder(appSettings)
             .withKeyVaultCredentials({
                 credentialType: "clientSecret",
                 credentialName: "WrapperExampleSecret",
                 keyVaultUrl: "https://derisen-test-vault.vault.azure.net/"
             }).buildAsync();
 
-        app.use(msal.initialize());
+        app.use(msid.initialize());
 
-        app.use(router(msal));
+        app.use(router(msid));
 
         app.listen(SERVER_PORT, () => console.log(`Server is listening on port ${SERVER_PORT}!`));
     } catch (error) {

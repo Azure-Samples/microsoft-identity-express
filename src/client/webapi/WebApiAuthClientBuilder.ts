@@ -36,7 +36,6 @@ export class WebApiAuthClientBuilder extends BaseAuthClientBuilder {
      */
     async buildAsync(): Promise<MsalWebApiAuthClient> {
         try {
-
             if (this.keyVaultCredential) {
                 const keyVaultManager = new KeyVaultManager();
                 const credential = await keyVaultManager.getCredentialFromKeyVault(this.keyVaultCredential);

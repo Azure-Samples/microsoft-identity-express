@@ -61,6 +61,7 @@ export class MsalWebApiAuthClient extends BaseAuthClient {
         const appRouter = express.Router();
 
         appRouter.use((req: Request, res: Response, next: NextFunction) => {
+            // TODO: add defaults
             next();
         });
 

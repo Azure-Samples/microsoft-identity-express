@@ -19,7 +19,6 @@ import {
 
 import {
     Configuration,
-    CryptoProvider,
     SilentFlowRequest,
     AuthenticationResult
 } from "@azure/msal-node";
@@ -174,6 +173,8 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
      */
     private handleRedirect(options?: HandleRedirectOptions): RequestHandler {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+            // TODO: handle form_post method
+
             if (req.query.state) {
                 const state = JSON.parse(this.cryptoProvider.base64Decode(req.query.state as string));
 

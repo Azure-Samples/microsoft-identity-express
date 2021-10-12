@@ -65,17 +65,18 @@ const appSettings = {
         clientSecret: "CLIENT_SECRET" // alt. client certificate or key vault credential
     },
     authRoutes: {
-        redirect: "/redirect", // redirect URI configured on Azure AD
+        redirect: "/redirect", // redirect path or the full URI configured on Azure AD
         error: "/error", // errors will be redirected to this route
         unauthorized: "/unauthorized" // unauthorized access attempts will be redirected to this route
+        frontChannelLogout: "/sso_logout" // front-channel logout path or the full URI configured on Azure AD
     },
     remoteResources: {
         graphAPI: {
-            endpoint: "https://graph.microsoft.com/v1.0/me", // Microsoft Graph
+            endpoint: "https://graph.microsoft.com/v1.0/me", // Microsoft Graph API
             scopes: ["user.read"]
         },
         armAPI: {
-            endpoint: "https://management.azure.com/tenants?api-version=2020-01-01", // Azure REST API
+            endpoint: "https://management.azure.com/tenants?api-version=2020-01-01", // Azure Resource Manager REST API
             scopes: ["https://management.azure.com/user_impersonation"]
         }
     }
@@ -87,7 +88,7 @@ const appSettings = {
 ```javascript
 const appSettings = {
         // ...
-        policies: {
+        b2cPolicies: {
             signUpSignIn: {
                 authority: "https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/B2C_1_susi"
             }
@@ -102,7 +103,7 @@ Import the package and instantiate [AuthProvider](https://azure-samples.github.i
 ```javascript
 const express = require('express');
 const session = require('express-session');
-const msalWrapper = require('msal-express-wrapper');
+const MsIdExpress = require('microsoft-identity-express');
 
 const settings = require('./appSettings');
 const cache = require('./utils/cachePlugin');
@@ -121,11 +122,11 @@ app.use(session({
     }
 }));
 
-const authProvider = new msalWrapper.AuthProvider(settings, cache);
+const msid = new MsIdExpress.WebAppAuthClientBuilder(appSettings).build();
 
-app.use(authProvider.initialize()); // initialize default routes
+app.use(msid.initialize()); // initialize default routes
 
-app.use(router(authProvider)); // use authProvider in routers downstream
+app.use(router(msid)); // use authProvider in routers downstream
 
 app.listen(SERVER_PORT, () => console.log(`Server is listening on port ${SERVER_PORT}!`));
 ```
@@ -134,7 +135,7 @@ The wrapper stores user data on `req.session` variable. Below are some of the us
 
 * `req.session.isAuthenticated`: indicates if user is currently authenticated (*boolean*)
 * `req.session.account`: MSAL.js account object containing useful information like ID token claims (see [AccountInfo](https://azuread.github.io/microsoft-authentication-library-for-js/ref/modules/_azure_msal_common.html#accountinfo))
-* `req.session.remoteResources.{resourceName}`: Contains parameters related to an Azure AD / Azure AD B2C protected resource, including raw access tokens (see [Resource](https://azure-samples.github.io/msal-express-wrapper/docs/modules.html#resource))
+* `req.session.protectedResources.<resourceName>`: Contains parameters related to an Azure AD / Azure AD B2C protected resource, including raw access tokens (see [Resource](https://azure-samples.github.io/msal-express-wrapper/docs/modules.html#resource))
 
 ### Middleware
 
@@ -147,7 +148,7 @@ const express = require('express');
 const appSettings = require('../appSettings');
 const mainController = require('../controllers/mainController');
 
-module.exports = (authProvider) => {
+module.exports = (msid) => {
 
     // initialize router
     const router = express.Router();
@@ -166,13 +167,13 @@ module.exports = (authProvider) => {
 
     // auth routes
     router.get('/signin',
-        authProvider.signIn({
+        msid.signIn({
             successRedirect: "/",
         }),
     );
 
     router.get('/signout',
-        authProvider.signOut({
+        msid.signOut({
             successRedirect: "/",
         }),
     );
@@ -190,7 +191,7 @@ Simply add the [isAuthenticated()](https://azure-samples.github.io/msal-express-
 ```javascript
 // secure routes
 app.get('/id', 
-    authProvider.isAuthenticated({
+    msid.isAuthenticated({
             unauthorizedRedirect: "/sign-in"
         }
     ), // checks if authenticated via session
@@ -206,8 +207,8 @@ app.get('/id',
 
 ```javascript
     router.get('/profile',
-        authProvider.isAuthenticated(),
-        authProvider.getToken({
+        msid.isAuthenticated(),
+        msid.getToken({
             resource: {
                 endpoint: "https://graph.microsoft.com/v1.0/me",
                 scopes: [ "User.Read" ]
@@ -218,7 +219,7 @@ app.get('/id',
                 // use axios or a similar alternative
                 const response = await axios.default.get("https://graph.microsoft.com/v1.0/me", {
                     headers: {
-                        Authorization: `Bearer ${accessToken}`
+                        Authorization: `Bearer ${req.session["graphAPI"].accessToken}`
                     }
                 });
 
@@ -237,17 +238,15 @@ Use [hasAccess()](https://azure-samples.github.io/msal-express-wrapper/classes/a
 
 ```javascript
     router.use('/admin',
-        authProvider.isAuthenticated(),
-        authProvider.hasAccess({
+        msid.isAuthenticated(),
+        msid.hasAccess({
             accessRule: {
                 methods: [ "GET", "POST", "DELETE" ],
                 roles: [ "admin_role" ]
             }
         }),
         (req, res) => {
-            const users = User.getAllUsers();
-        
-            res.render('dashboard', { isAuthenticated: req.session.isAuthenticated, users: users });
+            res.render('dashboard', { isAuthenticated: req.session.isAuthenticated });
         }
     );
 ```

@@ -1,2 +1,2 @@
-export declare const packageName = "@azure-samples/msal-express-wrapper";
+export declare const packageName = "@azure-samples/microsoft-identity-express";
 export declare const packageVersion = "beta";
