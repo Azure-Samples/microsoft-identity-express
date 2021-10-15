@@ -3338,6 +3338,16 @@ var WebApiAuthClientBuilder = /*#__PURE__*/function (_BaseAuthClientBuilde) {
   return WebApiAuthClientBuilder;
 }(BaseAuthClientBuilder);
 
+exports.AppServiceWebAppAuthClient = AppServiceWebAppAuthClient;
+exports.ConfigHelper = ConfigHelper;
+exports.DistributedCachePlugin = DistributedCachePlugin;
+exports.FetchManager = FetchManager;
+exports.KeyVaultManager = KeyVaultManager;
+exports.MsalConfiguration = MsalConfiguration;
+exports.MsalWebApiAuthClient = MsalWebApiAuthClient;
+exports.MsalWebAppAuthClient = MsalWebAppAuthClient;
+exports.TokenValidator = TokenValidator;
 exports.WebApiAuthClientBuilder = WebApiAuthClientBuilder;
 exports.WebAppAuthClientBuilder = WebAppAuthClientBuilder;
+exports.packageVersion = packageVersion;
 //# sourceMappingURL=microsoft-identity-express.cjs.development.js.map

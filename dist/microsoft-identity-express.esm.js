@@ -1,4 +1,4 @@
-import { LogLevel, OIDC_DEFAULT_SCOPES, StringUtils, Constants, Logger, UrlString, InteractionRequiredAuthError } from '@azure/msal-common';
+import { OIDC_DEFAULT_SCOPES, LogLevel, StringUtils, Constants, Logger, UrlString, InteractionRequiredAuthError } from '@azure/msal-common';
 import express from 'express';
 import { CryptoProvider, ConfidentialClientApplication } from '@azure/msal-node';
 import jwt from 'jsonwebtoken';
@@ -3332,5 +3332,5 @@ var WebApiAuthClientBuilder = /*#__PURE__*/function (_BaseAuthClientBuilde) {
   return WebApiAuthClientBuilder;
 }(BaseAuthClientBuilder);
 
-export { WebApiAuthClientBuilder, WebAppAuthClientBuilder };
+export { AppServiceWebAppAuthClient, ConfigHelper, DistributedCachePlugin, FetchManager, KeyVaultManager, MsalConfiguration, MsalWebApiAuthClient, MsalWebAppAuthClient, TokenValidator, WebApiAuthClientBuilder, WebAppAuthClientBuilder, packageVersion };
 //# sourceMappingURL=microsoft-identity-express.esm.js.map
