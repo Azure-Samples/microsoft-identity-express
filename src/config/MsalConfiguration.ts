@@ -39,9 +39,9 @@ export class MsalConfiguration {
                 authority: appSettings.b2cPolicies ?
                     Object.entries(appSettings.b2cPolicies)[0][1]["authority"] // the first policy/user-flow is the default authority
                     :
-                    appSettings.appCredentials.instance ? `https://${appSettings.appCredentials.instance}/${appSettings.appCredentials.tenantInfo}` 
+                    appSettings.appCredentials.instance ? `https://${appSettings.appCredentials.instance}/${appSettings.appCredentials.tenantId}` 
                     :
-                    `https://${Constants.DEFAULT_AUTHORITY_HOST}/${appSettings.appCredentials.tenantInfo}`,
+                    `https://${Constants.DEFAULT_AUTHORITY_HOST}/${appSettings.appCredentials.tenantId}`,
                 ...(appSettings.appCredentials.hasOwnProperty("clientSecret")) && { clientSecret: appSettings.appCredentials.clientSecret },
                 ...(appSettings.appCredentials.hasOwnProperty("clientCertificate")) && { clientCertificate: appSettings.appCredentials.clientCertificate },
                 knownAuthorities: appSettings.b2cPolicies ?

@@ -1,14 +1,13 @@
 import { Resource, AccessRule } from "../config/AppSettings";
 export declare type InitializationOptions = {};
 export declare type SignInOptions = {
-    successRedirect: string;
-    failureRedirect?: string;
+    postLoginRedirect: string;
+    failureRedirect: string;
     extraScopesToConsent?: string[];
     customState?: Object;
 };
 export declare type SignOutOptions = {
-    successRedirect: string;
-    failureRedirect?: string;
+    postLogoutRedirect: string;
 };
 export declare type HandleRedirectOptions = {};
 export declare type TokenRequestOptions = {

@@ -22,9 +22,9 @@ export class ConfigHelper {
             throw new Error(ConfigurationErrorMessages.INVALID_CLIENT_ID);
         }
 
-        if (StringUtils.isEmpty(appSettings.appCredentials.tenantInfo)) {
+        if (StringUtils.isEmpty(appSettings.appCredentials.tenantId)) {
             throw new Error(ConfigurationErrorMessages.NO_TENANT_INFO);
-        } else if (!ConfigHelper.isGuid(appSettings.appCredentials.tenantInfo) && !Object.values(AADAuthorityConstants).includes(appSettings.appCredentials.tenantInfo)) {
+        } else if (!ConfigHelper.isGuid(appSettings.appCredentials.tenantId) && !Object.values(AADAuthorityConstants).includes(appSettings.appCredentials.tenantId)) {
             throw new Error(ConfigurationErrorMessages.INVALID_TENANT_INFO);
         }
 

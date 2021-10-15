@@ -76,7 +76,7 @@ export const TEST_CONSTANTS = {
 export const TEST_APP_SETTINGS = {
   appCredentials: {
     clientId: TEST_CONSTANTS.CLIENT_ID,
-    tenantInfo: TEST_CONSTANTS.TENANT_ID,
+    tenantId: TEST_CONSTANTS.TENANT_ID,
     clientSecret: TEST_CONSTANTS.CLIENT_SECRET
   },
   authRoutes: {
@@ -99,7 +99,7 @@ export const TEST_APP_SETTINGS = {
 export const TEST_MSAL_CONFIG = {
   auth: {
     clientId: TEST_APP_SETTINGS.appCredentials.clientId,
-    authority: `https://${TEST_CONSTANTS.DEFAULT_AUTHORITY_HOST}/${TEST_APP_SETTINGS.appCredentials.tenantInfo}`,
+    authority: `https://${TEST_CONSTANTS.DEFAULT_AUTHORITY_HOST}/${TEST_APP_SETTINGS.appCredentials.tenantId}`,
     clientSecret: TEST_APP_SETTINGS.appCredentials.clientSecret,
     knownAuthorities: []
   }

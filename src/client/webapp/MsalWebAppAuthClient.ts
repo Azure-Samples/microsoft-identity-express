@@ -122,7 +122,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
             const state = this.cryptoProvider.base64Encode(
                 JSON.stringify({
                     stage: AppStages.SIGN_IN,
-                    path: options.successRedirect,
+                    path: options.postLoginRedirect,
                     nonce: req.session.nonce,
                 })
             );
@@ -149,7 +149,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
         return (req: Request, res: Response, next: NextFunction): void => {
 
             let logoutUri; // redirect after destroying session
-            const postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.successRedirect);
+            const postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.postLogoutRedirect);
 
             /**
              * Construct a logout URI and redirect the user to end the
@@ -498,7 +498,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
             // TODO: handle silent token acquisition error
             next(error);
         }
-    }
+    };
 
     /**
      * Checks if the request passes a given access rule

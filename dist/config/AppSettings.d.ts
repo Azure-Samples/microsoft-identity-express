@@ -19,7 +19,7 @@ export declare type AppSettings = {
 export declare type AppCredentials = {
     instance?: string;
     clientId: string;
-    tenantInfo: string;
+    tenantId: string;
     clientSecret?: string;
     clientCertificate?: ClientCertificate;
 };

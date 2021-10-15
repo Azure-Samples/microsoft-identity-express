@@ -122,11 +122,11 @@ export class TokenValidator {
              * token"s tid claim for verification purposes
              */
             if (
-                this._appSettings.appCredentials.tenantInfo === AADAuthorityConstants.COMMON ||
-                this._appSettings.appCredentials.tenantInfo === AADAuthorityConstants.ORGANIZATIONS ||
-                this._appSettings.appCredentials.tenantInfo === AADAuthorityConstants.CONSUMERS
+                this._appSettings.appCredentials.tenantId === AADAuthorityConstants.COMMON ||
+                this._appSettings.appCredentials.tenantId === AADAuthorityConstants.ORGANIZATIONS ||
+                this._appSettings.appCredentials.tenantId === AADAuthorityConstants.CONSUMERS
             ) {
-                this._appSettings.appCredentials.tenantInfo = decodedToken.payload.tid;
+                this._appSettings.appCredentials.tenantId = decodedToken.payload.tid;
             }
 
             return verifiedToken;
@@ -173,7 +173,7 @@ export class TokenValidator {
          * For more information on validating id tokens, visit:
          * https://docs.microsoft.com/azure/active-directory/develop/id-tokens#validating-an-id_token
          */
-        const checkIssuer = idTokenClaims.iss.includes(this._appSettings.appCredentials.tenantInfo) ? true : false;
+        const checkIssuer = idTokenClaims.iss.includes(this._appSettings.appCredentials.tenantId) ? true : false;
         const checkAudience = idTokenClaims.aud === this._msalConfig.auth.clientId ? true : false;
         const checkTimestamp = idTokenClaims.iat <= now && idTokenClaims.exp >= now ? true : false;
 
@@ -194,7 +194,7 @@ export class TokenValidator {
          * and timestamp, though implementation and extent vary. For more information, visit:
          * https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validating-tokens
          */
-        const checkIssuer = verifiedToken.iss.includes(this._appSettings.appCredentials.tenantInfo) ? true : false;
+        const checkIssuer = verifiedToken.iss.includes(this._appSettings.appCredentials.tenantId) ? true : false;
         const checkTimestamp = verifiedToken.iat <= now && verifiedToken.iat >= now ? true : false;
 
         const checkAudience = verifiedToken.aud === this._appSettings.appCredentials.clientId ||

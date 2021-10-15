@@ -13,14 +13,14 @@ module.exports = (msid) => {
     // auth routes
     router.get('/signin',
         msid.signIn({
-            successRedirect: "/",
+            postLoginRedirect: "/",
             failureRedirect: "/signin"
         }),
     );
 
     router.get('/signout',
         msid.signOut({
-            successRedirect: "/",
+            postLogoutRedirect: "/",
         }),
     );
 

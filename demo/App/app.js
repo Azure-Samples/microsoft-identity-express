@@ -32,21 +32,16 @@ async function main() {
      * Using express-session middleware. Be sure to familiarize yourself with available options
      * and set the desired options. Visit: https://www.npmjs.com/package/express-session
      */
-    const sessionConfig = {
+    app.use(session({
         secret: 'ENTER_YOUR_SECRET_HERE',
         resave: false,
         saveUninitialized: false,
         cookie: {
             secure: false,
         }
-    }
-
-    if (app.get('env') === 'production') {
-        app.set('trust proxy', 1) // trust first proxy
-        sessionConfig.cookie.secure = true // serve secure cookies
-    }
-
-    app.use(session(sessionConfig));
+    }));
+    
+    app.set('trust proxy', 1) // trust first proxy
 
     try {
         // async building the wrapper as fetching credentials from key vault

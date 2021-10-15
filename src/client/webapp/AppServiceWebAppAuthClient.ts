@@ -113,7 +113,7 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
     signIn(options?: SignInOptions): RequestHandler {
         return (req: Request, res: Response, next: NextFunction): void => {
             let loginUri;
-            const postLoginRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.successRedirect);
+            const postLoginRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.postLoginRedirect);
             loginUri = "https://" + process.env[AppServiceEnvironmentVariables.WEBSITE_HOSTNAME] + AppServiceAuthenticationEndpoints.AAD_SIGN_IN_ENDPOINT + AppServiceAuthenticationQueryParameters.POST_LOGIN_REDIRECT_QUERY_PARAM + postLoginRedirectUri;
             res.redirect(loginUri);
         }
@@ -127,7 +127,7 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
      */
     signOut(options?: SignOutOptions): RequestHandler {
         return (req: Request, res: Response, next: NextFunction): void => {
-            const postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.successRedirect);
+            const postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.postLogoutRedirect);
             const logoutUri = "https://" + process.env[AppServiceEnvironmentVariables.WEBSITE_HOSTNAME] + AppServiceAuthenticationEndpoints.AAD_SIGN_OUT_ENDPOINT + AppServiceAuthenticationQueryParameters.POST_LOGOUT_REDIRECT_QUERY_PARAM + postLogoutRedirectUri;
 
             req.session.destroy(() => {

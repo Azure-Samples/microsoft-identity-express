@@ -13,15 +13,14 @@ export type InitializationOptions = {
 };
 
 export type SignInOptions = {
-    successRedirect: string;
-    failureRedirect?: string;
+    postLoginRedirect: string;
+    failureRedirect: string;
     extraScopesToConsent?: string[];
     customState?: Object;
 }
 
 export type SignOutOptions = {
-    successRedirect: string;
-    failureRedirect?: string;
+    postLogoutRedirect: string;
 }
 
 export type HandleRedirectOptions = {

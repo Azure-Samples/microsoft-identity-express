@@ -1036,9 +1036,9 @@ var ConfigHelper = /*#__PURE__*/function () {
       throw new Error(ConfigurationErrorMessages.INVALID_CLIENT_ID);
     }
 
-    if (StringUtils.isEmpty(appSettings.appCredentials.tenantInfo)) {
+    if (StringUtils.isEmpty(appSettings.appCredentials.tenantId)) {
       throw new Error(ConfigurationErrorMessages.NO_TENANT_INFO);
-    } else if (!ConfigHelper.isGuid(appSettings.appCredentials.tenantInfo) && !Object.values(AADAuthorityConstants).includes(appSettings.appCredentials.tenantInfo)) {
+    } else if (!ConfigHelper.isGuid(appSettings.appCredentials.tenantId) && !Object.values(AADAuthorityConstants).includes(appSettings.appCredentials.tenantId)) {
       throw new Error(ConfigurationErrorMessages.INVALID_TENANT_INFO);
     }
 
@@ -1310,8 +1310,8 @@ var TokenValidator = /*#__PURE__*/function () {
                * token"s tid claim for verification purposes
                */
 
-              if (this._appSettings.appCredentials.tenantInfo === AADAuthorityConstants.COMMON || this._appSettings.appCredentials.tenantInfo === AADAuthorityConstants.ORGANIZATIONS || this._appSettings.appCredentials.tenantInfo === AADAuthorityConstants.CONSUMERS) {
-                this._appSettings.appCredentials.tenantInfo = decodedToken.payload.tid;
+              if (this._appSettings.appCredentials.tenantId === AADAuthorityConstants.COMMON || this._appSettings.appCredentials.tenantId === AADAuthorityConstants.ORGANIZATIONS || this._appSettings.appCredentials.tenantId === AADAuthorityConstants.CONSUMERS) {
+                this._appSettings.appCredentials.tenantId = decodedToken.payload.tid;
               }
 
               return _context3.abrupt("return", verifiedToken);
@@ -1398,7 +1398,7 @@ var TokenValidator = /*#__PURE__*/function () {
      * https://docs.microsoft.com/azure/active-directory/develop/id-tokens#validating-an-id_token
      */
 
-    var checkIssuer = idTokenClaims.iss.includes(this._appSettings.appCredentials.tenantInfo) ? true : false;
+    var checkIssuer = idTokenClaims.iss.includes(this._appSettings.appCredentials.tenantId) ? true : false;
     var checkAudience = idTokenClaims.aud === this._msalConfig.auth.clientId ? true : false;
     var checkTimestamp = idTokenClaims.iat <= now && idTokenClaims.exp >= now ? true : false;
     return checkIssuer && checkAudience && checkTimestamp;
@@ -1419,7 +1419,7 @@ var TokenValidator = /*#__PURE__*/function () {
      * https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validating-tokens
      */
 
-    var checkIssuer = verifiedToken.iss.includes(this._appSettings.appCredentials.tenantInfo) ? true : false;
+    var checkIssuer = verifiedToken.iss.includes(this._appSettings.appCredentials.tenantId) ? true : false;
     var checkTimestamp = verifiedToken.iat <= now && verifiedToken.iat >= now ? true : false;
     var checkAudience = verifiedToken.aud === this._appSettings.appCredentials.clientId || verifiedToken.aud === "api://" + this._appSettings.appCredentials.clientId ? true : false;
     var checkScopes = ConfigHelper.getScopesFromResourceEndpoint(protectedRoute, this._appSettings).every(function (scp) {
@@ -1748,7 +1748,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
       // TODO: encrypt state parameter 
       var state = _this2.cryptoProvider.base64Encode(JSON.stringify({
         stage: AppStages.SIGN_IN,
-        path: options.successRedirect,
+        path: options.postLoginRedirect,
         nonce: req.session.nonce
       }));
 
@@ -1774,7 +1774,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
     return function (req, res, next) {
       var logoutUri; // redirect after destroying session
 
-      var postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.successRedirect);
+      var postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.postLogoutRedirect);
       /**
        * Construct a logout URI and redirect the user to end the
        * session with Azure AD/B2C. For more information, visit:
@@ -2364,7 +2364,8 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
     }
 
     return handleOverage;
-  }()
+  }();
+
   /**
    * Checks if the request passes a given access rule
    * @param {string} method: HTTP method for this route
@@ -2373,8 +2374,6 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
    * @param {string} credType: roles or groups
    * @returns {boolean}
    */
-  ;
-
   _proto.checkAccessRule = function checkAccessRule(method, rule, creds, credType) {
     if (rule.methods.includes(method)) {
       switch (credType) {
@@ -2475,7 +2474,7 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
   _proto.signIn = function signIn(options) {
     return function (req, res, next) {
       var loginUri;
-      var postLoginRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.successRedirect);
+      var postLoginRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.postLoginRedirect);
       loginUri = "https://" + process.env[AppServiceEnvironmentVariables.WEBSITE_HOSTNAME] + AppServiceAuthenticationEndpoints.AAD_SIGN_IN_ENDPOINT + AppServiceAuthenticationQueryParameters.POST_LOGIN_REDIRECT_QUERY_PARAM + postLoginRedirectUri;
       res.redirect(loginUri);
     };
@@ -2489,7 +2488,7 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
 
   _proto.signOut = function signOut(options) {
     return function (req, res, next) {
-      var postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.successRedirect);
+      var postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.postLogoutRedirect);
       var logoutUri = "https://" + process.env[AppServiceEnvironmentVariables.WEBSITE_HOSTNAME] + AppServiceAuthenticationEndpoints.AAD_SIGN_OUT_ENDPOINT + AppServiceAuthenticationQueryParameters.POST_LOGOUT_REDIRECT_QUERY_PARAM + postLogoutRedirectUri;
       req.session.destroy(function () {
         res.redirect(logoutUri);
@@ -2969,7 +2968,7 @@ var MsalConfiguration = /*#__PURE__*/function () {
       auth: _extends({
         clientId: appSettings.appCredentials.clientId,
         authority: appSettings.b2cPolicies ? Object.entries(appSettings.b2cPolicies)[0][1]["authority"] // the first policy/user-flow is the default authority
-        : appSettings.appCredentials.instance ? "https://" + appSettings.appCredentials.instance + "/" + appSettings.appCredentials.tenantInfo : "https://" + Constants.DEFAULT_AUTHORITY_HOST + "/" + appSettings.appCredentials.tenantInfo
+        : appSettings.appCredentials.instance ? "https://" + appSettings.appCredentials.instance + "/" + appSettings.appCredentials.tenantId : "https://" + Constants.DEFAULT_AUTHORITY_HOST + "/" + appSettings.appCredentials.tenantId
       }, appSettings.appCredentials.hasOwnProperty("clientSecret") && {
         clientSecret: appSettings.appCredentials.clientSecret
       }, appSettings.appCredentials.hasOwnProperty("clientCertificate") && {

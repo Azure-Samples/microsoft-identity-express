@@ -13,7 +13,7 @@ describe('MSAL configuration builder tests', () => {
         expect(msalConfig).toMatchObject({
             auth: {
                 clientId: TEST_APP_SETTINGS.appCredentials.clientId,
-                authority: `https://${Constants.DEFAULT_AUTHORITY_HOST}/${TEST_APP_SETTINGS.appCredentials.tenantInfo}`,
+                authority: `https://${Constants.DEFAULT_AUTHORITY_HOST}/${TEST_APP_SETTINGS.appCredentials.tenantId}`,
                 clientSecret: TEST_APP_SETTINGS.appCredentials.clientSecret,
                 knownAuthorities: []
             },
