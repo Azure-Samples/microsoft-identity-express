@@ -2,7 +2,7 @@
 'use strict'
 
 if (process.env.NODE_ENV === 'production') {
-  module.exports = require('./msal-express-wrapper.cjs.production.min.js')
+  module.exports = require('./microsoft-identity-express.cjs.production.min.js')
 } else {
-  module.exports = require('./msal-express-wrapper.cjs.development.js')
+  module.exports = require('./microsoft-identity-express.cjs.development.js')
 }

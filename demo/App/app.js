@@ -7,10 +7,9 @@ const express = require('express');
 const session = require('express-session');
 const path = require('path');
 
-const settings = require('./appSettings');
-const cache = require('./utils/cachePlugin');
+const MsIdExpress = require('../../dist/index');
+const appSettings = require('./appSettings');
 
-const msalWrapper = require('../../dist/index');
 const router = require('./routes/router');
 
 const SERVER_PORT = process.env.PORT || 4000;
@@ -33,31 +32,31 @@ async function main() {
      * Using express-session middleware. Be sure to familiarize yourself with available options
      * and set the desired options. Visit: https://www.npmjs.com/package/express-session
      */
-    const sessionConfig = {
+    app.use(session({
         secret: 'ENTER_YOUR_SECRET_HERE',
         resave: false,
         saveUninitialized: false,
         cookie: {
-            secure: false, 
+            secure: false,
         }
-    }
-
-    if (app.get('env') === 'production') {
-        app.set('trust proxy', 1) // trust first proxy
-        sessionConfig.cookie.secure = true // serve secure cookies
-    }
-
-    app.use(session(sessionConfig));
+    }));
+    
+    app.set('trust proxy', 1) // trust first proxy
 
     try {
         // async building the wrapper as fetching credentials from key vault
-        const authProvider = await msalWrapper.AuthProvider.buildAsync(settings, cache);
+        const msid = await new MsIdExpress.WebAppAuthClientBuilder(appSettings)
+            .withKeyVaultCredentials({
+                credentialType: "clientSecret",
+                credentialName: "WrapperExampleSecret",
+                keyVaultUrl: "https://derisen-test-vault.vault.azure.net/"
+            }).buildAsync();
 
-        app.use(authProvider.initialize());
-    
-        app.use(router(authProvider));
-    
-        app.listen(SERVER_PORT, () => console.log(`Server is listening on port ${SERVER_PORT}!`));   
+        app.use(msid.initialize());
+
+        app.use(router(msid));
+
+        app.listen(SERVER_PORT, () => console.log(`Server is listening on port ${SERVER_PORT}!`));
     } catch (error) {
         console.log(error);
     }
