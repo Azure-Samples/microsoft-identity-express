@@ -15,7 +15,6 @@ This sample demonstrates a Node.js & Express web application that authenticates 
 | `App/app.js`                        | Application entry point.                                      |
 | `App/appSettings.json`              | Application settings and authentication parameters.           |
 | `App/routes/router.js`              | Application routes are defined here.                          |
-| `App/utils/cachePlugin.js`          | Example cache plugin implementation for saving cache to disk. |
 
 ## Prerequisites
 
@@ -71,12 +70,9 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `./App/appSettings.json` file.
-1. Find the key `clientId` and replace the existing value with the **application ID** (clientId) of the `ExpressWebApp` application copied from the Azure Portal.
-1. Find the key `tenantId` and replace the existing value with your Azure AD **tenant ID**.
-1. Find the key `clientSecret` and replace the existing value with the key you saved during the creation of the `ExpressWebApp` app, in the Azure Portal.
-1. Find the key `homePageRoute` and replace the existing value with the route that you wish to be redirected after sign-in, e.g. `/home`.
-1. Find the key `redirectUri` and replace the existing value with the **Redirect URI** for `ExpressWebApp` app. For example, `http://localhost:4000/redirect`.
-1. Find the `postLogoutRedirectUri` and replace the existing value with the URI that you wish to be redirected after sign-out, e.g. `http://localhost:4000/`
+1. Find the key `appCredentials.clientId` and replace the existing value with the **application ID** (clientId) of the `ExpressWebApp` application copied from the Azure Portal.
+1. Find the key `appCredentials.tenantInfo` and replace the existing value with your Azure AD **tenant ID** (alternatively, `common` for all audiences).
+1. Find the key `authRoutes.redirect` and replace the existing value with the **Redirect URI** for `ExpressWebApp` app. For example, `http://localhost:4000/redirect` or simply `/redirect`.
 
 ## Running the sample
 
