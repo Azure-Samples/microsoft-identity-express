@@ -15,6 +15,7 @@ import { Resource } from "../config/AppSettings";
 declare module "express-session" {
     interface SessionData {
         id: string;
+        key: string;
         nonce: string;
         isAuthenticated: boolean;
         hasAccess: boolean;
