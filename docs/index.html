@@ -56,16 +56,16 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
-				<a href="#msal-express-wrapper-beta" id="msal-express-wrapper-beta" style="color: inherit; text-decoration: none;">
-					<h1>MSAL Express Wrapper (Beta)</h1>
+				<a href="#microsoft-identity-express-beta" id="microsoft-identity-express-beta" style="color: inherit; text-decoration: none;">
+					<h1>microsoft-identity-express (beta)</h1>
 				</a>
-				<p><a href="https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/node.js.yml"><img src="https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/node.js.yml/badge.svg" alt="Node.js CI"></a>
-					<a href="https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/codeql.yml"><img src="https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/codeql.yml/badge.svg" alt="Code Scanning"></a>
-					<a href="https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/typedoc.yml"><img src="https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/typedoc.yml/badge.svg" alt="Typedoc"></a>
+				<p><a href="https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/node.js.yml"><img src="https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/node.js.yml/badge.svg" alt="Node.js CI"></a>
+					<a href="https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/codeql.yml"><img src="https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/codeql.yml/badge.svg" alt="Code Scanning"></a>
+					<a href="https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/typedoc.yml"><img src="https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/typedoc.yml/badge.svg" alt="Typedoc"></a>
 				<a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a></p>
 				<hr>
 				<p>This project illustrates a simple wrapper around the <a href="https://azuread.github.io/microsoft-authentication-library-for-js/ref/classes/_azure_msal_node.confidentialclientapplication.html">ConfidentialClientApplication</a> class of the <a href="https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-node#microsoft-authentication-library-for-node-msal-node">Microsoft Authentication Library for Node.js</a> (MSAL Node), in order to streamline routine authentication tasks such as login, logout and token acquisition, as well as securing routes and controlling access. In doing so it takes inspiration from the <a href="https://github.com/AzureAD/microsoft-identity-web">Microsoft.Identity.Web</a> with respect to developer experience.</p>
-				<p>This is an open source project. <a href="https://github.com/Azure-Samples/msal-express-wrapper/issues/new">Suggestions</a> and <a href="https://github.com/Azure-Samples/msal-express-wrapper/blob/dev/CONTRIBUTING.md">contributions</a> are welcome!</p>
+				<p>This is an open source project. <a href="https://github.com/Azure-Samples/microsoft-identity-express/issues/new">Suggestions</a> and <a href="https://github.com/Azure-Samples/microsoft-identity-express/blob/dev/CONTRIBUTING.md">contributions</a> are welcome!</p>
 				<blockquote>
 					<p>:mega: This project backs the tutorial: <a href="https://github.com/Azure-Samples/ms-identity-javascript-nodejs-tutorial">Enable your Node.js web app to sign-in users and call APIs with the Microsoft identity platform</a></p>
 				</blockquote>
@@ -94,14 +94,14 @@
 				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
 					<h2>Installation</h2>
 				</a>
-				<pre><code class="language-shell"><span style="color: #000000">    npm install azure-samples/msal-express-wrapper </span>
+				<pre><code class="language-shell"><span style="color: #000000">    npm install azure-samples/microsoft-identity-express </span>
 </code></pre>
 				<p>or download and extract the repository <em>.zip</em> file.</p>
 				<a href="#build" id="build" style="color: inherit; text-decoration: none;">
 					<h2>Build</h2>
 				</a>
-				<pre><code class="language-shell"><span style="color: #000000">    git clone https://github.com/Azure-Samples/msal-express-wrapper.git</span>
-<span style="color: #000000">    </span><span style="color: #795E26">cd</span><span style="color: #000000"> msal-express-wrapper</span>
+				<pre><code class="language-shell"><span style="color: #000000">    git clone https://github.com/Azure-Samples/microsoft-identity-express.git</span>
+<span style="color: #000000">    </span><span style="color: #795E26">cd</span><span style="color: #000000"> microsoft-identity-express</span>
 <span style="color: #000000">    npm install</span>
 <span style="color: #000000">    npm run build</span>
 </code></pre>
@@ -157,7 +157,7 @@
 				<a href="#integration-with-expressjs" id="integration-with-expressjs" style="color: inherit; text-decoration: none;">
 					<h3>Integration with Express.js</h3>
 				</a>
-				<p>Import the package and instantiate <a href="https://azure-samples.github.io/msal-express-wrapper/classes/authprovider.html">AuthProvider</a> class, which exposes the middleware you can use in your routes. The constructor takes the settings object and an (optional) persistent cache:</p>
+				<p>Import the package and instantiate <a href="https://azure-samples.github.io/microsoft-identity-express/classes/msalwebappauthclient.html">MsalWebAppAuthClient</a> class, via the <em>WebAppAuthClientBuilder</em>, which exposes the middleware you can use in your routes. The constructor takes the settings object and an (optional) persistent cache:</p>
 				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">express</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;express&#039;</span><span style="color: #000000">);</span>
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">session</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;express-session&#039;</span><span style="color: #000000">);</span>
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">MsIdExpress</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;microsoft-identity-express&#039;</span><span style="color: #000000">);</span>
@@ -183,7 +183,7 @@
 
 <span style="color: #001080">app</span><span style="color: #000000">.</span><span style="color: #795E26">use</span><span style="color: #000000">(</span><span style="color: #001080">msid</span><span style="color: #000000">.</span><span style="color: #795E26">initialize</span><span style="color: #000000">()); </span><span style="color: #008000">// initialize default routes</span>
 
-<span style="color: #001080">app</span><span style="color: #000000">.</span><span style="color: #795E26">use</span><span style="color: #000000">(</span><span style="color: #795E26">router</span><span style="color: #000000">(</span><span style="color: #001080">msid</span><span style="color: #000000">)); </span><span style="color: #008000">// use authProvider in routers downstream</span>
+<span style="color: #001080">app</span><span style="color: #000000">.</span><span style="color: #795E26">use</span><span style="color: #000000">(</span><span style="color: #795E26">router</span><span style="color: #000000">(</span><span style="color: #001080">msid</span><span style="color: #000000">)); </span><span style="color: #008000">// use MsalWebAppAuthClient in routers downstream</span>
 
 <span style="color: #001080">app</span><span style="color: #000000">.</span><span style="color: #795E26">listen</span><span style="color: #000000">(</span><span style="color: #0070C1">SERVER_PORT</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">`Server is listening on port </span><span style="color: #0000FF">${</span><span style="color: #0070C1">SERVER_PORT</span><span style="color: #0000FF">}</span><span style="color: #A31515">!`</span><span style="color: #000000">));</span>
 </code></pre>
@@ -191,7 +191,7 @@
 				<ul>
 					<li><code>req.session.isAuthenticated</code>: indicates if user is currently authenticated (<em>boolean</em>)</li>
 					<li><code>req.session.account</code>: MSAL.js account object containing useful information like ID token claims (see <a href="https://azuread.github.io/microsoft-authentication-library-for-js/ref/modules/_azure_msal_common.html#accountinfo">AccountInfo</a>)</li>
-					<li><code>req.session.protectedResources.&lt;resourceName&gt;</code>: Contains parameters related to an Azure AD / Azure AD B2C protected resource, including raw access tokens (see <a href="https://azure-samples.github.io/msal-express-wrapper/docs/modules.html#resource">Resource</a>)</li>
+					<li><code>req.session.protectedResources.&lt;resourceName&gt;</code>: Contains parameters related to an Azure AD / Azure AD B2C protected resource, including raw access tokens (see <a href="https://azure-samples.github.io/microsoft-identity-express/docs/modules.html#resource">Resource</a>)</li>
 				</ul>
 				<a href="#middleware" id="middleware" style="color: inherit; text-decoration: none;">
 					<h3>Middleware</h3>
@@ -199,7 +199,7 @@
 				<a href="#authentication" id="authentication" style="color: inherit; text-decoration: none;">
 					<h4>Authentication</h4>
 				</a>
-				<p>Add <a href="https://azure-samples.github.io/msal-express-wrapper/classes/authprovider.html#signin">signIn()</a> and <a href="https://azure-samples.github.io/msal-express-wrapper/classes/authprovider.html#signout">signOut()</a> middleware to routes you want users to sign-in and sign-out, respectively. You will need to pass the routes for redirect after as parameters to each:</p>
+				<p>Add <a href="https://azure-samples.github.io/microsoft-identity-express/classes/msalwebappauthclient.html#signin">signIn()</a> and <a href="https://azure-samples.github.io/microsoft-identity-express/classes/msalwebappauthclient.html#signout">signOut()</a> middleware to routes you want users to sign-in and sign-out, respectively. You will need to pass the routes for redirect after as parameters to each:</p>
 				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">express</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;express&#039;</span><span style="color: #000000">);</span>
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">appSettings</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;../appSettings&#039;</span><span style="color: #000000">);</span>
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">mainController</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;../controllers/mainController&#039;</span><span style="color: #000000">);</span>
@@ -224,13 +224,13 @@
 <span style="color: #000000">    </span><span style="color: #008000">// auth routes</span>
 <span style="color: #000000">    </span><span style="color: #001080">router</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/signin&#039;</span><span style="color: #000000">,</span>
 <span style="color: #000000">        </span><span style="color: #001080">msid</span><span style="color: #000000">.</span><span style="color: #795E26">signIn</span><span style="color: #000000">({</span>
-<span style="color: #000000">            </span><span style="color: #001080">successRedirect:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;/&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">postLoginRedirect:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;/&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">        }),</span>
 <span style="color: #000000">    );</span>
 
 <span style="color: #000000">    </span><span style="color: #001080">router</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/signout&#039;</span><span style="color: #000000">,</span>
 <span style="color: #000000">        </span><span style="color: #001080">msid</span><span style="color: #000000">.</span><span style="color: #795E26">signOut</span><span style="color: #000000">({</span>
-<span style="color: #000000">            </span><span style="color: #001080">successRedirect:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;/&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">postLogoutRedirect:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;/&quot;</span><span style="color: #000000">,</span>
 <span style="color: #000000">        }),</span>
 <span style="color: #000000">    );</span>
 
@@ -242,7 +242,7 @@
 				<a href="#securing-routes" id="securing-routes" style="color: inherit; text-decoration: none;">
 					<h4>Securing routes</h4>
 				</a>
-				<p>Simply add the <a href="https://azure-samples.github.io/msal-express-wrapper/classes/authprovider.html#isauthenticated">isAuthenticated()</a> middleware before the controller that serves the page you would like to secure:</p>
+				<p>Simply add the <a href="https://azure-samples.github.io/microsoft-identity-express/classes/msalwebappauthclient.html#isauthenticated">isAuthenticated()</a> middleware before the controller that serves the page you would like to secure:</p>
 				<pre><code class="language-javascript"><span style="color: #008000">// secure routes</span>
 <span style="color: #001080">app</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/id&#039;</span><span style="color: #000000">, </span>
 <span style="color: #000000">    </span><span style="color: #001080">msid</span><span style="color: #000000">.</span><span style="color: #795E26">isAuthenticated</span><span style="color: #000000">({</span>
@@ -257,7 +257,7 @@
 				<a href="#acquiring-tokens" id="acquiring-tokens" style="color: inherit; text-decoration: none;">
 					<h4>Acquiring tokens</h4>
 				</a>
-				<p><a href="https://azure-samples.github.io/msal-express-wrapper/classes/authprovider.html#gettoken">getToken()</a> can be used before middleware that calls a web API. The access token will be available via <code>req.session</code>:</p>
+				<p><a href="https://azure-samples.github.io/microsoft-identity-express/classes/msalwebappauthclient.html#gettoken">getToken()</a> can be used before middleware that calls a web API. The access token will be available via <code>req.session</code>:</p>
 				<pre><code class="language-javascript"><span style="color: #000000">    </span><span style="color: #001080">router</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/profile&#039;</span><span style="color: #000000">,</span>
 <span style="color: #000000">        </span><span style="color: #001080">msid</span><span style="color: #000000">.</span><span style="color: #795E26">isAuthenticated</span><span style="color: #000000">(),</span>
 <span style="color: #000000">        </span><span style="color: #001080">msid</span><span style="color: #000000">.</span><span style="color: #795E26">getToken</span><span style="color: #000000">({</span>
@@ -286,7 +286,7 @@
 				<a href="#controlling-access" id="controlling-access" style="color: inherit; text-decoration: none;">
 					<h4>Controlling access</h4>
 				</a>
-				<p>Use <a href="https://azure-samples.github.io/msal-express-wrapper/classes/authprovider.html#hasaccess">hasAccess()</a> middleware to control access for Azure AD App Roles and/or Security Groups:</p>
+				<p>Use <a href="https://azure-samples.github.io/microsoft-identity-express/classes/msalwebappauthclient.html#hasaccess">hasAccess()</a> middleware to control access for Azure AD App Roles and/or Security Groups:</p>
 				<pre><code class="language-javascript"><span style="color: #000000">    </span><span style="color: #001080">router</span><span style="color: #000000">.</span><span style="color: #795E26">use</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/admin&#039;</span><span style="color: #000000">,</span>
 <span style="color: #000000">        </span><span style="color: #001080">msid</span><span style="color: #000000">.</span><span style="color: #795E26">isAuthenticated</span><span style="color: #000000">(),</span>
 <span style="color: #000000">        </span><span style="color: #001080">msid</span><span style="color: #000000">.</span><span style="color: #795E26">hasAccess</span><span style="color: #000000">({</span>
@@ -310,7 +310,7 @@
 				<a href="#persistent-caching" id="persistent-caching" style="color: inherit; text-decoration: none;">
 					<h3>Persistent caching</h3>
 				</a>
-				<p>MSAL Node has an in-memory cache by default. The demo app also features a <a href="./demo/App/utils/cachePlugin.js">persistent cache plugin</a> in order to save the cache to disk. This plugin is not meant to be production-ready. As such, you might want to implement persistent caching using a 3rd party library like <a href="https://redis.io/">redis</a>.</p>
+				<p>MSAL Node has an in-memory cache by default. This is not meant to be production-ready. As such, you might want to implement persistent caching using a 3rd party library like <a href="https://redis.io/">redis</a>.</p>
 				<a href="#information" id="information" style="color: inherit; text-decoration: none;">
 					<h2>Information</h2>
 				</a>
@@ -332,10 +332,49 @@
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
 					<li class=" tsd-kind-class">
+						<a href="classes/appservicewebappauthclient.html" class="tsd-kind-icon">App<wbr>Service<wbr>Web<wbr>App<wbr>Auth<wbr>Client</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/confighelper.html" class="tsd-kind-icon">Config<wbr>Helper</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/distributedcacheplugin.html" class="tsd-kind-icon">Distributed<wbr>Cache<wbr>Plugin</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/fetchmanager.html" class="tsd-kind-icon">Fetch<wbr>Manager</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/keyvaultmanager.html" class="tsd-kind-icon">Key<wbr>Vault<wbr>Manager</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/msalconfiguration.html" class="tsd-kind-icon">Msal<wbr>Configuration</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/msalwebapiauthclient.html" class="tsd-kind-icon">Msal<wbr>Web<wbr>Api<wbr>Auth<wbr>Client</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/msalwebappauthclient.html" class="tsd-kind-icon">Msal<wbr>Web<wbr>App<wbr>Auth<wbr>Client</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/tokenvalidator.html" class="tsd-kind-icon">Token<wbr>Validator</a>
+					</li>
+					<li class=" tsd-kind-class">
 						<a href="classes/webapiauthclientbuilder.html" class="tsd-kind-icon">Web<wbr>Api<wbr>Auth<wbr>Client<wbr>Builder</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/webappauthclientbuilder.html" class="tsd-kind-icon">Web<wbr>App<wbr>Auth<wbr>Client<wbr>Builder</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/idistributedpersistence.html" class="tsd-kind-icon">IDistributed<wbr>Persistence</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#appsettings" class="tsd-kind-icon">App<wbr>Settings</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#authtoken" class="tsd-kind-icon">Auth<wbr>Token</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#packageversion" class="tsd-kind-icon">package<wbr>Version</a>
 					</li>
 				</ul>
 			</nav>
@@ -352,10 +391,18 @@
 				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
 			</ul>
 			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
 				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
 			</ul>
 		</div>
 	</div>

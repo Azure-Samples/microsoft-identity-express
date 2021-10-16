@@ -4,8 +4,8 @@ import { AuthToken } from "./AuthToken";
 import { AppSettings } from "../config/AppSettings";
 export declare class TokenValidator {
     logger: Logger;
-    private _appSettings;
-    private _msalConfig;
+    private appSettings;
+    private msalConfig;
     /**
      * @param {AppSettings} appSettings
      * @param {Configuration} msalConfig

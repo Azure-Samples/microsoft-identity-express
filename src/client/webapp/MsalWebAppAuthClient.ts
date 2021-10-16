@@ -28,6 +28,7 @@ import { ConfigHelper } from "../../config/ConfigHelper";
 import { IdTokenClaims } from "../../crypto/AuthToken";
 import { FetchManager } from "../../network/FetchManager";
 import { UrlUtils } from "../../utils/UrlUtils";
+import { CryptoUtils } from "../../utils/CryptoUtils"
 
 import {
     Resource,
@@ -61,6 +62,8 @@ import {
  */
 export class MsalWebAppAuthClient extends BaseAuthClient {
     
+    private cryptoUtils: CryptoUtils;
+
     /**
      * @param {AppSettings} appSettings
      * @param {Configuration} msalConfig
@@ -68,6 +71,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
      */
     constructor(appSettings: AppSettings, msalConfig: Configuration) {
         super(appSettings, msalConfig);
+        this.cryptoUtils = new CryptoUtils();
     }
 
     /**
@@ -118,13 +122,15 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
     signIn(options?: SignInOptions): RequestHandler {
         return (req: Request, res: Response, next: NextFunction): Promise<void> => {
 
-            // TODO: encrypt state parameter 
+            const key = this.cryptoUtils.createKey(req.session.nonce, this.cryptoUtils.generateSalt());
+            req.session.cryptoKey = key.toString("hex");
+
             const state = this.cryptoProvider.base64Encode(
-                JSON.stringify({
+                this.cryptoUtils.encryptData(JSON.stringify({
                     stage: AppStages.SIGN_IN,
                     path: options.postLoginRedirect,
                     nonce: req.session.nonce,
-                })
+                }), key)
             );
 
             const params: AuthCodeParams = {
@@ -148,7 +154,6 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
     signOut(options?: SignOutOptions): RequestHandler {
         return (req: Request, res: Response, next: NextFunction): void => {
 
-            let logoutUri; // redirect after destroying session
             const postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.postLogoutRedirect);
 
             /**
@@ -157,7 +162,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
              * (AAD) https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request
              * (B2C) https://docs.microsoft.com/azure/active-directory-b2c/openid-connect#send-a-sign-out-request
              */
-            logoutUri = `${this.msalConfig.auth.authority}/oauth2/v2.0/logout?post_logout_redirect_uri=${postLogoutRedirectUri}`;
+            const logoutUri = `${this.msalConfig.auth.authority}/oauth2/v2.0/logout?post_logout_redirect_uri=${postLogoutRedirectUri}`;
 
             req.session.destroy(() => {
                 res.redirect(logoutUri);
@@ -176,7 +181,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
             // TODO: handle form_post method
 
             if (req.query.state) {
-                const state = JSON.parse(this.cryptoProvider.base64Decode(req.query.state as string));
+                const state = JSON.parse(this.cryptoUtils.decryptData(this.cryptoProvider.base64Decode(req.query.state as string), Buffer.from(req.session.cryptoKey, "hex")));
 
                 // check if nonce matches
                 if (state.nonce === req.session.nonce) {
@@ -291,12 +296,16 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
             } catch (error) {
                 // in case there are no cached tokens, initiate an interactive call
                 if (error instanceof InteractionRequiredAuthError) {
+                    
+                    const key = this.cryptoUtils.createKey(req.session.nonce, this.cryptoUtils.generateSalt());
+                    req.session.cryptoKey = key.toString("hex");
+
                     const state = this.cryptoProvider.base64Encode(
-                        JSON.stringify({
+                        this.cryptoUtils.encryptData(JSON.stringify({
                             stage: AppStages.ACQUIRE_TOKEN,
                             path: req.originalUrl,
                             nonce: req.session.nonce,
-                        })
+                        }), key)
                     );
 
                     const params: AuthCodeParams = {

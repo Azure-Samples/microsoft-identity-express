@@ -16,6 +16,7 @@ declare module "express-session" {
     interface SessionData {
         id: string;
         nonce: string;
+        cryptoKey: string;
         isAuthenticated: boolean;
         hasAccess: boolean;
         account: AccountInfo;

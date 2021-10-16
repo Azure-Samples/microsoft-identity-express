@@ -12,8 +12,6 @@ import express, {
     NextFunction
 } from "express";
 
-import { RateLimit } from "express-rate-limit";
-
 import { AccountInfo } from "@azure/msal-common";
 import { BaseAuthClient } from "../BaseAuthClient";
 import { Configuration } from "@azure/msal-node";
@@ -64,16 +62,8 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
         // handle redirect
         appRouter.get(UrlUtils.getPathFromUrl(this.appSettings.authRoutes.redirect), this.handleRedirect());
         appRouter.post(UrlUtils.getPathFromUrl(this.appSettings.authRoutes.redirect), this.handleRedirect());
-          
-        // apply rate limiter to all requests
-        appRouter.use(new RateLimit({
-            windowMs: 1*60*1000, // 1 minute
-            max: 5
-        }));
 
         appRouter.use((req: Request, res: Response, next: NextFunction): void => {
-
-            
             if (!req.session.isAuthenticated) {
                 // check headers for id token
                 const rawIdToken = req.headers[AppServiceAuthenticationHeaders.APP_SERVICE_ID_TOKEN_HEADER.toLowerCase()] as string;
@@ -112,9 +102,8 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
      */
     signIn(options?: SignInOptions): RequestHandler {
         return (req: Request, res: Response, next: NextFunction): void => {
-            let loginUri;
             const postLoginRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.postLoginRedirect);
-            loginUri = "https://" + process.env[AppServiceEnvironmentVariables.WEBSITE_HOSTNAME] + AppServiceAuthenticationEndpoints.AAD_SIGN_IN_ENDPOINT + AppServiceAuthenticationQueryParameters.POST_LOGIN_REDIRECT_QUERY_PARAM + postLoginRedirectUri;
+            const loginUri = "https://" + process.env[AppServiceEnvironmentVariables.WEBSITE_HOSTNAME] + AppServiceAuthenticationEndpoints.AAD_SIGN_IN_ENDPOINT + AppServiceAuthenticationQueryParameters.POST_LOGIN_REDIRECT_QUERY_PARAM + postLoginRedirectUri;
             res.redirect(loginUri);
         }
     }
