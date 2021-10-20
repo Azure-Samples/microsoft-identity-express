@@ -71,7 +71,8 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 1. Open the `./App/appSettings.json` file.
 1. Find the key `appCredentials.clientId` and replace the existing value with the **application ID** (clientId) of the `ExpressWebApp` application copied from the Azure Portal.
-1. Find the key `appCredentials.tenantInfo` and replace the existing value with your Azure AD **tenant ID** (alternatively, `common` for all audiences).
+1. Find the key `appCredentials.tenantId` and replace the existing value with your Azure AD **tenant ID** (alternatively, `common` for all audiences).
+1. Find the key `appCredentials.clientSecret` and replace the existing value with the **client secret** of the `ExpressWebApp` application copied from the Azure Portal.
 1. Find the key `authRoutes.redirect` and replace the existing value with the **Redirect URI** for `ExpressWebApp` app. For example, `http://localhost:4000/redirect` or simply `/redirect`.
 
 ## Running the sample

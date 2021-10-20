@@ -9,6 +9,7 @@ import { InitializationOptions, TokenRequestOptions, GuardOptions, SignInOptions
  * basic authentication and authorization tasks in Express MVC web apps
  */
 export declare class MsalWebAppAuthClient extends BaseAuthClient {
+    private cryptoUtils;
     /**
      * @param {AppSettings} appSettings
      * @param {Configuration} msalConfig

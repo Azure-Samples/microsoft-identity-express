@@ -1,15 +1,15 @@
-# MSAL Express Wrapper (Beta)
+# microsoft-identity-express (beta)
 
-[![Node.js CI](https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/node.js.yml/badge.svg)](https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/node.js.yml)
-[![Code Scanning](https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/codeql.yml/badge.svg)](https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/codeql.yml)
-[![Typedoc](https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/typedoc.yml/badge.svg)](https://github.com/Azure-Samples/msal-express-wrapper/actions/workflows/typedoc.yml)
+[![Node.js CI](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/node.js.yml/badge.svg)](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/node.js.yml)
+[![Code Scanning](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/codeql.yml/badge.svg)](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/codeql.yml)
+[![Typedoc](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/typedoc.yml/badge.svg)](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/typedoc.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
 This project illustrates a simple wrapper around the [ConfidentialClientApplication](https://azuread.github.io/microsoft-authentication-library-for-js/ref/classes/_azure_msal_node.confidentialclientapplication.html) class of the [Microsoft Authentication Library for Node.js](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-node#microsoft-authentication-library-for-node-msal-node) (MSAL Node), in order to streamline routine authentication tasks such as login, logout and token acquisition, as well as securing routes and controlling access. In doing so it takes inspiration from the [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) with respect to developer experience.
 
-This is an open source project. [Suggestions](https://github.com/Azure-Samples/msal-express-wrapper/issues/new) and [contributions](https://github.com/Azure-Samples/msal-express-wrapper/blob/dev/CONTRIBUTING.md) are welcome!
+This is an open source project. [Suggestions](https://github.com/Azure-Samples/microsoft-identity-express/issues/new) and [contributions](https://github.com/Azure-Samples/microsoft-identity-express/blob/dev/CONTRIBUTING.md) are welcome!
 
 > :mega: This project backs the tutorial: [Enable your Node.js web app to sign-in users and call APIs with the Microsoft identity platform](https://github.com/Azure-Samples/ms-identity-javascript-nodejs-tutorial)
 
@@ -33,7 +33,7 @@ This is an open source project. [Suggestions](https://github.com/Azure-Samples/m
 ## Installation
 
 ```shell
-    npm install azure-samples/msal-express-wrapper 
+    npm install azure-samples/microsoft-identity-express 
 ```
 
 or download and extract the repository *.zip* file.
@@ -41,8 +41,8 @@ or download and extract the repository *.zip* file.
 ## Build
 
 ```shell
-    git clone https://github.com/Azure-Samples/msal-express-wrapper.git
-    cd msal-express-wrapper
+    git clone https://github.com/Azure-Samples/microsoft-identity-express.git
+    cd microsoft-identity-express
     npm install
     npm run build
 ```
@@ -98,7 +98,7 @@ const appSettings = {
 
 ### Integration with Express.js
 
-Import the package and instantiate [AuthProvider](https://azure-samples.github.io/msal-express-wrapper/classes/authprovider.html) class, which exposes the middleware you can use in your routes. The constructor takes the settings object and an (optional) persistent cache:
+Import the package and instantiate [MsalWebAppAuthClient](https://azure-samples.github.io/microsoft-identity-express/classes/msalwebappauthclient.html) class, via the *WebAppAuthClientBuilder*, which exposes the middleware you can use in your routes. The constructor takes the settings object and an (optional) persistent cache:
 
 ```javascript
 const express = require('express');
@@ -126,7 +126,7 @@ const msid = new MsIdExpress.WebAppAuthClientBuilder(appSettings).build();
 
 app.use(msid.initialize()); // initialize default routes
 
-app.use(router(msid)); // use authProvider in routers downstream
+app.use(router(msid)); // use MsalWebAppAuthClient in routers downstream
 
 app.listen(SERVER_PORT, () => console.log(`Server is listening on port ${SERVER_PORT}!`));
 ```
@@ -135,13 +135,13 @@ The wrapper stores user data on `req.session` variable. Below are some of the us
 
 * `req.session.isAuthenticated`: indicates if user is currently authenticated (*boolean*)
 * `req.session.account`: MSAL.js account object containing useful information like ID token claims (see [AccountInfo](https://azuread.github.io/microsoft-authentication-library-for-js/ref/modules/_azure_msal_common.html#accountinfo))
-* `req.session.protectedResources.<resourceName>`: Contains parameters related to an Azure AD / Azure AD B2C protected resource, including raw access tokens (see [Resource](https://azure-samples.github.io/msal-express-wrapper/docs/modules.html#resource))
+* `req.session.protectedResources.<resourceName>`: Contains parameters related to an Azure AD / Azure AD B2C protected resource, including raw access tokens (see [Resource](https://azure-samples.github.io/microsoft-identity-express/docs/modules.html#resource))
 
 ### Middleware
 
 #### Authentication
 
-Add [signIn()](https://azure-samples.github.io/msal-express-wrapper/classes/authprovider.html#signin) and [signOut()](https://azure-samples.github.io/msal-express-wrapper/classes/authprovider.html#signout) middleware to routes you want users to sign-in and sign-out, respectively. You will need to pass the routes for redirect after as parameters to each:
+Add [signIn()](https://azure-samples.github.io/microsoft-identity-express/classes/msalwebappauthclient.html#signin) and [signOut()](https://azure-samples.github.io/microsoft-identity-express/classes/msalwebappauthclient.html#signout) middleware to routes you want users to sign-in and sign-out, respectively. You will need to pass the routes for redirect after as parameters to each:
 
 ```javascript
 const express = require('express');
@@ -168,13 +168,13 @@ module.exports = (msid) => {
     // auth routes
     router.get('/signin',
         msid.signIn({
-            successRedirect: "/",
+            postLoginRedirect: "/",
         }),
     );
 
     router.get('/signout',
         msid.signOut({
-            successRedirect: "/",
+            postLogoutRedirect: "/",
         }),
     );
 
@@ -186,7 +186,7 @@ module.exports = (msid) => {
 
 #### Securing routes
 
-Simply add the [isAuthenticated()](https://azure-samples.github.io/msal-express-wrapper/classes/authprovider.html#isauthenticated) middleware before the controller that serves the page you would like to secure:
+Simply add the [isAuthenticated()](https://azure-samples.github.io/microsoft-identity-express/classes/msalwebappauthclient.html#isauthenticated) middleware before the controller that serves the page you would like to secure:
 
 ```javascript
 // secure routes
@@ -203,7 +203,7 @@ app.get('/id',
 
 #### Acquiring tokens
 
-[getToken()](https://azure-samples.github.io/msal-express-wrapper/classes/authprovider.html#gettoken) can be used before middleware that calls a web API. The access token will be available via `req.session`:
+[getToken()](https://azure-samples.github.io/microsoft-identity-express/classes/msalwebappauthclient.html#gettoken) can be used before middleware that calls a web API. The access token will be available via `req.session`:
 
 ```javascript
     router.get('/profile',
@@ -234,7 +234,7 @@ app.get('/id',
 
 #### Controlling access
 
-Use [hasAccess()](https://azure-samples.github.io/msal-express-wrapper/classes/authprovider.html#hasaccess) middleware to control access for Azure AD App Roles and/or Security Groups:
+Use [hasAccess()](https://azure-samples.github.io/microsoft-identity-express/classes/msalwebappauthclient.html#hasaccess) middleware to control access for Azure AD App Roles and/or Security Groups:
 
 ```javascript
     router.use('/admin',
@@ -259,7 +259,7 @@ Session support in this sample is provided by the [express-session](https://www.
 
 ### Persistent caching
 
-MSAL Node has an in-memory cache by default. The demo app also features a [persistent cache plugin](./demo/App/utils/cachePlugin.js) in order to save the cache to disk. This plugin is not meant to be production-ready. As such, you might want to implement persistent caching using a 3rd party library like [redis](https://redis.io/).
+MSAL Node has an in-memory cache by default. This is not meant to be production-ready. As such, you might want to implement persistent caching using a 3rd party library like [redis](https://redis.io/).
 
 ## Information
 
