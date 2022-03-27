@@ -42,8 +42,8 @@ app.use(session({
     
 app.set('trust proxy', 1) // trust first proxy
 
-// async building the wrapper as fetching credentials from key vault
-const msid = await new MsIdExpress.WebAppAuthClientBuilder(appSettings).build();
+// building the identity-express-wrapper 
+const msid = new MsIdExpress.WebAppAuthClientBuilder(appSettings).build();
 
 app.use(msid.initialize());
 

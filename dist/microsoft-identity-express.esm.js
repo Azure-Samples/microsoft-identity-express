@@ -1205,62 +1205,6 @@ var TokenValidator = /*#__PURE__*/function () {
   }();
 
   /**
-   * Verifies the access token for signature and claims
-   * @param {string} accessToken: raw access token
-   * @param {string} protectedRoute: used for checking scope
-   * @returns {Promise}
-   */
-  _proto.validateAccessToken =
-  /*#__PURE__*/
-  function () {
-    var _validateAccessToken = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(accessToken, protectedRoute) {
-      var verifiedToken;
-      return runtime_1.wrap(function _callee2$(_context2) {
-        while (1) {
-          switch (_context2.prev = _context2.next) {
-            case 0:
-              _context2.prev = 0;
-              _context2.next = 3;
-              return this.verifyTokenSignature(accessToken);
-
-            case 3:
-              verifiedToken = _context2.sent;
-
-              if (!verifiedToken) {
-                _context2.next = 8;
-                break;
-              }
-
-              return _context2.abrupt("return", this.validateAccessTokenClaims(verifiedToken, protectedRoute));
-
-            case 8:
-              return _context2.abrupt("return", false);
-
-            case 9:
-              _context2.next = 14;
-              break;
-
-            case 11:
-              _context2.prev = 11;
-              _context2.t0 = _context2["catch"](0);
-              return _context2.abrupt("return", false);
-
-            case 14:
-            case "end":
-              return _context2.stop();
-          }
-        }
-      }, _callee2, this, [[0, 11]]);
-    }));
-
-    function validateAccessToken(_x2, _x3) {
-      return _validateAccessToken.apply(this, arguments);
-    }
-
-    return validateAccessToken;
-  }();
-
-  /**
    * Verifies a given token's signature using jwks-rsa
    * @param {string} authToken
    * @returns {Promise}
@@ -1268,41 +1212,41 @@ var TokenValidator = /*#__PURE__*/function () {
   _proto.verifyTokenSignature =
   /*#__PURE__*/
   function () {
-    var _verifyTokenSignature = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee3(authToken) {
+    var _verifyTokenSignature = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(authToken) {
       var decodedToken, keys, verifiedToken;
-      return runtime_1.wrap(function _callee3$(_context3) {
+      return runtime_1.wrap(function _callee2$(_context2) {
         while (1) {
-          switch (_context3.prev = _context3.next) {
+          switch (_context2.prev = _context2.next) {
             case 0:
               if (!StringUtils.isEmpty(authToken)) {
-                _context3.next = 3;
+                _context2.next = 3;
                 break;
               }
 
               this.logger.error(ErrorMessages.TOKEN_NOT_FOUND);
-              return _context3.abrupt("return", false);
+              return _context2.abrupt("return", false);
 
             case 3:
               // we will first decode to get kid parameter in header
               decodedToken = TokenValidator.decodeAuthToken(authToken); // obtains signing keys from discovery endpoint
 
-              _context3.prev = 4;
-              _context3.next = 7;
+              _context2.prev = 4;
+              _context2.next = 7;
               return this.getSigningKeys(decodedToken.header, decodedToken.payload.tid);
 
             case 7:
-              keys = _context3.sent;
-              _context3.next = 14;
+              keys = _context2.sent;
+              _context2.next = 14;
               break;
 
             case 10:
-              _context3.prev = 10;
-              _context3.t0 = _context3["catch"](4);
+              _context2.prev = 10;
+              _context2.t0 = _context2["catch"](4);
               this.logger.error(ErrorMessages.KEYS_NOT_OBTAINED);
-              return _context3.abrupt("return", false);
+              return _context2.abrupt("return", false);
 
             case 14:
-              _context3.prev = 14;
+              _context2.prev = 14;
               verifiedToken = jwt.verify(authToken, keys);
               /**
                * if a multiplexer was used in place of tenantId i.e. if the app
@@ -1314,23 +1258,23 @@ var TokenValidator = /*#__PURE__*/function () {
                 this.appSettings.appCredentials.tenantId = decodedToken.payload.tid;
               }
 
-              return _context3.abrupt("return", verifiedToken);
+              return _context2.abrupt("return", verifiedToken);
 
             case 20:
-              _context3.prev = 20;
-              _context3.t1 = _context3["catch"](14);
+              _context2.prev = 20;
+              _context2.t1 = _context2["catch"](14);
               this.logger.error(ErrorMessages.TOKEN_NOT_VERIFIED);
-              return _context3.abrupt("return", false);
+              return _context2.abrupt("return", false);
 
             case 24:
             case "end":
-              return _context3.stop();
+              return _context2.stop();
           }
         }
-      }, _callee3, this, [[4, 10], [14, 20]]);
+      }, _callee2, this, [[4, 10], [14, 20]]);
     }));
 
-    function verifyTokenSignature(_x4) {
+    function verifyTokenSignature(_x2) {
       return _verifyTokenSignature.apply(this, arguments);
     }
 
@@ -1347,11 +1291,11 @@ var TokenValidator = /*#__PURE__*/function () {
   _proto.getSigningKeys =
   /*#__PURE__*/
   function () {
-    var _getSigningKeys = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee4(header, tid) {
+    var _getSigningKeys = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee3(header, tid) {
       var jwksUri, client;
-      return runtime_1.wrap(function _callee4$(_context4) {
+      return runtime_1.wrap(function _callee3$(_context3) {
         while (1) {
-          switch (_context4.prev = _context4.next) {
+          switch (_context3.prev = _context3.next) {
             case 0:
               // Check if a B2C application i.e. app has b2cPolicies
               if (this.appSettings.b2cPolicies) {
@@ -1363,21 +1307,21 @@ var TokenValidator = /*#__PURE__*/function () {
               client = jwksClient({
                 jwksUri: jwksUri
               });
-              _context4.next = 4;
+              _context3.next = 4;
               return client.getSigningKeyAsync(header.kid);
 
             case 4:
-              return _context4.abrupt("return", _context4.sent.getPublicKey());
+              return _context3.abrupt("return", _context3.sent.getPublicKey());
 
             case 5:
             case "end":
-              return _context4.stop();
+              return _context3.stop();
           }
         }
-      }, _callee4, this);
+      }, _callee3, this);
     }));
 
-    function getSigningKeys(_x5, _x6) {
+    function getSigningKeys(_x3, _x4) {
       return _getSigningKeys.apply(this, arguments);
     }
 
@@ -1402,30 +1346,6 @@ var TokenValidator = /*#__PURE__*/function () {
     var checkAudience = idTokenClaims.aud === this.msalConfig.auth.clientId ? true : false;
     var checkTimestamp = idTokenClaims.iat <= now && idTokenClaims.exp >= now ? true : false;
     return checkIssuer && checkAudience && checkTimestamp;
-  };
-
-  /**
-   * Validates the access token for a set of claims
-   * @param {TokenClaims} verifiedToken: token with a verified signature
-   * @param {string} protectedRoute: route where this token is required to access
-   * @returns {boolean}
-   */
-  _proto.validateAccessTokenClaims = function validateAccessTokenClaims(verifiedToken, protectedRoute) {
-    var now = Math.round(new Date().getTime() / 1000); // in UNIX format
-
-    /**
-     * At the very least, validate the token with respect to issuer, audience, scope
-     * and timestamp, though implementation and extent vary. For more information, visit:
-     * https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validating-tokens
-     */
-
-    var checkIssuer = verifiedToken.iss.includes(this.appSettings.appCredentials.tenantId) ? true : false;
-    var checkTimestamp = verifiedToken.iat <= now && verifiedToken.iat >= now ? true : false;
-    var checkAudience = verifiedToken.aud === this.appSettings.appCredentials.clientId || verifiedToken.aud === "api://" + this.appSettings.appCredentials.clientId ? true : false;
-    var checkScopes = ConfigHelper.getScopesFromResourceEndpoint(protectedRoute, this.appSettings).every(function (scp) {
-      return verifiedToken.scp.includes(scp);
-    });
-    return checkAudience && checkIssuer && checkTimestamp && checkScopes;
   };
 
   TokenValidator.decodeAuthToken = function decodeAuthToken(authToken) {
@@ -3229,53 +3149,28 @@ var MsalWebApiAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
   }
   /**
    * Receives access token in req authorization header
-   * and validates it using the jwt.verify
-   * @param {GuardOptions} options: options to modify this middleware
    * @returns {RequestHandler}
    */
   ;
 
-  _proto.isAuthorized = function isAuthorized(options) {
+  _proto.isAuthorized = function isAuthorized() {
     var _this2 = this;
 
     return /*#__PURE__*/function () {
       var _ref2 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(req, res, next) {
-        var rawAccessToken;
         return runtime_1.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
-                rawAccessToken = req.headers.authorization.split(" ")[1];
+                if (req.headers.authorization) {
+                  next();
+                } else {
+                  _this2.logger.error(ErrorMessages.TOKEN_NOT_FOUND);
 
-                if (!req.headers.authorization) {
-                  _context2.next = 10;
-                  break;
+                  res.redirect(_this2.appSettings.authRoutes.unauthorized);
                 }
 
-                _context2.next = 4;
-                return _this2.tokenValidator.validateAccessToken(rawAccessToken, "" + req.baseUrl + req.path);
-
-              case 4:
-                if (_context2.sent) {
-                  _context2.next = 7;
-                  break;
-                }
-
-                _this2.logger.error(ErrorMessages.INVALID_TOKEN);
-
-                return _context2.abrupt("return", res.redirect(_this2.appSettings.authRoutes.unauthorized));
-
-              case 7:
-                next();
-                _context2.next = 12;
-                break;
-
-              case 10:
-                _this2.logger.error(ErrorMessages.TOKEN_NOT_FOUND);
-
-                res.redirect(_this2.appSettings.authRoutes.unauthorized);
-
-              case 12:
+              case 1:
               case "end":
                 return _context2.stop();
             }

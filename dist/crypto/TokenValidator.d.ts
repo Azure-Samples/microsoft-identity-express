@@ -20,13 +20,6 @@ export declare class TokenValidator {
      */
     validateIdToken(idToken: string): Promise<boolean>;
     /**
-     * Verifies the access token for signature and claims
-     * @param {string} accessToken: raw access token
-     * @param {string} protectedRoute: used for checking scope
-     * @returns {Promise}
-     */
-    validateAccessToken(accessToken: string, protectedRoute: string): Promise<boolean>;
-    /**
      * Verifies a given token's signature using jwks-rsa
      * @param {string} authToken
      * @returns {Promise}
@@ -46,12 +39,5 @@ export declare class TokenValidator {
      * @returns {boolean}
      */
     private validateIdTokenClaims;
-    /**
-     * Validates the access token for a set of claims
-     * @param {TokenClaims} verifiedToken: token with a verified signature
-     * @param {string} protectedRoute: route where this token is required to access
-     * @returns {boolean}
-     */
-    private validateAccessTokenClaims;
     static decodeAuthToken(authToken: string): AuthToken;
 }

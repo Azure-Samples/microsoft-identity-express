@@ -18,11 +18,9 @@ import {
     AuthToken,
     TokenHeader,
     IdTokenClaims,
-    AccessTokenClaims
 } from "./AuthToken";
 
 import { AppSettings } from "../config/AppSettings";
-import { ConfigHelper } from "../config/ConfigHelper";
 
 import {
     ErrorMessages,
@@ -55,7 +53,6 @@ export class TokenValidator {
     async validateIdToken(idToken: string): Promise<boolean> {
         try {
             const verifiedToken = await this.verifyTokenSignature(idToken);
-
             if (verifiedToken) {
                 return this.validateIdTokenClaims(verifiedToken as IdTokenClaims);
             } else {
@@ -66,25 +63,6 @@ export class TokenValidator {
         }
     };
 
-    /**
-     * Verifies the access token for signature and claims
-     * @param {string} accessToken: raw access token
-     * @param {string} protectedRoute: used for checking scope
-     * @returns {Promise}
-     */
-    async validateAccessToken(accessToken: string, protectedRoute: string): Promise<boolean> {
-        try {
-            const verifiedToken = await this.verifyTokenSignature(accessToken);
-
-            if (verifiedToken) {
-                return this.validateAccessTokenClaims(verifiedToken as AccessTokenClaims, protectedRoute);
-            } else {
-                return false;
-            }
-        } catch (error) {
-            return false;
-        }
-    };
 
     /**
      * Verifies a given token's signature using jwks-rsa
@@ -99,7 +77,6 @@ export class TokenValidator {
 
         // we will first decode to get kid parameter in header
         let decodedToken: AuthToken = TokenValidator.decodeAuthToken(authToken);
-
         // obtains signing keys from discovery endpoint
         let keys;
 
@@ -180,31 +157,7 @@ export class TokenValidator {
         return checkIssuer && checkAudience && checkTimestamp;
     };
 
-    /**
-     * Validates the access token for a set of claims
-     * @param {TokenClaims} verifiedToken: token with a verified signature
-     * @param {string} protectedRoute: route where this token is required to access
-     * @returns {boolean}
-     */
-    private validateAccessTokenClaims(verifiedToken: AccessTokenClaims, protectedRoute: string): boolean {
-        const now = Math.round(new Date().getTime() / 1000); // in UNIX format
 
-        /**
-         * At the very least, validate the token with respect to issuer, audience, scope
-         * and timestamp, though implementation and extent vary. For more information, visit:
-         * https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validating-tokens
-         */
-        const checkIssuer = verifiedToken.iss.includes(this.appSettings.appCredentials.tenantId) ? true : false;
-        const checkTimestamp = verifiedToken.iat <= now && verifiedToken.iat >= now ? true : false;
-
-        const checkAudience = verifiedToken.aud === this.appSettings.appCredentials.clientId ||
-            verifiedToken.aud === "api://" + this.appSettings.appCredentials.clientId ? true : false;
-
-        const checkScopes = ConfigHelper.getScopesFromResourceEndpoint(protectedRoute, this.appSettings)
-            .every(scp => verifiedToken.scp.includes(scp));
-
-        return checkAudience && checkIssuer && checkTimestamp && checkScopes;
-    };
 
     static decodeAuthToken(authToken: string): AuthToken {
 
