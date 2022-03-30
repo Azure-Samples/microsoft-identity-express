@@ -193,25 +193,9 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
                             try {
                                 // exchange auth code for tokens
                                 const tokenResponse: AuthenticationResult = await this.msalClient.acquireTokenByCode(req.session.tokenRequest);
-
-                                try {
-                                    const isIdTokenValid = await this.tokenValidator.validateIdToken(tokenResponse.idToken);
-
-                                    if (isIdTokenValid) {
-
-                                        // assign session variables
-                                        req.session.isAuthenticated = true;
-                                        req.session.account = tokenResponse.account;
-
-                                        res.redirect(state.path);
-                                    } else {
-                                        this.logger.error(ErrorMessages.INVALID_TOKEN);
-                                        res.redirect(this.appSettings.authRoutes.unauthorized);
-                                    }
-                                } catch (error) {
-                                    this.logger.error(ErrorMessages.CANNOT_VALIDATE_TOKEN);
-                                    next(error)
-                                }
+                                req.session.isAuthenticated = true;
+                                req.session.account = tokenResponse.account;
+                                res.redirect(state.path);
                             } catch (error) {
                                 this.logger.error(ErrorMessages.TOKEN_ACQUISITION_FAILED);
                                 next(error)

@@ -8,7 +8,6 @@ var msalCommon = require('@azure/msal-common');
 var express = _interopDefault(require('express'));
 var msalNode = require('@azure/msal-node');
 var jwt = _interopDefault(require('jsonwebtoken'));
-var jwksClient = _interopDefault(require('jwks-rsa'));
 var axios = _interopDefault(require('axios'));
 var crypto = require('crypto');
 var identity = require('@azure/identity');
@@ -1139,6 +1138,10 @@ var BaseAuthClientBuilder = /*#__PURE__*/function () {
   return BaseAuthClientBuilder;
 }();
 
+/*
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ */
 var TokenValidator = /*#__PURE__*/function () {
   /**
    * @param {AppSettings} appSettings
@@ -1151,208 +1154,6 @@ var TokenValidator = /*#__PURE__*/function () {
     this.msalConfig = msalConfig;
     this.logger = logger;
   }
-  /**
-   * Verifies the access token for signature and claims
-   * @param {string} idToken: raw Id token
-   * @returns {Promise}
-   */
-
-
-  var _proto = TokenValidator.prototype;
-
-  _proto.validateIdToken =
-  /*#__PURE__*/
-  function () {
-    var _validateIdToken = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(idToken) {
-      var verifiedToken;
-      return runtime_1.wrap(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              _context.prev = 0;
-              _context.next = 3;
-              return this.verifyTokenSignature(idToken);
-
-            case 3:
-              verifiedToken = _context.sent;
-
-              if (!verifiedToken) {
-                _context.next = 8;
-                break;
-              }
-
-              return _context.abrupt("return", this.validateIdTokenClaims(verifiedToken));
-
-            case 8:
-              return _context.abrupt("return", false);
-
-            case 9:
-              _context.next = 14;
-              break;
-
-            case 11:
-              _context.prev = 11;
-              _context.t0 = _context["catch"](0);
-              return _context.abrupt("return", false);
-
-            case 14:
-            case "end":
-              return _context.stop();
-          }
-        }
-      }, _callee, this, [[0, 11]]);
-    }));
-
-    function validateIdToken(_x) {
-      return _validateIdToken.apply(this, arguments);
-    }
-
-    return validateIdToken;
-  }();
-
-  /**
-   * Verifies a given token's signature using jwks-rsa
-   * @param {string} authToken
-   * @returns {Promise}
-   */
-  _proto.verifyTokenSignature =
-  /*#__PURE__*/
-  function () {
-    var _verifyTokenSignature = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(authToken) {
-      var decodedToken, keys, verifiedToken;
-      return runtime_1.wrap(function _callee2$(_context2) {
-        while (1) {
-          switch (_context2.prev = _context2.next) {
-            case 0:
-              if (!msalCommon.StringUtils.isEmpty(authToken)) {
-                _context2.next = 3;
-                break;
-              }
-
-              this.logger.error(ErrorMessages.TOKEN_NOT_FOUND);
-              return _context2.abrupt("return", false);
-
-            case 3:
-              // we will first decode to get kid parameter in header
-              decodedToken = TokenValidator.decodeAuthToken(authToken); // obtains signing keys from discovery endpoint
-
-              _context2.prev = 4;
-              _context2.next = 7;
-              return this.getSigningKeys(decodedToken.header, decodedToken.payload.tid);
-
-            case 7:
-              keys = _context2.sent;
-              _context2.next = 14;
-              break;
-
-            case 10:
-              _context2.prev = 10;
-              _context2.t0 = _context2["catch"](4);
-              this.logger.error(ErrorMessages.KEYS_NOT_OBTAINED);
-              return _context2.abrupt("return", false);
-
-            case 14:
-              _context2.prev = 14;
-              verifiedToken = jwt.verify(authToken, keys);
-              /**
-               * if a multiplexer was used in place of tenantId i.e. if the app
-               * is multi-tenant, the tenantId should be obtained from the user"s
-               * token"s tid claim for verification purposes
-               */
-
-              if (this.appSettings.appCredentials.tenantId === AADAuthorityConstants.COMMON || this.appSettings.appCredentials.tenantId === AADAuthorityConstants.ORGANIZATIONS || this.appSettings.appCredentials.tenantId === AADAuthorityConstants.CONSUMERS) {
-                this.appSettings.appCredentials.tenantId = decodedToken.payload.tid;
-              }
-
-              return _context2.abrupt("return", verifiedToken);
-
-            case 20:
-              _context2.prev = 20;
-              _context2.t1 = _context2["catch"](14);
-              this.logger.error(ErrorMessages.TOKEN_NOT_VERIFIED);
-              return _context2.abrupt("return", false);
-
-            case 24:
-            case "end":
-              return _context2.stop();
-          }
-        }
-      }, _callee2, this, [[4, 10], [14, 20]]);
-    }));
-
-    function verifyTokenSignature(_x2) {
-      return _verifyTokenSignature.apply(this, arguments);
-    }
-
-    return verifyTokenSignature;
-  }();
-
-  /**
-   * Fetches signing keys of an access token
-   * from the authority discovery endpoint
-   * @param {TokenHeader} header: token header
-   * @param {string} tid: tenant id
-   * @returns {Promise}
-   */
-  _proto.getSigningKeys =
-  /*#__PURE__*/
-  function () {
-    var _getSigningKeys = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee3(header, tid) {
-      var jwksUri, client;
-      return runtime_1.wrap(function _callee3$(_context3) {
-        while (1) {
-          switch (_context3.prev = _context3.next) {
-            case 0:
-              // Check if a B2C application i.e. app has b2cPolicies
-              if (this.appSettings.b2cPolicies) {
-                jwksUri = this.msalConfig.auth.authority + "/discovery/v2.0/keys";
-              } else {
-                jwksUri = "https://" + msalCommon.Constants.DEFAULT_AUTHORITY_HOST + "/" + tid + "/discovery/v2.0/keys";
-              }
-
-              client = jwksClient({
-                jwksUri: jwksUri
-              });
-              _context3.next = 4;
-              return client.getSigningKeyAsync(header.kid);
-
-            case 4:
-              return _context3.abrupt("return", _context3.sent.getPublicKey());
-
-            case 5:
-            case "end":
-              return _context3.stop();
-          }
-        }
-      }, _callee3, this);
-    }));
-
-    function getSigningKeys(_x3, _x4) {
-      return _getSigningKeys.apply(this, arguments);
-    }
-
-    return getSigningKeys;
-  }();
-
-  /**
-   * Validates the id token for a set of claims
-   * @param {IdTokenClaims} idTokenClaims: decoded id token claims
-   * @returns {boolean}
-   */
-  _proto.validateIdTokenClaims = function validateIdTokenClaims(idTokenClaims) {
-    var now = Math.round(new Date().getTime() / 1000); // in UNIX format
-
-    /**
-     * At the very least, check for issuer, audience, issue and expiry dates.
-     * For more information on validating id tokens, visit:
-     * https://docs.microsoft.com/azure/active-directory/develop/id-tokens#validating-an-id_token
-     */
-
-    var checkIssuer = idTokenClaims.iss.includes(this.appSettings.appCredentials.tenantId) ? true : false;
-    var checkAudience = idTokenClaims.aud === this.msalConfig.auth.clientId ? true : false;
-    var checkTimestamp = idTokenClaims.iat <= now && idTokenClaims.exp >= now ? true : false;
-    return checkIssuer && checkAudience && checkTimestamp;
-  };
 
   TokenValidator.decodeAuthToken = function decodeAuthToken(authToken) {
     try {
@@ -1769,26 +1570,26 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
 
     return /*#__PURE__*/function () {
       var _ref = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(req, res, next) {
-        var state, tokenResponse, isIdTokenValid, resourceName, _tokenResponse;
+        var state, tokenResponse, resourceName, _tokenResponse;
 
         return runtime_1.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
                 if (!req.query.state) {
-                  _context.next = 53;
+                  _context.next = 45;
                   break;
                 }
 
                 state = JSON.parse(_this5.cryptoUtils.decryptData(_this5.cryptoProvider.base64Decode(req.query.state), Buffer.from(req.session.key, "hex"))); // check if nonce matches
 
                 if (!(state.nonce === req.session.nonce)) {
-                  _context.next = 49;
+                  _context.next = 41;
                   break;
                 }
 
                 _context.t0 = state.stage;
-                _context.next = _context.t0 === AppStages.SIGN_IN ? 6 : _context.t0 === AppStages.ACQUIRE_TOKEN ? 29 : 44;
+                _context.next = _context.t0 === AppStages.SIGN_IN ? 6 : _context.t0 === AppStages.ACQUIRE_TOKEN ? 21 : 36;
                 break;
 
               case 6:
@@ -1800,106 +1601,79 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
 
               case 10:
                 tokenResponse = _context.sent;
-                _context.prev = 11;
-                _context.next = 14;
-                return _this5.tokenValidator.validateIdToken(tokenResponse.idToken);
-
-              case 14:
-                isIdTokenValid = _context.sent;
-
-                if (isIdTokenValid) {
-                  // assign session variables
-                  req.session.isAuthenticated = true;
-                  req.session.account = tokenResponse.account;
-                  res.redirect(state.path);
-                } else {
-                  _this5.logger.error(ErrorMessages.INVALID_TOKEN);
-
-                  res.redirect(_this5.appSettings.authRoutes.unauthorized);
-                }
-
-                _context.next = 22;
+                req.session.isAuthenticated = true;
+                req.session.account = tokenResponse.account;
+                res.redirect(state.path);
+                _context.next = 20;
                 break;
 
-              case 18:
-                _context.prev = 18;
-                _context.t1 = _context["catch"](11);
+              case 16:
+                _context.prev = 16;
+                _context.t1 = _context["catch"](7);
 
-                _this5.logger.error(ErrorMessages.CANNOT_VALIDATE_TOKEN);
+                _this5.logger.error(ErrorMessages.TOKEN_ACQUISITION_FAILED);
 
                 next(_context.t1);
 
-              case 22:
-                _context.next = 28;
+              case 20:
+                return _context.abrupt("break", 39);
+
+              case 21:
+                // get the name of the resource associated with scope
+                resourceName = ConfigHelper.getResourceNameFromScopes(req.session.tokenRequest.scopes, _this5.appSettings);
+                req.session.tokenRequest.code = req.query.code;
+                _context.prev = 23;
+                _context.next = 26;
+                return _this5.msalClient.acquireTokenByCode(req.session.tokenRequest);
+
+              case 26:
+                _tokenResponse = _context.sent;
+                req.session.protectedResources[resourceName].accessToken = _tokenResponse.accessToken;
+                res.redirect(state.path);
+                _context.next = 35;
                 break;
 
-              case 24:
-                _context.prev = 24;
-                _context.t2 = _context["catch"](7);
+              case 31:
+                _context.prev = 31;
+                _context.t2 = _context["catch"](23);
 
                 _this5.logger.error(ErrorMessages.TOKEN_ACQUISITION_FAILED);
 
                 next(_context.t2);
 
-              case 28:
-                return _context.abrupt("break", 47);
+              case 35:
+                return _context.abrupt("break", 39);
 
-              case 29:
-                // get the name of the resource associated with scope
-                resourceName = ConfigHelper.getResourceNameFromScopes(req.session.tokenRequest.scopes, _this5.appSettings);
-                req.session.tokenRequest.code = req.query.code;
-                _context.prev = 31;
-                _context.next = 34;
-                return _this5.msalClient.acquireTokenByCode(req.session.tokenRequest);
-
-              case 34:
-                _tokenResponse = _context.sent;
-                req.session.protectedResources[resourceName].accessToken = _tokenResponse.accessToken;
-                res.redirect(state.path);
-                _context.next = 43;
-                break;
-
-              case 39:
-                _context.prev = 39;
-                _context.t3 = _context["catch"](31);
-
-                _this5.logger.error(ErrorMessages.TOKEN_ACQUISITION_FAILED);
-
-                next(_context.t3);
-
-              case 43:
-                return _context.abrupt("break", 47);
-
-              case 44:
+              case 36:
                 _this5.logger.error(ErrorMessages.CANNOT_DETERMINE_APP_STAGE);
 
                 res.redirect(_this5.appSettings.authRoutes.error);
-                return _context.abrupt("break", 47);
+                return _context.abrupt("break", 39);
 
-              case 47:
-                _context.next = 51;
+              case 39:
+                _context.next = 43;
                 break;
 
-              case 49:
+              case 41:
                 _this5.logger.error(ErrorMessages.NONCE_MISMATCH);
 
                 res.redirect(_this5.appSettings.authRoutes.unauthorized);
 
-              case 51:
-                _context.next = 55;
+              case 43:
+                _context.next = 47;
                 break;
 
-              case 53:
+              case 45:
                 _this5.logger.error(ErrorMessages.STATE_NOT_FOUND);
 
                 res.redirect(_this5.appSettings.authRoutes.unauthorized);
 
-              case 55:
+              case 47:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, null, [[7, 24], [11, 18], [31, 39]]);
+        }, _callee, null, [[7, 16], [23, 31]]);
       }));
 
       return function (_x, _x2, _x3) {
