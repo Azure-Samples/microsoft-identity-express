@@ -1,4 +1,5 @@
 import { AccountInfo, AuthorizationUrlRequest, AuthorizationCodeRequest } from "@azure/msal-node";
+import { TokenClaims } from "@azure/msal-common";
 import { Resource } from "../config/AppSettings";
 declare module "express-session" {
     interface SessionData {
@@ -29,4 +30,23 @@ export declare type AuthCodeParams = {
     redirect: string;
     prompt?: string;
     account?: AccountInfo;
+};
+export declare type IdTokenClaims = TokenClaims & {
+    aud?: string;
+    roles?: string[];
+    groups?: string[];
+    _claim_names?: string[];
+    _claim_sources?: string[];
+    xms_cc?: string;
+    acrs?: string[];
+};
+export declare type AccessTokenClaims = TokenClaims & {
+    scp?: string;
+    aud?: string;
+    roles?: string[];
+    groups?: string[];
+    _claim_names?: string[];
+    _claim_sources?: string[];
+    xms_cc?: string;
+    acrs?: string[];
 };

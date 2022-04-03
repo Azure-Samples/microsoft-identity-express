@@ -16,11 +16,12 @@ import { AccountInfo } from "@azure/msal-common";
 import { BaseAuthClient } from "../BaseAuthClient";
 import { Configuration } from "@azure/msal-node";
 
-import { TokenValidator } from "../../crypto/TokenValidator";
-import { AccessTokenClaims, IdTokenClaims } from "../../crypto/AuthToken";
+import { AccessTokenClaims, IdTokenClaims } from "../../utils/Types";
 import { AppSettings, Resource } from "../../config/AppSettings";
 import { ConfigHelper } from "../../config/ConfigHelper";
 import { UrlUtils } from "../../utils/UrlUtils";
+import { CryptoUtils } from "../../utils/CryptoUtils"
+
 
 import {
     GuardOptions,
@@ -41,6 +42,8 @@ import {
 
 export class AppServiceWebAppAuthClient extends BaseAuthClient {
 
+    private cryptoUtils: CryptoUtils;
+
     /**
      * @param {AppSettings} appSettings
      * @param {Configuration} msalConfig
@@ -48,6 +51,7 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
      */
     constructor(appSettings: AppSettings, msalConfig: Configuration) {
         super(appSettings, msalConfig);
+        this.cryptoUtils = new CryptoUtils();
     }
 
     /**
@@ -72,10 +76,8 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
 
                 if (rawIdToken) {
 
-                    // TODO: validate the id token
-
                     // parse the id token
-                    const idTokenClaims: IdTokenClaims = TokenValidator.decodeAuthToken(rawIdToken).payload;
+                    const idTokenClaims: IdTokenClaims = this.cryptoUtils.decodeAuthToken(rawIdToken).payload;
 
                     req.session.isAuthenticated = true;
 
@@ -166,7 +168,7 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
 
             if (rawAccessToken) {
 
-                const accessTokenClaims: AccessTokenClaims = TokenValidator.decodeAuthToken(rawAccessToken).payload;
+                const accessTokenClaims: AccessTokenClaims = this.cryptoUtils.decodeAuthToken(rawAccessToken).payload;
 
                 // get the name of the resource associated with scope
                 const scopes = accessTokenClaims.scp.split(" ");

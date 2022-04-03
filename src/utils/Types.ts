@@ -9,6 +9,8 @@ import {
     AuthorizationCodeRequest,
 } from "@azure/msal-node";
 
+import { TokenClaims } from "@azure/msal-common";
+
 import { Resource } from "../config/AppSettings";
 
 // extending express session
@@ -45,4 +47,28 @@ export type AuthCodeParams = {
     redirect: string;
     prompt?: string;
     account?: AccountInfo;
+};
+
+
+// prepare IdToken payload
+export type IdTokenClaims = TokenClaims & {
+    aud?: string,
+    roles?: string[],
+    groups?: string[],
+    _claim_names?: string[],
+    _claim_sources?: string[],
+    xms_cc?: string,
+    acrs?: string[],
+};
+
+// prepare AccessToken payload
+export type AccessTokenClaims = TokenClaims & {
+    scp?: string,
+    aud?: string,
+    roles?: string[],
+    groups?: string[],
+    _claim_names?: string[],
+    _claim_sources?: string[],
+    xms_cc?: string,
+    acrs?: string[],
 };

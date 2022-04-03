@@ -4,6 +4,7 @@ import { Configuration } from "@azure/msal-node";
 import { AppSettings } from "../../config/AppSettings";
 import { GuardOptions, InitializationOptions, SignInOptions, SignOutOptions, TokenRequestOptions } from "../MiddlewareOptions";
 export declare class AppServiceWebAppAuthClient extends BaseAuthClient {
+    private cryptoUtils;
     /**
      * @param {AppSettings} appSettings
      * @param {Configuration} msalConfig

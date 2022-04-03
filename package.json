@@ -43,6 +43,7 @@
   "author": "derisen",
   "module": "dist/microsoft-identity-express.esm.js",
   "devDependencies": {
+    "@types/atob": "^2.1.2",
     "@types/express": "^4.17.8",
     "@types/express-session": "^1.17.3",
     "@types/node": "^16.6.2",
@@ -66,8 +67,6 @@
     "axios": "^0.21.2",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
-    "jsonwebtoken": "^8.5.1",
-    "jwks-rsa": "^1.11.0",
     "uuid": "^8.3.1"
   }
 }

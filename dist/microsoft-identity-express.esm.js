@@ -1,9 +1,9 @@
 import { OIDC_DEFAULT_SCOPES, LogLevel, StringUtils, Logger, UrlString, InteractionRequiredAuthError, Constants } from '@azure/msal-common';
 import express from 'express';
 import { CryptoProvider, ConfidentialClientApplication } from '@azure/msal-node';
-import jwt from 'jsonwebtoken';
 import axios from 'axios';
 import { randomBytes, scryptSync, createCipheriv, createDecipheriv } from 'crypto';
+import atob from 'atob';
 import { DefaultAzureCredential } from '@azure/identity';
 import { CertificateClient } from '@azure/keyvault-certificates';
 import { SecretClient } from '@azure/keyvault-secrets';
@@ -1132,36 +1132,6 @@ var BaseAuthClientBuilder = /*#__PURE__*/function () {
   return BaseAuthClientBuilder;
 }();
 
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License.
- */
-var TokenValidator = /*#__PURE__*/function () {
-  /**
-   * @param {AppSettings} appSettings
-   * @param {Configuration} msalConfig
-   * @param {Logger} logger
-   * @constructor
-   */
-  function TokenValidator(appSettings, msalConfig, logger) {
-    this.appSettings = appSettings;
-    this.msalConfig = msalConfig;
-    this.logger = logger;
-  }
-
-  TokenValidator.decodeAuthToken = function decodeAuthToken(authToken) {
-    try {
-      return jwt.decode(authToken, {
-        complete: true
-      });
-    } catch (error) {
-      throw new Error(ErrorMessages.TOKEN_NOT_DECODED);
-    }
-  };
-
-  return TokenValidator;
-}();
-
 var packageName = "@azure-samples/microsoft-identity-express";
 var packageVersion = "beta";
 
@@ -1173,7 +1143,6 @@ var BaseAuthClient = /*#__PURE__*/function () {
   function BaseAuthClient(appSettings, msalConfig) {
     this.appSettings = appSettings;
     this.msalConfig = msalConfig;
-    this.tokenValidator = new TokenValidator(this.appSettings, this.msalConfig, this.logger);
     this.cryptoProvider = new CryptoProvider();
     this.logger = new Logger(this.msalConfig.system.loggerOptions, packageName, packageVersion);
     this.msalClient = new ConfidentialClientApplication(this.msalConfig);
@@ -1396,6 +1365,10 @@ UrlUtils.getPathFromUrl = function (url) {
   return "/" + urlComponents.PathSegments.join("/");
 };
 
+/*
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ */
 var CryptoUtils = /*#__PURE__*/function () {
   function CryptoUtils(algorithm) {
     if (algorithm === void 0) {
@@ -1429,6 +1402,18 @@ var CryptoUtils = /*#__PURE__*/function () {
 
     var decipher = createDecipheriv(this.algorithm, key, Buffer.from(iv, "hex"));
     return decipher.update(encrypted, 'hex', 'utf8') + decipher["final"]('utf8');
+  };
+
+  _proto.decodeAuthToken = function decodeAuthToken(authToken) {
+    var obj = {};
+    var base64Url = authToken.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/, '/');
+    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    var jsonParse = JSON.parse(jsonPayload);
+    obj["payload"] = jsonParse;
+    return obj;
   };
 
   return CryptoUtils;
@@ -2156,7 +2141,11 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
    * @constructor
    */
   function AppServiceWebAppAuthClient(appSettings, msalConfig) {
-    return _BaseAuthClient.call(this, appSettings, msalConfig) || this;
+    var _this;
+
+    _this = _BaseAuthClient.call(this, appSettings, msalConfig) || this;
+    _this.cryptoUtils = new CryptoUtils();
+    return _this;
   }
   /**
    * Initialize AuthProvider and set default routes and handlers
@@ -2168,6 +2157,8 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
   var _proto = AppServiceWebAppAuthClient.prototype;
 
   _proto.initialize = function initialize(options) {
+    var _this2 = this;
+
     var appRouter = express.Router(); // handle redirect
 
     appRouter.get(UrlUtils.getPathFromUrl(this.appSettings.authRoutes.redirect), this.handleRedirect());
@@ -2178,9 +2169,9 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
         var rawIdToken = req.headers[AppServiceAuthenticationHeaders.APP_SERVICE_ID_TOKEN_HEADER.toLowerCase()];
 
         if (rawIdToken) {
-          // TODO: validate the id token
           // parse the id token
-          var idTokenClaims = TokenValidator.decodeAuthToken(rawIdToken).payload;
+          var idTokenClaims = _this2.cryptoUtils.decodeAuthToken(rawIdToken).payload;
+
           req.session.isAuthenticated = true;
           req.session.account = {
             tenantId: idTokenClaims.tid,
@@ -2267,7 +2258,7 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
   ;
 
   _proto.getToken = function getToken(options) {
-    var _this = this;
+    var _this3 = this;
 
     return /*#__PURE__*/function () {
       var _ref2 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(req, res, next) {
@@ -2279,13 +2270,13 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
             switch (_context2.prev = _context2.next) {
               case 0:
                 // get scopes for token request
-                resourceName = ConfigHelper.getResourceNameFromScopes(options.resource.scopes, _this.appSettings);
+                resourceName = ConfigHelper.getResourceNameFromScopes(options.resource.scopes, _this3.appSettings);
 
                 if (!req.session.protectedResources) {
                   req.session.protectedResources = {};
                 }
 
-                req.session.protectedResources = (_req$session$protecte = {}, _req$session$protecte[resourceName] = _extends({}, _this.appSettings.protectedResources[resourceName], {
+                req.session.protectedResources = (_req$session$protecte = {}, _req$session$protecte[resourceName] = _extends({}, _this3.appSettings.protectedResources[resourceName], {
                   accessToken: null
                 }), _req$session$protecte);
                 rawAccessToken = req.headers[AppServiceAuthenticationHeaders.APP_SERVICE_ACCESS_TOKEN_HEADER.toLowerCase()];
@@ -2295,7 +2286,7 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
                   break;
                 }
 
-                accessTokenClaims = TokenValidator.decodeAuthToken(rawAccessToken).payload; // get the name of the resource associated with scope
+                accessTokenClaims = _this3.cryptoUtils.decodeAuthToken(rawAccessToken).payload; // get the name of the resource associated with scope
 
                 scopes = accessTokenClaims.scp.split(" ");
                 effectiveScopes = ConfigHelper.getEffectiveScopes(scopes);
@@ -2334,21 +2325,21 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
   ;
 
   _proto.isAuthenticated = function isAuthenticated(options) {
-    var _this2 = this;
+    var _this4 = this;
 
     return function (req, res, next) {
       if (req.session) {
         if (!req.session.isAuthenticated) {
-          _this2.logger.error(ErrorMessages.NOT_PERMITTED);
+          _this4.logger.error(ErrorMessages.NOT_PERMITTED);
 
-          return res.redirect(_this2.appSettings.authRoutes.unauthorized);
+          return res.redirect(_this4.appSettings.authRoutes.unauthorized);
         }
 
         next();
       } else {
-        _this2.logger.error(ErrorMessages.SESSION_NOT_FOUND);
+        _this4.logger.error(ErrorMessages.SESSION_NOT_FOUND);
 
-        res.redirect(_this2.appSettings.authRoutes.unauthorized);
+        res.redirect(_this4.appSettings.authRoutes.unauthorized);
       }
     };
   };
@@ -3041,5 +3032,5 @@ var WebApiAuthClientBuilder = /*#__PURE__*/function (_BaseAuthClientBuilde) {
   return WebApiAuthClientBuilder;
 }(BaseAuthClientBuilder);
 
-export { AppServiceWebAppAuthClient, ConfigHelper, DistributedCachePlugin, FetchManager, KeyVaultManager, MsalConfiguration, MsalWebApiAuthClient, MsalWebAppAuthClient, TokenValidator, WebApiAuthClientBuilder, WebAppAuthClientBuilder, packageVersion };
+export { AppServiceWebAppAuthClient, ConfigHelper, DistributedCachePlugin, FetchManager, KeyVaultManager, MsalConfiguration, MsalWebApiAuthClient, MsalWebAppAuthClient, WebApiAuthClientBuilder, WebAppAuthClientBuilder, packageVersion };
 //# sourceMappingURL=microsoft-identity-express.esm.js.map

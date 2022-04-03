@@ -23,9 +23,10 @@ import {
     AuthenticationResult
 } from "@azure/msal-node";
 
+
 import { BaseAuthClient } from "../BaseAuthClient";
 import { ConfigHelper } from "../../config/ConfigHelper";
-import { IdTokenClaims } from "../../crypto/AuthToken";
+import { IdTokenClaims } from "../../utils/Types";
 import { FetchManager } from "../../network/FetchManager";
 import { UrlUtils } from "../../utils/UrlUtils";
 import { CryptoUtils } from "../../utils/CryptoUtils"
