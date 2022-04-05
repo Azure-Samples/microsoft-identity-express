@@ -70,7 +70,7 @@ const appSettings = {
         unauthorized: "/unauthorized" // unauthorized access attempts will be redirected to this route
         frontChannelLogout: "/sso_logout" // front-channel logout path or the full URI configured on Azure AD
     },
-    remoteResources: {
+    protectedResources: {
         graphAPI: {
             endpoint: "https://graph.microsoft.com/v1.0/me", // Microsoft Graph API
             scopes: ["user.read"]
