@@ -5,7 +5,7 @@
 
 
 import * as crypto from "crypto";
-import atob from 'atob';
+
 
 
 export class CryptoUtils {
@@ -37,17 +37,4 @@ export class CryptoUtils {
         const decipher = crypto.createDecipheriv(this.algorithm, key, Buffer.from(iv, "hex"));
         return decipher.update(encrypted, 'hex', 'utf8') + decipher.final('utf8');
     }
-
-    decodeAuthToken(authToken: string): any {
-        let obj = {};
-        let base64Url = authToken.split('.')[1];
-        let base64  =  base64Url.replace(/-/g,'+').replace(/_/, '/')
-        let jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c){
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-        }).join(''));
-        let jsonParse = JSON.parse(jsonPayload);
-        obj["payload"] = jsonParse;
-        return obj; 
-    }
-
 }

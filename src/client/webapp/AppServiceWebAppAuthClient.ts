@@ -12,7 +12,8 @@ import express, {
     NextFunction
 } from "express";
 
-import { AccountInfo } from "@azure/msal-common";
+import { AccountInfo, AuthToken } from "@azure/msal-common";
+
 import { BaseAuthClient } from "../BaseAuthClient";
 import { Configuration } from "@azure/msal-node";
 
@@ -42,7 +43,6 @@ import {
 
 export class AppServiceWebAppAuthClient extends BaseAuthClient {
 
-    private cryptoUtils: CryptoUtils;
 
     /**
      * @param {AppSettings} appSettings
@@ -51,7 +51,6 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
      */
     constructor(appSettings: AppSettings, msalConfig: Configuration) {
         super(appSettings, msalConfig);
-        this.cryptoUtils = new CryptoUtils();
     }
 
     /**
@@ -77,7 +76,7 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
                 if (rawIdToken) {
 
                     // parse the id token
-                    const idTokenClaims: IdTokenClaims = this.cryptoUtils.decodeAuthToken(rawIdToken).payload;
+                    const idTokenClaims: IdTokenClaims = AuthToken.extractTokenClaims(rawIdToken, this.cryptoProvider);
 
                     req.session.isAuthenticated = true;
 
@@ -168,7 +167,7 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
 
             if (rawAccessToken) {
 
-                const accessTokenClaims: AccessTokenClaims = this.cryptoUtils.decodeAuthToken(rawAccessToken).payload;
+                const accessTokenClaims: AccessTokenClaims = AuthToken.extractTokenClaims(rawAccessToken, this.cryptoProvider);
 
                 // get the name of the resource associated with scope
                 const scopes = accessTokenClaims.scp.split(" ");

@@ -1,9 +1,8 @@
-import { OIDC_DEFAULT_SCOPES, LogLevel, StringUtils, Logger, UrlString, InteractionRequiredAuthError, Constants } from '@azure/msal-common';
+import { OIDC_DEFAULT_SCOPES, LogLevel, StringUtils, Logger, UrlString, InteractionRequiredAuthError, AuthToken, Constants } from '@azure/msal-common';
 import express from 'express';
 import { CryptoProvider, ConfidentialClientApplication } from '@azure/msal-node';
 import axios from 'axios';
 import { randomBytes, scryptSync, createCipheriv, createDecipheriv } from 'crypto';
-import atob from 'atob';
 import { DefaultAzureCredential } from '@azure/identity';
 import { CertificateClient } from '@azure/keyvault-certificates';
 import { SecretClient } from '@azure/keyvault-secrets';
@@ -1404,18 +1403,6 @@ var CryptoUtils = /*#__PURE__*/function () {
     return decipher.update(encrypted, 'hex', 'utf8') + decipher["final"]('utf8');
   };
 
-  _proto.decodeAuthToken = function decodeAuthToken(authToken) {
-    var obj = {};
-    var base64Url = authToken.split('.')[1];
-    var base64 = base64Url.replace(/-/g, '+').replace(/_/, '/');
-    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
-      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-    var jsonParse = JSON.parse(jsonPayload);
-    obj["payload"] = jsonParse;
-    return obj;
-  };
-
   return CryptoUtils;
 }();
 
@@ -2141,11 +2128,7 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
    * @constructor
    */
   function AppServiceWebAppAuthClient(appSettings, msalConfig) {
-    var _this;
-
-    _this = _BaseAuthClient.call(this, appSettings, msalConfig) || this;
-    _this.cryptoUtils = new CryptoUtils();
-    return _this;
+    return _BaseAuthClient.call(this, appSettings, msalConfig) || this;
   }
   /**
    * Initialize AuthProvider and set default routes and handlers
@@ -2157,7 +2140,7 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
   var _proto = AppServiceWebAppAuthClient.prototype;
 
   _proto.initialize = function initialize(options) {
-    var _this2 = this;
+    var _this = this;
 
     var appRouter = express.Router(); // handle redirect
 
@@ -2170,8 +2153,7 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
 
         if (rawIdToken) {
           // parse the id token
-          var idTokenClaims = _this2.cryptoUtils.decodeAuthToken(rawIdToken).payload;
-
+          var idTokenClaims = AuthToken.extractTokenClaims(rawIdToken, _this.cryptoProvider);
           req.session.isAuthenticated = true;
           req.session.account = {
             tenantId: idTokenClaims.tid,
@@ -2258,7 +2240,7 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
   ;
 
   _proto.getToken = function getToken(options) {
-    var _this3 = this;
+    var _this2 = this;
 
     return /*#__PURE__*/function () {
       var _ref2 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(req, res, next) {
@@ -2270,13 +2252,13 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
             switch (_context2.prev = _context2.next) {
               case 0:
                 // get scopes for token request
-                resourceName = ConfigHelper.getResourceNameFromScopes(options.resource.scopes, _this3.appSettings);
+                resourceName = ConfigHelper.getResourceNameFromScopes(options.resource.scopes, _this2.appSettings);
 
                 if (!req.session.protectedResources) {
                   req.session.protectedResources = {};
                 }
 
-                req.session.protectedResources = (_req$session$protecte = {}, _req$session$protecte[resourceName] = _extends({}, _this3.appSettings.protectedResources[resourceName], {
+                req.session.protectedResources = (_req$session$protecte = {}, _req$session$protecte[resourceName] = _extends({}, _this2.appSettings.protectedResources[resourceName], {
                   accessToken: null
                 }), _req$session$protecte);
                 rawAccessToken = req.headers[AppServiceAuthenticationHeaders.APP_SERVICE_ACCESS_TOKEN_HEADER.toLowerCase()];
@@ -2286,7 +2268,7 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
                   break;
                 }
 
-                accessTokenClaims = _this3.cryptoUtils.decodeAuthToken(rawAccessToken).payload; // get the name of the resource associated with scope
+                accessTokenClaims = AuthToken.extractTokenClaims(rawAccessToken, _this2.cryptoProvider); // get the name of the resource associated with scope
 
                 scopes = accessTokenClaims.scp.split(" ");
                 effectiveScopes = ConfigHelper.getEffectiveScopes(scopes);
@@ -2325,21 +2307,21 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
   ;
 
   _proto.isAuthenticated = function isAuthenticated(options) {
-    var _this4 = this;
+    var _this3 = this;
 
     return function (req, res, next) {
       if (req.session) {
         if (!req.session.isAuthenticated) {
-          _this4.logger.error(ErrorMessages.NOT_PERMITTED);
+          _this3.logger.error(ErrorMessages.NOT_PERMITTED);
 
-          return res.redirect(_this4.appSettings.authRoutes.unauthorized);
+          return res.redirect(_this3.appSettings.authRoutes.unauthorized);
         }
 
         next();
       } else {
-        _this4.logger.error(ErrorMessages.SESSION_NOT_FOUND);
+        _this3.logger.error(ErrorMessages.SESSION_NOT_FOUND);
 
-        res.redirect(_this4.appSettings.authRoutes.unauthorized);
+        res.redirect(_this3.appSettings.authRoutes.unauthorized);
       }
     };
   };

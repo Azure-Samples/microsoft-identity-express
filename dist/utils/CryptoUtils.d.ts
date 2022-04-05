@@ -6,5 +6,4 @@ export declare class CryptoUtils {
     createKey(password: any, salt: any): Buffer;
     encryptData(stringifiedData: any, key: any): string;
     decryptData(encryptedData: any, key: any): string;
-    decodeAuthToken(authToken: string): any;
 }
