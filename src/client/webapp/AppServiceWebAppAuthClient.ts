@@ -12,15 +12,17 @@ import express, {
     NextFunction
 } from "express";
 
-import { AccountInfo } from "@azure/msal-common";
+import { AccountInfo, AuthToken } from "@azure/msal-common";
+
 import { BaseAuthClient } from "../BaseAuthClient";
 import { Configuration } from "@azure/msal-node";
 
-import { TokenValidator } from "../../crypto/TokenValidator";
-import { AccessTokenClaims, IdTokenClaims } from "../../crypto/AuthToken";
+import { AccessTokenClaims, IdTokenClaims } from "../../utils/Types";
 import { AppSettings, Resource } from "../../config/AppSettings";
 import { ConfigHelper } from "../../config/ConfigHelper";
 import { UrlUtils } from "../../utils/UrlUtils";
+import { CryptoUtils } from "../../utils/CryptoUtils"
+
 
 import {
     GuardOptions,
@@ -40,6 +42,7 @@ import {
 } from "../../utils/Constants";
 
 export class AppServiceWebAppAuthClient extends BaseAuthClient {
+
 
     /**
      * @param {AppSettings} appSettings
@@ -72,10 +75,8 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
 
                 if (rawIdToken) {
 
-                    // TODO: validate the id token
-
                     // parse the id token
-                    const idTokenClaims: IdTokenClaims = TokenValidator.decodeAuthToken(rawIdToken).payload;
+                    const idTokenClaims: IdTokenClaims = AuthToken.extractTokenClaims(rawIdToken, this.cryptoProvider);
 
                     req.session.isAuthenticated = true;
 
@@ -166,7 +167,7 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
 
             if (rawAccessToken) {
 
-                const accessTokenClaims: AccessTokenClaims = TokenValidator.decodeAuthToken(rawAccessToken).payload;
+                const accessTokenClaims: AccessTokenClaims = AuthToken.extractTokenClaims(rawAccessToken, this.cryptoProvider);
 
                 // get the name of the resource associated with scope
                 const scopes = accessTokenClaims.scp.split(" ");

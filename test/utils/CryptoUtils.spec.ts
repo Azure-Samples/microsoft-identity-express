@@ -4,6 +4,8 @@
  */
 
 import { CryptoUtils } from '../../src/utils/CryptoUtils';
+import { TEST_CONSTANTS } from "../TestConstants";
+
 
 describe('Crypto utilities tests', () => {
     const cryptoUtils = new CryptoUtils();
@@ -16,6 +18,7 @@ describe('Crypto utilities tests', () => {
 
     const stringifiedData = JSON.stringify(state);
     const key = cryptoUtils.createKey("password", "salt");
+
 
     it('should generate a valid instance', () => {
         expect(cryptoUtils).toBeInstanceOf(CryptoUtils);

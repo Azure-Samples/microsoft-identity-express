@@ -10,8 +10,6 @@ export { MsalWebAppAuthClient } from "./client/webapp/MsalWebAppAuthClient";
 export { AppServiceWebAppAuthClient } from "./client/webapp/AppServiceWebAppAuthClient";
 export { MsalWebApiAuthClient } from "./client/webapi/MsalWebApiAuthClient";
 
-export { AuthToken } from "./crypto/AuthToken";
-export { TokenValidator } from "./crypto/TokenValidator";
 
 export { AppSettings } from "./config/AppSettings";
 export { ConfigHelper } from "./config/ConfigHelper";

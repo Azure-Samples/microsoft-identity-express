@@ -29,7 +29,6 @@ import {
 import {
     InitializationOptions,
     TokenRequestOptions,
-    GuardOptions,
 } from "../MiddlewareOptions";
 
 import {
@@ -102,20 +101,11 @@ export class MsalWebApiAuthClient extends BaseAuthClient {
 
     /**
      * Receives access token in req authorization header
-     * and validates it using the jwt.verify
-     * @param {GuardOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    isAuthorized(options?: GuardOptions): RequestHandler {
+    isAuthorized(): RequestHandler {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-            const rawAccessToken: string = req.headers.authorization.split(" ")[1];
-
             if (req.headers.authorization) {
-                if (!(await this.tokenValidator.validateAccessToken(rawAccessToken, `${req.baseUrl}${req.path}`))) {
-                    this.logger.error(ErrorMessages.INVALID_TOKEN);
-                    return res.redirect(this.appSettings.authRoutes.unauthorized);
-                }
-
                 next();
             } else {
                 this.logger.error(ErrorMessages.TOKEN_NOT_FOUND);
