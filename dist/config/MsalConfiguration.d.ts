@@ -1,6 +1,5 @@
 import { Configuration } from "@azure/msal-node";
 import { AppSettings } from "./AppSettings";
-import { IDistributedPersistence } from "../cache/IDistributedPersistence";
 export declare class MsalConfiguration {
     /**
      * Maps the custom configuration object to configuration
@@ -10,5 +9,5 @@ export declare class MsalConfiguration {
      * @param {IDistributedPersistence} distributedPersistence: distributed persistence client
      * @returns {Configuration}
      */
-    static getMsalConfiguration(appSettings: AppSettings, persistenceManager?: IDistributedPersistence): Configuration;
+    static getMsalConfiguration(appSettings: AppSettings): Configuration;
 }

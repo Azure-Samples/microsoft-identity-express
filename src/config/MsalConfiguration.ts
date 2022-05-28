@@ -9,18 +9,12 @@ import {
 } from "@azure/msal-common";
 
 import {
-    ICachePlugin,
     Configuration
 } from "@azure/msal-node";
 
+import { DEFAULT_LOGGER_OPTIONS } from "../utils/Constants";
+
 import { AppSettings } from "./AppSettings";
-
-import {
-    DEFAULT_LOGGER_OPTIONS
-} from "../utils/Constants"
-
-import { IDistributedPersistence } from "../cache/IDistributedPersistence";
-import { DistributedCachePlugin } from "../cache/DistributedCachePlugin";
 
 export class MsalConfiguration {
 
@@ -32,16 +26,16 @@ export class MsalConfiguration {
      * @param {IDistributedPersistence} distributedPersistence: distributed persistence client
      * @returns {Configuration}
      */
-    static getMsalConfiguration(appSettings: AppSettings, persistenceManager?: IDistributedPersistence): Configuration {
+    static getMsalConfiguration(appSettings: AppSettings): Configuration {
         return {
             auth: {
                 clientId: appSettings.appCredentials.clientId,
                 authority: appSettings.b2cPolicies ?
                     Object.entries(appSettings.b2cPolicies)[0][1]["authority"] // the first policy/user-flow is the default authority
                     :
-                    appSettings.appCredentials.instance ? `https://${appSettings.appCredentials.instance}/${appSettings.appCredentials.tenantId}` 
-                    :
-                    `https://${Constants.DEFAULT_AUTHORITY_HOST}/${appSettings.appCredentials.tenantId}`,
+                    appSettings.appCredentials.instance ? `https://${appSettings.appCredentials.instance}/${appSettings.appCredentials.tenantId}`
+                        :
+                        `https://${Constants.DEFAULT_AUTHORITY_HOST}/${appSettings.appCredentials.tenantId}`,
                 ...(appSettings.appCredentials.hasOwnProperty("clientSecret")) && { clientSecret: appSettings.appCredentials.clientSecret },
                 ...(appSettings.appCredentials.hasOwnProperty("clientCertificate")) && { clientCertificate: appSettings.appCredentials.clientCertificate },
                 knownAuthorities: appSettings.b2cPolicies ?
@@ -49,11 +43,8 @@ export class MsalConfiguration {
                     :
                     [],
             },
-            cache: {
-                cachePlugin: persistenceManager ? DistributedCachePlugin.getInstance(persistenceManager) : null
-            },
             system: {
-                loggerOptions: appSettings.loggerOptions ? appSettings.loggerOptions : DEFAULT_LOGGER_OPTIONS,
+              loggerOptions: appSettings.loggerOptions ? appSettings.loggerOptions : DEFAULT_LOGGER_OPTIONS,
             },
         };
     };

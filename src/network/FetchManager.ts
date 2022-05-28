@@ -23,18 +23,18 @@ export class FetchManager {
             const response: AxiosResponse = await axios.get(endpoint);
             return response.data;
         } catch (error) {
-            return error;
+            throw error;
         }
     }
 
     /**
      * Calls a resource endpoint with a raw access token
      * using the authorization bearer token scheme
-     * @param {string} endpoint 
-     * @param {string} accessToken 
+     * @param {string} endpoint
+     * @param {string} accessToken
      * @returns {Promise}
      */
-    static callApiEndpointWithToken = async (endpoint: string, accessToken: string): Promise<AxiosResponse> => {
+    static callApiEndpointWithToken = async (endpoint: string, accessToken: string): Promise<AxiosResponse<any>> => {
 
         if (StringUtils.isEmpty(accessToken)) {
             throw new Error(ErrorMessages.TOKEN_NOT_FOUND)
@@ -50,13 +50,13 @@ export class FetchManager {
             const response: AxiosResponse = await axios.get(endpoint, options);
             return response.data;
         } catch (error) {
-            return error;
+            throw error;
         }
     }
 
     /**
-     * Handles queries against Microsoft Graph that return multiple pages of data  
-     * @param {string} accessToken: access token required by endpoint 
+     * Handles queries against Microsoft Graph that return multiple pages of data
+     * @param {string} accessToken: access token required by endpoint
      * @param {string} nextPage: next page link
      * @param {Array} data: stores data from each page
      * @returns {Promise}
@@ -64,8 +64,8 @@ export class FetchManager {
     static handlePagination = async (accessToken: string, nextPage: string, data: string[] = []): Promise<string[]> => {
 
         try {
-            const graphResponse = await FetchManager.callApiEndpointWithToken(nextPage, accessToken);
-            graphResponse["value"].map((v) => data.push(v.id));
+            const graphResponse = await (await FetchManager.callApiEndpointWithToken(nextPage, accessToken)).data;
+            graphResponse["value"].map((v: any) => data.push(v.id));
 
             if (graphResponse[AccessControlConstants.PAGINATION_LINK]) {
                 return await FetchManager.handlePagination(accessToken, graphResponse[AccessControlConstants.PAGINATION_LINK], data)
@@ -73,7 +73,7 @@ export class FetchManager {
                 return data;
             }
         } catch (error) {
-            return error;
+            throw error;
         }
     }
 }

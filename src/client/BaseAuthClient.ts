@@ -17,20 +17,26 @@ import {
     packageName,
     packageVersion
 } from "../packageMetadata";
+import { CryptoUtils } from "../utils/CryptoUtils";
 
 export abstract class BaseAuthClient {
 
     appSettings: AppSettings;
+
     protected msalConfig: Configuration;
     protected msalClient: ConfidentialClientApplication;
     protected cryptoProvider: CryptoProvider;
+    protected cryptoUtils: CryptoUtils;
     protected logger: Logger;
 
     protected constructor(appSettings: AppSettings, msalConfig: Configuration) {
         this.appSettings = appSettings;
         this.msalConfig = msalConfig;
         this.cryptoProvider = new CryptoProvider();
-        this.logger = new Logger(this.msalConfig.system.loggerOptions, packageName, packageVersion);
+        this.cryptoUtils = new CryptoUtils();
+
+        this.logger = new Logger(this.msalConfig.system?.loggerOptions!, packageName, packageVersion);
+
         this.msalClient = new ConfidentialClientApplication(this.msalConfig);
     }
 

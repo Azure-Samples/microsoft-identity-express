@@ -45,7 +45,6 @@ export type KeyVaultCredential = {
 
 export type AuthRoutes = {
     redirect: string;
-    error: string;
     unauthorized: string;
     frontChannelLogout?: string;
 };
@@ -66,3 +65,8 @@ export type AccessRule = {
     roles?: string[];
     groups?: string[];
 };
+
+export enum AppType {
+    WebApp,
+    WebApi
+}

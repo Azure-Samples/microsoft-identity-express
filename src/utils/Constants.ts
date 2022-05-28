@@ -126,9 +126,10 @@ export const ErrorMessages = {
     INVALID_TOKEN: "Invalid token",
     CANNOT_DETERMINE_APP_STAGE: "Cannot determine application stage",
     CANNOT_VALIDATE_TOKEN: "Cannot validate token",
-    NONCE_MISMATCH: "Nonce does not match",
+    CSRF_TOKEN_MISMATH: "CSRF token in response does not match to original request",
     INTERACTION_REQUIRED: "interaction_required",
     TOKEN_ACQUISITION_FAILED: "Token acquisition failed",
+    TOKEN_RESPONSE_NULL: "Token response is null",
     AUTH_CODE_NOT_OBTAINED: "Authorization code cannot be obtained",
     TOKEN_NOT_FOUND: "No token found",
     TOKEN_NOT_DECODED: "Token cannot be decoded",
@@ -142,7 +143,8 @@ export const ErrorMessages = {
     METHOD_NOT_ALLOWED: "Method not allowed for this route",
     RULE_NOT_FOUND: "No rule found for this route",
     SESSION_NOT_FOUND: "No session found for this request",
-    KEY_VAULT_CONFIG_NOT_FOUND: "No coordinates found for Key Vault"
+    KEY_VAULT_CONFIG_NOT_FOUND: "No coordinates found for Key Vault",
+    CANNOT_OBTAIN_CREDENTIALS_FROM_KEY_VAULT: "Cannot obtain credentials from Key Vault",
 };
 
 /**

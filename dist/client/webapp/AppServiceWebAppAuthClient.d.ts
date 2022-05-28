@@ -2,7 +2,7 @@ import { Router, RequestHandler } from "express";
 import { BaseAuthClient } from "../BaseAuthClient";
 import { Configuration } from "@azure/msal-node";
 import { AppSettings } from "../../config/AppSettings";
-import { GuardOptions, InitializationOptions, SignInOptions, SignOutOptions, TokenRequestOptions } from "../MiddlewareOptions";
+import { SignInOptions, SignOutOptions, TokenRequestOptions } from "../MiddlewareOptions";
 export declare class AppServiceWebAppAuthClient extends BaseAuthClient {
     /**
      * @param {AppSettings} appSettings
@@ -15,7 +15,7 @@ export declare class AppServiceWebAppAuthClient extends BaseAuthClient {
      * @param {InitializationOptions} options
      * @returns {Router}
      */
-    initialize(options?: InitializationOptions): Router;
+    initialize(): Router;
     /**
      * Initiates sign in flow
      * @param {SignInOptions} options: options to modify login request
@@ -43,8 +43,7 @@ export declare class AppServiceWebAppAuthClient extends BaseAuthClient {
     getToken(options: TokenRequestOptions): RequestHandler;
     /**
      * Check if authenticated in session
-     * @param {GuardOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    isAuthenticated(options?: GuardOptions): RequestHandler;
+    isAuthenticated(): RequestHandler;
 }

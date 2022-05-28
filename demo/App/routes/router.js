@@ -2,7 +2,7 @@ const express = require('express');
 const mainController = require('../controllers/mainController');
 
 module.exports = (msid) => {
-    
+
     // initialize router
     const router = express.Router();
 
@@ -45,9 +45,6 @@ module.exports = (msid) => {
         }),
         mainController.getTenantPage
     ); // get token for this route to call web API
-
-    // error
-    router.get('/error', (req, res) => res.redirect('/401.html'));
 
     // unauthorized
     router.get('/unauthorized', (req, res) => res.redirect('/500.html'));

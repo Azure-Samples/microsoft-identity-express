@@ -6,7 +6,6 @@ const appSettings = {
     },
     authRoutes: {
         redirect: "/redirect",
-        error: "/error",
         unauthorized: "/unauthorized"
     },
     protectedResources: {

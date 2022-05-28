@@ -19,25 +19,28 @@ export class KeyVaultManager {
 
     /**
      * Fetches credentials from Key Vault and updates appSettings
-     * @param {AppSettings} appSettings 
+     * @param {AppSettings} appSettings
      * @returns {Promise}
      */
     async getCredentialFromKeyVault(keyVaultCredential: KeyVaultCredential): Promise<KeyVaultCredentialResponse> {
 
         const credential = new DefaultAzureCredential();
+        let response: KeyVaultCredentialResponse = {} as KeyVaultCredentialResponse;
+
+        // TODO: promisify
 
         switch (keyVaultCredential.credentialType) {
             case KeyVaultCredentialTypes.SECRET: {
                 try {
                     const secretResponse = await this.getSecretCredential(keyVaultCredential, credential);
 
-                    return {
+                    response = {
                         type: KeyVaultCredentialTypes.SECRET,
                         value: secretResponse.value,
                     } as KeyVaultCredentialResponse;
 
                 } catch (error) {
-                    console.log(error);
+                    throw error;
                 }
                 break;
             }
@@ -47,15 +50,15 @@ export class KeyVaultManager {
                     const certificateResponse = await this.getCertificateCredential(keyVaultCredential, credential);
                     const secretResponse = await this.getSecretCredential(keyVaultCredential, credential);
 
-                    return {
+                    response = {
                         type: KeyVaultCredentialTypes.CERTIFICATE,
                         value: {
-                            thumbprint: certificateResponse.properties.x509Thumbprint.toString(),
-                            privateKey: secretResponse.value.split('-----BEGIN CERTIFICATE-----\n')[0]
+                            thumbprint: certificateResponse?.properties?.x509Thumbprint?.toString(),
+                            privateKey: secretResponse?.value?.split('-----BEGIN CERTIFICATE-----\n')[0]
                         }
                     } as KeyVaultCredentialResponse;
                 } catch (error) {
-                    console.log(error);
+                    throw error;
                 }
                 break;
             }
@@ -63,12 +66,14 @@ export class KeyVaultManager {
             default:
                 break;
         }
+
+        return response;
     };
 
     /**
      * Gets a certificate credential from Key Vault
-     * @param {AppSettings} config 
-     * @param {DefaultAzureCredential} credential 
+     * @param {AppSettings} config
+     * @param {DefaultAzureCredential} credential
      * @returns {Promise}
      */
     async getCertificateCredential(keyVaultCredential: KeyVaultCredential, credential: DefaultAzureCredential): Promise<KeyVaultCertificate> {
@@ -80,15 +85,14 @@ export class KeyVaultManager {
             const keyVaultCertificate = await secretClient.getCertificate(keyVaultCredential.credentialName);
             return keyVaultCertificate;
         } catch (error) {
-            console.log(error);
-            return error;
+            throw error;
         }
     }
 
     /**
      * Gets a secret credential from Key Vault
-     * @param {AppSettings} config 
-     * @param {DefaultAzureCredential} credential 
+     * @param {AppSettings} config
+     * @param {DefaultAzureCredential} credential
      * @returns {Promise}
      */
     async getSecretCredential(keyVaultCredential: KeyVaultCredential, credential: DefaultAzureCredential): Promise<KeyVaultSecret> {
@@ -100,8 +104,7 @@ export class KeyVaultManager {
             const keyVaultSecret = await secretClient.getSecret(keyVaultCredential.credentialName);
             return keyVaultSecret;
         } catch (error) {
-            console.log(error);
-            return error;
+            throw error;
         }
     }
 }

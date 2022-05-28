@@ -103,9 +103,10 @@ export declare const ErrorMessages: {
     INVALID_TOKEN: string;
     CANNOT_DETERMINE_APP_STAGE: string;
     CANNOT_VALIDATE_TOKEN: string;
-    NONCE_MISMATCH: string;
+    CSRF_TOKEN_MISMATH: string;
     INTERACTION_REQUIRED: string;
     TOKEN_ACQUISITION_FAILED: string;
+    TOKEN_RESPONSE_NULL: string;
     AUTH_CODE_NOT_OBTAINED: string;
     TOKEN_NOT_FOUND: string;
     TOKEN_NOT_DECODED: string;
@@ -120,6 +121,7 @@ export declare const ErrorMessages: {
     RULE_NOT_FOUND: string;
     SESSION_NOT_FOUND: string;
     KEY_VAULT_CONFIG_NOT_FOUND: string;
+    CANNOT_OBTAIN_CREDENTIALS_FROM_KEY_VAULT: string;
 };
 /**
  * Various configuration error constants

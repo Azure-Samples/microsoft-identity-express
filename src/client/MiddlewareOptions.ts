@@ -8,10 +8,6 @@ import {
     AccessRule
 } from "../config/AppSettings";
 
-export type InitializationOptions = {
-    // TODO: add options
-};
-
 export type SignInOptions = {
     postLoginRedirect: string;
     failureRedirect: string;
@@ -23,10 +19,6 @@ export type SignOutOptions = {
     postLogoutRedirect: string;
 }
 
-export type HandleRedirectOptions = {
-    // TODO: add options
-};
-
 export type TokenRequestOptions = {
     resource: Resource;
     claims?: string;
@@ -35,5 +27,5 @@ export type TokenRequestOptions = {
 };
 
 export type GuardOptions = {
-    accessRule?: AccessRule
+    accessRule: AccessRule
 };

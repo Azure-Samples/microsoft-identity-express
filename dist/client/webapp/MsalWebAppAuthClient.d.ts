@@ -2,14 +2,13 @@ import { RequestHandler, Router } from "express";
 import { Configuration } from "@azure/msal-node";
 import { BaseAuthClient } from "../BaseAuthClient";
 import { AppSettings } from "../../config/AppSettings";
-import { InitializationOptions, TokenRequestOptions, GuardOptions, SignInOptions, SignOutOptions } from "../MiddlewareOptions";
+import { TokenRequestOptions, GuardOptions, SignInOptions, SignOutOptions } from "../MiddlewareOptions";
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
  * It offers a collection of middleware and utility methods that automate
- * basic authentication and authorization tasks in Express MVC web apps
+ * basic authentication and authorization tasks in Express web apps
  */
 export declare class MsalWebAppAuthClient extends BaseAuthClient {
-    private cryptoUtils;
     /**
      * @param {AppSettings} appSettings
      * @param {Configuration} msalConfig
@@ -18,10 +17,9 @@ export declare class MsalWebAppAuthClient extends BaseAuthClient {
     constructor(appSettings: AppSettings, msalConfig: Configuration);
     /**
      * Initialize AuthProvider and set default routes and handlers
-     * @param {InitializationOptions} options
      * @returns {Router}
      */
-    initialize(options?: InitializationOptions): Router;
+    initialize(): Router;
     /**
      * Initiates sign in flow
      * @param {SignInOptions} options: options to modify login request
@@ -37,7 +35,6 @@ export declare class MsalWebAppAuthClient extends BaseAuthClient {
     /**
      * Middleware that handles redirect depending on request state
      * There are basically 2 stages: sign-in and acquire token
-     * @param {HandleRedirectOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
     private handleRedirect;
@@ -49,16 +46,15 @@ export declare class MsalWebAppAuthClient extends BaseAuthClient {
     getToken(options: TokenRequestOptions): RequestHandler;
     /**
      * Check if authenticated in session
-     * @param {GuardOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    isAuthenticated(options?: GuardOptions): RequestHandler;
+    isAuthenticated(): RequestHandler;
     /**
      * Checks if the user has access for this route, defined in access matrix
      * @param {GuardOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    hasAccess(options?: GuardOptions): RequestHandler;
+    hasAccess(options: GuardOptions): RequestHandler;
     /**
      * This method is used to generate an auth code url request
      * @param {Request} req: express request object

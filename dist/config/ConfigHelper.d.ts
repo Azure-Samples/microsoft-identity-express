@@ -1,11 +1,11 @@
-import { AppSettings } from "./AppSettings";
+import { AppSettings, AppType } from "./AppSettings";
 export declare class ConfigHelper {
     /**
      * Validates the fields in the configuration file
      * @param {AppSettings} appSettings: configuration object
      * @returns {void}
      */
-    static validateAppSettings(appSettings: AppSettings): void;
+    static validateAppSettings(appSettings: AppSettings, appType: AppType): void;
     /**
      * Verifies if a string is GUID
      * @param {string} guid
@@ -26,5 +26,10 @@ export declare class ConfigHelper {
      * @returns {string}
      */
     static getScopesFromResourceEndpoint(resourceEndpoint: string, appSettings: AppSettings): string[];
+    /**
+     * Util method to strip the default OIDC scopes from the scopes array
+     * @param {Array} scopesList full list of scopes for this resource
+     * @returns
+     */
     static getEffectiveScopes(scopesList: string[]): string[];
 }

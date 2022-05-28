@@ -6,7 +6,7 @@
 import { StringUtils } from "@azure/msal-common";
 
 import { AADAuthorityConstants, ConfigurationErrorMessages, OIDC_SCOPES } from "../utils/Constants";
-import { AppSettings, Resource } from "./AppSettings";
+import { AppSettings, AppType, Resource } from "./AppSettings";
 
 export class ConfigHelper {
 
@@ -15,7 +15,7 @@ export class ConfigHelper {
      * @param {AppSettings} appSettings: configuration object
      * @returns {void}
      */
-    static validateAppSettings(appSettings: AppSettings): void {
+    static validateAppSettings(appSettings: AppSettings, appType: AppType): void {
         if (StringUtils.isEmpty(appSettings.appCredentials.clientId)) {
             throw new Error(ConfigurationErrorMessages.NO_CLIENT_ID);
         } else if (!ConfigHelper.isGuid(appSettings.appCredentials.clientId)) {
@@ -28,16 +28,21 @@ export class ConfigHelper {
             throw new Error(ConfigurationErrorMessages.INVALID_TENANT_INFO);
         }
 
-        if (StringUtils.isEmpty(appSettings.authRoutes.redirect)) {
-            throw new Error(ConfigurationErrorMessages.NO_REDIRECT_URI);
-        }
+        switch (appType) {
+            case AppType.WebApp:
+                if (StringUtils.isEmpty(appSettings.authRoutes?.redirect)) {
+                    throw new Error(ConfigurationErrorMessages.NO_REDIRECT_URI);
+                }
 
-        if (StringUtils.isEmpty(appSettings.authRoutes.error)) {
-            throw new Error(ConfigurationErrorMessages.NO_ERROR_ROUTE);
-        }
+                if (StringUtils.isEmpty(appSettings.authRoutes?.unauthorized)) {
+                    throw new Error(ConfigurationErrorMessages.NO_UNAUTHORIZED_ROUTE);
+                }
 
-        if (StringUtils.isEmpty(appSettings.authRoutes.unauthorized)) {
-            throw new Error(ConfigurationErrorMessages.NO_UNAUTHORIZED_ROUTE);
+                break;
+            case AppType.WebApi:
+                break;
+            default:
+                break;
         }
     };
 
@@ -74,11 +79,16 @@ export class ConfigHelper {
      */
     static getScopesFromResourceEndpoint(resourceEndpoint: string, appSettings: AppSettings): string[] {
         const scopes = Object.values({ ...appSettings.protectedResources, ...appSettings.ownedResources })
-            .find((resource: Resource) => resource.endpoint === resourceEndpoint).scopes;
+            .find((resource: Resource) => resource.endpoint === resourceEndpoint)?.scopes;
 
-        return scopes;
+        return scopes ? scopes : []
     };
 
+    /**
+     * Util method to strip the default OIDC scopes from the scopes array
+     * @param {Array} scopesList full list of scopes for this resource
+     * @returns
+     */
     static getEffectiveScopes(scopesList: string[]): string[] {
         const effectiveScopesList = scopesList.filter(scope => !OIDC_SCOPES.includes(scope));
         return effectiveScopesList;

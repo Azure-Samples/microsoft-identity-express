@@ -1,5 +1,4 @@
 import { Resource, AccessRule } from "../config/AppSettings";
-export declare type InitializationOptions = {};
 export declare type SignInOptions = {
     postLoginRedirect: string;
     failureRedirect: string;
@@ -9,7 +8,6 @@ export declare type SignInOptions = {
 export declare type SignOutOptions = {
     postLogoutRedirect: string;
 };
-export declare type HandleRedirectOptions = {};
 export declare type TokenRequestOptions = {
     resource: Resource;
     claims?: string;
@@ -17,5 +15,5 @@ export declare type TokenRequestOptions = {
     customState?: Object;
 };
 export declare type GuardOptions = {
-    accessRule?: AccessRule;
+    accessRule: AccessRule;
 };

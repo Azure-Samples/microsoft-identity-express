@@ -21,13 +21,8 @@ import { AccessTokenClaims, IdTokenClaims } from "../../utils/Types";
 import { AppSettings, Resource } from "../../config/AppSettings";
 import { ConfigHelper } from "../../config/ConfigHelper";
 import { UrlUtils } from "../../utils/UrlUtils";
-import { CryptoUtils } from "../../utils/CryptoUtils"
-
 
 import {
-    GuardOptions,
-    HandleRedirectOptions,
-    InitializationOptions,
     SignInOptions,
     SignOutOptions,
     TokenRequestOptions
@@ -58,17 +53,17 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
      * @param {InitializationOptions} options
      * @returns {Router}
      */
-    initialize(options?: InitializationOptions): Router {
+    initialize(): Router {
 
         const appRouter = express.Router();
 
         // handle redirect
-        appRouter.get(UrlUtils.getPathFromUrl(this.appSettings.authRoutes.redirect), this.handleRedirect());
-        appRouter.post(UrlUtils.getPathFromUrl(this.appSettings.authRoutes.redirect), this.handleRedirect());
-        
+        appRouter.get(UrlUtils.getPathFromUrl(this.appSettings.authRoutes!.redirect), this.handleRedirect());
+        appRouter.post(UrlUtils.getPathFromUrl(this.appSettings.authRoutes!.redirect), this.handleRedirect());
+
         appRouter.use((req: Request, res: Response, next: NextFunction): void => {
 
-            
+
             if (!req.session.isAuthenticated) {
                 // check headers for id token
                 const rawIdToken = req.headers[AppServiceAuthenticationHeaders.APP_SERVICE_ID_TOKEN_HEADER.toLowerCase()] as string;
@@ -84,7 +79,7 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
                         tenantId: idTokenClaims.tid,
                         homeAccountId: idTokenClaims.oid + "." + idTokenClaims.tid,
                         localAccountId: idTokenClaims.oid,
-                        environment: idTokenClaims.iss.split("://")[1].split("/")[0],
+                        environment: idTokenClaims.iss?.split("://")[1].split("/")[0],
                         username: idTokenClaims.preferred_username,
                         name: idTokenClaims.name,
                         idTokenClaims: idTokenClaims
@@ -103,7 +98,10 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
      * @param {SignInOptions} options: options to modify login request
      * @returns {RequestHandler}
      */
-    signIn(options?: SignInOptions): RequestHandler {
+    signIn(options: SignInOptions = {
+        postLoginRedirect: '/',
+        failureRedirect: '/',
+    }): RequestHandler {
         return (req: Request, res: Response, next: NextFunction): void => {
             let loginUri;
             const postLoginRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.postLoginRedirect);
@@ -115,10 +113,12 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
 
     /**
      * Initiate sign out and destroy the session
-     * @param options: options to modify logout request 
+     * @param options: options to modify logout request
      * @returns {RequestHandler}
      */
-    signOut(options?: SignOutOptions): RequestHandler {
+    signOut(options: SignOutOptions = {
+        postLogoutRedirect: '/'
+    }): RequestHandler {
         return (req: Request, res: Response, next: NextFunction): void => {
             const postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.postLogoutRedirect);
             const logoutUri = "https://" + process.env[AppServiceEnvironmentVariables.WEBSITE_HOSTNAME] + AppServiceAuthenticationEndpoints.AAD_SIGN_OUT_ENDPOINT + AppServiceAuthenticationQueryParameters.POST_LOGOUT_REDIRECT_QUERY_PARAM + postLogoutRedirectUri;
@@ -135,7 +135,7 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
      * @param {HandleRedirectOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    private handleRedirect(options?: HandleRedirectOptions): RequestHandler {
+    private handleRedirect(): RequestHandler {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             next();
         }
@@ -158,8 +158,8 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
 
             req.session.protectedResources = {
                 [resourceName]: {
-                    ...this.appSettings.protectedResources[resourceName],
-                    accessToken: null,
+                    ...this.appSettings.protectedResources![resourceName],
+                    accessToken: undefined,
                 } as Resource
             };
 
@@ -167,10 +167,10 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
 
             if (rawAccessToken) {
 
-                const accessTokenClaims: AccessTokenClaims = AuthToken.extractTokenClaims(rawAccessToken, this.cryptoProvider);
+                const accessTokenClaims = AuthToken.extractTokenClaims(rawAccessToken, this.cryptoProvider) as AccessTokenClaims;
 
                 // get the name of the resource associated with scope
-                const scopes = accessTokenClaims.scp.split(" ");
+                const scopes = accessTokenClaims?.scp ? accessTokenClaims?.scp?.split(" ") : [];
                 const effectiveScopes = ConfigHelper.getEffectiveScopes(scopes);
 
                 if (options.resource.scopes.every(elem => effectiveScopes.includes(elem))) {
@@ -185,21 +185,20 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
 
     /**
      * Check if authenticated in session
-     * @param {GuardOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    isAuthenticated(options?: GuardOptions): RequestHandler {
+    isAuthenticated(): RequestHandler {
         return (req: Request, res: Response, next: NextFunction): void => {
             if (req.session) {
                 if (!req.session.isAuthenticated) {
                     this.logger.error(ErrorMessages.NOT_PERMITTED);
-                    return res.redirect(this.appSettings.authRoutes.unauthorized);
+                    return res.redirect(this.appSettings.authRoutes!.unauthorized);
                 }
 
                 next();
             } else {
                 this.logger.error(ErrorMessages.SESSION_NOT_FOUND);
-                res.redirect(this.appSettings.authRoutes.unauthorized);
+                res.redirect(this.appSettings.authRoutes!.unauthorized);
             }
         }
     };

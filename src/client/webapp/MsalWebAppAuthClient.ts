@@ -15,12 +15,12 @@ import {
     OIDC_DEFAULT_SCOPES,
     InteractionRequiredAuthError,
     StringUtils,
+    ResponseMode,
 } from "@azure/msal-common";
 
 import {
     Configuration,
-    SilentFlowRequest,
-    AuthenticationResult
+    SilentFlowRequest
 } from "@azure/msal-node";
 
 
@@ -29,7 +29,6 @@ import { ConfigHelper } from "../../config/ConfigHelper";
 import { IdTokenClaims } from "../../utils/Types";
 import { FetchManager } from "../../network/FetchManager";
 import { UrlUtils } from "../../utils/UrlUtils";
-import { CryptoUtils } from "../../utils/CryptoUtils"
 
 import {
     Resource,
@@ -40,12 +39,10 @@ import {
 import { AuthCodeParams } from "../../utils/Types";
 
 import {
-    InitializationOptions,
     TokenRequestOptions,
     GuardOptions,
     SignInOptions,
-    SignOutOptions,
-    HandleRedirectOptions
+    SignOutOptions
 } from "../MiddlewareOptions";
 
 import {
@@ -59,11 +56,9 @@ import {
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
  * It offers a collection of middleware and utility methods that automate
- * basic authentication and authorization tasks in Express MVC web apps
+ * basic authentication and authorization tasks in Express web apps
  */
 export class MsalWebAppAuthClient extends BaseAuthClient {
-    
-    private cryptoUtils: CryptoUtils;
 
     /**
      * @param {AppSettings} appSettings
@@ -72,21 +67,17 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
      */
     constructor(appSettings: AppSettings, msalConfig: Configuration) {
         super(appSettings, msalConfig);
-        this.cryptoUtils = new CryptoUtils();
     }
 
     /**
      * Initialize AuthProvider and set default routes and handlers
-     * @param {InitializationOptions} options
      * @returns {Router}
      */
-    initialize(options?: InitializationOptions): Router {
+    initialize(): Router {
 
         const appRouter = express.Router();
 
-        // handle redirect
-        appRouter.get(UrlUtils.getPathFromUrl(this.appSettings.authRoutes.redirect), this.handleRedirect());
-        appRouter.post(UrlUtils.getPathFromUrl(this.appSettings.authRoutes.redirect), this.handleRedirect());
+        appRouter.post(UrlUtils.getPathFromUrl(this.appSettings.authRoutes!.redirect), this.handleRedirect());
 
         appRouter.use((req: Request, res: Response, next: NextFunction) => {
 
@@ -95,17 +86,17 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
                 throw new Error(ErrorMessages.SESSION_NOT_FOUND);
             }
 
-            // add session nonce for crsf
-            req.session.nonce = this.cryptoProvider.createNewGuid();
+            // add session csrfToken for crsf
+            req.session.csrfToken = this.cryptoProvider.createNewGuid();
             next();
         });
 
-        if (this.appSettings.authRoutes.frontChannelLogout) {
+        if (this.appSettings.authRoutes?.frontChannelLogout) {
             /**
-             * Expose front-channel logout route. For more information, visit: 
+             * Expose front-channel logout route. For more information, visit:
              * https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#single-sign-out
              */
-            appRouter.get(this.appSettings.authRoutes.frontChannelLogout, (req: Request, res: Response, next: NextFunction) => {
+            appRouter.get(this.appSettings.authRoutes.frontChannelLogout, (req: Request, res: Response) => {
                 req.session.destroy(() => {
                     res.sendStatus(200);
                 });
@@ -120,40 +111,49 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
      * @param {SignInOptions} options: options to modify login request
      * @returns {RequestHandler}
      */
-    signIn(options?: SignInOptions): RequestHandler {
+    signIn(options: SignInOptions = {
+        postLoginRedirect: '/',
+        failureRedirect: '/',
+    }): RequestHandler {
         return (req: Request, res: Response, next: NextFunction): Promise<void> => {
 
-            const key = this.cryptoUtils.createKey(req.session.nonce, this.cryptoUtils.generateSalt());
+            if (!req.session.csrfToken) {
+                throw new Error('CSRF token not found in session. Ensure that app is initialized properly.');
+            }
+
+            const key = this.cryptoUtils.createKey(req.session.csrfToken, this.cryptoUtils.generateSalt())
+
             req.session.key = key.toString("hex");
 
             const state = this.cryptoProvider.base64Encode(
                 this.cryptoUtils.encryptData(JSON.stringify({
                     stage: AppStages.SIGN_IN,
                     path: options.postLoginRedirect,
-                    nonce: req.session.nonce,
+                    csrfToken: req.session.csrfToken,
                 }), key)
             );
 
             const params: AuthCodeParams = {
-                authority: this.msalConfig.auth.authority,
+                authority: this.msalConfig.auth.authority!, // TODO: default to default authority
                 scopes: OIDC_DEFAULT_SCOPES,
                 state: state,
-                redirect: UrlUtils.ensureAbsoluteUrl(req, this.appSettings.authRoutes.redirect)
+                redirect: UrlUtils.ensureAbsoluteUrl(req, this.appSettings.authRoutes!.redirect)
             };
 
             // get url to sign user in
             return this.getAuthCode(req, res, next, params);
-
         }
     };
 
     /**
      * Initiate sign out and destroy the session
-     * @param options: options to modify logout request 
+     * @param options: options to modify logout request
      * @returns {RequestHandler}
      */
-    signOut(options?: SignOutOptions): RequestHandler {
-        return (req: Request, res: Response, next: NextFunction): void => {
+    signOut(options: SignOutOptions = {
+        postLogoutRedirect: '/'
+    }): RequestHandler {
+        return (req: Request, res: Response): void => {
 
             const postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.postLogoutRedirect);
 
@@ -174,28 +174,36 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
     /**
      * Middleware that handles redirect depending on request state
      * There are basically 2 stages: sign-in and acquire token
-     * @param {HandleRedirectOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    private handleRedirect(options?: HandleRedirectOptions): RequestHandler {
+    private handleRedirect(): RequestHandler {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-            // TODO: handle form_post method
+            if (!req.session.key || !req.session.tokenRequest) {
+                throw new Error('CSRF token not found in session. Ensure that app is initialized properly.');
+            }
 
-            if (req.query.state) {
-                const state = JSON.parse(this.cryptoUtils.decryptData(this.cryptoProvider.base64Decode(req.query.state as string), Buffer.from(req.session.key, "hex")));
+            if (req.body.state) {
+              const state = JSON.parse(
+                this.cryptoUtils.decryptData(
+                        this.cryptoProvider.base64Decode(req.body.state as string),
+                        Buffer.from(req.session.key, "hex")
+                    )
+                );
 
-                // check if nonce matches
-                if (state.nonce === req.session.nonce) {
+                // check if csrfToken matches
+                if (state.csrfToken === req.session.csrfToken) {
                     switch (state.stage) {
                         case AppStages.SIGN_IN: {
                             // token request should have auth code
-                            req.session.tokenRequest.code = req.query.code as string;
+                            req.session.tokenRequest.code = req.body.code as string;
 
                             try {
                                 // exchange auth code for tokens
-                                const tokenResponse: AuthenticationResult = await this.msalClient.acquireTokenByCode(req.session.tokenRequest);
+                                const tokenResponse = await this.msalClient.acquireTokenByCode(req.session.tokenRequest);
+                                if (!tokenResponse) throw new Error(ErrorMessages.TOKEN_RESPONSE_NULL);
+
                                 req.session.isAuthenticated = true;
-                                req.session.account = tokenResponse.account;
+                                req.session.account = tokenResponse.account!; // this won't be null unless client credentials are used
                                 res.redirect(state.path);
                             } catch (error) {
                                 this.logger.error(ErrorMessages.TOKEN_ACQUISITION_FAILED);
@@ -208,11 +216,13 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
                             // get the name of the resource associated with scope
                             const resourceName = ConfigHelper.getResourceNameFromScopes(req.session.tokenRequest.scopes, this.appSettings);
 
-                            req.session.tokenRequest.code = req.query.code as string;
+                            req.session.tokenRequest.code = req.body.code as string;
 
                             try {
-                                const tokenResponse: AuthenticationResult = await this.msalClient.acquireTokenByCode(req.session.tokenRequest);
-                                req.session.protectedResources[resourceName].accessToken = tokenResponse.accessToken;
+                                const tokenResponse = await this.msalClient.acquireTokenByCode(req.session.tokenRequest);
+                                if (!tokenResponse) throw new Error(ErrorMessages.TOKEN_RESPONSE_NULL);
+
+                                req.session.protectedResources![resourceName].accessToken = tokenResponse.accessToken;
                                 res.redirect(state.path);
                             } catch (error) {
                                 this.logger.error(ErrorMessages.TOKEN_ACQUISITION_FAILED);
@@ -223,16 +233,16 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
 
                         default:
                             this.logger.error(ErrorMessages.CANNOT_DETERMINE_APP_STAGE);
-                            res.redirect(this.appSettings.authRoutes.error);
+                            next(new Error(ErrorMessages.CANNOT_DETERMINE_APP_STAGE));
                             break;
                     }
                 } else {
-                    this.logger.error(ErrorMessages.NONCE_MISMATCH);
-                    res.redirect(this.appSettings.authRoutes.unauthorized);
+                    this.logger.error(ErrorMessages.CSRF_TOKEN_MISMATH);
+                    res.redirect(this.appSettings.authRoutes!.unauthorized);
                 }
             } else {
                 this.logger.error(ErrorMessages.STATE_NOT_FOUND);
-                res.redirect(this.appSettings.authRoutes.unauthorized);
+                res.redirect(this.appSettings.authRoutes!.unauthorized);
             }
         }
     };
@@ -245,6 +255,8 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
     getToken(options: TokenRequestOptions): RequestHandler {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 
+            if (!req.session.csrfToken) throw new Error('');
+
             // get scopes for token request
             const scopes = options.resource.scopes;
             const resourceName = ConfigHelper.getResourceNameFromScopes(scopes, this.appSettings)
@@ -255,23 +267,26 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
 
             req.session.protectedResources = {
                 [resourceName]: {
-                    ...this.appSettings.protectedResources[resourceName],
-                    accessToken: null,
+                    ...this.appSettings.protectedResources![resourceName],
+                    accessToken: undefined,
                 } as Resource
             };
 
             try {
-                const silentRequest: SilentFlowRequest = {
+                const silentRequest = {
                     account: req.session.account,
                     scopes: scopes,
-                };
+                } as SilentFlowRequest;
 
                 // acquire token silently to be used in resource call
-                const tokenResponse: AuthenticationResult = await this.msalClient.acquireTokenSilent(silentRequest);
+                const tokenResponse = await this.msalClient.acquireTokenSilent(silentRequest);
 
-                // In B2C scenarios, sometimes an access token is returned empty.
-                // In that case, we will acquire token interactively instead.
-                if (StringUtils.isEmpty(tokenResponse.accessToken)) {
+                if (!tokenResponse) {
+                    this.logger.error(ErrorMessages.TOKEN_NOT_FOUND);
+                    throw new InteractionRequiredAuthError(ErrorMessages.INTERACTION_REQUIRED);
+                } else if (StringUtils.isEmpty(tokenResponse.accessToken)) {
+                    // In B2C scenarios, sometimes an access token is returned empty.
+                    // In that case, we will acquire token interactively instead.
                     this.logger.error(ErrorMessages.TOKEN_NOT_FOUND);
                     throw new InteractionRequiredAuthError(ErrorMessages.INTERACTION_REQUIRED);
                 }
@@ -281,23 +296,23 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
             } catch (error) {
                 // in case there are no cached tokens, initiate an interactive call
                 if (error instanceof InteractionRequiredAuthError) {
-                    
-                    const key = this.cryptoUtils.createKey(req.session.nonce, this.cryptoUtils.generateSalt());
+
+                    const key = this.cryptoUtils.createKey(req.session.csrfToken, this.cryptoUtils.generateSalt());
                     req.session.key = key.toString("hex");
 
                     const state = this.cryptoProvider.base64Encode(
                         this.cryptoUtils.encryptData(JSON.stringify({
                             stage: AppStages.ACQUIRE_TOKEN,
                             path: req.originalUrl,
-                            nonce: req.session.nonce,
+                            csrfToken: req.session.csrfToken,
                         }), key)
                     );
 
                     const params: AuthCodeParams = {
-                        authority: this.msalConfig.auth.authority,
+                        authority: this.msalConfig.auth.authority!,
                         scopes: scopes,
                         state: state,
-                        redirect: UrlUtils.ensureAbsoluteUrl(req, this.appSettings.authRoutes.redirect),
+                        redirect: UrlUtils.ensureAbsoluteUrl(req, this.appSettings.authRoutes!.redirect),
                         account: req.session.account,
                     };
 
@@ -312,21 +327,20 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
 
     /**
      * Check if authenticated in session
-     * @param {GuardOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    isAuthenticated(options?: GuardOptions): RequestHandler {
+    isAuthenticated(): RequestHandler {
         return (req: Request, res: Response, next: NextFunction): void => {
             if (req.session) {
                 if (!req.session.isAuthenticated) {
                     this.logger.error(ErrorMessages.NOT_PERMITTED);
-                    return res.redirect(this.appSettings.authRoutes.unauthorized);
+                    return res.redirect(this.appSettings.authRoutes!.unauthorized);
                 }
 
                 next();
             } else {
                 this.logger.error(ErrorMessages.SESSION_NOT_FOUND);
-                res.redirect(this.appSettings.authRoutes.unauthorized);
+                res.redirect(this.appSettings.authRoutes!.unauthorized);
             }
         }
     };
@@ -336,9 +350,9 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
      * @param {GuardOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    hasAccess(options?: GuardOptions): RequestHandler {
+    hasAccess(options: GuardOptions): RequestHandler {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-            if (req.session && this.appSettings.accessMatrix) {
+            if (req.session.account?.idTokenClaims && this.appSettings.accessMatrix) {
 
                 const checkFor = options.accessRule.hasOwnProperty(AccessControlConstants.GROUPS) ? AccessControlConstants.GROUPS : AccessControlConstants.ROLES;
 
@@ -352,13 +366,13 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
                                 return await this.handleOverage(req, res, next, options.accessRule);
                             } else {
                                 this.logger.error(ErrorMessages.USER_HAS_NO_GROUP);
-                                return res.redirect(this.appSettings.authRoutes.unauthorized);
+                                return res.redirect(this.appSettings.authRoutes!.unauthorized);
                             }
                         } else {
-                            const groups = req.session.account.idTokenClaims[AccessControlConstants.GROUPS];
+                            const groups = req.session.account.idTokenClaims[AccessControlConstants.GROUPS] as string[];
 
                             if (!this.checkAccessRule(req.method, options.accessRule, groups, AccessControlConstants.GROUPS)) {
-                                return res.redirect(this.appSettings.authRoutes.unauthorized);
+                                return res.redirect(this.appSettings.authRoutes!.unauthorized);
                             }
                         }
 
@@ -368,12 +382,12 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
                     case AccessControlConstants.ROLES:
                         if (req.session.account.idTokenClaims[AccessControlConstants.ROLES] === undefined) {
                             this.logger.error(ErrorMessages.USER_HAS_NO_ROLE);
-                            return res.redirect(this.appSettings.authRoutes.unauthorized);
+                            return res.redirect(this.appSettings.authRoutes!.unauthorized);
                         } else {
-                            const roles = req.session.account.idTokenClaims[AccessControlConstants.ROLES];
+                            const roles = req.session.account.idTokenClaims[AccessControlConstants.ROLES] as string[];
 
                             if (!this.checkAccessRule(req.method, options.accessRule, roles, AccessControlConstants.ROLES)) {
-                                return res.redirect(this.appSettings.authRoutes.unauthorized);
+                                return res.redirect(this.appSettings.authRoutes!.unauthorized);
                             }
                         }
 
@@ -384,7 +398,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
                         break;
                 }
             } else {
-                res.redirect(this.appSettings.authRoutes.unauthorized);
+                res.redirect(this.appSettings.authRoutes!.unauthorized);
             }
         }
     }
@@ -409,13 +423,14 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
             redirectUri: params.redirect,
             prompt: params.prompt,
             account: params.account,
+            responseMode: ResponseMode.FORM_POST
         }
 
         req.session.tokenRequest = {
             authority: params.authority,
             scopes: params.scopes,
             redirectUri: params.redirect,
-            code: undefined,
+            code: "",
         }
 
         // request an authorization code to exchange for tokens
@@ -437,6 +452,9 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
      * @returns {Promise}
      */
     private async handleOverage(req: Request, res: Response, next: NextFunction, rule: AccessRule): Promise<void> {
+
+        if (!req.session.account?.idTokenClaims) throw new Error('Session not found');
+
         const { _claim_names, _claim_sources, ...newIdTokenClaims } = <IdTokenClaims>req.session.account.idTokenClaims;
 
         const silentRequest: SilentFlowRequest = {
@@ -447,26 +465,29 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
         try {
             // acquire token silently to be used in resource call
             const tokenResponse = await this.msalClient.acquireTokenSilent(silentRequest);
+
+            if (!tokenResponse) throw new Error('Token response is undefined');
+
             try {
                 const graphResponse = await FetchManager.callApiEndpointWithToken(AccessControlConstants.GRAPH_MEMBERS_ENDPOINT, tokenResponse.accessToken);
 
                 /**
-                 * Some queries against Microsoft Graph return multiple pages of data either due to server-side paging 
-                 * or due to the use of the $top query parameter to specifically limit the page size in a request. 
-                 * When a result set spans multiple pages, Microsoft Graph returns an @odata.nextLink property in 
+                 * Some queries against Microsoft Graph return multiple pages of data either due to server-side paging
+                 * or due to the use of the $top query parameter to specifically limit the page size in a request.
+                 * When a result set spans multiple pages, Microsoft Graph returns an @odata.nextLink property in
                  * the response that contains a URL to the next page of results. Learn more at https://docs.microsoft.com/graph/paging
                  */
-                if (graphResponse[AccessControlConstants.PAGINATION_LINK]) {
+                if (graphResponse.data[AccessControlConstants.PAGINATION_LINK]) {
                     try {
-                        const userGroups = await FetchManager.handlePagination(tokenResponse.accessToken, graphResponse[AccessControlConstants.PAGINATION_LINK]);
+                        const userGroups = await FetchManager.handlePagination(tokenResponse.accessToken, graphResponse.data[AccessControlConstants.PAGINATION_LINK]);
 
                         req.session.account.idTokenClaims = {
                             ...newIdTokenClaims,
                             groups: userGroups
                         }
 
-                        if (!this.checkAccessRule(req.method, rule, req.session.account.idTokenClaims[AccessControlConstants.GROUPS], AccessControlConstants.GROUPS)) {
-                            return res.redirect(this.appSettings.authRoutes.unauthorized);
+                        if (!this.checkAccessRule(req.method, rule, req.session.account.idTokenClaims[AccessControlConstants.GROUPS] as string[], AccessControlConstants.GROUPS)) {
+                            return res.redirect(this.appSettings.authRoutes!.unauthorized);
                         } else {
                             return next();
                         }
@@ -476,11 +497,11 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
                 } else {
                     req.session.account.idTokenClaims = {
                         ...newIdTokenClaims,
-                        groups: graphResponse["value"].map((v) => v.id)
+                        groups: graphResponse.data["value"].map((v: any) => v.id)
                     }
 
-                    if (!this.checkAccessRule(req.method, rule, req.session.account.idTokenClaims[AccessControlConstants.GROUPS], AccessControlConstants.GROUPS)) {
-                        return res.redirect(this.appSettings.authRoutes.unauthorized);
+                    if (!this.checkAccessRule(req.method, rule, req.session.account.idTokenClaims[AccessControlConstants.GROUPS] as string[], AccessControlConstants.GROUPS)) {
+                        return res.redirect(this.appSettings.authRoutes!.unauthorized);
                     } else {
                         return next();
                     }
@@ -506,14 +527,14 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
         if (rule.methods.includes(method)) {
             switch (credType) {
                 case AccessControlConstants.GROUPS:
-                    if (rule.groups.filter(elem => creds.includes(elem)).length < 1) {
+                    if (rule.groups!.filter(elem => creds.includes(elem)).length < 1) {
                         this.logger.error(ErrorMessages.USER_NOT_IN_GROUP);
                         return false;
                     }
                     break;
 
                 case AccessControlConstants.ROLES:
-                    if (rule.roles.filter(elem => creds.includes(elem)).length < 1) {
+                    if (rule.roles!.filter(elem => creds.includes(elem)).length < 1) {
                         this.logger.error(ErrorMessages.USER_NOT_IN_ROLE);
                         return false;
                     }
