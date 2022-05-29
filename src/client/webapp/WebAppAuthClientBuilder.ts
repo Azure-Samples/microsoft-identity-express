@@ -25,7 +25,6 @@ export class WebAppAuthClientBuilder extends BaseAuthClientBuilder {
 
     build(): MsalWebAppAuthClient | AppServiceWebAppAuthClient {
         // TODO: throw error if key vault credential is being built
-        // TODO: app settings should have
 
         this.msalConfig = MsalConfiguration.getMsalConfiguration(this.appSettings);
 

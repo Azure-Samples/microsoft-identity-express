@@ -6,7 +6,6 @@
 import {
     LoggerOptions,
     LogLevel,
-    OIDC_DEFAULT_SCOPES,
 } from "@azure/msal-common";
 
 /**
@@ -37,8 +36,10 @@ export enum KeyVaultCredentialTypes {
 }
 
 export const OIDC_SCOPES = [
-    ...OIDC_DEFAULT_SCOPES,
-    "email"
+    "openid",
+    "profile",
+    "email",
+    "offline_access",
 ]
 
 /**
@@ -115,7 +116,7 @@ export const AccessControlConstants = {
 export const InfoMessages = {
     APP_SERVICE_AUTH_DETECTED: "App Service Authentication detected",
     REQUEST_FOR_RESOURCE: "Request made to web API",
-    OVERAGE_OCCURRED: "User has too many groups. Groups overage claim occurred"
+    OVERAGE_OCCURRED: "User has too many groups. Groups overage claim occurred",
 }
 
 /**
@@ -126,11 +127,11 @@ export const ErrorMessages = {
     INVALID_TOKEN: "Invalid token",
     CANNOT_DETERMINE_APP_STAGE: "Cannot determine application stage",
     CANNOT_VALIDATE_TOKEN: "Cannot validate token",
-    CSRF_TOKEN_MISMATH: "CSRF token in response does not match to original request",
+    CSRF_TOKEN_MISMATCH: "CSRF token in response does not match to original request",
     INTERACTION_REQUIRED: "interaction_required",
     TOKEN_ACQUISITION_FAILED: "Token acquisition failed",
     TOKEN_RESPONSE_NULL: "Token response is null",
-    AUTH_CODE_NOT_OBTAINED: "Authorization code cannot be obtained",
+    AUTH_CODE_URL_NOT_OBTAINED: "Authorization code url cannot be obtained",
     TOKEN_NOT_FOUND: "No token found",
     TOKEN_NOT_DECODED: "Token cannot be decoded",
     TOKEN_NOT_VERIFIED: "Token cannot be verified",
@@ -145,19 +146,24 @@ export const ErrorMessages = {
     SESSION_NOT_FOUND: "No session found for this request",
     KEY_VAULT_CONFIG_NOT_FOUND: "No coordinates found for Key Vault",
     CANNOT_OBTAIN_CREDENTIALS_FROM_KEY_VAULT: "Cannot obtain credentials from Key Vault",
+    SESSION_KEY_NOT_FOUND: "No session key found in session. Cannot encrypt state data",
+    AUTH_CODE_REQUEST_OBJECT_NOT_FOUND: "No auth code request object found in session",
+    ID_TOKEN_CLAIMS_NOT_FOUND: "No id token claims found in session",
 };
 
 /**
  * Various configuration error constants
  */
 export const ConfigurationErrorMessages = {
+    AUTH_ROUTES_NOT_CONFIGURED: "Authentication routes are not defined. Ensure that the application settings are configured properly.",
+    NO_PROTECTED_RESOURCE_CONFIGURED: "No protected resource is configured to acquire a token for. Ensure that the application settings are configured properly.",
+    NO_ACCESS_MATRIX_CONFIGURED: "No access matrix is configured to control access for. Ensure that the application settings are configured properly.",
     NO_CLIENT_ID: "No clientId provided!",
     INVALID_CLIENT_ID: "Invalid clientId!",
     NO_TENANT_INFO: "No tenant info provided!",
     INVALID_TENANT_INFO: "Invalid tenant info!",
     NO_CLIENT_CREDENTIAL: "No client credential provided!",
     NO_REDIRECT_URI: "No redirect URI provided!",
-    NO_ERROR_ROUTE: "No error route provided!",
     NO_UNAUTHORIZED_ROUTE: "No unauthorized route provided!"
 }
 

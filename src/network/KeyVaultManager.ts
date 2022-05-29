@@ -13,7 +13,7 @@ import { KeyVaultCredentialTypes } from "../utils/Constants";
 export type KeyVaultCredentialResponse = {
     type: KeyVaultCredentialTypes.SECRET | KeyVaultCredentialTypes.CERTIFICATE,
     value: string & ClientCertificate
-}
+};
 
 export class KeyVaultManager {
 
@@ -26,8 +26,6 @@ export class KeyVaultManager {
 
         const credential = new DefaultAzureCredential();
         let response: KeyVaultCredentialResponse = {} as KeyVaultCredentialResponse;
-
-        // TODO: promisify
 
         switch (keyVaultCredential.credentialType) {
             case KeyVaultCredentialTypes.SECRET: {

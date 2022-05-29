@@ -5,6 +5,7 @@
   "private": true,
   "main": "app.js",
   "scripts": {
+    "install:local": "npm install ../",
     "start": "node App/app.js",
     "dev": "nodemon App/app.js"
   },

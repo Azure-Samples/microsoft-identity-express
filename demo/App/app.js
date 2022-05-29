@@ -39,10 +39,10 @@ app.use(session({
         secure: false,
     }
 }));
-    
+
 app.set('trust proxy', 1) // trust first proxy
 
-// building the identity-express-wrapper 
+// building the identity-express-wrapper
 const msid = new MsIdExpress.WebAppAuthClientBuilder(appSettings).build();
 
 app.use(msid.initialize());

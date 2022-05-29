@@ -7,11 +7,13 @@ import {
     AccountInfo,
     AuthorizationUrlRequest,
     AuthorizationCodeRequest,
+    SilentFlowRequest,
 } from "@azure/msal-node";
 
 import { TokenClaims } from "@azure/msal-common";
 
 import { Resource } from "../config/AppSettings";
+import { AppStages } from "./Constants";
 
 // extending express session
 declare module "express-session" {
@@ -22,8 +24,9 @@ declare module "express-session" {
         isAuthenticated: boolean;
         hasAccess: boolean;
         account: AccountInfo;
-        authCodeRequest: AuthorizationUrlRequest;
-        tokenRequest: AuthorizationCodeRequest;
+        authorizationUrlRequest: AuthorizationUrlRequest;
+        authorizationCodeRequest: AuthorizationCodeRequest;
+        silentFlowRequest: SilentFlowRequest
         protectedResources?: {
             [resource: string]: Resource;
         };
@@ -39,16 +42,11 @@ declare module "express" {
     }
 };
 
-// prepare auth code and token requests
-export type AuthCodeParams = {
-    authority: string;
-    scopes: string[];
-    state: string;
-    redirect: string;
-    prompt?: string;
-    account?: AccountInfo;
-};
-
+export type AppState = {
+    appStage: AppStages;
+    csrfToken: string;
+    redirectTo: string;
+}
 
 // prepare IdToken payload
 export type IdTokenClaims = TokenClaims & {
@@ -63,7 +61,7 @@ export type IdTokenClaims = TokenClaims & {
 
 // prepare AccessToken payload
 export type AccessTokenClaims = TokenClaims & {
-    scp?: string,
+    scp: string,
     aud?: string,
     roles?: string[],
     groups?: string[],

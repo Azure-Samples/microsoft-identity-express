@@ -33,7 +33,8 @@ import {
     AppServiceEnvironmentVariables,
     AppServiceAuthenticationEndpoints,
     AppServiceAuthenticationQueryParameters,
-    ErrorMessages
+    ErrorMessages,
+    ConfigurationErrorMessages
 } from "../../utils/Constants";
 
 export class AppServiceWebAppAuthClient extends BaseAuthClient {
@@ -55,14 +56,23 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
      */
     initialize(): Router {
 
+        if (!this.appSettings.authRoutes) {
+            this.logger.error(ConfigurationErrorMessages.AUTH_ROUTES_NOT_CONFIGURED);
+            throw new Error(ConfigurationErrorMessages.AUTH_ROUTES_NOT_CONFIGURED);
+        }
+
         const appRouter = express.Router();
 
         // handle redirect
-        appRouter.get(UrlUtils.getPathFromUrl(this.appSettings.authRoutes!.redirect), this.handleRedirect());
-        appRouter.post(UrlUtils.getPathFromUrl(this.appSettings.authRoutes!.redirect), this.handleRedirect());
+        appRouter.get(UrlUtils.getPathFromUrl(this.appSettings.authRoutes.redirect), this.handleRedirect());
+        appRouter.post(UrlUtils.getPathFromUrl(this.appSettings.authRoutes.redirect), this.handleRedirect());
 
         appRouter.use((req: Request, res: Response, next: NextFunction): void => {
 
+            if (!req.session) {
+                this.logger.error(ErrorMessages.SESSION_NOT_FOUND);
+                throw new Error(ErrorMessages.SESSION_NOT_FOUND);
+            }
 
             if (!req.session.isAuthenticated) {
                 // check headers for id token
@@ -113,7 +123,7 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
 
     /**
      * Initiate sign out and destroy the session
-     * @param options: options to modify logout request
+     * @param {SignOutOptions} options: options to modify logout request
      * @returns {RequestHandler}
      */
     signOut(options: SignOutOptions = {
@@ -132,7 +142,6 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
     /**
      * Middleware that handles redirect depending on request state
      * There are basically 2 stages: sign-in and acquire token
-     * @param {HandleRedirectOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
     private handleRedirect(): RequestHandler {
@@ -170,7 +179,7 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
                 const accessTokenClaims = AuthToken.extractTokenClaims(rawAccessToken, this.cryptoProvider) as AccessTokenClaims;
 
                 // get the name of the resource associated with scope
-                const scopes = accessTokenClaims?.scp ? accessTokenClaims?.scp?.split(" ") : [];
+                const scopes = accessTokenClaims?.scp.split(" ");
                 const effectiveScopes = ConfigHelper.getEffectiveScopes(scopes);
 
                 if (options.resource.scopes.every(elem => effectiveScopes.includes(elem))) {
@@ -189,17 +198,11 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
      */
     isAuthenticated(): RequestHandler {
         return (req: Request, res: Response, next: NextFunction): void => {
-            if (req.session) {
-                if (!req.session.isAuthenticated) {
-                    this.logger.error(ErrorMessages.NOT_PERMITTED);
-                    return res.redirect(this.appSettings.authRoutes!.unauthorized);
-                }
-
-                next();
-            } else {
-                this.logger.error(ErrorMessages.SESSION_NOT_FOUND);
-                res.redirect(this.appSettings.authRoutes!.unauthorized);
+            if (!req.session.isAuthenticated) {
+                return res.redirect(this.appSettings.authRoutes!.unauthorized);
             }
+
+            next();
         }
     };
 }
