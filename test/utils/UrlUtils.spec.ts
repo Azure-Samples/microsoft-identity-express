@@ -36,7 +36,7 @@ describe('Url utilities tests', () => {
         const url3 = 'https://localhost:8080/path/to/resource#fragment';
         const url4 = 'https://localhost:8080/path/to/resource?query=value#fragment';
         const url5 = '/path/to/resource';
-        
+
         expect(UrlUtils.getPathFromUrl(url1)).toEqual('/path/to/resource');
         expect(UrlUtils.getPathFromUrl(url2)).toEqual('/path/to/resource');
         expect(UrlUtils.getPathFromUrl(url3)).toEqual('/path/to/resource');

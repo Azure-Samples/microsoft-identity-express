@@ -3,16 +3,12 @@
  * Licensed under the MIT License.
  */
 
-import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
-import { StringUtils } from "@azure/msal-common";
+import axios, { AxiosResponse, AxiosRequestConfig } from 'axios';
+import { StringUtils } from '@azure/msal-common';
 
-import {
-    AccessControlConstants,
-    ErrorMessages
-} from "../utils/Constants";
+import { AccessControlConstants, ErrorMessages } from '../utils/Constants';
 
 export class FetchManager {
-
     /**
      * Calls a resource endpoint
      * @param {string} endpoint
@@ -25,7 +21,7 @@ export class FetchManager {
         } catch (error) {
             throw error;
         }
-    }
+    };
 
     /**
      * Calls a resource endpoint with a raw access token
@@ -34,16 +30,18 @@ export class FetchManager {
      * @param {string} accessToken
      * @returns {Promise}
      */
-    static callApiEndpointWithToken = async (endpoint: string, accessToken: string): Promise<AxiosResponse<any>> => {
-
+    static callApiEndpointWithToken = async (
+        endpoint: string,
+        accessToken: string
+    ): Promise<AxiosResponse<any>> => {
         if (StringUtils.isEmpty(accessToken)) {
-            throw new Error(ErrorMessages.TOKEN_NOT_FOUND)
+            throw new Error(ErrorMessages.TOKEN_NOT_FOUND);
         }
 
         const options: AxiosRequestConfig = {
             headers: {
-                Authorization: `Bearer ${accessToken}`
-            }
+                Authorization: `Bearer ${accessToken}`,
+            },
         };
 
         try {
@@ -52,7 +50,7 @@ export class FetchManager {
         } catch (error) {
             throw error;
         }
-    }
+    };
 
     /**
      * Handles queries against Microsoft Graph that return multiple pages of data
@@ -61,19 +59,28 @@ export class FetchManager {
      * @param {Array} data: stores data from each page
      * @returns {Promise}
      */
-    static handlePagination = async (accessToken: string, nextPage: string, data: string[] = []): Promise<string[]> => {
-
+    static handlePagination = async (
+        accessToken: string,
+        nextPage: string,
+        data: string[] = []
+    ): Promise<string[]> => {
         try {
-            const graphResponse = await (await FetchManager.callApiEndpointWithToken(nextPage, accessToken)).data;
-            graphResponse["value"].map((v: any) => data.push(v.id));
+            const graphResponse = await (
+                await FetchManager.callApiEndpointWithToken(nextPage, accessToken)
+            ).data;
+            graphResponse['value'].map((v: any) => data.push(v.id));
 
             if (graphResponse[AccessControlConstants.PAGINATION_LINK]) {
-                return await FetchManager.handlePagination(accessToken, graphResponse[AccessControlConstants.PAGINATION_LINK], data)
+                return await FetchManager.handlePagination(
+                    accessToken,
+                    graphResponse[AccessControlConstants.PAGINATION_LINK],
+                    data
+                );
             } else {
                 return data;
             }
         } catch (error) {
             throw error;
         }
-    }
+    };
 }

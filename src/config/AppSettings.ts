@@ -3,7 +3,7 @@
  * Licensed under the MIT License.
  */
 
-import { LoggerOptions } from "@azure/msal-common";
+import { LoggerOptions } from '@azure/msal-common';
 
 export type AppSettings = {
     appCredentials: AppCredentials;
@@ -13,13 +13,13 @@ export type AppSettings = {
         [policy: string]: Policy;
     };
     accessMatrix?: {
-        [accessRule: string]: AccessRule
+        [accessRule: string]: AccessRule;
     };
     protectedResources?: {
         [resource: string]: Resource;
     };
     ownedResources?: {
-        [resource: string]: Resource
+        [resource: string]: Resource;
     };
 };
 
@@ -68,5 +68,5 @@ export type AccessRule = {
 
 export enum AppType {
     WebApp,
-    WebApi
+    WebApi,
 }

@@ -3,13 +3,16 @@
  * Licensed under the MIT License.
  */
 
-import { StringUtils } from "@azure/msal-common";
+import { StringUtils } from '@azure/msal-common';
 
-import { AADAuthorityConstants, ConfigurationErrorMessages, OIDC_SCOPES } from "../utils/Constants";
-import { AppSettings, AppType, Resource } from "./AppSettings";
+import {
+    AADAuthorityConstants,
+    ConfigurationErrorMessages,
+    OIDC_SCOPES,
+} from '../utils/Constants';
+import { AppSettings, AppType, Resource } from './AppSettings';
 
 export class ConfigHelper {
-
     /**
      * Validates the fields in the configuration file
      * @param {AppSettings} appSettings: configuration object
@@ -24,7 +27,12 @@ export class ConfigHelper {
 
         if (StringUtils.isEmpty(appSettings.appCredentials.tenantId)) {
             throw new Error(ConfigurationErrorMessages.NO_TENANT_INFO);
-        } else if (!ConfigHelper.isGuid(appSettings.appCredentials.tenantId) && !Object.values(AADAuthorityConstants).includes(appSettings.appCredentials.tenantId)) {
+        } else if (
+            !ConfigHelper.isGuid(appSettings.appCredentials.tenantId) &&
+            !Object.values(AADAuthorityConstants).includes(
+                appSettings.appCredentials.tenantId
+            )
+        ) {
             throw new Error(ConfigurationErrorMessages.INVALID_TENANT_INFO);
         }
 
@@ -44,7 +52,7 @@ export class ConfigHelper {
             default:
                 break;
         }
-    };
+    }
 
     /**
      * Verifies if a string is GUID
@@ -52,7 +60,8 @@ export class ConfigHelper {
      * @returns {boolean}
      */
     static isGuid(guid: string): boolean {
-        const regexGuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        const regexGuid =
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
         return regexGuid.test(guid);
     }
 
@@ -62,14 +71,25 @@ export class ConfigHelper {
      * @param {AppSettings} appSettings: application authentication parameters
      * @returns {string}
      */
-    static getResourceNameFromScopes(scopes: string[], appSettings: AppSettings): string {
-        const index = Object.values({ ...appSettings.protectedResources, ...appSettings.ownedResources })
-            .findIndex((resource: Resource) => JSON.stringify(resource.scopes) === JSON.stringify(scopes));
+    static getResourceNameFromScopes(
+        scopes: string[],
+        appSettings: AppSettings
+    ): string {
+        const index = Object.values({
+            ...appSettings.protectedResources,
+            ...appSettings.ownedResources,
+        }).findIndex(
+            (resource: Resource) =>
+                JSON.stringify(resource.scopes) === JSON.stringify(scopes)
+        );
 
-        const resourceName = Object.keys({ ...appSettings.protectedResources, ...appSettings.ownedResources })[index];
+        const resourceName = Object.keys({
+            ...appSettings.protectedResources,
+            ...appSettings.ownedResources,
+        })[index];
 
         return resourceName;
-    };
+    }
 
     /**
      * Util method to get the scopes for a given resource name
@@ -77,12 +97,19 @@ export class ConfigHelper {
      * @param {AppSettings} appSettings: application authentication parameters
      * @returns {string}
      */
-    static getScopesFromResourceEndpoint(resourceEndpoint: string, appSettings: AppSettings): string[] {
-        const scopes = Object.values({ ...appSettings.protectedResources, ...appSettings.ownedResources })
-            .find((resource: Resource) => resource.endpoint === resourceEndpoint)?.scopes;
+    static getScopesFromResourceEndpoint(
+        resourceEndpoint: string,
+        appSettings: AppSettings
+    ): string[] {
+        const scopes = Object.values({
+            ...appSettings.protectedResources,
+            ...appSettings.ownedResources,
+        }).find(
+            (resource: Resource) => resource.endpoint === resourceEndpoint
+        )?.scopes;
 
-        return scopes ? scopes : []
-    };
+        return scopes ? scopes : [];
+    }
 
     /**
      * Util method to strip the default OIDC scopes from the scopes array
@@ -90,7 +117,9 @@ export class ConfigHelper {
      * @returns
      */
     static getEffectiveScopes(scopesList: string[]): string[] {
-        const effectiveScopesList = scopesList.filter(scope => !OIDC_SCOPES.includes(scope));
+        const effectiveScopesList = scopesList.filter(
+            (scope) => !OIDC_SCOPES.includes(scope)
+        );
         return effectiveScopesList;
     }
 }

@@ -3,24 +3,20 @@
  * Licensed under the MIT License.
  */
 
-import { Logger } from "@azure/msal-common";
+import { Logger } from '@azure/msal-common';
 
 import {
     ConfidentialClientApplication,
     Configuration,
     CryptoProvider,
-} from "@azure/msal-node";
+} from '@azure/msal-node';
 
-import { AppSettings } from "../config/AppSettings";
+import { AppSettings } from '../config/AppSettings';
 
-import {
-    packageName,
-    packageVersion
-} from "../packageMetadata";
-import { CryptoUtils } from "../utils/CryptoUtils";
+import { packageName, packageVersion } from '../packageMetadata';
+import { CryptoUtils } from '../utils/CryptoUtils';
 
 export abstract class BaseAuthClient {
-
     appSettings: AppSettings;
 
     protected msalConfig: Configuration;
@@ -35,7 +31,11 @@ export abstract class BaseAuthClient {
         this.cryptoProvider = new CryptoProvider();
         this.cryptoUtils = new CryptoUtils();
 
-        this.logger = new Logger(this.msalConfig.system?.loggerOptions!, packageName, packageVersion);
+        this.logger = new Logger(
+            this.msalConfig.system?.loggerOptions!,
+            packageName,
+            packageVersion
+        );
 
         this.msalClient = new ConfidentialClientApplication(this.msalConfig);
     }

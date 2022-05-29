@@ -8,7 +8,7 @@ import { ConfigHelper } from '../../src/config/ConfigHelper';
 import { TEST_APP_SETTINGS } from '../TestConstants';
 
 describe('Configuration helper tests', () => {
-    
+
     it('should detect a GUID', () => {
         const guid1 = "0D4C9F3E-A8C5-4D4C-B8B0-C8E8E8E8E8E8";
         const guid2 = "81b8a568-2442-4d53-8d6c-ededab4b7c62"
@@ -43,5 +43,5 @@ describe('Configuration helper tests', () => {
         expect(effectiveScopes).toEqual(["User.Read", "calendars.read"]);
         expect(["User.Read", "calendars.read"].every(elem => effectiveScopes.includes(elem))).toBe(true);
     });
-    
+
 })

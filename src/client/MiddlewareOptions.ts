@@ -3,21 +3,18 @@
  * Licensed under the MIT License.
  */
 
-import {
-    Resource,
-    AccessRule
-} from "../config/AppSettings";
+import { Resource, AccessRule } from '../config/AppSettings';
 
 export type SignInOptions = {
     postLoginRedirect: string;
     failureRedirect: string;
     extraScopesToConsent?: string[];
     customState?: Object;
-}
+};
 
 export type SignOutOptions = {
     postLogoutRedirect: string;
-}
+};
 
 export type TokenRequestOptions = {
     resource: Resource;
@@ -27,5 +24,5 @@ export type TokenRequestOptions = {
 };
 
 export type GuardOptions = {
-    accessRule: AccessRule
+    accessRule: AccessRule;
 };
