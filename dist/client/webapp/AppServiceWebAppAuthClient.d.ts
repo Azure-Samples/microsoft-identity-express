@@ -1,9 +1,10 @@
 import { Router, RequestHandler } from 'express';
 import { BaseAuthClient } from '../BaseAuthClient';
 import { Configuration } from '@azure/msal-node';
-import { AppSettings } from '../../config/AppSettings';
+import { AppSettings, WebAppSettings } from '../../config/AppSettings';
 import { SignInOptions, SignOutOptions, TokenRequestOptions } from '../MiddlewareOptions';
 export declare class AppServiceWebAppAuthClient extends BaseAuthClient {
+    webAppSettings: WebAppSettings;
     /**
      * @param {AppSettings} appSettings
      * @param {Configuration} msalConfig

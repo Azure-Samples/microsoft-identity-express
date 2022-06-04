@@ -30,10 +30,7 @@ export class FetchManager {
      * @param {string} accessToken
      * @returns {Promise}
      */
-    static callApiEndpointWithToken = async (
-        endpoint: string,
-        accessToken: string
-    ): Promise<AxiosResponse<any>> => {
+    static callApiEndpointWithToken = async (endpoint: string, accessToken: string): Promise<AxiosResponse<any>> => {
         if (StringUtils.isEmpty(accessToken)) {
             throw new Error(ErrorMessages.TOKEN_NOT_FOUND);
         }
@@ -59,15 +56,9 @@ export class FetchManager {
      * @param {Array} data: stores data from each page
      * @returns {Promise}
      */
-    static handlePagination = async (
-        accessToken: string,
-        nextPage: string,
-        data: string[] = []
-    ): Promise<string[]> => {
+    static handlePagination = async (accessToken: string, nextPage: string, data: string[] = []): Promise<string[]> => {
         try {
-            const graphResponse = await (
-                await FetchManager.callApiEndpointWithToken(nextPage, accessToken)
-            ).data;
+            const graphResponse = await (await FetchManager.callApiEndpointWithToken(nextPage, accessToken)).data;
             graphResponse['value'].map((v: any) => data.push(v.id));
 
             if (graphResponse[AccessControlConstants.PAGINATION_LINK]) {

@@ -4,10 +4,7 @@
  */
 
 import { DefaultAzureCredential } from '@azure/identity';
-import {
-    CertificateClient,
-    KeyVaultCertificate,
-} from '@azure/keyvault-certificates';
+import { CertificateClient, KeyVaultCertificate } from '@azure/keyvault-certificates';
 import { KeyVaultSecret, SecretClient } from '@azure/keyvault-secrets';
 
 import { KeyVaultCredential, ClientCertificate } from '../config/AppSettings';
@@ -24,19 +21,14 @@ export class KeyVaultManager {
      * @param {AppSettings} appSettings
      * @returns {Promise}
      */
-    async getCredentialFromKeyVault(
-        keyVaultCredential: KeyVaultCredential
-    ): Promise<KeyVaultCredentialResponse> {
+    async getCredentialFromKeyVault(keyVaultCredential: KeyVaultCredential): Promise<KeyVaultCredentialResponse> {
         const credential = new DefaultAzureCredential();
         let response: KeyVaultCredentialResponse = {} as KeyVaultCredentialResponse;
 
         switch (keyVaultCredential.credentialType) {
             case KeyVaultCredentialTypes.SECRET: {
                 try {
-                    const secretResponse = await this.getSecretCredential(
-                        keyVaultCredential,
-                        credential
-                    );
+                    const secretResponse = await this.getSecretCredential(keyVaultCredential, credential);
 
                     response = {
                         type: KeyVaultCredentialTypes.SECRET,
@@ -50,23 +42,14 @@ export class KeyVaultManager {
 
             case KeyVaultCredentialTypes.CERTIFICATE: {
                 try {
-                    const certificateResponse = await this.getCertificateCredential(
-                        keyVaultCredential,
-                        credential
-                    );
-                    const secretResponse = await this.getSecretCredential(
-                        keyVaultCredential,
-                        credential
-                    );
+                    const certificateResponse = await this.getCertificateCredential(keyVaultCredential, credential);
+                    const secretResponse = await this.getSecretCredential(keyVaultCredential, credential);
 
                     response = {
                         type: KeyVaultCredentialTypes.CERTIFICATE,
                         value: {
-                            thumbprint:
-                                certificateResponse?.properties?.x509Thumbprint?.toString(),
-                            privateKey: secretResponse?.value?.split(
-                                '-----BEGIN CERTIFICATE-----\n'
-                            )[0],
+                            thumbprint: certificateResponse?.properties?.x509Thumbprint?.toString(),
+                            privateKey: secretResponse?.value?.split('-----BEGIN CERTIFICATE-----\n')[0],
                         },
                     } as KeyVaultCredentialResponse;
                 } catch (error) {
@@ -93,15 +76,10 @@ export class KeyVaultManager {
         credential: DefaultAzureCredential
     ): Promise<KeyVaultCertificate> {
         // Initialize secretClient with credentials
-        const secretClient = new CertificateClient(
-            keyVaultCredential.keyVaultUrl,
-            credential
-        );
+        const secretClient = new CertificateClient(keyVaultCredential.keyVaultUrl, credential);
 
         try {
-            const keyVaultCertificate = await secretClient.getCertificate(
-                keyVaultCredential.credentialName
-            );
+            const keyVaultCertificate = await secretClient.getCertificate(keyVaultCredential.credentialName);
             return keyVaultCertificate;
         } catch (error) {
             throw error;
@@ -119,15 +97,10 @@ export class KeyVaultManager {
         credential: DefaultAzureCredential
     ): Promise<KeyVaultSecret> {
         // Initialize secretClient with credentials
-        const secretClient = new SecretClient(
-            keyVaultCredential.keyVaultUrl,
-            credential
-        );
+        const secretClient = new SecretClient(keyVaultCredential.keyVaultUrl, credential);
 
         try {
-            const keyVaultSecret = await secretClient.getSecret(
-                keyVaultCredential.credentialName
-            );
+            const keyVaultSecret = await secretClient.getSecret(keyVaultCredential.credentialName);
             return keyVaultSecret;
         } catch (error) {
             throw error;

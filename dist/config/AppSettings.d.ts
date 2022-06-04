@@ -1,7 +1,6 @@
 import { LoggerOptions } from '@azure/msal-common';
 export declare type AppSettings = {
     appCredentials: AppCredentials;
-    authRoutes?: AuthRoutes;
     loggerOptions?: LoggerOptions;
     b2cPolicies?: {
         [policy: string]: Policy;
@@ -9,10 +8,10 @@ export declare type AppSettings = {
     accessMatrix?: {
         [accessRule: string]: AccessRule;
     };
+};
+export declare type WebAppSettings = AppSettings & {
+    authRoutes: AuthRoutes;
     protectedResources?: {
-        [resource: string]: Resource;
-    };
-    ownedResources?: {
         [resource: string]: Resource;
     };
 };
@@ -53,6 +52,5 @@ export declare type AccessRule = {
     groups?: string[];
 };
 export declare enum AppType {
-    WebApp = 0,
-    WebApi = 1
+    WebApp = 0
 }

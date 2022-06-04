@@ -5,11 +5,7 @@
 
 import { Logger } from '@azure/msal-common';
 
-import {
-    ConfidentialClientApplication,
-    Configuration,
-    CryptoProvider,
-} from '@azure/msal-node';
+import { ConfidentialClientApplication, Configuration, CryptoProvider } from '@azure/msal-node';
 
 import { AppSettings } from '../config/AppSettings';
 
@@ -31,11 +27,7 @@ export abstract class BaseAuthClient {
         this.cryptoProvider = new CryptoProvider();
         this.cryptoUtils = new CryptoUtils();
 
-        this.logger = new Logger(
-            this.msalConfig.system?.loggerOptions!,
-            packageName,
-            packageVersion
-        );
+        this.logger = new Logger(this.msalConfig.system?.loggerOptions!, packageName, packageVersion);
 
         this.msalClient = new ConfidentialClientApplication(this.msalConfig);
     }

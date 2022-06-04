@@ -6,11 +6,7 @@
 import { ICachePlugin } from '@azure/msal-node';
 
 import { ConfigHelper } from '../config/ConfigHelper';
-import {
-    AppSettings,
-    AppType,
-    KeyVaultCredential,
-} from '../config/AppSettings';
+import { AppSettings, AppType, KeyVaultCredential } from '../config/AppSettings';
 
 export abstract class BaseAuthClientBuilder {
     appSettings: AppSettings;
@@ -22,9 +18,7 @@ export abstract class BaseAuthClientBuilder {
         this.appSettings = appSettings;
     }
 
-    withKeyVaultCredentials(
-        keyVaultCredential: KeyVaultCredential
-    ): BaseAuthClientBuilder {
+    withKeyVaultCredentials(keyVaultCredential: KeyVaultCredential): BaseAuthClientBuilder {
         this.keyVaultCredential = keyVaultCredential;
         return this;
     }
