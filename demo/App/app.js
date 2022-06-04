@@ -49,4 +49,4 @@ app.use(msid.initialize());
 
 app.use(router(msid));
 
-app.listen(SERVER_PORT, () => console.log(`Server is listening on port ${SERVER_PORT}!`));
+module.exports = app;

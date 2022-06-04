@@ -1,8 +1,8 @@
 const appSettings = {
     appCredentials: {
-        clientId: "Enter_the_Application_Id_Here",
-        tenantId: "Enter_the_Tenant_Info_Here",
-        clientSecret: "Enter_the_Client_Secret_Here"
+        clientId: process.env.AAD_CLIENT_ID,
+        tenantId: process.env.AAD_TENANT_ID,
+        clientSecret: process.env.AAD_CLIENT_SECRET
     },
     authRoutes: {
         redirect: "/redirect",

@@ -6,8 +6,10 @@
   "main": "app.js",
   "scripts": {
     "install:local": "npm install ../",
-    "start": "node App/app.js",
-    "dev": "nodemon App/app.js"
+    "start": "node app/app.js",
+    "dev": "nodemon app/app.js",
+    "test": "playwright test",
+    "postinstall": "npx playwright install --with-deps chromium"
   },
   "author": "derisen",
   "license": "MIT",
@@ -17,5 +19,9 @@
     "ejs": "^3.0.1",
     "express": "^4.17.1",
     "express-session": "^1.17.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.22.2",
+    "playwright": "^1.22.2"
   }
 }

@@ -19,6 +19,11 @@
     "prettier:check": "prettier --check 'src/**/*'",
     "prettier:write": "prettier --write 'src/**/*'"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run prettier:write"
+    }
+  },
   "jest": {
     "coverageReporters": [
       "json-summary",
