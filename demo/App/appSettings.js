@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const appSettings = {
     appCredentials: {
         clientId: process.env.AAD_CLIENT_ID,

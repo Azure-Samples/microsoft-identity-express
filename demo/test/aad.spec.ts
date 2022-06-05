@@ -13,8 +13,10 @@ import {
   clickSignIn
 } from "./e2eTestUtils";
 
+require('dotenv').config();
+
 // Get flow-specific routes from sample application
-const expressApp = require("../app/app");
+const expressApp = require("../App/app");
 
 test.describe("Auth Code AAD PPE Tests", () => {
   let browser: Browser;

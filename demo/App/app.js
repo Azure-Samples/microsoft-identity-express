@@ -5,6 +5,7 @@
 
 const express = require('express');
 const session = require('express-session');
+const rateLimit = require('express-rate-limit');
 const path = require('path');
 
 const MsIdExpress = require('../../dist/index');
@@ -12,7 +13,13 @@ const appSettings = require('./appSettings');
 
 const router = require('./routes/router');
 
-const SERVER_PORT = process.env.PORT || 4000;
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
+
 
 const app = express();
 
@@ -26,6 +33,9 @@ app.use(express.static(path.join(__dirname, './public')));
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
+// Apply the rate limiting middleware to all requests
+app.use(limiter)
 
 /**
  * Using express-session middleware. Be sure to familiarize yourself with available options
