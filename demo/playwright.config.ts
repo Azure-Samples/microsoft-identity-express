@@ -5,7 +5,7 @@ import * as path from 'path';
 const config: PlaywrightTestConfig = {
   testDir: path.join(__dirname, '/test'),
   use: {
-    headless: false,
+    headless: true,
     trace: 'on-first-retry',
   },
   timeout: 30000,
