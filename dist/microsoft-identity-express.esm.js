@@ -1511,7 +1511,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
     }
 
     return function (req, res, next) {
-      var customState = {
+      var appState = {
         appStage: AppStages.SIGN_IN,
         redirectTo: options.postLoginRedirect,
         csrfToken: req.session.csrfToken
@@ -1523,7 +1523,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
         scopes: OIDC_DEFAULT_SCOPES
       }; // get url to sign user in
 
-      return _this3.redirectToAuthCodeUrl(req, res, next, authUrlParams, authCodeParams, customState);
+      return _this3.redirectToAuthCodeUrl(req, res, next, authUrlParams, authCodeParams, appState);
     };
   }
   /**
@@ -1580,9 +1580,9 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
                   break;
                 }
 
-                _this5.logger.error(ErrorMessages.SESSION_NOT_FOUND);
+                _this5.logger.error(ErrorMessages.SESSION_KEY_NOT_FOUND);
 
-                throw new Error(ErrorMessages.SESSION_NOT_FOUND);
+                return _context.abrupt("return", next(new Error(ErrorMessages.SESSION_KEY_NOT_FOUND)));
 
               case 3:
                 if (req.session.authorizationCodeRequest) {
@@ -1592,7 +1592,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
 
                 _this5.logger.error(ErrorMessages.AUTH_CODE_REQUEST_OBJECT_NOT_FOUND);
 
-                throw new Error(ErrorMessages.AUTH_CODE_REQUEST_OBJECT_NOT_FOUND);
+                return _context.abrupt("return", next(new Error(ErrorMessages.AUTH_CODE_REQUEST_OBJECT_NOT_FOUND)));
 
               case 6:
                 if (!req.body.state) {
@@ -1723,7 +1723,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
       var _ref2 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(req, res, next) {
         var _req$session$protecte2;
 
-        var scopes, resourceName, silentRequest, tokenResponse, customState, authUrlParams, authCodeParams;
+        var scopes, resourceName, silentRequest, tokenResponse, appState, authUrlParams, authCodeParams;
         return runtime_1.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
@@ -1735,7 +1735,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
 
                 _this6.logger.error(ConfigurationErrorMessages.NO_PROTECTED_RESOURCE_CONFIGURED);
 
-                throw new Error(ConfigurationErrorMessages.NO_PROTECTED_RESOURCE_CONFIGURED);
+                return _context2.abrupt("return", next(new Error(ConfigurationErrorMessages.NO_PROTECTED_RESOURCE_CONFIGURED)));
 
               case 3:
                 // get scopes for token request
@@ -1778,7 +1778,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
                   break;
                 }
 
-                customState = {
+                appState = {
                   appStage: AppStages.ACQUIRE_TOKEN,
                   redirectTo: req.originalUrl
                 };
@@ -1789,7 +1789,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
                   scopes: scopes
                 }; // initiate the first leg of auth code grant to get token
 
-                return _context2.abrupt("return", _this6.redirectToAuthCodeUrl(req, res, next, authUrlParams, authCodeParams, customState));
+                return _context2.abrupt("return", _this6.redirectToAuthCodeUrl(req, res, next, authUrlParams, authCodeParams, appState));
 
               case 26:
                 next(_context2.t0);
@@ -1850,7 +1850,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
 
                 _this8.logger.error(ConfigurationErrorMessages.NO_ACCESS_MATRIX_CONFIGURED);
 
-                throw new Error(ConfigurationErrorMessages.NO_ACCESS_MATRIX_CONFIGURED);
+                return _context3.abrupt("return", next(new Error(ConfigurationErrorMessages.NO_ACCESS_MATRIX_CONFIGURED)));
 
               case 3:
                 if ((_req$session$account = req.session.account) != null && _req$session$account.idTokenClaims) {
@@ -1860,7 +1860,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
 
                 _this8.logger.error(ErrorMessages.ID_TOKEN_CLAIMS_NOT_FOUND);
 
-                throw new Error(ErrorMessages.ID_TOKEN_CLAIMS_NOT_FOUND);
+                return _context3.abrupt("return", next(new Error(ErrorMessages.ID_TOKEN_CLAIMS_NOT_FOUND)));
 
               case 6:
                 checkFor = options.accessRule.hasOwnProperty(AccessControlConstants.GROUPS) ? AccessControlConstants.GROUPS : AccessControlConstants.ROLES;
@@ -1958,7 +1958,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
   _proto.redirectToAuthCodeUrl =
   /*#__PURE__*/
   function () {
-    var _redirectToAuthCodeUrl = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee4(req, res, next, authUrlParams, authCodeParams, customState) {
+    var _redirectToAuthCodeUrl = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee4(req, res, next, authUrlParams, authCodeParams, appState) {
       var key, state, response;
       return runtime_1.wrap(function _callee4$(_context4) {
         while (1) {
@@ -1968,7 +1968,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
               req.session.csrfToken = this.cryptoProvider.createNewGuid();
               key = this.cryptoUtils.createKey(req.session.csrfToken, this.cryptoUtils.generateSalt());
               req.session.key = key.toString('hex');
-              state = JSON.stringify(_extends({}, customState, {
+              state = JSON.stringify(_extends({}, appState, {
                 csrfToken: req.session.csrfToken
               })); // prepare the request
 
@@ -2039,7 +2039,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
               }
 
               this.logger.error(ErrorMessages.ID_TOKEN_CLAIMS_NOT_FOUND);
-              throw new Error(ErrorMessages.ID_TOKEN_CLAIMS_NOT_FOUND);
+              return _context5.abrupt("return", next(new Error(ErrorMessages.ID_TOKEN_CLAIMS_NOT_FOUND)));
 
             case 3:
               _req$session$account$ = req.session.account.idTokenClaims, newIdTokenClaims = _objectWithoutPropertiesLoose(_req$session$account$, _excluded);
@@ -2314,26 +2314,9 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
   ;
 
   _proto.handleRedirect = function handleRedirect() {
-    return /*#__PURE__*/function () {
-      var _ref = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(req, res, next) {
-        return runtime_1.wrap(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                next();
-
-              case 1:
-              case "end":
-                return _context.stop();
-            }
-          }
-        }, _callee);
-      }));
-
-      return function (_x, _x2, _x3) {
-        return _ref.apply(this, arguments);
-      };
-    }();
+    return function (req, res, next) {
+      next();
+    };
   }
   /**
    * Middleware that gets tokens
@@ -2346,22 +2329,22 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
     var _this3 = this;
 
     return /*#__PURE__*/function () {
-      var _ref2 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(req, res, next) {
+      var _ref = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(req, res, next) {
         var _req$session$protecte;
 
         var resourceName, rawAccessToken, accessTokenClaims, scopes, effectiveScopes;
-        return runtime_1.wrap(function _callee2$(_context2) {
+        return runtime_1.wrap(function _callee$(_context) {
           while (1) {
-            switch (_context2.prev = _context2.next) {
+            switch (_context.prev = _context.next) {
               case 0:
                 if (_this3.webAppSettings.protectedResources) {
-                  _context2.next = 3;
+                  _context.next = 3;
                   break;
                 }
 
                 _this3.logger.error(ConfigurationErrorMessages.NO_PROTECTED_RESOURCE_CONFIGURED);
 
-                throw new Error(ConfigurationErrorMessages.NO_PROTECTED_RESOURCE_CONFIGURED);
+                return _context.abrupt("return", next(new Error(ConfigurationErrorMessages.NO_PROTECTED_RESOURCE_CONFIGURED)));
 
               case 3:
                 // get scopes for token request
@@ -2372,7 +2355,7 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
                 rawAccessToken = req.headers[AppServiceAuthenticationHeaders.APP_SERVICE_ACCESS_TOKEN_HEADER.toLowerCase()];
 
                 if (!rawAccessToken) {
-                  _context2.next = 16;
+                  _context.next = 16;
                   break;
                 }
 
@@ -2384,26 +2367,26 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
                 if (!options.resource.scopes.every(function (elem) {
                   return effectiveScopes.includes(elem);
                 })) {
-                  _context2.next = 15;
+                  _context.next = 15;
                   break;
                 }
 
                 req.session.protectedResources[resourceName].accessToken = rawAccessToken;
-                return _context2.abrupt("return", next());
+                return _context.abrupt("return", next());
 
               case 15:
-                return _context2.abrupt("return", next(new Error('No tokens found for given scopes')));
+                return _context.abrupt("return", next(new Error('No tokens found for given scopes')));
 
               case 16:
               case "end":
-                return _context2.stop();
+                return _context.stop();
             }
           }
-        }, _callee2);
+        }, _callee);
       }));
 
-      return function (_x4, _x5, _x6) {
-        return _ref2.apply(this, arguments);
+      return function (_x, _x2, _x3) {
+        return _ref.apply(this, arguments);
       };
     }();
   }

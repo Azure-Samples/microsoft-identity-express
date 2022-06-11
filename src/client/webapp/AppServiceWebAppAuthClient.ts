@@ -4,19 +4,14 @@
  */
 
 import express, { Router, RequestHandler, Request, Response, NextFunction } from 'express';
-
 import { AccountInfo, AuthToken } from '@azure/msal-common';
-
 import { BaseAuthClient } from '../BaseAuthClient';
 import { Configuration } from '@azure/msal-node';
-
 import { AccessTokenClaims, IdTokenClaims } from '../../utils/Types';
 import { AppSettings, Resource, WebAppSettings } from '../../config/AppSettings';
 import { ConfigHelper } from '../../config/ConfigHelper';
 import { UrlUtils } from '../../utils/UrlUtils';
-
 import { SignInOptions, SignOutOptions, TokenRequestOptions } from '../MiddlewareOptions';
-
 import {
     AppServiceAuthenticationHeaders,
     AppServiceEnvironmentVariables,
@@ -143,7 +138,7 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
      * @returns {RequestHandler}
      */
     private handleRedirect(): RequestHandler {
-        return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        return (req: Request, res: Response, next: NextFunction): void => {
             next();
         };
     }
@@ -158,7 +153,7 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
 
             if (!this.webAppSettings.protectedResources) {
                 this.logger.error(ConfigurationErrorMessages.NO_PROTECTED_RESOURCE_CONFIGURED);
-                throw new Error(ConfigurationErrorMessages.NO_PROTECTED_RESOURCE_CONFIGURED);
+                return next(new Error(ConfigurationErrorMessages.NO_PROTECTED_RESOURCE_CONFIGURED));
             }
 
             // get scopes for token request

@@ -8,8 +8,6 @@ import { Resource, AccessRule } from '../config/AppSettings';
 export type SignInOptions = {
     postLoginRedirect: string;
     failureRedirect: string;
-    extraScopesToConsent?: string[];
-    customState?: Object;
 };
 
 export type SignOutOptions = {
@@ -18,9 +16,6 @@ export type SignOutOptions = {
 
 export type TokenRequestOptions = {
     resource: Resource;
-    claims?: string;
-    skipCache?: boolean;
-    customState?: Object;
 };
 
 export type GuardOptions = {

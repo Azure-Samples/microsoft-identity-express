@@ -13,9 +13,7 @@ declare module 'express-session' {
         authorizationUrlRequest: AuthorizationUrlRequest;
         authorizationCodeRequest: AuthorizationCodeRequest;
         silentFlowRequest: SilentFlowRequest;
-        protectedResources?: {
-            [resource: string]: Resource;
-        };
+        protectedResources?: Record<string, Resource>;
     }
 }
 declare module 'express' {

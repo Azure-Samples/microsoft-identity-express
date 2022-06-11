@@ -2,18 +2,12 @@ import { LoggerOptions } from '@azure/msal-common';
 export declare type AppSettings = {
     appCredentials: AppCredentials;
     loggerOptions?: LoggerOptions;
-    b2cPolicies?: {
-        [policy: string]: Policy;
-    };
-    accessMatrix?: {
-        [accessRule: string]: AccessRule;
-    };
+    b2cPolicies?: Record<string, Policy>;
+    accessMatrix?: Record<string, AccessRule>;
 };
 export declare type WebAppSettings = AppSettings & {
     authRoutes: AuthRoutes;
-    protectedResources?: {
-        [resource: string]: Resource;
-    };
+    protectedResources?: Record<string, Resource>;
 };
 export declare type AppCredentials = {
     instance?: string;

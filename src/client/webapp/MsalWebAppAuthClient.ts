@@ -79,7 +79,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
         }
     ): RequestHandler {
         return (req: Request, res: Response, next: NextFunction): Promise<void> => {
-            const customState = {
+            const appState = {
                 appStage: AppStages.SIGN_IN,
                 redirectTo: options.postLoginRedirect,
                 csrfToken: req.session.csrfToken,
@@ -94,7 +94,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
             } as AuthorizationCodeRequest;
 
             // get url to sign user in
-            return this.redirectToAuthCodeUrl(req, res, next, authUrlParams, authCodeParams, customState);
+            return this.redirectToAuthCodeUrl(req, res, next, authUrlParams, authCodeParams, appState);
         };
     }
 
@@ -133,13 +133,13 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
     private handleRedirect(): RequestHandler {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             if (!req.session.key) {
-                this.logger.error(ErrorMessages.SESSION_NOT_FOUND);
-                throw new Error(ErrorMessages.SESSION_NOT_FOUND);
+                this.logger.error(ErrorMessages.SESSION_KEY_NOT_FOUND);
+                return next(new Error(ErrorMessages.SESSION_KEY_NOT_FOUND));
             }
 
             if (!req.session.authorizationCodeRequest) {
                 this.logger.error(ErrorMessages.AUTH_CODE_REQUEST_OBJECT_NOT_FOUND);
-                throw new Error(ErrorMessages.AUTH_CODE_REQUEST_OBJECT_NOT_FOUND);
+                return next(new Error(ErrorMessages.AUTH_CODE_REQUEST_OBJECT_NOT_FOUND));
             }
 
             if (req.body.state) {
@@ -225,7 +225,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             if (!this.webAppSettings.protectedResources) {
                 this.logger.error(ConfigurationErrorMessages.NO_PROTECTED_RESOURCE_CONFIGURED);
-                throw new Error(ConfigurationErrorMessages.NO_PROTECTED_RESOURCE_CONFIGURED);
+                return next(new Error(ConfigurationErrorMessages.NO_PROTECTED_RESOURCE_CONFIGURED));
             }
 
             // get scopes for token request
@@ -260,7 +260,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
             } catch (error) {
                 // in case there are no cached tokens, initiate an interactive call
                 if (error instanceof InteractionRequiredAuthError) {
-                    const customState = {
+                    const appState = {
                         appStage: AppStages.ACQUIRE_TOKEN,
                         redirectTo: req.originalUrl,
                     } as AppState;
@@ -274,7 +274,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
                     } as AuthorizationCodeRequest;
 
                     // initiate the first leg of auth code grant to get token
-                    return this.redirectToAuthCodeUrl(req, res, next, authUrlParams, authCodeParams, customState);
+                    return this.redirectToAuthCodeUrl(req, res, next, authUrlParams, authCodeParams, appState);
                 } else {
                     next(error);
                 }
@@ -305,12 +305,12 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             if (!this.webAppSettings.accessMatrix) {
                 this.logger.error(ConfigurationErrorMessages.NO_ACCESS_MATRIX_CONFIGURED);
-                throw new Error(ConfigurationErrorMessages.NO_ACCESS_MATRIX_CONFIGURED);
+                return next(new Error(ConfigurationErrorMessages.NO_ACCESS_MATRIX_CONFIGURED));
             }
 
             if (!req.session.account?.idTokenClaims) {
                 this.logger.error(ErrorMessages.ID_TOKEN_CLAIMS_NOT_FOUND);
-                throw new Error(ErrorMessages.ID_TOKEN_CLAIMS_NOT_FOUND);
+                return next(new Error(ErrorMessages.ID_TOKEN_CLAIMS_NOT_FOUND));
             }
 
             const checkFor = options.accessRule.hasOwnProperty(AccessControlConstants.GROUPS)
@@ -379,7 +379,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
         next: NextFunction,
         authUrlParams: AuthorizationUrlRequest,
         authCodeParams: AuthorizationCodeRequest,
-        customState: AppState
+        appState: AppState
     ): Promise<void> {
         // add session csrfToken for crsf
         req.session.csrfToken = this.cryptoProvider.createNewGuid();
@@ -388,7 +388,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
         req.session.key = key.toString('hex');
 
         const state = JSON.stringify({
-            ...customState,
+            ...appState,
             csrfToken: req.session.csrfToken,
         });
 
@@ -397,13 +397,13 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
             ...authUrlParams,
             state: this.cryptoProvider.base64Encode(this.cryptoUtils.encryptData(state, key)),
             redirectUri: UrlUtils.ensureAbsoluteUrl(req, this.webAppSettings.authRoutes.redirect),
-            responseMode: ResponseMode.FORM_POST,
+            responseMode: ResponseMode.FORM_POST
         };
 
         req.session.authorizationCodeRequest = {
             ...authCodeParams,
             redirectUri: UrlUtils.ensureAbsoluteUrl(req, this.webAppSettings.authRoutes.redirect),
-            code: '',
+            code: ''
         };
 
         // request an authorization code to exchange for tokens
@@ -426,7 +426,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
     private async handleOverage(req: Request, res: Response, next: NextFunction, rule: AccessRule): Promise<void> {
         if (!req.session.account?.idTokenClaims) {
             this.logger.error(ErrorMessages.ID_TOKEN_CLAIMS_NOT_FOUND);
-            throw new Error(ErrorMessages.ID_TOKEN_CLAIMS_NOT_FOUND);
+            return next(new Error(ErrorMessages.ID_TOKEN_CLAIMS_NOT_FOUND));
         }
 
         const { _claim_names, _claim_sources, ...newIdTokenClaims } = req.session.account.idTokenClaims;
