@@ -13,7 +13,7 @@ This sample demonstrates a Node.js & Express web application that authenticates 
 | File/folder                         | Description                                                   |
 |-------------------------------------|---------------------------------------------------------------|
 | `App/app.js`                        | Application entry point.                                      |
-| `App/appSettings.json`              | Application settings and authentication parameters.           |
+| `App/appSettings.js`                | Application settings and authentication parameters.           |
 | `App/routes/router.js`              | Application routes are defined here.                          |
 
 ## Prerequisites
@@ -69,7 +69,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
-1. Open the `./App/appSettings.json` file.
+1. Open the `./App/appSettings.js` file.
 1. Find the key `appCredentials.clientId` and replace the existing value with the **application ID** (clientId) of the `ExpressWebApp` application copied from the Azure Portal.
 1. Find the key `appCredentials.tenantId` and replace the existing value with your Azure AD **tenant ID** (alternatively, `common` for all audiences).
 1. Find the key `appCredentials.clientSecret` and replace the existing value with the **client secret** of the `ExpressWebApp` application copied from the Azure Portal.

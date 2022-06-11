@@ -66,7 +66,6 @@ const appSettings = {
     },
     authRoutes: {
         redirect: "/redirect", // redirect path or the full URI configured on Azure AD
-        error: "/error", // errors will be redirected to this route
         unauthorized: "/unauthorized" // unauthorized access attempts will be redirected to this route
         frontChannelLogout: "/sso_logout" // front-channel logout path or the full URI configured on Azure AD
     },
@@ -159,12 +158,6 @@ module.exports = (msid) => {
         res.render('home', { isAuthenticated: req.session.isAuthenticated });
     });
 
-    // unauthorized
-    router.get('/error', (req, res) => res.redirect('/401.html'));
-
-    // error
-    router.get('/unauthorized', (req, res) => res.redirect('/500.html'));
-
     // auth routes
     router.get('/signin',
         msid.signIn({
@@ -177,6 +170,9 @@ module.exports = (msid) => {
             postLogoutRedirect: "/",
         }),
     );
+
+    // unauthorized
+    router.get('/unauthorized', (req, res) => res.redirect('/401.html'));
 
     router.get('*', (req, res) => res.redirect('/404.html'));
 
@@ -191,10 +187,7 @@ Simply add the [isAuthenticated()](https://azure-samples.github.io/microsoft-ide
 ```javascript
 // secure routes
 app.get('/id', 
-    msid.isAuthenticated({
-            unauthorizedRedirect: "/sign-in"
-        }
-    ), // checks if authenticated via session
+    msid.isAuthenticated(), // checks if authenticated via session
     (req, res, next) => {
         res.render('id', { isAuthenticated: req.session.isAuthenticated, claims: req.session.account.idTokenClaims });
     }
