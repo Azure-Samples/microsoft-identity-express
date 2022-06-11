@@ -18,7 +18,7 @@ require('dotenv').config();
 // Get flow-specific routes from sample application
 const expressApp = require("../App/app");
 
-test.describe("Auth Code AAD PPE Tests", () => {
+test.describe("Auth Code AAD Tests", () => {
   let browser: Browser;
   let context: BrowserContext;
   let page: Page;
