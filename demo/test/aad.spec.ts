@@ -10,7 +10,8 @@ import {
   Screenshot, createFolder, enterCredentials,
   SCREENSHOT_BASE_FOLDER_NAME,
   SAMPLE_HOME_URL,
-  clickSignIn
+  clickSignIn,
+  clickSignOut
 } from "./e2eTestUtils";
 
 require('dotenv').config();
@@ -80,6 +81,38 @@ test.describe("Auth Code AAD Tests", () => {
       await enterCredentials(page, screenshot, username, accountPwd);
       await page.waitForFunction(`window.location.href.startsWith("${SAMPLE_HOME_URL}")`);
       await expect(page.locator(`text=${username}`).first()).toBeVisible();
+    });
+
+    test("Acquire token with AAD", async () => {
+      const screenshot = new Screenshot(`${screenshotFolder}/acquire-token-with-aad`);
+      await page.goto(homeRoute);
+      await clickSignIn(page, screenshot);
+      await enterCredentials(page, screenshot, username, accountPwd);
+      await page.waitForFunction(`window.location.href.startsWith("${SAMPLE_HOME_URL}")`);
+      await expect(page.locator(`text=${username}`).first()).toBeVisible();
+      await page.waitForSelector("#acquireTokenGraph")
+      await screenshot.takeScreenshot(page, "samplePagePostLogin");
+      page.click("#acquireTokenGraph");
+      await page.waitForFunction(`window.location.href.startsWith("${SAMPLE_HOME_URL}")`);
+      await screenshot.takeScreenshot(page, "samplePageAcquireTokenCallGraph");
+      await expect(page.locator(`text=Calling Microsoft Graph API`).first()).toBeVisible();
+      await expect(page.locator(`text=${username}`).first()).toBeVisible();
+    });
+
+    test("Sign-out with AAD", async () => {
+      const screenshot = new Screenshot(`${screenshotFolder}/sign-out-with-aad`);
+      await page.goto(homeRoute);
+      await clickSignIn(page, screenshot);
+      await enterCredentials(page, screenshot, username, accountPwd);
+      await page.waitForFunction(`window.location.href.startsWith("${SAMPLE_HOME_URL}")`);
+      await expect(page.locator(`text=${username}`).first()).toBeVisible();
+
+      await clickSignOut(page, screenshot);
+      await page.locator(`text=${username}`).click()
+      await page.waitForFunction(`window.location.href.startsWith("${SAMPLE_HOME_URL}")`);
+      await screenshot.takeScreenshot(page, "samplePagePostLogout");
+      await expect(page.locator(`text=${username}`).first()).not.toBeVisible();
+      await expect(page.locator(`text=Sign-in to access your resources`).first()).toBeVisible();
     });
   });
 });

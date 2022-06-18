@@ -65,7 +65,9 @@ export class ConfigHelper {
     static getResourceNameFromScopes(scopes: string[], webAppSettings: WebAppSettings): string {
         const index = Object.values({
             ...webAppSettings.protectedResources,
-        }).findIndex((resource: Resource) => JSON.stringify(resource.scopes) === JSON.stringify(scopes));
+        }).findIndex((resource: Resource) =>
+            JSON.stringify(resource.scopes.sort()) === JSON.stringify(scopes.sort())
+        );
 
         const resourceName = Object.keys({
             ...webAppSettings.protectedResources,

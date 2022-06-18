@@ -1091,7 +1091,7 @@ var ConfigHelper = /*#__PURE__*/function () {
 
   ConfigHelper.getResourceNameFromScopes = function getResourceNameFromScopes(scopes, webAppSettings) {
     var index = Object.values(_extends({}, webAppSettings.protectedResources)).findIndex(function (resource) {
-      return JSON.stringify(resource.scopes) === JSON.stringify(scopes);
+      return JSON.stringify(resource.scopes.sort()) === JSON.stringify(scopes.sort());
     });
     var resourceName = Object.keys(_extends({}, webAppSettings.protectedResources))[index];
     return resourceName;

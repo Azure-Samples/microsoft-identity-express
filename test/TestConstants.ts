@@ -83,17 +83,24 @@ export const TEST_APP_SETTINGS = {
     },
     authRoutes: {
         redirect: '/redirect',
-        error: '/error',
         unauthorized: '/unauthorized',
     },
     protectedResources: {
-        graphAPI: {
+        myProfile: {
             endpoint: 'https://graph.microsoft.com/v1.0/me',
-            scopes: TEST_CONSTANTS.DEFAULT_GRAPH_SCOPE,
+            scopes: ["user.read"],
         },
-        armAPI: {
+        myTenat: {
             endpoint: 'https://management.azure.com/tenants?api-version=2020-01-01',
             scopes: ['https://management.azure.com/user_impersonation'],
+        },
+        myTeams: {
+            endpoint: "https://graph.microsoft.com/v1.0/me/joinedTeams",
+            scopes: ["teamsettings.readwrite.all", "user.read"],
+        },
+        myEvents: {
+            endpoint: "https://graph.microsoft.com/v1.0/me/events",
+            scopes: ["user.read", "calendars.readwrite"]
         },
     },
 };

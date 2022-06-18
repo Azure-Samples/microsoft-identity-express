@@ -6,24 +6,24 @@ export const SCREENSHOT_BASE_FOLDER_NAME = `${__dirname}/screenshots`;
 export const SAMPLE_HOME_URL = "http://localhost";
 
 export class Screenshot {
-  private folderName: string;
-  private screenshotNum: number;
+    private folderName: string;
+    private screenshotNum: number;
 
-  constructor(foldername: string) {
-      this.folderName = foldername;
-      this.screenshotNum = 0;
-      createFolder(this.folderName);
-  }
+    constructor(foldername: string) {
+        this.folderName = foldername;
+        this.screenshotNum = 0;
+        createFolder(this.folderName);
+    }
 
-  async takeScreenshot(page: Page, screenshotName: string): Promise<void> {
-      await page.screenshot({ path: `${this.folderName}/${++this.screenshotNum}_${screenshotName}.png` });
-  }
+    async takeScreenshot(page: Page, screenshotName: string): Promise<void> {
+        await page.screenshot({ path: `${this.folderName}/${++this.screenshotNum}_${screenshotName}.png` });
+    }
 }
 
 export function createFolder(foldername: string) {
-  if (!fs.existsSync(foldername)) {
-      fs.mkdirSync(foldername, { recursive: true });
-  }
+    if (!fs.existsSync(foldername)) {
+        fs.mkdirSync(foldername, { recursive: true });
+    }
 }
 
 export async function enterCredentials(page: Page, screenshot: Screenshot, username: string, accountPwd: string): Promise<void> {
@@ -65,7 +65,7 @@ export async function enterCredentials(page: Page, screenshot: Screenshot, usern
             page.waitForResponse((response: Response) => response.url().startsWith("http://localhost"), { timeout: 0 })
         ])
     ]).catch(async (e) => {
-        await screenshot.takeScreenshot(page, "errorPage").catch(() => {});
+        await screenshot.takeScreenshot(page, "errorPage").catch(() => { });
         throw e;
     });
 
@@ -129,4 +129,21 @@ export async function clickSignIn(page: Page, screenshot: Screenshot): Promise<v
     });
 
     await screenshot.takeScreenshot(page, "signInClicked");
+}
+
+export async function clickSignOut(page: Page, screenshot: Screenshot): Promise<void> {
+    await page.waitForSelector("#SignOut")
+    await screenshot.takeScreenshot(page, "samplePageSignout");
+    page.click("#SignOut");
+
+    await Promise.all([
+        page.waitForNavigation({ waitUntil: "load" }),
+        page.waitForNavigation({ waitUntil: "domcontentloaded" }),
+        page.waitForNavigation({ waitUntil: "networkidle" }).catch(() => { }), // Wait for navigation but don't throw due to timeout
+    ]).catch(async (e) => {
+        await screenshot.takeScreenshot(page, "errorPage").catch(() => { });
+        throw e;
+    });
+
+    await screenshot.takeScreenshot(page, "signOutClicked");
 }
