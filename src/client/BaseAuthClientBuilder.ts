@@ -3,23 +3,20 @@
  * Licensed under the MIT License.
  */
 
-import { ICachePlugin } from "@azure/msal-node";
+import { ICachePlugin } from '@azure/msal-node';
 
-import { IDistributedPersistence } from "../cache/IDistributedPersistence";
-import { ConfigHelper } from "../config/ConfigHelper";
-import { AppSettings, KeyVaultCredential } from "../config/AppSettings";
+import { ConfigHelper } from '../config/ConfigHelper';
+import { AppSettings, AppType, KeyVaultCredential } from '../config/AppSettings';
 
 export abstract class BaseAuthClientBuilder {
-
     appSettings: AppSettings;
-    protected persistenceManager: IDistributedPersistence;
-    protected keyVaultCredential: KeyVaultCredential;
-    protected customCachePlugin: ICachePlugin;
+    protected keyVaultCredential: KeyVaultCredential | undefined;
+    protected customCachePlugin: ICachePlugin | undefined;
 
-    protected constructor(appSettings: AppSettings) {
-        ConfigHelper.validateAppSettings(appSettings);
+    protected constructor(appSettings: AppSettings, appType: AppType) {
+        ConfigHelper.validateAppSettings(appSettings, appType);
         this.appSettings = appSettings;
-    };
+    }
 
     withKeyVaultCredentials(keyVaultCredential: KeyVaultCredential): BaseAuthClientBuilder {
         this.keyVaultCredential = keyVaultCredential;
@@ -28,11 +25,6 @@ export abstract class BaseAuthClientBuilder {
 
     withCustomCachePlugin(cachePlugin: ICachePlugin): BaseAuthClientBuilder {
         this.customCachePlugin = cachePlugin;
-        return this;
-    }
-    
-    withDistributedTokenCache(persistenceManager: IDistributedPersistence): BaseAuthClientBuilder {
-        this.persistenceManager = persistenceManager;
         return this;
     }
 

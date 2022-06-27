@@ -2,7 +2,7 @@ const fetchManager = require('../utils/fetchManager');
 const appSettings = require('../appSettings');
 
 exports.getHomePage = (req, res, next) => {
-    res.render('home', { isAuthenticated: req.session.isAuthenticated });
+    res.render('home', { isAuthenticated: req.session.isAuthenticated, username: req.session.account?.idTokenClaims?.preferred_username });
 }
 
 exports.getIdPage = (req, res, next) => {
@@ -21,7 +21,7 @@ exports.getProfilePage = async(req, res, next) => {
 
     try {
         profile = await fetchManager.callAPI(appSettings.protectedResources.graphAPI.endpoint, req.session.protectedResources["graphAPI"].accessToken);
-        res.render('profile', { isAuthenticated: req.session.isAuthenticated, profile: profile });        
+        res.render('profile', { isAuthenticated: req.session.isAuthenticated, profile: profile });
     } catch (error) {
         console.log(error);
         next(error);

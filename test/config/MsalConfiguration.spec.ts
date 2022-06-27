@@ -9,7 +9,7 @@ describe('MSAL configuration builder tests', () => {
         const msalConfig = MsalConfiguration.getMsalConfiguration(TEST_APP_SETTINGS);
 
         expect(msalConfig).toBeDefined();
-        
+
         expect(msalConfig).toMatchObject({
             auth: {
                 clientId: TEST_APP_SETTINGS.appCredentials.clientId,

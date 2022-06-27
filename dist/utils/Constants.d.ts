@@ -1,4 +1,4 @@
-import { LoggerOptions } from "@azure/msal-common";
+import { LoggerOptions } from '@azure/msal-common';
 /**
  * Basic authentication stages used to determine
  * appropriate action after redirect occurs
@@ -103,10 +103,11 @@ export declare const ErrorMessages: {
     INVALID_TOKEN: string;
     CANNOT_DETERMINE_APP_STAGE: string;
     CANNOT_VALIDATE_TOKEN: string;
-    NONCE_MISMATCH: string;
+    CSRF_TOKEN_MISMATCH: string;
     INTERACTION_REQUIRED: string;
     TOKEN_ACQUISITION_FAILED: string;
-    AUTH_CODE_NOT_OBTAINED: string;
+    TOKEN_RESPONSE_NULL: string;
+    AUTH_CODE_URL_NOT_OBTAINED: string;
     TOKEN_NOT_FOUND: string;
     TOKEN_NOT_DECODED: string;
     TOKEN_NOT_VERIFIED: string;
@@ -120,18 +121,24 @@ export declare const ErrorMessages: {
     RULE_NOT_FOUND: string;
     SESSION_NOT_FOUND: string;
     KEY_VAULT_CONFIG_NOT_FOUND: string;
+    CANNOT_OBTAIN_CREDENTIALS_FROM_KEY_VAULT: string;
+    SESSION_KEY_NOT_FOUND: string;
+    AUTH_CODE_REQUEST_OBJECT_NOT_FOUND: string;
+    ID_TOKEN_CLAIMS_NOT_FOUND: string;
 };
 /**
  * Various configuration error constants
  */
 export declare const ConfigurationErrorMessages: {
+    AUTH_ROUTES_NOT_CONFIGURED: string;
+    NO_PROTECTED_RESOURCE_CONFIGURED: string;
+    NO_ACCESS_MATRIX_CONFIGURED: string;
     NO_CLIENT_ID: string;
     INVALID_CLIENT_ID: string;
     NO_TENANT_INFO: string;
     INVALID_TENANT_INFO: string;
     NO_CLIENT_CREDENTIAL: string;
     NO_REDIRECT_URI: string;
-    NO_ERROR_ROUTE: string;
     NO_UNAUTHORIZED_ROUTE: string;
 };
 /**

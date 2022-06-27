@@ -4,7 +4,6 @@
  */
 
 import { CryptoUtils } from '../../src/utils/CryptoUtils';
-import { TEST_CONSTANTS } from "../TestConstants";
 
 
 describe('Crypto utilities tests', () => {

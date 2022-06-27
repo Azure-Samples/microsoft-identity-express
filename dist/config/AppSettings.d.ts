@@ -1,20 +1,13 @@
-import { LoggerOptions } from "@azure/msal-common";
+import { LoggerOptions } from '@azure/msal-common';
 export declare type AppSettings = {
     appCredentials: AppCredentials;
-    authRoutes?: AuthRoutes;
     loggerOptions?: LoggerOptions;
-    b2cPolicies?: {
-        [policy: string]: Policy;
-    };
-    accessMatrix?: {
-        [accessRule: string]: AccessRule;
-    };
-    protectedResources?: {
-        [resource: string]: Resource;
-    };
-    ownedResources?: {
-        [resource: string]: Resource;
-    };
+    b2cPolicies?: Record<string, Policy>;
+    accessMatrix?: Record<string, AccessRule>;
+};
+export declare type WebAppSettings = AppSettings & {
+    authRoutes: AuthRoutes;
+    protectedResources?: Record<string, Resource>;
 };
 export declare type AppCredentials = {
     instance?: string;
@@ -35,7 +28,6 @@ export declare type KeyVaultCredential = {
 };
 export declare type AuthRoutes = {
     redirect: string;
-    error: string;
     unauthorized: string;
     frontChannelLogout?: string;
 };
@@ -53,3 +45,6 @@ export declare type AccessRule = {
     roles?: string[];
     groups?: string[];
 };
+export declare enum AppType {
+    WebApp = 0
+}
