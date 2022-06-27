@@ -51,8 +51,6 @@ or download and extract the repository *.zip* file.
 
 ## Getting started
 
-Check out the [demo app](./demo/README.md). Read below for how to configure it.
-
 ### Configuration
 
 1. Initialize the wrapper in your app by providing a settings object. The object looks like the follows:
