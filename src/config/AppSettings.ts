@@ -3,24 +3,18 @@
  * Licensed under the MIT License.
  */
 
-import { LoggerOptions } from "@azure/msal-common";
+import { LoggerOptions } from '@azure/msal-common';
 
 export type AppSettings = {
     appCredentials: AppCredentials;
-    authRoutes?: AuthRoutes;
     loggerOptions?: LoggerOptions;
-    b2cPolicies?: {
-        [policy: string]: Policy;
-    };
-    accessMatrix?: {
-        [accessRule: string]: AccessRule
-    };
-    protectedResources?: {
-        [resource: string]: Resource;
-    };
-    ownedResources?: {
-        [resource: string]: Resource
-    };
+    b2cPolicies?: Record<string, Policy>;
+    accessMatrix?: Record<string, AccessRule>;
+};
+
+export type WebAppSettings = AppSettings & {
+    authRoutes: AuthRoutes;
+    protectedResources?: Record<string, Resource>
 };
 
 export type AppCredentials = {
@@ -45,7 +39,6 @@ export type KeyVaultCredential = {
 
 export type AuthRoutes = {
     redirect: string;
-    error: string;
     unauthorized: string;
     frontChannelLogout?: string;
 };
@@ -66,3 +59,7 @@ export type AccessRule = {
     roles?: string[];
     groups?: string[];
 };
+
+export enum AppType {
+    WebApp
+}

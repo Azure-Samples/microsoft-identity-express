@@ -1,9 +1,10 @@
-import { Router, RequestHandler } from "express";
-import { BaseAuthClient } from "../BaseAuthClient";
-import { Configuration } from "@azure/msal-node";
-import { AppSettings } from "../../config/AppSettings";
-import { GuardOptions, InitializationOptions, SignInOptions, SignOutOptions, TokenRequestOptions } from "../MiddlewareOptions";
+import { Router, RequestHandler } from 'express';
+import { Configuration } from '@azure/msal-node';
+import { BaseAuthClient } from '../BaseAuthClient';
+import { AppSettings, WebAppSettings } from '../../config/AppSettings';
+import { SignInOptions, SignOutOptions, TokenRequestOptions } from '../MiddlewareOptions';
 export declare class AppServiceWebAppAuthClient extends BaseAuthClient {
+    webAppSettings: WebAppSettings;
     /**
      * @param {AppSettings} appSettings
      * @param {Configuration} msalConfig
@@ -15,7 +16,7 @@ export declare class AppServiceWebAppAuthClient extends BaseAuthClient {
      * @param {InitializationOptions} options
      * @returns {Router}
      */
-    initialize(options?: InitializationOptions): Router;
+    initialize(): Router;
     /**
      * Initiates sign in flow
      * @param {SignInOptions} options: options to modify login request
@@ -24,14 +25,13 @@ export declare class AppServiceWebAppAuthClient extends BaseAuthClient {
     signIn(options?: SignInOptions): RequestHandler;
     /**
      * Initiate sign out and destroy the session
-     * @param options: options to modify logout request
+     * @param {SignOutOptions} options: options to modify logout request
      * @returns {RequestHandler}
      */
     signOut(options?: SignOutOptions): RequestHandler;
     /**
      * Middleware that handles redirect depending on request state
      * There are basically 2 stages: sign-in and acquire token
-     * @param {HandleRedirectOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
     private handleRedirect;
@@ -43,8 +43,7 @@ export declare class AppServiceWebAppAuthClient extends BaseAuthClient {
     getToken(options: TokenRequestOptions): RequestHandler;
     /**
      * Check if authenticated in session
-     * @param {GuardOptions} options: options to modify this middleware
      * @returns {RequestHandler}
      */
-    isAuthenticated(options?: GuardOptions): RequestHandler;
+    isAuthenticated(): RequestHandler;
 }

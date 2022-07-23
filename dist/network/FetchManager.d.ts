@@ -1,4 +1,4 @@
-import { AxiosResponse } from "axios";
+import { AxiosResponse } from 'axios';
 export declare class FetchManager {
     /**
      * Calls a resource endpoint
@@ -13,7 +13,7 @@ export declare class FetchManager {
      * @param {string} accessToken
      * @returns {Promise}
      */
-    static callApiEndpointWithToken: (endpoint: string, accessToken: string) => Promise<AxiosResponse>;
+    static callApiEndpointWithToken: (endpoint: string, accessToken: string) => Promise<AxiosResponse<any>>;
     /**
      * Handles queries against Microsoft Graph that return multiple pages of data
      * @param {string} accessToken: access token required by endpoint

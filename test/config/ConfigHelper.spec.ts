@@ -3,12 +3,12 @@
  * Licensed under the MIT License.
  */
 
-import { AppSettings } from '../../src/config/AppSettings';
+import { WebAppSettings } from '../../src/config/AppSettings';
 import { ConfigHelper } from '../../src/config/ConfigHelper';
 import { TEST_APP_SETTINGS } from '../TestConstants';
 
 describe('Configuration helper tests', () => {
-    
+
     it('should detect a GUID', () => {
         const guid1 = "0D4C9F3E-A8C5-4D4C-B8B0-C8E8E8E8E8E8";
         const guid2 = "81b8a568-2442-4d53-8d6c-ededab4b7c62"
@@ -24,24 +24,33 @@ describe('Configuration helper tests', () => {
     });
 
     it('should get resource name from a given list of scopes', () => {
-        const appSettings: AppSettings = TEST_APP_SETTINGS;
-        const scopes = TEST_APP_SETTINGS.protectedResources.armAPI.scopes;
-        const resourceName = ConfigHelper.getResourceNameFromScopes(scopes, appSettings);
-        expect(resourceName).toEqual(Object.keys(TEST_APP_SETTINGS.protectedResources)[1]);
+        const appSettings: WebAppSettings = TEST_APP_SETTINGS;
+
+        const myTenantScopes = TEST_APP_SETTINGS.protectedResources.myTenat.scopes;
+        const resourceName1 = ConfigHelper.getResourceNameFromScopes(myTenantScopes, appSettings);
+        expect(resourceName1).toEqual(Object.keys(TEST_APP_SETTINGS.protectedResources)[1]);
+
+        const myTeamsScopes = TEST_APP_SETTINGS.protectedResources.myTeams.scopes;
+        const resourceName2 = ConfigHelper.getResourceNameFromScopes(myTeamsScopes, appSettings);
+        expect(resourceName2).toEqual(Object.keys(TEST_APP_SETTINGS.protectedResources)[2]);
+
+        const myEventscopes = TEST_APP_SETTINGS.protectedResources.myEvents.scopes;
+        const resourceName3 = ConfigHelper.getResourceNameFromScopes(myEventscopes, appSettings);
+        expect(resourceName3).toEqual(Object.keys(TEST_APP_SETTINGS.protectedResources)[3]);
     });
 
     it('should get scopes from a given endpoint in the settings file', () => {
-        const appSettings: AppSettings = TEST_APP_SETTINGS;
-        const endpoint = TEST_APP_SETTINGS.protectedResources.armAPI.endpoint;
+        const appSettings: WebAppSettings = TEST_APP_SETTINGS;
+        const endpoint = TEST_APP_SETTINGS.protectedResources.myTenat.endpoint;
         const scopes = ConfigHelper.getScopesFromResourceEndpoint(endpoint, appSettings);
-        expect(scopes).toEqual(TEST_APP_SETTINGS.protectedResources.armAPI.scopes);
+        expect(scopes).toEqual(TEST_APP_SETTINGS.protectedResources.myTenat.scopes);
     });
 
     it('should get effective scopes from a given list of scopes', () => {
-        const scopes = "email openid profile User.Read calendars.read".split(" ");
+        const scopes = "email openid profile offline_access User.Read calendars.read".split(" ");
         const effectiveScopes = ConfigHelper.getEffectiveScopes(scopes);
         expect(effectiveScopes).toEqual(["User.Read", "calendars.read"]);
         expect(["User.Read", "calendars.read"].every(elem => effectiveScopes.includes(elem))).toBe(true);
     });
-    
+
 })

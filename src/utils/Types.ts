@@ -3,72 +3,63 @@
  * Licensed under the MIT License.
  */
 
-import {
-    AccountInfo,
-    AuthorizationUrlRequest,
-    AuthorizationCodeRequest,
-} from "@azure/msal-node";
+import { AccountInfo, AuthorizationUrlRequest, AuthorizationCodeRequest, SilentFlowRequest } from '@azure/msal-node';
 
-import { TokenClaims } from "@azure/msal-common";
+import { TokenClaims } from '@azure/msal-common';
 
-import { Resource } from "../config/AppSettings";
+import { Resource } from '../config/AppSettings';
+import { AppStages } from './Constants';
 
 // extending express session
-declare module "express-session" {
+declare module 'express-session' {
     interface SessionData {
         id: string;
         key: string;
-        nonce: string;
+        csrfToken: string;
         isAuthenticated: boolean;
         hasAccess: boolean;
         account: AccountInfo;
-        authCodeRequest: AuthorizationUrlRequest;
-        tokenRequest: AuthorizationCodeRequest;
-        protectedResources?: {
-            [resource: string]: Resource;
-        };
+        authorizationUrlRequest: AuthorizationUrlRequest;
+        authorizationCodeRequest: AuthorizationCodeRequest;
+        silentFlowRequest: SilentFlowRequest;
+        protectedResources?: Record<string, Resource>
     }
-};
+}
 
 // extending express request
-declare module "express" {
+declare module 'express' {
     export interface Request {
         authInfo?: object;
         oboToken?: string;
         oboAssertion?: string;
     }
-};
+}
 
-// prepare auth code and token requests
-export type AuthCodeParams = {
-    authority: string;
-    scopes: string[];
-    state: string;
-    redirect: string;
-    prompt?: string;
-    account?: AccountInfo;
+export type AppState = {
+    appStage: AppStages;
+    csrfToken: string;
+    redirectTo: string;
 };
-
 
 // prepare IdToken payload
 export type IdTokenClaims = TokenClaims & {
-    aud?: string,
-    roles?: string[],
-    groups?: string[],
-    _claim_names?: string[],
-    _claim_sources?: string[],
-    xms_cc?: string,
-    acrs?: string[],
+    aud?: string;
+    roles?: string[];
+    groups?: string[];
+    _claim_names?: string[];
+    _claim_sources?: string[];
+    xms_cc?: string;
+    acrs?: string[];
 };
 
 // prepare AccessToken payload
 export type AccessTokenClaims = TokenClaims & {
-    scp?: string,
-    aud?: string,
-    roles?: string[],
-    groups?: string[],
-    _claim_names?: string[],
-    _claim_sources?: string[],
-    xms_cc?: string,
-    acrs?: string[],
+    scp: string;
+    aud?: string;
+    roles?: string[];
+    groups?: string[];
+    _claim_names?: string[];
+    _claim_sources?: string[];
+    xms_cc?: string;
+    acrs?: string[];
 };

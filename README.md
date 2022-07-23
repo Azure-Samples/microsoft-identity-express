@@ -1,6 +1,7 @@
 # microsoft-identity-express (beta)
 
-[![Node.js CI](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/node.js.yml/badge.svg)](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/node.js.yml)
+[![Build](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/build-test.yml/badge.svg)](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/build-test.yml)
+[![E2E](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/e2e-test.yml/badge.svg)](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/e2e-test.yml)
 [![Code Scanning](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/codeql.yml/badge.svg)](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/codeql.yml)
 [![Typedoc](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/typedoc.yml/badge.svg)](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/typedoc.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -18,15 +19,15 @@ This is an open source project. [Suggestions](https://github.com/Azure-Samples/m
 * Simple API for authN/authZ with the [Microsoft identity platform](https://docs.microsoft.com/azure/active-directory/develop/v2-overview)
 * Fetch credentials from [Azure Key Vault](https://docs.microsoft.com/azure/key-vault/general/basic-concepts)
 * Handle role-based access with Azure AD [App Roles](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps) and [Security Groups](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-groups-create-azure-portal)
-* (coming soon) Enable [Conditional Access](https://docs.microsoft.com/azure/active-directory/develop/v2-conditional-access-dev-guide) and [Zero-Trust](https://docs.microsoft.com/azure/active-directory/develop/developer-guide-conditional-access-authentication-context)
+* (coming soon) Handle [Conditional Access](https://docs.microsoft.com/azure/active-directory/develop/v2-conditional-access-dev-guide) and [CAE](https://docs.microsoft.com/azure/active-directory/conditional-access/concept-continuous-access-evaluation)
 * (coming soon) Run custom policies with [Azure AD B2C](https://docs.microsoft.com/azure/active-directory-b2c/overview)
 
 > :warning: Protected web API scenarios are currently not supported.
 
 ## Prerequisites
 
-* [Node](https://nodejs.org/en/) 12 LTS or higher
-* [Express.js](https://expressjs.com/) 4x or higher
+* [Node](https://nodejs.org/en/) 14 LTS or higher
+* [Express.js](https://expressjs.com/) 4.x or higher
 * [@azure/msal-node](https://www.npmjs.com/package/@azure/msal-node)
 * [express-session](https://www.npmjs.com/package/express-session) (or a similar session solution)
 
@@ -51,8 +52,6 @@ or download and extract the repository *.zip* file.
 
 ## Getting started
 
-Check out the [demo app](./demo/README.md). Read below for how to configure it.
-
 ### Configuration
 
 1. Initialize the wrapper in your app by providing a settings object. The object looks like the follows:
@@ -66,7 +65,6 @@ const appSettings = {
     },
     authRoutes: {
         redirect: "/redirect", // redirect path or the full URI configured on Azure AD
-        error: "/error", // errors will be redirected to this route
         unauthorized: "/unauthorized" // unauthorized access attempts will be redirected to this route
         frontChannelLogout: "/sso_logout" // front-channel logout path or the full URI configured on Azure AD
     },
@@ -159,12 +157,6 @@ module.exports = (msid) => {
         res.render('home', { isAuthenticated: req.session.isAuthenticated });
     });
 
-    // unauthorized
-    router.get('/error', (req, res) => res.redirect('/401.html'));
-
-    // error
-    router.get('/unauthorized', (req, res) => res.redirect('/500.html'));
-
     // auth routes
     router.get('/signin',
         msid.signIn({
@@ -177,6 +169,9 @@ module.exports = (msid) => {
             postLogoutRedirect: "/",
         }),
     );
+
+    // unauthorized
+    router.get('/unauthorized', (req, res) => res.redirect('/401.html'));
 
     router.get('*', (req, res) => res.redirect('/404.html'));
 
@@ -191,10 +186,7 @@ Simply add the [isAuthenticated()](https://azure-samples.github.io/microsoft-ide
 ```javascript
 // secure routes
 app.get('/id', 
-    msid.isAuthenticated({
-            unauthorizedRedirect: "/sign-in"
-        }
-    ), // checks if authenticated via session
+    msid.isAuthenticated(), // checks if authenticated via session
     (req, res, next) => {
         res.render('id', { isAuthenticated: req.session.isAuthenticated, claims: req.session.account.idTokenClaims });
     }

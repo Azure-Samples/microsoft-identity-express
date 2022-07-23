@@ -3,9 +3,7 @@
  * Licensed under the MIT License.
  */
 
-import {
-    AppServiceEnvironmentVariables,
-} from "./Constants";
+import { AppServiceEnvironmentVariables } from './Constants';
 
 export class EnvironmentUtils {
     static isProduction(): boolean {
@@ -17,6 +15,6 @@ export class EnvironmentUtils {
     }
 
     static isAppServiceAuthEnabled(): boolean {
-        return process.env[AppServiceEnvironmentVariables.WEBSITE_AUTH_ENABLED] === "True";
+        return process.env[AppServiceEnvironmentVariables.WEBSITE_AUTH_ENABLED] === 'True';
     }
 }
