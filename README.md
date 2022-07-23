@@ -19,15 +19,15 @@ This is an open source project. [Suggestions](https://github.com/Azure-Samples/m
 * Simple API for authN/authZ with the [Microsoft identity platform](https://docs.microsoft.com/azure/active-directory/develop/v2-overview)
 * Fetch credentials from [Azure Key Vault](https://docs.microsoft.com/azure/key-vault/general/basic-concepts)
 * Handle role-based access with Azure AD [App Roles](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps) and [Security Groups](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-groups-create-azure-portal)
-* (coming soon) Enable [Conditional Access](https://docs.microsoft.com/azure/active-directory/develop/v2-conditional-access-dev-guide) and [Zero-Trust](https://docs.microsoft.com/azure/active-directory/develop/developer-guide-conditional-access-authentication-context)
+* (coming soon) Handle [Conditional Access](https://docs.microsoft.com/azure/active-directory/develop/v2-conditional-access-dev-guide) and [CAE](https://docs.microsoft.com/azure/active-directory/conditional-access/concept-continuous-access-evaluation)
 * (coming soon) Run custom policies with [Azure AD B2C](https://docs.microsoft.com/azure/active-directory-b2c/overview)
 
 > :warning: Protected web API scenarios are currently not supported.
 
 ## Prerequisites
 
-* [Node](https://nodejs.org/en/) 12 LTS or higher
-* [Express.js](https://expressjs.com/) 4x or higher
+* [Node](https://nodejs.org/en/) 14 LTS or higher
+* [Express.js](https://expressjs.com/) 4.x or higher
 * [@azure/msal-node](https://www.npmjs.com/package/@azure/msal-node)
 * [express-session](https://www.npmjs.com/package/express-session) (or a similar session solution)
 
