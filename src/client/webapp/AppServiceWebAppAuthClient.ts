@@ -5,8 +5,9 @@
 
 import express, { Router, RequestHandler, Request, Response, NextFunction } from 'express';
 import { AccountInfo, AuthToken } from '@azure/msal-common';
-import { BaseAuthClient } from '../BaseAuthClient';
 import { Configuration } from '@azure/msal-node';
+
+import { BaseAuthClient } from '../BaseAuthClient';
 import { AccessTokenClaims, IdTokenClaims } from '../../utils/Types';
 import { AppSettings, Resource, WebAppSettings } from '../../config/AppSettings';
 import { ConfigHelper } from '../../config/ConfigHelper';
