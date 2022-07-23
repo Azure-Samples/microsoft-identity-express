@@ -4,13 +4,11 @@
  */
 
 import { Logger } from '@azure/msal-common';
-
 import { ConfidentialClientApplication, Configuration, CryptoProvider } from '@azure/msal-node';
 
 import { AppSettings } from '../config/AppSettings';
-
-import { packageName, packageVersion } from '../packageMetadata';
 import { CryptoUtils } from '../utils/CryptoUtils';
+import { packageName, packageVersion } from '../packageMetadata';
 
 export abstract class BaseAuthClient {
     appSettings: AppSettings;

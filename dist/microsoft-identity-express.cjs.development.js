@@ -1158,13 +1158,6 @@ var BaseAuthClientBuilder = /*#__PURE__*/function () {
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
-var packageName = '@azure-samples/microsoft-identity-express';
-var packageVersion = 'beta';
-
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License.
- */
 var CryptoUtils = /*#__PURE__*/function () {
   function CryptoUtils(algorithm) {
     if (algorithm === void 0) {
@@ -1202,6 +1195,13 @@ var CryptoUtils = /*#__PURE__*/function () {
 
   return CryptoUtils;
 }();
+
+/*
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ */
+var packageName = '@azure-samples/microsoft-identity-express';
+var packageVersion = 'beta';
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -1548,20 +1548,74 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
       };
     }
 
-    return function (req, res) {
-      var postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.postLogoutRedirect);
-      /**
-       * Construct a logout URI and redirect the user to end the
-       * session with Azure AD/B2C. For more information, visit:
-       * (AAD) https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request
-       * (B2C) https://docs.microsoft.com/azure/active-directory-b2c/openid-connect#send-a-sign-out-request
-       */
+    return /*#__PURE__*/function () {
+      var _ref = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(req, res) {
+        var _req$session$account, _req$session$account2;
 
-      var logoutUri = _this4.msalConfig.auth.authority + "/oauth2/v2.0/logout?post_logout_redirect_uri=" + postLogoutRedirectUri;
-      req.session.destroy(function () {
-        res.redirect(logoutUri);
-      });
-    };
+        var postLogoutRedirectUri, logoutUri, tokenCache, account;
+        return runtime_1.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.postLogoutRedirect);
+                /**
+                 * Construct a logout URI and redirect the user to end the
+                 * session with Azure AD/B2C. For more information, visit:
+                 * (AAD) https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request
+                 * (B2C) https://docs.microsoft.com/azure/active-directory-b2c/openid-connect#send-a-sign-out-request
+                 */
+
+                logoutUri = _this4.msalConfig.auth.authority + "/oauth2/v2.0/logout?post_logout_redirect_uri=" + postLogoutRedirectUri;
+                tokenCache = _this4.msalClient.getTokenCache();
+
+                if (!((_req$session$account = req.session.account) != null && _req$session$account.homeAccountId)) {
+                  _context.next = 9;
+                  break;
+                }
+
+                _context.next = 6;
+                return tokenCache.getAccountByHomeId(req.session.account.homeAccountId);
+
+              case 6:
+                _context.t0 = _context.sent;
+                _context.next = 12;
+                break;
+
+              case 9:
+                _context.next = 11;
+                return tokenCache.getAccountByLocalId((_req$session$account2 = req.session.account) == null ? void 0 : _req$session$account2.localAccountId);
+
+              case 11:
+                _context.t0 = _context.sent;
+
+              case 12:
+                account = _context.t0;
+
+                if (!account) {
+                  _context.next = 16;
+                  break;
+                }
+
+                _context.next = 16;
+                return tokenCache.removeAccount(account);
+
+              case 16:
+                req.session.destroy(function () {
+                  res.redirect(logoutUri);
+                });
+
+              case 17:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee);
+      }));
+
+      return function (_x, _x2) {
+        return _ref.apply(this, arguments);
+      };
+    }();
   }
   /**
    * Middleware that handles redirect depending on request state
@@ -1574,129 +1628,129 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
     var _this5 = this;
 
     return /*#__PURE__*/function () {
-      var _ref = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(req, res, next) {
+      var _ref2 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(req, res, next) {
         var state, tokenResponse, resourceName, _req$session$protecte, _tokenResponse;
 
-        return runtime_1.wrap(function _callee$(_context) {
+        return runtime_1.wrap(function _callee2$(_context2) {
           while (1) {
-            switch (_context.prev = _context.next) {
+            switch (_context2.prev = _context2.next) {
               case 0:
                 if (req.session.key) {
-                  _context.next = 3;
+                  _context2.next = 3;
                   break;
                 }
 
                 _this5.logger.error(ErrorMessages.SESSION_KEY_NOT_FOUND);
 
-                return _context.abrupt("return", next(new Error(ErrorMessages.SESSION_KEY_NOT_FOUND)));
+                return _context2.abrupt("return", next(new Error(ErrorMessages.SESSION_KEY_NOT_FOUND)));
 
               case 3:
                 if (req.session.authorizationCodeRequest) {
-                  _context.next = 6;
+                  _context2.next = 6;
                   break;
                 }
 
                 _this5.logger.error(ErrorMessages.AUTH_CODE_REQUEST_OBJECT_NOT_FOUND);
 
-                return _context.abrupt("return", next(new Error(ErrorMessages.AUTH_CODE_REQUEST_OBJECT_NOT_FOUND)));
+                return _context2.abrupt("return", next(new Error(ErrorMessages.AUTH_CODE_REQUEST_OBJECT_NOT_FOUND)));
 
               case 6:
                 if (!req.body.state) {
-                  _context.next = 51;
+                  _context2.next = 51;
                   break;
                 }
 
                 state = JSON.parse(_this5.cryptoUtils.decryptData(_this5.cryptoProvider.base64Decode(req.body.state), Buffer.from(req.session.key, 'hex'))); // check if csrfToken matches
 
                 if (!(state.csrfToken === req.session.csrfToken)) {
-                  _context.next = 48;
+                  _context2.next = 48;
                   break;
                 }
 
-                _context.t0 = state.appStage;
-                _context.next = _context.t0 === AppStages.SIGN_IN ? 12 : _context.t0 === AppStages.ACQUIRE_TOKEN ? 28 : 44;
+                _context2.t0 = state.appStage;
+                _context2.next = _context2.t0 === AppStages.SIGN_IN ? 12 : _context2.t0 === AppStages.ACQUIRE_TOKEN ? 28 : 44;
                 break;
 
               case 12:
                 // token request should have auth code
                 req.session.authorizationCodeRequest.code = req.body.code;
-                _context.prev = 13;
-                _context.next = 16;
+                _context2.prev = 13;
+                _context2.next = 16;
                 return _this5.msalClient.acquireTokenByCode(req.session.authorizationCodeRequest);
 
               case 16:
-                tokenResponse = _context.sent;
+                tokenResponse = _context2.sent;
 
                 if (tokenResponse) {
-                  _context.next = 19;
+                  _context2.next = 19;
                   break;
                 }
 
-                return _context.abrupt("return", res.redirect(_this5.webAppSettings.authRoutes.unauthorized));
+                return _context2.abrupt("return", res.redirect(_this5.webAppSettings.authRoutes.unauthorized));
 
               case 19:
                 req.session.isAuthenticated = true;
                 req.session.account = tokenResponse.account; // this won't be null in any web app scenario
 
                 res.redirect(state.redirectTo);
-                _context.next = 27;
+                _context2.next = 27;
                 break;
 
               case 24:
-                _context.prev = 24;
-                _context.t1 = _context["catch"](13);
-                next(_context.t1);
+                _context2.prev = 24;
+                _context2.t1 = _context2["catch"](13);
+                next(_context2.t1);
 
               case 27:
-                return _context.abrupt("break", 46);
+                return _context2.abrupt("break", 46);
 
               case 28:
                 // get the name of the resource associated with scope
                 resourceName = ConfigHelper.getResourceNameFromScopes(req.session.authorizationCodeRequest.scopes, _this5.webAppSettings);
                 req.session.authorizationCodeRequest.code = req.body.code;
-                _context.prev = 30;
-                _context.next = 33;
+                _context2.prev = 30;
+                _context2.next = 33;
                 return _this5.msalClient.acquireTokenByCode(req.session.authorizationCodeRequest);
 
               case 33:
-                _tokenResponse = _context.sent;
+                _tokenResponse = _context2.sent;
 
                 if (_tokenResponse) {
-                  _context.next = 36;
+                  _context2.next = 36;
                   break;
                 }
 
-                return _context.abrupt("return", res.redirect(_this5.webAppSettings.authRoutes.unauthorized));
+                return _context2.abrupt("return", res.redirect(_this5.webAppSettings.authRoutes.unauthorized));
 
               case 36:
                 req.session.protectedResources = (_req$session$protecte = {}, _req$session$protecte[resourceName] = {
                   accessToken: _tokenResponse.accessToken
                 }, _req$session$protecte);
                 res.redirect(state.redirectTo);
-                _context.next = 43;
+                _context2.next = 43;
                 break;
 
               case 40:
-                _context.prev = 40;
-                _context.t2 = _context["catch"](30);
-                next(_context.t2);
+                _context2.prev = 40;
+                _context2.t2 = _context2["catch"](30);
+                next(_context2.t2);
 
               case 43:
-                return _context.abrupt("break", 46);
+                return _context2.abrupt("break", 46);
 
               case 44:
                 next(new Error(ErrorMessages.CANNOT_DETERMINE_APP_STAGE));
-                return _context.abrupt("break", 46);
+                return _context2.abrupt("break", 46);
 
               case 46:
-                _context.next = 49;
+                _context2.next = 49;
                 break;
 
               case 48:
                 res.redirect(_this5.webAppSettings.authRoutes.unauthorized);
 
               case 49:
-                _context.next = 52;
+                _context2.next = 52;
                 break;
 
               case 51:
@@ -1704,14 +1758,14 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
 
               case 52:
               case "end":
-                return _context.stop();
+                return _context2.stop();
             }
           }
-        }, _callee, null, [[13, 24], [30, 40]]);
+        }, _callee2, null, [[13, 24], [30, 40]]);
       }));
 
-      return function (_x, _x2, _x3) {
-        return _ref.apply(this, arguments);
+      return function (_x3, _x4, _x5) {
+        return _ref2.apply(this, arguments);
       };
     }();
   }
@@ -1726,22 +1780,22 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
     var _this6 = this;
 
     return /*#__PURE__*/function () {
-      var _ref2 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(req, res, next) {
+      var _ref3 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee3(req, res, next) {
         var _req$session$protecte2;
 
         var scopes, resourceName, silentRequest, tokenResponse, appState, authUrlParams, authCodeParams;
-        return runtime_1.wrap(function _callee2$(_context2) {
+        return runtime_1.wrap(function _callee3$(_context3) {
           while (1) {
-            switch (_context2.prev = _context2.next) {
+            switch (_context3.prev = _context3.next) {
               case 0:
                 if (_this6.webAppSettings.protectedResources) {
-                  _context2.next = 3;
+                  _context3.next = 3;
                   break;
                 }
 
                 _this6.logger.error(ConfigurationErrorMessages.NO_PROTECTED_RESOURCE_CONFIGURED);
 
-                return _context2.abrupt("return", next(new Error(ConfigurationErrorMessages.NO_PROTECTED_RESOURCE_CONFIGURED)));
+                return _context3.abrupt("return", next(new Error(ConfigurationErrorMessages.NO_PROTECTED_RESOURCE_CONFIGURED)));
 
               case 3:
                 // get scopes for token request
@@ -1750,20 +1804,20 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
                 req.session.protectedResources = (_req$session$protecte2 = {}, _req$session$protecte2[resourceName] = _extends({}, _this6.webAppSettings.protectedResources[resourceName], {
                   accessToken: undefined
                 }), _req$session$protecte2);
-                _context2.prev = 6;
+                _context3.prev = 6;
                 silentRequest = {
                   account: req.session.account,
                   scopes: scopes
                 }; // acquire token silently to be used in resource call
 
-                _context2.next = 10;
+                _context3.next = 10;
                 return _this6.msalClient.acquireTokenSilent(silentRequest);
 
               case 10:
-                tokenResponse = _context2.sent;
+                tokenResponse = _context3.sent;
 
                 if (!(!tokenResponse || msalCommon.StringUtils.isEmpty(tokenResponse.accessToken))) {
-                  _context2.next = 13;
+                  _context3.next = 13;
                   break;
                 }
 
@@ -1772,15 +1826,15 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
               case 13:
                 req.session.protectedResources[resourceName].accessToken = tokenResponse.accessToken;
                 next();
-                _context2.next = 27;
+                _context3.next = 27;
                 break;
 
               case 17:
-                _context2.prev = 17;
-                _context2.t0 = _context2["catch"](6);
+                _context3.prev = 17;
+                _context3.t0 = _context3["catch"](6);
 
-                if (!(_context2.t0 instanceof msalCommon.InteractionRequiredAuthError)) {
-                  _context2.next = 26;
+                if (!(_context3.t0 instanceof msalCommon.InteractionRequiredAuthError || _context3.t0 instanceof msalCommon.ClientAuthError)) {
+                  _context3.next = 26;
                   break;
                 }
 
@@ -1795,21 +1849,21 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
                   scopes: scopes
                 }; // initiate the first leg of auth code grant to get token
 
-                return _context2.abrupt("return", _this6.redirectToAuthCodeUrl(req, res, next, authUrlParams, authCodeParams, appState));
+                return _context3.abrupt("return", _this6.redirectToAuthCodeUrl(req, res, next, authUrlParams, authCodeParams, appState));
 
               case 26:
-                next(_context2.t0);
+                next(_context3.t0);
 
               case 27:
               case "end":
-                return _context2.stop();
+                return _context3.stop();
             }
           }
-        }, _callee2, null, [[6, 17]]);
+        }, _callee3, null, [[6, 17]]);
       }));
 
-      return function (_x4, _x5, _x6) {
-        return _ref2.apply(this, arguments);
+      return function (_x6, _x7, _x8) {
+        return _ref3.apply(this, arguments);
       };
     }();
   }
@@ -1841,112 +1895,112 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
     var _this8 = this;
 
     return /*#__PURE__*/function () {
-      var _ref3 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee3(req, res, next) {
-        var _req$session$account;
+      var _ref4 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee4(req, res, next) {
+        var _req$session$account3;
 
         var checkFor, groups, roles;
-        return runtime_1.wrap(function _callee3$(_context3) {
+        return runtime_1.wrap(function _callee4$(_context4) {
           while (1) {
-            switch (_context3.prev = _context3.next) {
+            switch (_context4.prev = _context4.next) {
               case 0:
                 if (_this8.webAppSettings.accessMatrix) {
-                  _context3.next = 3;
+                  _context4.next = 3;
                   break;
                 }
 
                 _this8.logger.error(ConfigurationErrorMessages.NO_ACCESS_MATRIX_CONFIGURED);
 
-                return _context3.abrupt("return", next(new Error(ConfigurationErrorMessages.NO_ACCESS_MATRIX_CONFIGURED)));
+                return _context4.abrupt("return", next(new Error(ConfigurationErrorMessages.NO_ACCESS_MATRIX_CONFIGURED)));
 
               case 3:
-                if ((_req$session$account = req.session.account) != null && _req$session$account.idTokenClaims) {
-                  _context3.next = 6;
+                if ((_req$session$account3 = req.session.account) != null && _req$session$account3.idTokenClaims) {
+                  _context4.next = 6;
                   break;
                 }
 
                 _this8.logger.error(ErrorMessages.ID_TOKEN_CLAIMS_NOT_FOUND);
 
-                return _context3.abrupt("return", next(new Error(ErrorMessages.ID_TOKEN_CLAIMS_NOT_FOUND)));
+                return _context4.abrupt("return", next(new Error(ErrorMessages.ID_TOKEN_CLAIMS_NOT_FOUND)));
 
               case 6:
                 checkFor = options.accessRule.hasOwnProperty(AccessControlConstants.GROUPS) ? AccessControlConstants.GROUPS : AccessControlConstants.ROLES;
-                _context3.t0 = checkFor;
-                _context3.next = _context3.t0 === AccessControlConstants.GROUPS ? 10 : _context3.t0 === AccessControlConstants.ROLES ? 25 : 34;
+                _context4.t0 = checkFor;
+                _context4.next = _context4.t0 === AccessControlConstants.GROUPS ? 10 : _context4.t0 === AccessControlConstants.ROLES ? 25 : 34;
                 break;
 
               case 10:
                 if (req.session.account.idTokenClaims[AccessControlConstants.GROUPS]) {
-                  _context3.next = 20;
+                  _context4.next = 20;
                   break;
                 }
 
                 if (!(req.session.account.idTokenClaims[AccessControlConstants.CLAIM_NAMES] || req.session.account.idTokenClaims[AccessControlConstants.CLAIM_SOURCES])) {
-                  _context3.next = 17;
+                  _context4.next = 17;
                   break;
                 }
 
-                _context3.next = 14;
+                _context4.next = 14;
                 return _this8.handleOverage(req, res, next, options.accessRule);
 
               case 14:
-                return _context3.abrupt("return", _context3.sent);
+                return _context4.abrupt("return", _context4.sent);
 
               case 17:
-                return _context3.abrupt("return", res.redirect(_this8.webAppSettings.authRoutes.unauthorized));
+                return _context4.abrupt("return", res.redirect(_this8.webAppSettings.authRoutes.unauthorized));
 
               case 18:
-                _context3.next = 23;
+                _context4.next = 23;
                 break;
 
               case 20:
                 groups = req.session.account.idTokenClaims[AccessControlConstants.GROUPS];
 
                 if (_this8.checkAccessRule(req.method, options.accessRule, groups, AccessControlConstants.GROUPS)) {
-                  _context3.next = 23;
+                  _context4.next = 23;
                   break;
                 }
 
-                return _context3.abrupt("return", res.redirect(_this8.webAppSettings.authRoutes.unauthorized));
+                return _context4.abrupt("return", res.redirect(_this8.webAppSettings.authRoutes.unauthorized));
 
               case 23:
                 next();
-                return _context3.abrupt("break", 35);
+                return _context4.abrupt("break", 35);
 
               case 25:
                 if (req.session.account.idTokenClaims[AccessControlConstants.ROLES]) {
-                  _context3.next = 29;
+                  _context4.next = 29;
                   break;
                 }
 
-                return _context3.abrupt("return", res.redirect(_this8.webAppSettings.authRoutes.unauthorized));
+                return _context4.abrupt("return", res.redirect(_this8.webAppSettings.authRoutes.unauthorized));
 
               case 29:
                 roles = req.session.account.idTokenClaims[AccessControlConstants.ROLES];
 
                 if (_this8.checkAccessRule(req.method, options.accessRule, roles, AccessControlConstants.ROLES)) {
-                  _context3.next = 32;
+                  _context4.next = 32;
                   break;
                 }
 
-                return _context3.abrupt("return", res.redirect(_this8.webAppSettings.authRoutes.unauthorized));
+                return _context4.abrupt("return", res.redirect(_this8.webAppSettings.authRoutes.unauthorized));
 
               case 32:
                 next();
-                return _context3.abrupt("break", 35);
+                return _context4.abrupt("break", 35);
 
               case 34:
-                return _context3.abrupt("break", 35);
+                return _context4.abrupt("break", 35);
 
               case 35:
               case "end":
-                return _context3.stop();
+                return _context4.stop();
             }
           }
-        }, _callee3);
+        }, _callee4);
       }));
 
-      return function (_x7, _x8, _x9) {
-        return _ref3.apply(this, arguments);
+      return function (_x9, _x10, _x11) {
+        return _ref4.apply(this, arguments);
       };
     }();
   } // ============== UTILS ===============
@@ -1964,11 +2018,11 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
   _proto.redirectToAuthCodeUrl =
   /*#__PURE__*/
   function () {
-    var _redirectToAuthCodeUrl = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee4(req, res, next, authUrlParams, authCodeParams, appState) {
+    var _redirectToAuthCodeUrl = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee5(req, res, next, authUrlParams, authCodeParams, appState) {
       var key, state, response;
-      return runtime_1.wrap(function _callee4$(_context4) {
+      return runtime_1.wrap(function _callee5$(_context5) {
         while (1) {
-          switch (_context4.prev = _context4.next) {
+          switch (_context5.prev = _context5.next) {
             case 0:
               // add session csrfToken for crsf
               req.session.csrfToken = this.cryptoProvider.createNewGuid();
@@ -1988,30 +2042,30 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
                 code: ''
               }); // request an authorization code to exchange for tokens
 
-              _context4.prev = 6;
-              _context4.next = 9;
+              _context5.prev = 6;
+              _context5.next = 9;
               return this.msalClient.getAuthCodeUrl(req.session.authorizationUrlRequest);
 
             case 9:
-              response = _context4.sent;
+              response = _context5.sent;
               res.redirect(response);
-              _context4.next = 16;
+              _context5.next = 16;
               break;
 
             case 13:
-              _context4.prev = 13;
-              _context4.t0 = _context4["catch"](6);
-              next(_context4.t0);
+              _context5.prev = 13;
+              _context5.t0 = _context5["catch"](6);
+              next(_context5.t0);
 
             case 16:
             case "end":
-              return _context4.stop();
+              return _context5.stop();
           }
         }
-      }, _callee4, this, [[6, 13]]);
+      }, _callee5, this, [[6, 13]]);
     }));
 
-    function redirectToAuthCodeUrl(_x10, _x11, _x12, _x13, _x14, _x15) {
+    function redirectToAuthCodeUrl(_x12, _x13, _x14, _x15, _x16, _x17) {
       return _redirectToAuthCodeUrl.apply(this, arguments);
     }
 
@@ -2030,22 +2084,22 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
   _proto.handleOverage =
   /*#__PURE__*/
   function () {
-    var _handleOverage = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee5(req, res, next, rule) {
-      var _req$session$account2;
+    var _handleOverage = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee6(req, res, next, rule) {
+      var _req$session$account4;
 
       var _req$session$account$, newIdTokenClaims, silentRequest, tokenResponse, graphResponse, userGroups;
 
-      return runtime_1.wrap(function _callee5$(_context5) {
+      return runtime_1.wrap(function _callee6$(_context6) {
         while (1) {
-          switch (_context5.prev = _context5.next) {
+          switch (_context6.prev = _context6.next) {
             case 0:
-              if ((_req$session$account2 = req.session.account) != null && _req$session$account2.idTokenClaims) {
-                _context5.next = 3;
+              if ((_req$session$account4 = req.session.account) != null && _req$session$account4.idTokenClaims) {
+                _context6.next = 3;
                 break;
               }
 
               this.logger.error(ErrorMessages.ID_TOKEN_CLAIMS_NOT_FOUND);
-              return _context5.abrupt("return", next(new Error(ErrorMessages.ID_TOKEN_CLAIMS_NOT_FOUND)));
+              return _context6.abrupt("return", next(new Error(ErrorMessages.ID_TOKEN_CLAIMS_NOT_FOUND)));
 
             case 3:
               _req$session$account$ = req.session.account.idTokenClaims, newIdTokenClaims = _objectWithoutPropertiesLoose(_req$session$account$, _excluded);
@@ -2053,64 +2107,64 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
                 account: req.session.account,
                 scopes: AccessControlConstants.GRAPH_MEMBER_SCOPES.split(' ')
               };
-              _context5.prev = 5;
-              _context5.next = 8;
+              _context6.prev = 5;
+              _context6.next = 8;
               return this.msalClient.acquireTokenSilent(silentRequest);
 
             case 8:
-              tokenResponse = _context5.sent;
+              tokenResponse = _context6.sent;
 
               if (tokenResponse) {
-                _context5.next = 11;
+                _context6.next = 11;
                 break;
               }
 
-              return _context5.abrupt("return", res.redirect(this.webAppSettings.authRoutes.unauthorized));
+              return _context6.abrupt("return", res.redirect(this.webAppSettings.authRoutes.unauthorized));
 
             case 11:
-              _context5.prev = 11;
-              _context5.next = 14;
+              _context6.prev = 11;
+              _context6.next = 14;
               return FetchManager.callApiEndpointWithToken(AccessControlConstants.GRAPH_MEMBERS_ENDPOINT, tokenResponse.accessToken);
 
             case 14:
-              graphResponse = _context5.sent;
+              graphResponse = _context6.sent;
 
               if (!graphResponse.data[AccessControlConstants.PAGINATION_LINK]) {
-                _context5.next = 33;
+                _context6.next = 33;
                 break;
               }
 
-              _context5.prev = 16;
-              _context5.next = 19;
+              _context6.prev = 16;
+              _context6.next = 19;
               return FetchManager.handlePagination(tokenResponse.accessToken, graphResponse.data[AccessControlConstants.PAGINATION_LINK]);
 
             case 19:
-              userGroups = _context5.sent;
+              userGroups = _context6.sent;
               req.session.account.idTokenClaims = _extends({}, newIdTokenClaims, {
                 groups: userGroups
               });
 
               if (this.checkAccessRule(req.method, rule, req.session.account.idTokenClaims[AccessControlConstants.GROUPS], AccessControlConstants.GROUPS)) {
-                _context5.next = 25;
+                _context6.next = 25;
                 break;
               }
 
-              return _context5.abrupt("return", res.redirect(this.webAppSettings.authRoutes.unauthorized));
+              return _context6.abrupt("return", res.redirect(this.webAppSettings.authRoutes.unauthorized));
 
             case 25:
-              return _context5.abrupt("return", next());
+              return _context6.abrupt("return", next());
 
             case 26:
-              _context5.next = 31;
+              _context6.next = 31;
               break;
 
             case 28:
-              _context5.prev = 28;
-              _context5.t0 = _context5["catch"](16);
-              next(_context5.t0);
+              _context6.prev = 28;
+              _context6.t0 = _context6["catch"](16);
+              next(_context6.t0);
 
             case 31:
-              _context5.next = 39;
+              _context6.next = 39;
               break;
 
             case 33:
@@ -2121,43 +2175,43 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
               });
 
               if (this.checkAccessRule(req.method, rule, req.session.account.idTokenClaims[AccessControlConstants.GROUPS], AccessControlConstants.GROUPS)) {
-                _context5.next = 38;
+                _context6.next = 38;
                 break;
               }
 
-              return _context5.abrupt("return", res.redirect(this.webAppSettings.authRoutes.unauthorized));
+              return _context6.abrupt("return", res.redirect(this.webAppSettings.authRoutes.unauthorized));
 
             case 38:
-              return _context5.abrupt("return", next());
+              return _context6.abrupt("return", next());
 
             case 39:
-              _context5.next = 44;
+              _context6.next = 44;
               break;
 
             case 41:
-              _context5.prev = 41;
-              _context5.t1 = _context5["catch"](11);
-              next(_context5.t1);
+              _context6.prev = 41;
+              _context6.t1 = _context6["catch"](11);
+              next(_context6.t1);
 
             case 44:
-              _context5.next = 49;
+              _context6.next = 49;
               break;
 
             case 46:
-              _context5.prev = 46;
-              _context5.t2 = _context5["catch"](5);
+              _context6.prev = 46;
+              _context6.t2 = _context6["catch"](5);
               // TODO: handle silent token acquisition error
-              next(_context5.t2);
+              next(_context6.t2);
 
             case 49:
             case "end":
-              return _context5.stop();
+              return _context6.stop();
           }
         }
-      }, _callee5, this, [[5, 46], [11, 41], [16, 28]]);
+      }, _callee6, this, [[5, 46], [11, 41], [16, 28]]);
     }));
 
-    function handleOverage(_x16, _x17, _x18, _x19) {
+    function handleOverage(_x18, _x19, _x20, _x21) {
       return _handleOverage.apply(this, arguments);
     }
 

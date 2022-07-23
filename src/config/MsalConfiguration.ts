@@ -4,11 +4,9 @@
  */
 
 import { UrlString, Constants } from '@azure/msal-common';
-
 import { Configuration } from '@azure/msal-node';
 
 import { DEFAULT_LOGGER_OPTIONS } from '../utils/Constants';
-
 import { AppSettings } from './AppSettings';
 
 export class MsalConfiguration {

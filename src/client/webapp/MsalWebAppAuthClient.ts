@@ -4,7 +4,7 @@
  */
 
 import express, { RequestHandler, Request, Response, NextFunction, Router } from 'express';
-import { OIDC_DEFAULT_SCOPES, InteractionRequiredAuthError, StringUtils, ResponseMode } from '@azure/msal-common';
+import { OIDC_DEFAULT_SCOPES, InteractionRequiredAuthError, ClientAuthError, StringUtils, ResponseMode } from '@azure/msal-common';
 import { AuthorizationCodeRequest, AuthorizationUrlRequest, Configuration, SilentFlowRequest } from '@azure/msal-node';
 import { Resource, AppSettings, AccessRule, WebAppSettings } from '../../config/AppSettings';
 import { TokenRequestOptions, GuardOptions, SignInOptions, SignOutOptions } from '../MiddlewareOptions';
@@ -108,7 +108,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
             postLogoutRedirect: '/',
         }
     ): RequestHandler {
-        return (req: Request, res: Response): void => {
+        return async (req: Request, res: Response): Promise<void> => {
             const postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.postLogoutRedirect);
 
             /**
@@ -118,6 +118,18 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
              * (B2C) https://docs.microsoft.com/azure/active-directory-b2c/openid-connect#send-a-sign-out-request
              */
             const logoutUri = `${this.msalConfig.auth.authority}/oauth2/v2.0/logout?post_logout_redirect_uri=${postLogoutRedirectUri}`;
+
+            const tokenCache = this.msalClient.getTokenCache();
+
+            const account = req.session.account?.homeAccountId
+                ?
+                await tokenCache.getAccountByHomeId(req.session.account.homeAccountId)
+                :
+                await tokenCache.getAccountByLocalId(req.session.account?.localAccountId!);
+
+            if (account) {
+                await tokenCache.removeAccount(account);
+            }
 
             req.session.destroy(() => {
                 res.redirect(logoutUri);
@@ -259,7 +271,8 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
                 next();
             } catch (error) {
                 // in case there are no cached tokens, initiate an interactive call
-                if (error instanceof InteractionRequiredAuthError) {
+                // FIXME: ClientAuthError used for temporary workaround regarding issue: https://github.com/AzureAD/microsoft-authentication-library-for-js/issues/4878
+                if (error instanceof InteractionRequiredAuthError || error instanceof ClientAuthError) {
                     const appState = {
                         appStage: AppStages.ACQUIRE_TOKEN,
                         redirectTo: req.originalUrl,

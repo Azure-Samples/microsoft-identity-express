@@ -1,6 +1,7 @@
 # microsoft-identity-express (beta)
 
-[![Node.js CI](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/node.js.yml/badge.svg)](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/node.js.yml)
+[![Build](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/build-test.yml/badge.svg)](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/build-test.yml)
+[![E2E](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/e2e-test.yml/badge.svg)](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/e2e-test.yml)
 [![Code Scanning](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/codeql.yml/badge.svg)](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/codeql.yml)
 [![Typedoc](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/typedoc.yml/badge.svg)](https://github.com/Azure-Samples/microsoft-identity-express/actions/workflows/typedoc.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
