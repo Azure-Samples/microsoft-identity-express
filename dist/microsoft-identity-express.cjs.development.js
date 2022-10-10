@@ -1833,7 +1833,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
                 _context3.prev = 17;
                 _context3.t0 = _context3["catch"](6);
 
-                if (!(_context3.t0 instanceof msalCommon.InteractionRequiredAuthError || _context3.t0 instanceof msalCommon.ClientAuthError)) {
+                if (!(_context3.t0 instanceof msalCommon.InteractionRequiredAuthError)) {
                   _context3.next = 26;
                   break;
                 }
