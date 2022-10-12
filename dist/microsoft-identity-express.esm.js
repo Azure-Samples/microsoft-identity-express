@@ -1,4 +1,4 @@
-import { LogLevel, StringUtils, Logger, UrlString, OIDC_DEFAULT_SCOPES, InteractionRequiredAuthError, ClientAuthError, ResponseMode, AuthToken, Constants } from '@azure/msal-common';
+import { LogLevel, StringUtils, Logger, UrlString, OIDC_DEFAULT_SCOPES, InteractionRequiredAuthError, ResponseMode, AuthToken, Constants } from '@azure/msal-common';
 import express from 'express';
 import { CryptoProvider, ConfidentialClientApplication } from '@azure/msal-node';
 import { randomBytes, scryptSync, createCipheriv, createDecipheriv } from 'crypto';
@@ -1827,7 +1827,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
                 _context3.prev = 17;
                 _context3.t0 = _context3["catch"](6);
 
-                if (!(_context3.t0 instanceof InteractionRequiredAuthError || _context3.t0 instanceof ClientAuthError)) {
+                if (!(_context3.t0 instanceof InteractionRequiredAuthError)) {
                   _context3.next = 26;
                   break;
                 }

@@ -65,7 +65,7 @@ const appSettings = {
     },
     authRoutes: {
         redirect: "/redirect", // redirect path or the full URI configured on Azure AD
-        unauthorized: "/unauthorized" // unauthorized access attempts will be redirected to this route
+        unauthorized: "/unauthorized", // unauthorized access attempts will be redirected to this route
         frontChannelLogout: "/sso_logout" // front-channel logout path or the full URI configured on Azure AD
     },
     protectedResources: {
