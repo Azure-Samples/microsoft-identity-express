@@ -4,7 +4,7 @@
  */
 
 import express, { RequestHandler, Request, Response, NextFunction, Router } from 'express';
-import { OIDC_DEFAULT_SCOPES, InteractionRequiredAuthError, ClientAuthError, StringUtils, ResponseMode } from '@azure/msal-common';
+import { OIDC_DEFAULT_SCOPES, InteractionRequiredAuthError, StringUtils, ResponseMode } from '@azure/msal-common';
 import { AuthorizationCodeRequest, AuthorizationUrlRequest, Configuration, SilentFlowRequest } from '@azure/msal-node';
 import { Resource, AppSettings, AccessRule, WebAppSettings } from '../../config/AppSettings';
 import { TokenRequestOptions, GuardOptions, SignInOptions, SignOutOptions } from '../MiddlewareOptions';
@@ -271,8 +271,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
                 next();
             } catch (error) {
                 // in case there are no cached tokens, initiate an interactive call
-                // FIXME: ClientAuthError used for temporary workaround regarding issue: https://github.com/AzureAD/microsoft-authentication-library-for-js/issues/4878
-                if (error instanceof InteractionRequiredAuthError || error instanceof ClientAuthError) {
+                if (error instanceof InteractionRequiredAuthError) {
                     const appState = {
                         appStage: AppStages.ACQUIRE_TOKEN,
                         redirectTo: req.originalUrl,
