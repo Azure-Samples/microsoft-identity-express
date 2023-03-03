@@ -5,7 +5,7 @@
 
 const { default: axios } = require('axios');
 
-callAPI = async(endpoint, accessToken) => {
+const callAPI = async (endpoint, accessToken) => {
 
     if (!accessToken || accessToken === "") {
         throw new Error('No tokens found')
