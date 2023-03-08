@@ -3,11 +3,11 @@
  * Licensed under the MIT License.
  */
 
-import { UrlString, Constants } from '@azure/msal-common';
-import { Configuration } from '@azure/msal-node';
+import { UrlString, Constants } from "@azure/msal-common";
+import { Configuration } from "@azure/msal-node";
 
-import { DEFAULT_LOGGER_OPTIONS } from '../utils/Constants';
-import { AppSettings } from './AppSettings';
+import { DEFAULT_LOGGER_OPTIONS } from "../utils/Constants";
+import { AppSettings } from "./AppSettings";
 
 export class MsalConfiguration {
     /**
@@ -23,18 +23,18 @@ export class MsalConfiguration {
             auth: {
                 clientId: appSettings.appCredentials.clientId,
                 authority: appSettings.b2cPolicies
-                    ? Object.entries(appSettings.b2cPolicies)[0][1]['authority'] // the first policy/user-flow is the default authority
+                    ? Object.entries(appSettings.b2cPolicies)[0][1]["authority"] // the first policy/user-flow is the default authority
                     : appSettings.appCredentials.instance
-                    ? `https://${appSettings.appCredentials.instance}/${appSettings.appCredentials.tenantId}`
-                    : `https://${Constants.DEFAULT_AUTHORITY_HOST}/${appSettings.appCredentials.tenantId}`,
-                ...(appSettings.appCredentials.hasOwnProperty('clientSecret') && {
+                        ? `https://${appSettings.appCredentials.instance}/${appSettings.appCredentials.tenantId}`
+                        : `https://${Constants.DEFAULT_AUTHORITY_HOST}/${appSettings.appCredentials.tenantId}`,
+                ...(appSettings.appCredentials.hasOwnProperty("clientSecret") && {
                     clientSecret: appSettings.appCredentials.clientSecret,
                 }),
-                ...(appSettings.appCredentials.hasOwnProperty('clientCertificate') && {
+                ...(appSettings.appCredentials.hasOwnProperty("clientCertificate") && {
                     clientCertificate: appSettings.appCredentials.clientCertificate,
                 }),
                 knownAuthorities: appSettings.b2cPolicies
-                    ? [UrlString.getDomainFromUrl(Object.entries(appSettings.b2cPolicies)[0][1]['authority'])] // in B2C scenarios
+                    ? [UrlString.getDomainFromUrl(Object.entries(appSettings.b2cPolicies)[0][1]["authority"])] // in B2C scenarios
                     : [],
             },
             system: {

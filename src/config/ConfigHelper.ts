@@ -3,10 +3,10 @@
  * Licensed under the MIT License.
  */
 
-import { StringUtils } from '@azure/msal-common';
+import { StringUtils } from "@azure/msal-common";
 
-import { AADAuthorityConstants, ConfigurationErrorMessages, OIDC_SCOPES } from '../utils/Constants';
-import { AppSettings, AppType, Resource, WebAppSettings } from './AppSettings';
+import { AADAuthorityConstants, ConfigurationErrorMessages, OIDC_SCOPES } from "../utils/Constants";
+import { AppSettings, AppType, Resource, WebAppSettings } from "./AppSettings";
 
 export class ConfigHelper {
     /**
@@ -59,7 +59,7 @@ export class ConfigHelper {
     /**
      * Util method to get the resource name for a given scope(s)
      * @param {Array} scopes: an array of scopes that the resource is associated with
-     * @param {AppSettings} appSettings: application authentication parameters
+     * @param {webAppSettings} webAppSettings: application authentication parameters
      * @returns {string}
      */
     static getResourceNameFromScopes(scopes: string[], webAppSettings: WebAppSettings): string {
@@ -79,7 +79,7 @@ export class ConfigHelper {
     /**
      * Util method to get the scopes for a given resource name
      * @param {string} resourceEndpoint: the resource name
-     * @param {AppSettings} appSettings: application authentication parameters
+     * @param {webAppSettings} webAppSettings: application authentication parameters
      * @returns {string}
      */
     static getScopesFromResourceEndpoint(resourceEndpoint: string, webAppSettings: WebAppSettings): string[] {

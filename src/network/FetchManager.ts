@@ -3,10 +3,10 @@
  * Licensed under the MIT License.
  */
 
-import axios, { AxiosResponse, AxiosRequestConfig } from 'axios';
-import { StringUtils } from '@azure/msal-common';
+import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
+import { StringUtils } from "@azure/msal-common";
 
-import { AccessControlConstants, ErrorMessages } from '../utils/Constants';
+import { AccessControlConstants, ErrorMessages } from "../utils/Constants";
 
 export class FetchManager {
     /**
@@ -30,6 +30,7 @@ export class FetchManager {
      * @param {string} accessToken
      * @returns {Promise}
      */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
     static callApiEndpointWithToken = async (endpoint: string, accessToken: string): Promise<AxiosResponse<any>> => {
         if (StringUtils.isEmpty(accessToken)) {
             throw new Error(ErrorMessages.TOKEN_NOT_FOUND);
@@ -59,7 +60,8 @@ export class FetchManager {
     static handlePagination = async (accessToken: string, nextPage: string, data: string[] = []): Promise<string[]> => {
         try {
             const graphResponse = await (await FetchManager.callApiEndpointWithToken(nextPage, accessToken)).data;
-            graphResponse['value'].map((v: any) => data.push(v.id));
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+            graphResponse["value"].map((v: any) => data.push(v.id));
 
             if (graphResponse[AccessControlConstants.PAGINATION_LINK]) {
                 return await FetchManager.handlePagination(
