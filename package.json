@@ -24,11 +24,6 @@
     "prepare": "husky install",
     "lint": "npx eslint ."
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run prettier:write"
-    }
-  },
   "jest": {
     "coverageReporters": [
       "json-summary",
