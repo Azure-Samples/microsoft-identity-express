@@ -3,17 +3,17 @@
  * Licensed under the MIT License.
  */
 
-import express, { RequestHandler, Request, Response, NextFunction, Router } from 'express';
-import { OIDC_DEFAULT_SCOPES, InteractionRequiredAuthError, StringUtils, ResponseMode } from '@azure/msal-common';
-import { AuthorizationCodeRequest, AuthorizationUrlRequest, Configuration, SilentFlowRequest } from '@azure/msal-node';
-import { Resource, AppSettings, AccessRule, WebAppSettings } from '../../config/AppSettings';
-import { TokenRequestOptions, GuardOptions, SignInOptions, SignOutOptions } from '../MiddlewareOptions';
-import { AppStages, ErrorMessages, AccessControlConstants, ConfigurationErrorMessages } from '../../utils/Constants';
-import { BaseAuthClient } from '../BaseAuthClient';
-import { ConfigHelper } from '../../config/ConfigHelper';
-import { FetchManager } from '../../network/FetchManager';
-import { UrlUtils } from '../../utils/UrlUtils';
-import { AppState } from '../../utils/Types';
+import express, { RequestHandler, Request, Response, NextFunction, Router } from "express";
+import { OIDC_DEFAULT_SCOPES, InteractionRequiredAuthError, StringUtils, ResponseMode } from "@azure/msal-common";
+import { AuthorizationCodeRequest, AuthorizationUrlRequest, Configuration, SilentFlowRequest } from "@azure/msal-node";
+import { Resource, AppSettings, AccessRule, WebAppSettings } from "../../config/AppSettings";
+import { TokenRequestOptions, GuardOptions, SignInOptions, SignOutOptions } from "../MiddlewareOptions";
+import { AppStages, ErrorMessages, AccessControlConstants, ConfigurationErrorMessages } from "../../utils/Constants";
+import { BaseAuthClient } from "../BaseAuthClient";
+import { ConfigHelper } from "../../config/ConfigHelper";
+import { FetchManager } from "../../network/FetchManager";
+import { UrlUtils } from "../../utils/UrlUtils";
+import { AppState } from "../../utils/Types";
 
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
@@ -74,8 +74,8 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
      */
     signIn(
         options: SignInOptions = {
-            postLoginRedirect: '/',
-            failureRedirect: '/',
+            postLoginRedirect: "/",
+            failureRedirect: "/",
         }
     ): RequestHandler {
         return (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -105,7 +105,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
      */
     signOut(
         options: SignOutOptions = {
-            postLogoutRedirect: '/',
+            postLogoutRedirect: "/",
         }
     ): RequestHandler {
         return async (req: Request, res: Response): Promise<void> => {
@@ -121,11 +121,10 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
 
             const tokenCache = this.msalClient.getTokenCache();
 
-            const account = req.session.account?.homeAccountId
-                ?
-                await tokenCache.getAccountByHomeId(req.session.account.homeAccountId)
-                :
-                await tokenCache.getAccountByLocalId(req.session.account?.localAccountId!);
+            const account =
+                req.session.account?.homeAccountId && await tokenCache.getAccountByHomeId(req.session.account.homeAccountId)
+                ||
+                req.session.account?.localAccountId && await tokenCache.getAccountByLocalId(req.session.account.localAccountId);
 
             if (account) {
                 await tokenCache.removeAccount(account);
@@ -158,7 +157,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
                 const state: AppState = JSON.parse(
                     this.cryptoUtils.decryptData(
                         this.cryptoProvider.base64Decode(req.body.state as string),
-                        Buffer.from(req.session.key, 'hex')
+                        Buffer.from(req.session.key, "hex")
                     )
                 );
 
@@ -178,6 +177,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
                                 if (!tokenResponse) return res.redirect(this.webAppSettings.authRoutes.unauthorized);
 
                                 req.session.isAuthenticated = true;
+                                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                                 req.session.account = tokenResponse.account!; // this won't be null in any web app scenario
                                 res.redirect(state.redirectTo);
                             } catch (error) {
@@ -261,8 +261,10 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
                 const tokenResponse = await this.msalClient.acquireTokenSilent(silentRequest);
 
                 if (!tokenResponse || StringUtils.isEmpty(tokenResponse.accessToken)) {
-                    // In B2C scenarios, sometimes an access token is returned empty.
-                    // In that case, we will acquire token interactively instead.
+                    /*
+                     * In B2C scenarios, sometimes an access token is returned empty.
+                     * In that case, we will acquire token interactively instead.
+                     */
 
                     throw new InteractionRequiredAuthError(ErrorMessages.INTERACTION_REQUIRED);
                 }
@@ -397,7 +399,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
         req.session.csrfToken = this.cryptoProvider.createNewGuid();
 
         const key = this.cryptoUtils.createKey(req.session.csrfToken, this.cryptoUtils.generateSalt());
-        req.session.key = key.toString('hex');
+        req.session.key = key.toString("hex");
 
         const state = JSON.stringify({
             ...appState,
@@ -415,7 +417,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
         req.session.authorizationCodeRequest = {
             ...authCodeParams,
             redirectUri: UrlUtils.ensureAbsoluteUrl(req, this.webAppSettings.authRoutes.redirect),
-            code: ''
+            code: ""
         };
 
         // request an authorization code to exchange for tokens
@@ -441,11 +443,11 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
             return next(new Error(ErrorMessages.ID_TOKEN_CLAIMS_NOT_FOUND));
         }
 
-        const { _claim_names, _claim_sources, ...newIdTokenClaims } = req.session.account.idTokenClaims;
+        const { ...newIdTokenClaims } = req.session.account.idTokenClaims;
 
         const silentRequest: SilentFlowRequest = {
             account: req.session.account,
-            scopes: AccessControlConstants.GRAPH_MEMBER_SCOPES.split(' '),
+            scopes: AccessControlConstants.GRAPH_MEMBER_SCOPES.split(" "),
         };
 
         try {
@@ -496,7 +498,8 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
                 } else {
                     req.session.account.idTokenClaims = {
                         ...newIdTokenClaims,
-                        groups: graphResponse.data['value'].map((v: any) => v.id),
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        groups: graphResponse.data["value"].map((v: any) => v.id),
                     };
 
                     if (
@@ -539,7 +542,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
                     break;
 
                 case AccessControlConstants.ROLES:
-                    if (!rule.roles || rule.roles!.filter(elem => creds.includes(elem)).length < 1) {
+                    if (!rule.roles || rule.roles.filter(elem => creds.includes(elem)).length < 1) {
                         return false;
                     }
                     break;

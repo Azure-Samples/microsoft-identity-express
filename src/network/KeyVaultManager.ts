@@ -3,12 +3,12 @@
  * Licensed under the MIT License.
  */
 
-import { DefaultAzureCredential } from '@azure/identity';
-import { CertificateClient, KeyVaultCertificate } from '@azure/keyvault-certificates';
-import { KeyVaultSecret, SecretClient } from '@azure/keyvault-secrets';
+import { DefaultAzureCredential } from "@azure/identity";
+import { CertificateClient, KeyVaultCertificate } from "@azure/keyvault-certificates";
+import { KeyVaultSecret, SecretClient } from "@azure/keyvault-secrets";
 
-import { KeyVaultCredential, ClientCertificate } from '../config/AppSettings';
-import { KeyVaultCredentialTypes } from '../utils/Constants';
+import { KeyVaultCredential, ClientCertificate } from "../config/AppSettings";
+import { KeyVaultCredentialTypes } from "../utils/Constants";
 
 export type KeyVaultCredentialResponse = {
     type: KeyVaultCredentialTypes.SECRET | KeyVaultCredentialTypes.CERTIFICATE;
@@ -49,7 +49,7 @@ export class KeyVaultManager {
                         type: KeyVaultCredentialTypes.CERTIFICATE,
                         value: {
                             thumbprint: certificateResponse?.properties?.x509Thumbprint?.toString(),
-                            privateKey: secretResponse?.value?.split('-----BEGIN CERTIFICATE-----\n')[0],
+                            privateKey: secretResponse?.value?.split("-----BEGIN CERTIFICATE-----\n")[0],
                         },
                     } as KeyVaultCredentialResponse;
                 } catch (error) {

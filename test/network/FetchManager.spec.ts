@@ -4,28 +4,28 @@
  */
 
 import { FetchManager } from "../../src/network/FetchManager";
-import axios, { AxiosResponse } from 'axios';
-import { mocked } from 'ts-jest/utils';
+import axios, { AxiosResponse } from "axios";
+import { mocked } from "ts-jest/utils";
 
-jest.mock('axios');
+jest.mock("axios");
 
-describe('Fetch manager tests', () => {
+describe("Fetch manager tests", () => {
 
     // Mock successful response
     const axiosResponse: AxiosResponse = {
         data: {
-            title: 'mock axios response',
-            body: 'this is mock data',
+            title: "mock axios response",
+            body: "this is mock data",
         },
         status: 200,
-        statusText: 'OK',
+        statusText: "OK",
         config: {},
         headers: {},
     };
 
-    it('should fetch data from an unprotected endpoint', async () => {
+    it("should fetch data from an unprotected endpoint", async () => {
         mocked(axios.get).mockResolvedValueOnce(axiosResponse);
-        const result = await FetchManager.callApiEndpoint('url');
+        const result = await FetchManager.callApiEndpoint("url");
         expect(result).toMatchObject(axiosResponse.data);
     });
-})
+});
