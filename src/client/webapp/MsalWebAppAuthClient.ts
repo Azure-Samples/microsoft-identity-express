@@ -121,11 +121,10 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
 
             const tokenCache = this.msalClient.getTokenCache();
 
-            const account = req.session.account?.homeAccountId
-                ?
-                await tokenCache.getAccountByHomeId(req.session.account.homeAccountId)
-                :
-                null;
+            const account =
+                req.session.account?.homeAccountId && await tokenCache.getAccountByHomeId(req.session.account.homeAccountId)
+                ||
+                req.session.account?.localAccountId && await tokenCache.getAccountByLocalId(req.session.account.localAccountId);
 
             if (account) {
                 await tokenCache.removeAccount(account);
@@ -499,7 +498,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
                 } else {
                     req.session.account.idTokenClaims = {
                         ...newIdTokenClaims,
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         groups: graphResponse.data["value"].map((v: any) => v.id),
                     };
 

@@ -28,7 +28,13 @@ export abstract class BaseAuthClient {
         this.loggerOptions =
             this.msalConfig.system && this.msalConfig.system.loggerOptions
                 ? this.msalConfig.system.loggerOptions
-                : this.createDefaultLoggerOptions();
+                : {
+                    loggerCallback: () => {
+                        // allow users to not set loggerCallback
+                    },
+                    piiLoggingEnabled: false,
+                    logLevel: LogLevel.Info,
+                };
 
         this.logger = new Logger(this.loggerOptions, packageName, packageVersion);
         this.msalClient = new ConfidentialClientApplication(this.msalConfig);
@@ -44,15 +50,5 @@ export abstract class BaseAuthClient {
 
     getLogger(): Logger {
         return this.logger;
-    }
-
-    createDefaultLoggerOptions(): LoggerOptions {
-        return {
-            loggerCallback: () => {
-                // allow users to not set loggerCallback
-            },
-            piiLoggingEnabled: false,
-            logLevel: LogLevel.Info,
-        }; 
     }
 }
