@@ -22,16 +22,8 @@ declare module "express-session" {
         authorizationUrlRequest: AuthorizationUrlRequest;
         authorizationCodeRequest: AuthorizationCodeRequest;
         silentFlowRequest: SilentFlowRequest;
-        protectedResources?: Record<string, Resource>
-    }
-}
-
-// extending express request
-declare module "express" {
-    export interface Request {
-        authInfo?: object;
-        oboToken?: string;
-        oboAssertion?: string;
+        protectedResources?: Record<string, Resource>;
+        tokenCache: string;
     }
 }
 

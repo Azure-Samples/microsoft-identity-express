@@ -83,21 +83,6 @@ function _setPrototypeOf(o, p) {
   return _setPrototypeOf(o, p);
 }
 
-function _objectWithoutPropertiesLoose(source, excluded) {
-  if (source == null) return {};
-  var target = {};
-  var sourceKeys = Object.keys(source);
-  var key, i;
-
-  for (i = 0; i < sourceKeys.length; i++) {
-    key = sourceKeys[i];
-    if (excluded.indexOf(key) >= 0) continue;
-    target[key] = source[key];
-  }
-
-  return target;
-}
-
 function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }
@@ -880,9 +865,9 @@ var AppStages;
 
 
 var AADAuthorityConstants = {
-  COMMON: 'common',
-  ORGANIZATIONS: 'organizations',
-  CONSUMERS: 'consumers'
+  COMMON: "common",
+  ORGANIZATIONS: "organizations",
+  CONSUMERS: "consumers"
 };
 /**
  * String constants related credential type
@@ -895,128 +880,129 @@ var KeyVaultCredentialTypes;
   KeyVaultCredentialTypes["CERTIFICATE"] = "clientCertificate";
 })(KeyVaultCredentialTypes || (KeyVaultCredentialTypes = {}));
 
-var OIDC_SCOPES = ['openid', 'profile', 'email', 'offline_access'];
+var OIDC_SCOPES = ["openid", "profile", "email", "offline_access"];
 /**
  * Request headers used by App Service authentication
  */
 
 var AppServiceAuthenticationHeaders = {
-  APP_SERVICE_AUTHENTICATION_HEADER: 'X-MSAL-APP-SERVICE-AUTHENTICATION',
-  APP_SERVICE_ACCESS_TOKEN_HEADER: 'X-MS-TOKEN-AAD-ACCESS-TOKEN',
-  APP_SERVICE_ID_TOKEN_HEADER: 'X-MS-TOKEN-AAD-ID-TOKEN',
-  APP_SERVICE_REFRESH_TOKEN_HEADER: 'X-MS-TOKEN-AAD-REFRESH-TOKEN',
-  APP_SERVICE_ACCESS_TOKEN_EXPIRES_HEADER: 'X-MS-TOKEN-AAD-EXPIRES-ON',
-  APP_SERVICE_USER_OID_HEADER: 'X-MS-CLIENT-PRINCIPAL-ID',
-  APP_SERVICE_USER_UPN_HEADER: 'X-MS-CLIENT-PRINCIPAL-NAME',
-  APP_SERVICE_IDP_X_HEADER: 'X-MS-CLIENT-PRINCIPAL-IDP'
+  APP_SERVICE_AUTHENTICATION_HEADER: "X-MSAL-APP-SERVICE-AUTHENTICATION",
+  APP_SERVICE_ACCESS_TOKEN_HEADER: "X-MS-TOKEN-AAD-ACCESS-TOKEN",
+  APP_SERVICE_ID_TOKEN_HEADER: "X-MS-TOKEN-AAD-ID-TOKEN",
+  APP_SERVICE_REFRESH_TOKEN_HEADER: "X-MS-TOKEN-AAD-REFRESH-TOKEN",
+  APP_SERVICE_ACCESS_TOKEN_EXPIRES_HEADER: "X-MS-TOKEN-AAD-EXPIRES-ON",
+  APP_SERVICE_USER_OID_HEADER: "X-MS-CLIENT-PRINCIPAL-ID",
+  APP_SERVICE_USER_UPN_HEADER: "X-MS-CLIENT-PRINCIPAL-NAME",
+  APP_SERVICE_IDP_X_HEADER: "X-MS-CLIENT-PRINCIPAL-IDP"
 };
 /**
  * Endpoints used by App Service authentication
  */
 
 var AppServiceAuthenticationEndpoints = {
-  ID_TOKEN_ENDPOINT: '/.auth/me',
-  POST_LOGOUT_DEFAULT_ENDPOINT: '/.auth/logout/done',
-  POST_LOGIN_DEFAULT_ENDPOINT: '/.auth/login/done',
-  AAD_SIGN_IN_ENDPOINT: '/.auth/login/aad',
-  AAD_SIGN_OUT_ENDPOINT: '/.auth/logout',
-  TOKEN_REFRESH_ENDPOINT: '/.auth/refresh',
-  AAD_REDIRECT_ENDPOINT: '/.auth/login/aad/callback'
+  ID_TOKEN_ENDPOINT: "/.auth/me",
+  POST_LOGOUT_DEFAULT_ENDPOINT: "/.auth/logout/done",
+  POST_LOGIN_DEFAULT_ENDPOINT: "/.auth/login/done",
+  AAD_SIGN_IN_ENDPOINT: "/.auth/login/aad",
+  AAD_SIGN_OUT_ENDPOINT: "/.auth/logout",
+  TOKEN_REFRESH_ENDPOINT: "/.auth/refresh",
+  AAD_REDIRECT_ENDPOINT: "/.auth/login/aad/callback"
 };
 /**
  * Query parameters used by App Service authentication endpoints
  */
 
 var AppServiceAuthenticationQueryParameters = {
-  POST_LOGIN_REDIRECT_QUERY_PARAM: '?post_login_redirect_url=',
-  POST_LOGOUT_REDIRECT_QUERY_PARAM: '?post_logout_redirect_uri='
+  POST_LOGIN_REDIRECT_QUERY_PARAM: "?post_login_redirect_url=",
+  POST_LOGOUT_REDIRECT_QUERY_PARAM: "?post_logout_redirect_uri="
 };
 /**
  * Environment variables used by App Service authentication
  */
 
 var AppServiceEnvironmentVariables = {
-  WEBSITE_AUTH_ENABLED: 'WEBSITE_AUTH_ENABLED',
-  WEBSITE_AUTH_ALLOWED_AUDIENCES: 'WEBSITE_AUTH_ALLOWED_AUDIENCES',
-  WEBSITE_AUTH_DEFAULT_PROVIDER: 'WEBSITE_AUTH_DEFAULT_PROVIDER',
-  WEBSITE_AUTH_TOKEN_STORE: 'WEBSITE_AUTH_TOKEN_STORE',
-  WEBSITE_AUTH_LOGIN_PARAMS: 'WEBSITE_AUTH_LOGIN_PARAMS',
-  WEBSITE_AUTH_PRESERVE_URL_FRAGMENT: 'WEBSITE_AUTH_PRESERVE_URL_FRAGMENT',
-  WEBSITE_AUTH_OPENID_ISSUER: 'WEBSITE_AUTH_OPENID_ISSUER',
-  WEBSITE_AUTH_CLIENT_ID: 'WEBSITE_AUTH_CLIENT_ID',
-  WEBSITE_HOSTNAME: 'WEBSITE_HOSTNAME',
-  WEBSITE_SITE_NAME: 'WEBSITE_SITE_NAME',
-  WEBSITE_AUTH_REQUIRE_HTTPS: 'WEBSITE_AUTH_REQUIRE_HTTPS',
-  WEBSITE_AUTH_UNAUTHENTICATED_ACTION: 'WEBSITE_AUTH_UNAUTHENTICATED_ACTION',
-  WEBSITE_AUTH_API_PREFIX: 'WEBSITE_AUTH_API_PREFIX',
-  MICROSOFT_PROVIDER_AUTHENTICATION_SECRET: 'MICROSOFT_PROVIDER_AUTHENTICATION_SECRET'
+  WEBSITE_AUTH_ENABLED: "WEBSITE_AUTH_ENABLED",
+  WEBSITE_AUTH_ALLOWED_AUDIENCES: "WEBSITE_AUTH_ALLOWED_AUDIENCES",
+  WEBSITE_AUTH_DEFAULT_PROVIDER: "WEBSITE_AUTH_DEFAULT_PROVIDER",
+  WEBSITE_AUTH_TOKEN_STORE: "WEBSITE_AUTH_TOKEN_STORE",
+  WEBSITE_AUTH_LOGIN_PARAMS: "WEBSITE_AUTH_LOGIN_PARAMS",
+  WEBSITE_AUTH_PRESERVE_URL_FRAGMENT: "WEBSITE_AUTH_PRESERVE_URL_FRAGMENT",
+  WEBSITE_AUTH_OPENID_ISSUER: "WEBSITE_AUTH_OPENID_ISSUER",
+  WEBSITE_AUTH_CLIENT_ID: "WEBSITE_AUTH_CLIENT_ID",
+  WEBSITE_HOSTNAME: "WEBSITE_HOSTNAME",
+  WEBSITE_SITE_NAME: "WEBSITE_SITE_NAME",
+  WEBSITE_AUTH_REQUIRE_HTTPS: "WEBSITE_AUTH_REQUIRE_HTTPS",
+  WEBSITE_AUTH_UNAUTHENTICATED_ACTION: "WEBSITE_AUTH_UNAUTHENTICATED_ACTION",
+  WEBSITE_AUTH_API_PREFIX: "WEBSITE_AUTH_API_PREFIX",
+  MICROSOFT_PROVIDER_AUTHENTICATION_SECRET: "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
 };
 /**
  * Constants used in access control scenarios
  */
 
 var AccessControlConstants = {
-  GROUPS: 'groups',
-  ROLES: 'roles',
-  CLAIM_NAMES: '_claim_name',
-  CLAIM_SOURCES: '_claim_sources',
-  PAGINATION_LINK: '@odata.nextLink',
-  GRAPH_MEMBERS_ENDPOINT: 'https://graph.microsoft.com/v1.0/me/memberOf',
-  GRAPH_MEMBER_SCOPES: 'User.Read GroupMember.Read.All'
+  GROUPS: "groups",
+  ROLES: "roles",
+  CLAIM_NAMES: "_claim_name",
+  CLAIM_SOURCES: "_claim_sources",
+  PAGINATION_LINK: "@odata.nextLink",
+  GRAPH_MEMBERS_ENDPOINT: "https://graph.microsoft.com/v1.0/me/memberOf",
+  GRAPH_MEMBER_SCOPES: "User.Read GroupMember.Read.All"
 };
 /**
  * Various error constants
  */
 
 var ErrorMessages = {
-  NOT_PERMITTED: 'Not permitted',
-  INVALID_TOKEN: 'Invalid token',
-  CANNOT_DETERMINE_APP_STAGE: 'Cannot determine application stage',
-  CANNOT_VALIDATE_TOKEN: 'Cannot validate token',
-  CSRF_TOKEN_MISMATCH: 'CSRF token in response does not match to original request',
-  INTERACTION_REQUIRED: 'interaction_required',
-  TOKEN_ACQUISITION_FAILED: 'Token acquisition failed',
-  TOKEN_RESPONSE_NULL: 'Token response is null',
-  AUTH_CODE_URL_NOT_OBTAINED: 'Authorization code url cannot be obtained',
-  TOKEN_NOT_FOUND: 'No token found',
-  TOKEN_NOT_DECODED: 'Token cannot be decoded',
-  TOKEN_NOT_VERIFIED: 'Token cannot be verified',
-  KEYS_NOT_OBTAINED: 'Signing keys cannot be obtained',
-  STATE_NOT_FOUND: 'State not found',
-  USER_HAS_NO_ROLE: 'User does not have any roles',
-  USER_NOT_IN_ROLE: 'User does not have this role',
-  USER_HAS_NO_GROUP: 'User does not have any groups',
-  USER_NOT_IN_GROUP: 'User does not have this group',
-  METHOD_NOT_ALLOWED: 'Method not allowed for this route',
-  RULE_NOT_FOUND: 'No rule found for this route',
-  SESSION_NOT_FOUND: 'No session found for this request',
-  KEY_VAULT_CONFIG_NOT_FOUND: 'No coordinates found for Key Vault',
-  CANNOT_OBTAIN_CREDENTIALS_FROM_KEY_VAULT: 'Cannot obtain credentials from Key Vault',
-  SESSION_KEY_NOT_FOUND: 'No session key found in session. Cannot encrypt state data',
-  AUTH_CODE_REQUEST_OBJECT_NOT_FOUND: 'No auth code request object found in session',
-  ID_TOKEN_CLAIMS_NOT_FOUND: 'No id token claims found in session'
+  NOT_PERMITTED: "Not permitted",
+  INVALID_TOKEN: "Invalid token",
+  CANNOT_DETERMINE_APP_STAGE: "Cannot determine application stage",
+  CANNOT_VALIDATE_TOKEN: "Cannot validate token",
+  CSRF_TOKEN_MISMATCH: "CSRF token in response does not match to original request",
+  INTERACTION_REQUIRED: "interaction_required",
+  TOKEN_ACQUISITION_FAILED: "Token acquisition failed",
+  TOKEN_RESPONSE_NULL: "Token response is null",
+  AUTH_CODE_URL_NOT_OBTAINED: "Authorization code url cannot be obtained",
+  TOKEN_NOT_FOUND: "No token found",
+  TOKEN_NOT_DECODED: "Token cannot be decoded",
+  TOKEN_NOT_VERIFIED: "Token cannot be verified",
+  KEYS_NOT_OBTAINED: "Signing keys cannot be obtained",
+  STATE_NOT_FOUND: "State not found",
+  USER_HAS_NO_ROLE: "User does not have any roles",
+  USER_NOT_IN_ROLE: "User does not have this role",
+  USER_HAS_NO_GROUP: "User does not have any groups",
+  USER_NOT_IN_GROUP: "User does not have this group",
+  METHOD_NOT_ALLOWED: "Method not allowed for this route",
+  RULE_NOT_FOUND: "No rule found for this route",
+  SESSION_NOT_FOUND: "No session found for this request",
+  KEY_VAULT_CONFIG_NOT_FOUND: "No coordinates found for Key Vault",
+  CANNOT_OBTAIN_CREDENTIALS_FROM_KEY_VAULT: "Cannot obtain credentials from Key Vault",
+  SESSION_KEY_NOT_FOUND: "No session key found in session. Cannot encrypt state data",
+  AUTH_CODE_REQUEST_OBJECT_NOT_FOUND: "No auth code request object found in session",
+  ID_TOKEN_CLAIMS_NOT_FOUND: "No id token claims found in session"
 };
 /**
  * Various configuration error constants
  */
 
 var ConfigurationErrorMessages = {
-  AUTH_ROUTES_NOT_CONFIGURED: 'Authentication routes are not defined. Ensure that the application settings are configured properly.',
-  NO_PROTECTED_RESOURCE_CONFIGURED: 'No protected resource is configured to acquire a token for. Ensure that the application settings are configured properly.',
-  NO_ACCESS_MATRIX_CONFIGURED: 'No access matrix is configured to control access for. Ensure that the application settings are configured properly.',
-  NO_CLIENT_ID: 'No clientId provided!',
-  INVALID_CLIENT_ID: 'Invalid clientId!',
-  NO_TENANT_INFO: 'No tenant info provided!',
-  INVALID_TENANT_INFO: 'Invalid tenant info!',
-  NO_CLIENT_CREDENTIAL: 'No client credential provided!',
-  NO_REDIRECT_URI: 'No redirect URI provided!',
-  NO_UNAUTHORIZED_ROUTE: 'No unauthorized route provided!'
+  AUTH_ROUTES_NOT_CONFIGURED: "Authentication routes are not defined. Ensure that the application settings are configured properly.",
+  NO_PROTECTED_RESOURCE_CONFIGURED: "No protected resource is configured to acquire a token for. Ensure that the application settings are configured properly.",
+  NO_ACCESS_MATRIX_CONFIGURED: "No access matrix is configured to control access for. Ensure that the application settings are configured properly.",
+  NO_CLIENT_ID: "No clientId provided!",
+  INVALID_CLIENT_ID: "Invalid clientId!",
+  NO_TENANT_INFO: "No tenant info provided!",
+  INVALID_TENANT_INFO: "Invalid tenant info!",
+  NO_CLIENT_CREDENTIAL: "No client credential provided!",
+  NO_REDIRECT_URI: "No redirect URI provided!",
+  NO_UNAUTHORIZED_ROUTE: "No unauthorized route provided!"
 };
 var DEFAULT_LOGGER_OPTIONS = {
   loggerCallback: function loggerCallback(logLevel, message, containsPii) {
     if (containsPii) {
       return;
-    }
+    } // eslint-disable-next-line no-console
+
 
     console.info(message);
   },
@@ -1084,7 +1070,7 @@ var ConfigHelper = /*#__PURE__*/function () {
   /**
    * Util method to get the resource name for a given scope(s)
    * @param {Array} scopes: an array of scopes that the resource is associated with
-   * @param {AppSettings} appSettings: application authentication parameters
+   * @param {webAppSettings} webAppSettings: application authentication parameters
    * @returns {string}
    */
   ;
@@ -1099,7 +1085,7 @@ var ConfigHelper = /*#__PURE__*/function () {
   /**
    * Util method to get the scopes for a given resource name
    * @param {string} resourceEndpoint: the resource name
-   * @param {AppSettings} appSettings: application authentication parameters
+   * @param {webAppSettings} webAppSettings: application authentication parameters
    * @returns {string}
    */
   ;
@@ -1161,7 +1147,7 @@ var BaseAuthClientBuilder = /*#__PURE__*/function () {
 var CryptoUtils = /*#__PURE__*/function () {
   function CryptoUtils(algorithm) {
     if (algorithm === void 0) {
-      algorithm = 'aes-192-cbc';
+      algorithm = "aes-192-cbc";
     }
 
     this.algorithm = algorithm;
@@ -1170,7 +1156,7 @@ var CryptoUtils = /*#__PURE__*/function () {
   var _proto = CryptoUtils.prototype;
 
   _proto.generateSalt = function generateSalt() {
-    return crypto.randomBytes(20).toString('hex');
+    return crypto.randomBytes(20).toString("hex");
   };
 
   _proto.createKey = function createKey(password, salt) {
@@ -1180,17 +1166,17 @@ var CryptoUtils = /*#__PURE__*/function () {
   _proto.encryptData = function encryptData(stringifiedData, key) {
     var iv = crypto.randomBytes(16);
     var cipher = crypto.createCipheriv(this.algorithm, key, iv);
-    var encryptedData = cipher.update(stringifiedData, 'utf8', 'hex');
-    return [iv.toString('hex'), encryptedData + cipher["final"]('hex')].join('.');
+    var encryptedData = cipher.update(stringifiedData, "utf8", "hex");
+    return [iv.toString("hex"), encryptedData + cipher["final"]("hex")].join(".");
   };
 
   _proto.decryptData = function decryptData(encryptedData, key) {
-    var _encryptedData$split = encryptedData.split('.'),
+    var _encryptedData$split = encryptedData.split("."),
         iv = _encryptedData$split[0],
         encrypted = _encryptedData$split[1];
 
-    var decipher = crypto.createDecipheriv(this.algorithm, key, Buffer.from(iv, 'hex'));
-    return decipher.update(encrypted, 'hex', 'utf8') + decipher["final"]('utf8');
+    var decipher = crypto.createDecipheriv(this.algorithm, key, Buffer.from(iv, "hex"));
+    return decipher.update(encrypted, "hex", "utf8") + decipher["final"]("utf8");
   };
 
   return CryptoUtils;
@@ -1200,8 +1186,8 @@ var CryptoUtils = /*#__PURE__*/function () {
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
-var packageName = '@azure-samples/microsoft-identity-express';
-var packageVersion = 'beta';
+var packageName = "@azure-samples/microsoft-identity-express";
+var packageVersion = "beta";
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -1209,20 +1195,18 @@ var packageVersion = 'beta';
  */
 var BaseAuthClient = /*#__PURE__*/function () {
   function BaseAuthClient(appSettings, msalConfig) {
-    var _this$msalConfig$syst;
-
     this.appSettings = appSettings;
     this.msalConfig = msalConfig;
     this.cryptoProvider = new msalNode.CryptoProvider();
     this.cryptoUtils = new CryptoUtils();
-    this.logger = new msalCommon.Logger((_this$msalConfig$syst = this.msalConfig.system) == null ? void 0 : _this$msalConfig$syst.loggerOptions, packageName, packageVersion);
-    this.msalClient = new msalNode.ConfidentialClientApplication(this.msalConfig);
+    this.loggerOptions = this.msalConfig.system && this.msalConfig.system.loggerOptions ? this.msalConfig.system.loggerOptions : DEFAULT_LOGGER_OPTIONS;
+    this.logger = new msalCommon.Logger(this.loggerOptions, packageName, packageVersion);
   }
 
   var _proto = BaseAuthClient.prototype;
 
-  _proto.getMsalClient = function getMsalClient() {
-    return this.msalClient;
+  _proto.getMsalInstance = function getMsalInstance() {
+    return new msalNode.ConfidentialClientApplication(this.msalConfig);
   };
 
   _proto.getMsalConfig = function getMsalConfig() {
@@ -1236,42 +1220,126 @@ var BaseAuthClient = /*#__PURE__*/function () {
   return BaseAuthClient;
 }();
 
-var FetchManager = function FetchManager() {};
+var FetchManager = /*#__PURE__*/function () {
+  function FetchManager() {}
+
+  FetchManager.fetchCloudDiscoveryMetadata = /*#__PURE__*/function () {
+    var _fetchCloudDiscoveryMetadata = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(tenantId) {
+      var endpoint, response, cloudDiscoveryMetadata;
+      return runtime_1.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              endpoint = "https://login.microsoftonline.com/common/discovery/instance";
+              _context.prev = 1;
+              _context.next = 4;
+              return FetchManager.callApiEndpoint(endpoint, {
+                params: {
+                  "api-version": "1.1",
+                  "authorization_endpoint": "https://login.microsoftonline.com/" + tenantId + "/oauth2/v2.0/authorize"
+                }
+              });
+
+            case 4:
+              response = _context.sent;
+              cloudDiscoveryMetadata = JSON.stringify(response.data);
+              return _context.abrupt("return", cloudDiscoveryMetadata);
+
+            case 9:
+              _context.prev = 9;
+              _context.t0 = _context["catch"](1);
+              throw _context.t0;
+
+            case 12:
+            case "end":
+              return _context.stop();
+          }
+        }
+      }, _callee, null, [[1, 9]]);
+    }));
+
+    function fetchCloudDiscoveryMetadata(_x) {
+      return _fetchCloudDiscoveryMetadata.apply(this, arguments);
+    }
+
+    return fetchCloudDiscoveryMetadata;
+  }();
+
+  FetchManager.fetchAuthorityMetadata = /*#__PURE__*/function () {
+    var _fetchAuthorityMetadata = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(tenantId) {
+      var endpoint, response, authorityMetadata;
+      return runtime_1.wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              endpoint = "https://login.microsoftonline.com/" + tenantId + "/v2.0/.well-known/openid-configuration";
+              _context2.prev = 1;
+              _context2.next = 4;
+              return FetchManager.callApiEndpoint(endpoint);
+
+            case 4:
+              response = _context2.sent;
+              authorityMetadata = JSON.stringify(response.data);
+              return _context2.abrupt("return", authorityMetadata);
+
+            case 9:
+              _context2.prev = 9;
+              _context2.t0 = _context2["catch"](1);
+              throw _context2.t0;
+
+            case 12:
+            case "end":
+              return _context2.stop();
+          }
+        }
+      }, _callee2, null, [[1, 9]]);
+    }));
+
+    function fetchAuthorityMetadata(_x2) {
+      return _fetchAuthorityMetadata.apply(this, arguments);
+    }
+
+    return fetchAuthorityMetadata;
+  }();
+
+  return FetchManager;
+}();
 /**
  * Calls a resource endpoint
  * @param {string} endpoint
  * @returns {Promise}
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
 
 FetchManager.callApiEndpoint = /*#__PURE__*/function () {
-  var _ref = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(endpoint) {
+  var _ref = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee3(endpoint, options) {
     var response;
-    return runtime_1.wrap(function _callee$(_context) {
+    return runtime_1.wrap(function _callee3$(_context3) {
       while (1) {
-        switch (_context.prev = _context.next) {
+        switch (_context3.prev = _context3.next) {
           case 0:
-            _context.prev = 0;
-            _context.next = 3;
-            return axios.get(endpoint);
+            _context3.prev = 0;
+            _context3.next = 3;
+            return axios.get(endpoint, options);
 
           case 3:
-            response = _context.sent;
-            return _context.abrupt("return", response.data);
+            response = _context3.sent;
+            return _context3.abrupt("return", response);
 
           case 7:
-            _context.prev = 7;
-            _context.t0 = _context["catch"](0);
-            throw _context.t0;
+            _context3.prev = 7;
+            _context3.t0 = _context3["catch"](0);
+            throw _context3.t0;
 
           case 10:
           case "end":
-            return _context.stop();
+            return _context3.stop();
         }
       }
-    }, _callee, null, [[0, 7]]);
+    }, _callee3, null, [[0, 7]]);
   }));
 
-  return function (_x) {
+  return function (_x3, _x4) {
     return _ref.apply(this, arguments);
   };
 }();
@@ -1282,17 +1350,18 @@ FetchManager.callApiEndpoint = /*#__PURE__*/function () {
  * @param {string} accessToken
  * @returns {Promise}
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
 
 
 FetchManager.callApiEndpointWithToken = /*#__PURE__*/function () {
-  var _ref2 = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(endpoint, accessToken) {
+  var _ref2 = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee4(endpoint, accessToken) {
     var options, response;
-    return runtime_1.wrap(function _callee2$(_context2) {
+    return runtime_1.wrap(function _callee4$(_context4) {
       while (1) {
-        switch (_context2.prev = _context2.next) {
+        switch (_context4.prev = _context4.next) {
           case 0:
             if (!msalCommon.StringUtils.isEmpty(accessToken)) {
-              _context2.next = 2;
+              _context4.next = 2;
               break;
             }
 
@@ -1304,28 +1373,28 @@ FetchManager.callApiEndpointWithToken = /*#__PURE__*/function () {
                 Authorization: "Bearer " + accessToken
               }
             };
-            _context2.prev = 3;
-            _context2.next = 6;
-            return axios.get(endpoint, options);
+            _context4.prev = 3;
+            _context4.next = 6;
+            return FetchManager.callApiEndpoint(endpoint, options);
 
           case 6:
-            response = _context2.sent;
-            return _context2.abrupt("return", response.data);
+            response = _context4.sent;
+            return _context4.abrupt("return", response.data);
 
           case 10:
-            _context2.prev = 10;
-            _context2.t0 = _context2["catch"](3);
-            throw _context2.t0;
+            _context4.prev = 10;
+            _context4.t0 = _context4["catch"](3);
+            throw _context4.t0;
 
           case 13:
           case "end":
-            return _context2.stop();
+            return _context4.stop();
         }
       }
-    }, _callee2, null, [[3, 10]]);
+    }, _callee4, null, [[3, 10]]);
   }));
 
-  return function (_x2, _x3) {
+  return function (_x5, _x6) {
     return _ref2.apply(this, arguments);
   };
 }();
@@ -1339,62 +1408,63 @@ FetchManager.callApiEndpointWithToken = /*#__PURE__*/function () {
 
 
 FetchManager.handlePagination = /*#__PURE__*/function () {
-  var _ref3 = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee3(accessToken, nextPage, data) {
+  var _ref3 = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee5(accessToken, nextPage, data) {
     var graphResponse;
-    return runtime_1.wrap(function _callee3$(_context3) {
+    return runtime_1.wrap(function _callee5$(_context5) {
       while (1) {
-        switch (_context3.prev = _context3.next) {
+        switch (_context5.prev = _context5.next) {
           case 0:
             if (data === void 0) {
               data = [];
             }
 
-            _context3.prev = 1;
-            _context3.next = 4;
+            _context5.prev = 1;
+            _context5.next = 4;
             return FetchManager.callApiEndpointWithToken(nextPage, accessToken);
 
           case 4:
-            _context3.next = 6;
-            return _context3.sent.data;
+            _context5.next = 6;
+            return _context5.sent.data;
 
           case 6:
-            graphResponse = _context3.sent;
-            graphResponse['value'].map(function (v) {
+            graphResponse = _context5.sent;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+            graphResponse["value"].map(function (v) {
               return data.push(v.id);
             });
 
             if (!graphResponse[AccessControlConstants.PAGINATION_LINK]) {
-              _context3.next = 14;
+              _context5.next = 14;
               break;
             }
 
-            _context3.next = 11;
+            _context5.next = 11;
             return FetchManager.handlePagination(accessToken, graphResponse[AccessControlConstants.PAGINATION_LINK], data);
 
           case 11:
-            return _context3.abrupt("return", _context3.sent);
+            return _context5.abrupt("return", _context5.sent);
 
           case 14:
-            return _context3.abrupt("return", data);
+            return _context5.abrupt("return", data);
 
           case 15:
-            _context3.next = 20;
+            _context5.next = 20;
             break;
 
           case 17:
-            _context3.prev = 17;
-            _context3.t0 = _context3["catch"](1);
-            throw _context3.t0;
+            _context5.prev = 17;
+            _context5.t0 = _context5["catch"](1);
+            throw _context5.t0;
 
           case 20:
           case "end":
-            return _context3.stop();
+            return _context5.stop();
         }
       }
-    }, _callee3, null, [[1, 17]]);
+    }, _callee5, null, [[1, 17]]);
   }));
 
-  return function (_x4, _x5, _x6) {
+  return function (_x7, _x8, _x9) {
     return _ref3.apply(this, arguments);
   };
 }();
@@ -1415,15 +1485,15 @@ UrlUtils.ensureAbsoluteUrl = function (req, url) {
   var urlComponents = new msalCommon.UrlString(url).getUrlComponents();
 
   if (!urlComponents.Protocol) {
-    if (!urlComponents.HostNameAndPort && !url.startsWith('www')) {
-      if (!url.startsWith('/')) {
-        return req.protocol + '://' + req.get('host') + '/' + url;
+    if (!urlComponents.HostNameAndPort && !url.startsWith("www")) {
+      if (!url.startsWith("/")) {
+        return req.protocol + "://" + req.get("host") + "/" + url;
       }
 
-      return req.protocol + '://' + req.get('host') + url;
+      return req.protocol + "://" + req.get("host") + url;
     }
 
-    return req.protocol + '://' + url;
+    return req.protocol + "://" + url;
   } else {
     return url;
   }
@@ -1437,10 +1507,9 @@ UrlUtils.ensureAbsoluteUrl = function (req, url) {
 
 UrlUtils.getPathFromUrl = function (url) {
   var urlComponents = new msalCommon.UrlString(url).getUrlComponents();
-  return "/" + urlComponents.PathSegments.join('/');
+  return "/" + urlComponents.PathSegments.join("/");
 };
 
-var _excluded = ["_claim_names", "_claim_sources"];
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
  * It offers a collection of middleware and utility methods that automate
@@ -1490,7 +1559,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
        * Expose front-channel logout route. For more information, visit:
        * https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#single-sign-out
        */
-      appRouter.get(this.webAppSettings.authRoutes.frontChannelLogout, function (req, res) {
+      appRouter.get(this.webAppSettings.authRoutes.frontChannelLogout, this.isAuthenticated, function (req, res) {
         req.session.destroy(function () {
           res.sendStatus(200);
         });
@@ -1511,8 +1580,8 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
 
     if (options === void 0) {
       options = {
-        postLoginRedirect: '/',
-        failureRedirect: '/'
+        postLoginRedirect: "/",
+        failureRedirect: "/"
       };
     }
 
@@ -1544,7 +1613,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
 
     if (options === void 0) {
       options = {
-        postLogoutRedirect: '/'
+        postLogoutRedirect: "/"
       };
     }
 
@@ -1552,7 +1621,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
       var _ref = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(req, res) {
         var _req$session$account, _req$session$account2;
 
-        var postLogoutRedirectUri, logoutUri, tokenCache, account;
+        var postLogoutRedirectUri, logoutUri, msalInstance, tokenCache, account;
         return runtime_1.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
@@ -1566,45 +1635,62 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
                  */
 
                 logoutUri = _this4.msalConfig.auth.authority + "/oauth2/v2.0/logout?post_logout_redirect_uri=" + postLogoutRedirectUri;
-                tokenCache = _this4.msalClient.getTokenCache();
+                msalInstance = _this4.getMsalInstance();
+                tokenCache = msalInstance.getTokenCache();
+                _context.t1 = (_req$session$account = req.session.account) == null ? void 0 : _req$session$account.homeAccountId;
 
-                if (!((_req$session$account = req.session.account) != null && _req$session$account.homeAccountId)) {
+                if (!_context.t1) {
                   _context.next = 9;
                   break;
                 }
 
-                _context.next = 6;
+                _context.next = 8;
                 return tokenCache.getAccountByHomeId(req.session.account.homeAccountId);
 
-              case 6:
-                _context.t0 = _context.sent;
-                _context.next = 12;
-                break;
+              case 8:
+                _context.t1 = _context.sent;
 
               case 9:
-                _context.next = 11;
-                return tokenCache.getAccountByLocalId((_req$session$account2 = req.session.account) == null ? void 0 : _req$session$account2.localAccountId);
+                _context.t0 = _context.t1;
 
-              case 11:
-                _context.t0 = _context.sent;
+                if (_context.t0) {
+                  _context.next = 17;
+                  break;
+                }
 
-              case 12:
-                account = _context.t0;
+                _context.t2 = (_req$session$account2 = req.session.account) == null ? void 0 : _req$session$account2.localAccountId;
 
-                if (!account) {
+                if (!_context.t2) {
                   _context.next = 16;
                   break;
                 }
 
-                _context.next = 16;
-                return tokenCache.removeAccount(account);
+                _context.next = 15;
+                return tokenCache.getAccountByLocalId(req.session.account.localAccountId);
+
+              case 15:
+                _context.t2 = _context.sent;
 
               case 16:
+                _context.t0 = _context.t2;
+
+              case 17:
+                account = _context.t0;
+
+                if (!account) {
+                  _context.next = 21;
+                  break;
+                }
+
+                _context.next = 21;
+                return tokenCache.removeAccount(account);
+
+              case 21:
                 req.session.destroy(function () {
                   res.redirect(logoutUri);
                 });
 
-              case 17:
+              case 22:
               case "end":
                 return _context.stop();
             }
@@ -1629,7 +1715,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
 
     return /*#__PURE__*/function () {
       var _ref2 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(req, res, next) {
-        var state, tokenResponse, resourceName, _req$session$protecte, _tokenResponse;
+        var state, msalInstance, tokenResponse, resourceName, _req$session$protecte, _msalInstance, _tokenResponse;
 
         return runtime_1.wrap(function _callee2$(_context2) {
           while (1) {
@@ -1656,112 +1742,118 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
 
               case 6:
                 if (!req.body.state) {
-                  _context2.next = 51;
+                  _context2.next = 55;
                   break;
                 }
 
-                state = JSON.parse(_this5.cryptoUtils.decryptData(_this5.cryptoProvider.base64Decode(req.body.state), Buffer.from(req.session.key, 'hex'))); // check if csrfToken matches
+                state = JSON.parse(_this5.cryptoUtils.decryptData(_this5.cryptoProvider.base64Decode(req.body.state), Buffer.from(req.session.key, "hex"))); // check if csrfToken matches
 
                 if (!(state.csrfToken === req.session.csrfToken)) {
-                  _context2.next = 48;
+                  _context2.next = 52;
                   break;
                 }
 
                 _context2.t0 = state.appStage;
-                _context2.next = _context2.t0 === AppStages.SIGN_IN ? 12 : _context2.t0 === AppStages.ACQUIRE_TOKEN ? 28 : 44;
+                _context2.next = _context2.t0 === AppStages.SIGN_IN ? 12 : _context2.t0 === AppStages.ACQUIRE_TOKEN ? 30 : 48;
                 break;
 
               case 12:
                 // token request should have auth code
                 req.session.authorizationCodeRequest.code = req.body.code;
                 _context2.prev = 13;
-                _context2.next = 16;
-                return _this5.msalClient.acquireTokenByCode(req.session.authorizationCodeRequest);
+                msalInstance = _this5.getMsalInstance(); // exchange auth code for tokens
 
-              case 16:
+                _context2.next = 17;
+                return msalInstance.acquireTokenByCode(req.session.authorizationCodeRequest);
+
+              case 17:
                 tokenResponse = _context2.sent;
 
                 if (tokenResponse) {
-                  _context2.next = 19;
+                  _context2.next = 20;
                   break;
                 }
 
                 return _context2.abrupt("return", res.redirect(_this5.webAppSettings.authRoutes.unauthorized));
 
-              case 19:
-                req.session.isAuthenticated = true;
+              case 20:
+                req.session.tokenCache = msalInstance.getTokenCache().serialize();
+                req.session.isAuthenticated = true; // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
                 req.session.account = tokenResponse.account; // this won't be null in any web app scenario
 
                 res.redirect(state.redirectTo);
-                _context2.next = 27;
+                _context2.next = 29;
                 break;
 
-              case 24:
-                _context2.prev = 24;
+              case 26:
+                _context2.prev = 26;
                 _context2.t1 = _context2["catch"](13);
                 next(_context2.t1);
 
-              case 27:
-                return _context2.abrupt("break", 46);
+              case 29:
+                return _context2.abrupt("break", 50);
 
-              case 28:
+              case 30:
                 // get the name of the resource associated with scope
                 resourceName = ConfigHelper.getResourceNameFromScopes(req.session.authorizationCodeRequest.scopes, _this5.webAppSettings);
                 req.session.authorizationCodeRequest.code = req.body.code;
-                _context2.prev = 30;
-                _context2.next = 33;
-                return _this5.msalClient.acquireTokenByCode(req.session.authorizationCodeRequest);
+                _context2.prev = 32;
+                _msalInstance = _this5.getMsalInstance();
+                _context2.next = 36;
+                return _msalInstance.acquireTokenByCode(req.session.authorizationCodeRequest);
 
-              case 33:
+              case 36:
                 _tokenResponse = _context2.sent;
 
                 if (_tokenResponse) {
-                  _context2.next = 36;
+                  _context2.next = 39;
                   break;
                 }
 
                 return _context2.abrupt("return", res.redirect(_this5.webAppSettings.authRoutes.unauthorized));
 
-              case 36:
+              case 39:
+                req.session.tokenCache = _msalInstance.getTokenCache().serialize();
                 req.session.protectedResources = (_req$session$protecte = {}, _req$session$protecte[resourceName] = {
                   accessToken: _tokenResponse.accessToken
                 }, _req$session$protecte);
                 res.redirect(state.redirectTo);
-                _context2.next = 43;
+                _context2.next = 47;
                 break;
-
-              case 40:
-                _context2.prev = 40;
-                _context2.t2 = _context2["catch"](30);
-                next(_context2.t2);
-
-              case 43:
-                return _context2.abrupt("break", 46);
 
               case 44:
-                next(new Error(ErrorMessages.CANNOT_DETERMINE_APP_STAGE));
-                return _context2.abrupt("break", 46);
+                _context2.prev = 44;
+                _context2.t2 = _context2["catch"](32);
+                next(_context2.t2);
 
-              case 46:
-                _context2.next = 49;
-                break;
+              case 47:
+                return _context2.abrupt("break", 50);
 
               case 48:
-                res.redirect(_this5.webAppSettings.authRoutes.unauthorized);
+                next(new Error(ErrorMessages.CANNOT_DETERMINE_APP_STAGE));
+                return _context2.abrupt("break", 50);
 
-              case 49:
-                _context2.next = 52;
+              case 50:
+                _context2.next = 53;
                 break;
 
-              case 51:
+              case 52:
                 res.redirect(_this5.webAppSettings.authRoutes.unauthorized);
 
-              case 52:
+              case 53:
+                _context2.next = 56;
+                break;
+
+              case 55:
+                res.redirect(_this5.webAppSettings.authRoutes.unauthorized);
+
+              case 56:
               case "end":
                 return _context2.stop();
             }
           }
-        }, _callee2, null, [[13, 24], [30, 40]]);
+        }, _callee2, null, [[13, 26], [32, 44]]);
       }));
 
       return function (_x3, _x4, _x5) {
@@ -1783,7 +1875,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
       var _ref3 = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee3(req, res, next) {
         var _req$session$protecte2;
 
-        var scopes, resourceName, silentRequest, tokenResponse, appState, authUrlParams, authCodeParams;
+        var scopes, resourceName, silentRequest, msalInstance, tokenResponse, appState, authUrlParams, authCodeParams;
         return runtime_1.wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
@@ -1810,31 +1902,34 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
                   scopes: scopes
                 }; // acquire token silently to be used in resource call
 
-                _context3.next = 10;
-                return _this6.msalClient.acquireTokenSilent(silentRequest);
+                msalInstance = _this6.getMsalInstance();
+                msalInstance.getTokenCache().deserialize(req.session.tokenCache || "");
+                _context3.next = 12;
+                return msalInstance.acquireTokenSilent(silentRequest);
 
-              case 10:
+              case 12:
                 tokenResponse = _context3.sent;
 
                 if (!(!tokenResponse || msalCommon.StringUtils.isEmpty(tokenResponse.accessToken))) {
-                  _context3.next = 13;
+                  _context3.next = 15;
                   break;
                 }
 
                 throw new msalCommon.InteractionRequiredAuthError(ErrorMessages.INTERACTION_REQUIRED);
 
-              case 13:
+              case 15:
+                req.session.tokenCache = msalInstance.getTokenCache().serialize();
                 req.session.protectedResources[resourceName].accessToken = tokenResponse.accessToken;
                 next();
-                _context3.next = 27;
+                _context3.next = 30;
                 break;
 
-              case 17:
-                _context3.prev = 17;
+              case 20:
+                _context3.prev = 20;
                 _context3.t0 = _context3["catch"](6);
 
                 if (!(_context3.t0 instanceof msalCommon.InteractionRequiredAuthError)) {
-                  _context3.next = 26;
+                  _context3.next = 29;
                   break;
                 }
 
@@ -1851,15 +1946,15 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
 
                 return _context3.abrupt("return", _this6.redirectToAuthCodeUrl(req, res, next, authUrlParams, authCodeParams, appState));
 
-              case 26:
+              case 29:
                 next(_context3.t0);
 
-              case 27:
+              case 30:
               case "end":
                 return _context3.stop();
             }
           }
-        }, _callee3, null, [[6, 17]]);
+        }, _callee3, null, [[6, 20]]);
       }));
 
       return function (_x6, _x7, _x8) {
@@ -2019,7 +2114,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
   /*#__PURE__*/
   function () {
     var _redirectToAuthCodeUrl = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee5(req, res, next, authUrlParams, authCodeParams, appState) {
-      var key, state, response;
+      var key, state, msalInstance, response;
       return runtime_1.wrap(function _callee5$(_context5) {
         while (1) {
           switch (_context5.prev = _context5.next) {
@@ -2027,7 +2122,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
               // add session csrfToken for crsf
               req.session.csrfToken = this.cryptoProvider.createNewGuid();
               key = this.cryptoUtils.createKey(req.session.csrfToken, this.cryptoUtils.generateSalt());
-              req.session.key = key.toString('hex');
+              req.session.key = key.toString("hex");
               state = JSON.stringify(_extends({}, appState, {
                 csrfToken: req.session.csrfToken
               })); // prepare the request
@@ -2039,30 +2134,31 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
               });
               req.session.authorizationCodeRequest = _extends({}, authCodeParams, {
                 redirectUri: UrlUtils.ensureAbsoluteUrl(req, this.webAppSettings.authRoutes.redirect),
-                code: ''
+                code: ""
               }); // request an authorization code to exchange for tokens
 
               _context5.prev = 6;
-              _context5.next = 9;
-              return this.msalClient.getAuthCodeUrl(req.session.authorizationUrlRequest);
+              msalInstance = this.getMsalInstance();
+              _context5.next = 10;
+              return msalInstance.getAuthCodeUrl(req.session.authorizationUrlRequest);
 
-            case 9:
+            case 10:
               response = _context5.sent;
               res.redirect(response);
-              _context5.next = 16;
+              _context5.next = 17;
               break;
 
-            case 13:
-              _context5.prev = 13;
+            case 14:
+              _context5.prev = 14;
               _context5.t0 = _context5["catch"](6);
               next(_context5.t0);
 
-            case 16:
+            case 17:
             case "end":
               return _context5.stop();
           }
         }
-      }, _callee5, this, [[6, 13]]);
+      }, _callee5, this, [[6, 14]]);
     }));
 
     function redirectToAuthCodeUrl(_x12, _x13, _x14, _x15, _x16, _x17) {
@@ -2087,8 +2183,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
     var _handleOverage = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee6(req, res, next, rule) {
       var _req$session$account4;
 
-      var _req$session$account$, newIdTokenClaims, silentRequest, tokenResponse, graphResponse, userGroups;
-
+      var newIdTokenClaims, silentRequest, msalInstance, tokenResponse, graphResponse, userGroups;
       return runtime_1.wrap(function _callee6$(_context6) {
         while (1) {
           switch (_context6.prev = _context6.next) {
@@ -2102,113 +2197,118 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
               return _context6.abrupt("return", next(new Error(ErrorMessages.ID_TOKEN_CLAIMS_NOT_FOUND)));
 
             case 3:
-              _req$session$account$ = req.session.account.idTokenClaims, newIdTokenClaims = _objectWithoutPropertiesLoose(_req$session$account$, _excluded);
+              newIdTokenClaims = _extends({}, req.session.account.idTokenClaims);
               silentRequest = {
                 account: req.session.account,
-                scopes: AccessControlConstants.GRAPH_MEMBER_SCOPES.split(' ')
+                scopes: AccessControlConstants.GRAPH_MEMBER_SCOPES.split(" ")
               };
               _context6.prev = 5;
-              _context6.next = 8;
-              return this.msalClient.acquireTokenSilent(silentRequest);
+              // acquire token silently to be used in resource call
+              msalInstance = this.getMsalInstance();
+              msalInstance.getTokenCache().deserialize(req.session.tokenCache || "");
+              _context6.next = 10;
+              return msalInstance.acquireTokenSilent(silentRequest);
 
-            case 8:
+            case 10:
               tokenResponse = _context6.sent;
 
               if (tokenResponse) {
-                _context6.next = 11;
+                _context6.next = 13;
                 break;
               }
 
               return _context6.abrupt("return", res.redirect(this.webAppSettings.authRoutes.unauthorized));
 
-            case 11:
-              _context6.prev = 11;
-              _context6.next = 14;
+            case 13:
+              req.session.tokenCache = msalInstance.getTokenCache().serialize();
+              _context6.prev = 14;
+              _context6.next = 17;
               return FetchManager.callApiEndpointWithToken(AccessControlConstants.GRAPH_MEMBERS_ENDPOINT, tokenResponse.accessToken);
 
-            case 14:
+            case 17:
               graphResponse = _context6.sent;
 
               if (!graphResponse.data[AccessControlConstants.PAGINATION_LINK]) {
-                _context6.next = 33;
+                _context6.next = 36;
                 break;
               }
 
-              _context6.prev = 16;
-              _context6.next = 19;
+              _context6.prev = 19;
+              _context6.next = 22;
               return FetchManager.handlePagination(tokenResponse.accessToken, graphResponse.data[AccessControlConstants.PAGINATION_LINK]);
 
-            case 19:
+            case 22:
               userGroups = _context6.sent;
               req.session.account.idTokenClaims = _extends({}, newIdTokenClaims, {
                 groups: userGroups
               });
 
               if (this.checkAccessRule(req.method, rule, req.session.account.idTokenClaims[AccessControlConstants.GROUPS], AccessControlConstants.GROUPS)) {
-                _context6.next = 25;
+                _context6.next = 28;
                 break;
               }
 
               return _context6.abrupt("return", res.redirect(this.webAppSettings.authRoutes.unauthorized));
 
-            case 25:
+            case 28:
               return _context6.abrupt("return", next());
 
-            case 26:
-              _context6.next = 31;
+            case 29:
+              _context6.next = 34;
               break;
-
-            case 28:
-              _context6.prev = 28;
-              _context6.t0 = _context6["catch"](16);
-              next(_context6.t0);
 
             case 31:
-              _context6.next = 39;
+              _context6.prev = 31;
+              _context6.t0 = _context6["catch"](19);
+              next(_context6.t0);
+
+            case 34:
+              _context6.next = 42;
               break;
 
-            case 33:
+            case 36:
               req.session.account.idTokenClaims = _extends({}, newIdTokenClaims, {
-                groups: graphResponse.data['value'].map(function (v) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                groups: graphResponse.data["value"].map(function (v) {
                   return v.id;
                 })
               });
 
               if (this.checkAccessRule(req.method, rule, req.session.account.idTokenClaims[AccessControlConstants.GROUPS], AccessControlConstants.GROUPS)) {
-                _context6.next = 38;
+                _context6.next = 41;
                 break;
               }
 
               return _context6.abrupt("return", res.redirect(this.webAppSettings.authRoutes.unauthorized));
 
-            case 38:
+            case 41:
               return _context6.abrupt("return", next());
 
-            case 39:
-              _context6.next = 44;
+            case 42:
+              _context6.next = 47;
               break;
-
-            case 41:
-              _context6.prev = 41;
-              _context6.t1 = _context6["catch"](11);
-              next(_context6.t1);
 
             case 44:
-              _context6.next = 49;
+              _context6.prev = 44;
+              _context6.t1 = _context6["catch"](14);
+              next(_context6.t1);
+
+            case 47:
+              _context6.next = 52;
               break;
 
-            case 46:
-              _context6.prev = 46;
+            case 49:
+              _context6.prev = 49;
               _context6.t2 = _context6["catch"](5);
               // TODO: handle silent token acquisition error
               next(_context6.t2);
 
-            case 49:
+            case 52:
             case "end":
               return _context6.stop();
           }
         }
-      }, _callee6, this, [[5, 46], [11, 41], [16, 28]]);
+      }, _callee6, this, [[5, 49], [14, 44], [19, 31]]);
     }));
 
     function handleOverage(_x18, _x19, _x20, _x21) {
@@ -2308,9 +2408,9 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
           req.session.isAuthenticated = true;
           req.session.account = {
             tenantId: idTokenClaims.tid,
-            homeAccountId: idTokenClaims.oid + '.' + idTokenClaims.tid,
+            homeAccountId: idTokenClaims.oid + "." + idTokenClaims.tid,
             localAccountId: idTokenClaims.oid,
-            environment: (_idTokenClaims$iss = idTokenClaims.iss) == null ? void 0 : _idTokenClaims$iss.split('://')[1].split('/')[0],
+            environment: (_idTokenClaims$iss = idTokenClaims.iss) == null ? void 0 : _idTokenClaims$iss.split("://")[1].split("/")[0],
             username: idTokenClaims.preferred_username,
             name: idTokenClaims.name,
             idTokenClaims: idTokenClaims
@@ -2332,15 +2432,14 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
   _proto.signIn = function signIn(options) {
     if (options === void 0) {
       options = {
-        postLoginRedirect: '/',
-        failureRedirect: '/'
+        postLoginRedirect: "/",
+        failureRedirect: "/"
       };
     }
 
-    return function (req, res, next) {
-      var loginUri;
+    return function (req, res) {
       var postLoginRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.postLoginRedirect);
-      loginUri = 'https://' + process.env[AppServiceEnvironmentVariables.WEBSITE_HOSTNAME] + AppServiceAuthenticationEndpoints.AAD_SIGN_IN_ENDPOINT + AppServiceAuthenticationQueryParameters.POST_LOGIN_REDIRECT_QUERY_PARAM + postLoginRedirectUri;
+      var loginUri = "https://" + process.env[AppServiceEnvironmentVariables.WEBSITE_HOSTNAME] + AppServiceAuthenticationEndpoints.AAD_SIGN_IN_ENDPOINT + AppServiceAuthenticationQueryParameters.POST_LOGIN_REDIRECT_QUERY_PARAM + postLoginRedirectUri;
       res.redirect(loginUri);
     };
   }
@@ -2354,13 +2453,13 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
   _proto.signOut = function signOut(options) {
     if (options === void 0) {
       options = {
-        postLogoutRedirect: '/'
+        postLogoutRedirect: "/"
       };
     }
 
-    return function (req, res, next) {
+    return function (req, res) {
       var postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.postLogoutRedirect);
-      var logoutUri = 'https://' + process.env[AppServiceEnvironmentVariables.WEBSITE_HOSTNAME] + AppServiceAuthenticationEndpoints.AAD_SIGN_OUT_ENDPOINT + AppServiceAuthenticationQueryParameters.POST_LOGOUT_REDIRECT_QUERY_PARAM + postLogoutRedirectUri;
+      var logoutUri = "https://" + process.env[AppServiceEnvironmentVariables.WEBSITE_HOSTNAME] + AppServiceAuthenticationEndpoints.AAD_SIGN_OUT_ENDPOINT + AppServiceAuthenticationQueryParameters.POST_LOGOUT_REDIRECT_QUERY_PARAM + postLogoutRedirectUri;
       req.session.destroy(function () {
         res.redirect(logoutUri);
       });
@@ -2421,7 +2520,7 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
 
                 accessTokenClaims = msalCommon.AuthToken.extractTokenClaims(rawAccessToken, _this3.cryptoProvider); // get the name of the resource associated with scope
 
-                scopes = accessTokenClaims == null ? void 0 : accessTokenClaims.scp.split(' ');
+                scopes = accessTokenClaims == null ? void 0 : accessTokenClaims.scp.split(" ");
                 effectiveScopes = ConfigHelper.getEffectiveScopes(scopes);
 
                 if (!options.resource.scopes.every(function (elem) {
@@ -2435,7 +2534,7 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
                 return _context.abrupt("return", next());
 
               case 15:
-                return _context.abrupt("return", next(new Error('No tokens found for given scopes')));
+                return _context.abrupt("return", next(new Error("No tokens found for given scopes")));
 
               case 16:
               case "end":
@@ -2535,7 +2634,7 @@ var KeyVaultManager = /*#__PURE__*/function () {
                 type: KeyVaultCredentialTypes.CERTIFICATE,
                 value: {
                   thumbprint: certificateResponse == null ? void 0 : (_certificateResponse$ = certificateResponse.properties) == null ? void 0 : (_certificateResponse$2 = _certificateResponse$.x509Thumbprint) == null ? void 0 : _certificateResponse$2.toString(),
-                  privateKey: _secretResponse == null ? void 0 : (_secretResponse$value = _secretResponse.value) == null ? void 0 : _secretResponse$value.split('-----BEGIN CERTIFICATE-----\n')[0]
+                  privateKey: _secretResponse == null ? void 0 : (_secretResponse$value = _secretResponse.value) == null ? void 0 : _secretResponse$value.split("-----BEGIN CERTIFICATE-----\n")[0]
                 }
               };
               _context.next = 29;
@@ -2680,14 +2779,14 @@ var MsalConfiguration = /*#__PURE__*/function () {
     return {
       auth: _extends({
         clientId: appSettings.appCredentials.clientId,
-        authority: appSettings.b2cPolicies ? Object.entries(appSettings.b2cPolicies)[0][1]['authority'] // the first policy/user-flow is the default authority
+        authority: appSettings.b2cPolicies ? Object.entries(appSettings.b2cPolicies)[0][1]["authority"] // the first policy/user-flow is the default authority
         : appSettings.appCredentials.instance ? "https://" + appSettings.appCredentials.instance + "/" + appSettings.appCredentials.tenantId : "https://" + msalCommon.Constants.DEFAULT_AUTHORITY_HOST + "/" + appSettings.appCredentials.tenantId
-      }, appSettings.appCredentials.hasOwnProperty('clientSecret') && {
+      }, appSettings.appCredentials.hasOwnProperty("clientSecret") && {
         clientSecret: appSettings.appCredentials.clientSecret
-      }, appSettings.appCredentials.hasOwnProperty('clientCertificate') && {
+      }, appSettings.appCredentials.hasOwnProperty("clientCertificate") && {
         clientCertificate: appSettings.appCredentials.clientCertificate
       }, {
-        knownAuthorities: appSettings.b2cPolicies ? [msalCommon.UrlString.getDomainFromUrl(Object.entries(appSettings.b2cPolicies)[0][1]['authority'])] // in B2C scenarios
+        knownAuthorities: appSettings.b2cPolicies ? [msalCommon.UrlString.getDomainFromUrl(Object.entries(appSettings.b2cPolicies)[0][1]["authority"])] // in B2C scenarios
         : []
       }),
       system: {
@@ -2707,15 +2806,15 @@ var EnvironmentUtils = /*#__PURE__*/function () {
   function EnvironmentUtils() {}
 
   EnvironmentUtils.isProduction = function isProduction() {
-    return "development" === 'production';
+    return "development" === "production";
   };
 
   EnvironmentUtils.isDevelopment = function isDevelopment() {
-    return "development" === 'development';
+    return "development" === "development";
   };
 
   EnvironmentUtils.isAppServiceAuthEnabled = function isAppServiceAuthEnabled() {
-    return process.env[AppServiceEnvironmentVariables.WEBSITE_AUTH_ENABLED] === 'True';
+    return process.env[AppServiceEnvironmentVariables.WEBSITE_AUTH_ENABLED] === "True";
   };
 
   return EnvironmentUtils;
@@ -2743,54 +2842,80 @@ var WebAppAuthClientBuilder = /*#__PURE__*/function (_BaseAuthClientBuilde) {
 
   _proto.buildAsync = /*#__PURE__*/function () {
     var _buildAsync = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee() {
-      var keyVaultManager, credential;
+      var keyVaultManager, credential, _yield$Promise$all, discoveryMetadata, authorityMetadata;
+
       return runtime_1.wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
               _context.prev = 0;
+              this.msalConfig = MsalConfiguration.getMsalConfiguration(this.appSettings);
 
               if (!this.keyVaultCredential) {
-                _context.next = 7;
+                _context.next = 14;
                 break;
               }
 
               keyVaultManager = new KeyVaultManager();
-              _context.next = 5;
+              _context.next = 6;
               return keyVaultManager.getCredentialFromKeyVault(this.keyVaultCredential);
 
-            case 5:
+            case 6:
               credential = _context.sent;
-              this.appSettings.appCredentials[credential.type] = credential.value;
+              _context.t0 = credential.type;
+              _context.next = _context.t0 === KeyVaultCredentialTypes.SECRET ? 10 : _context.t0 === KeyVaultCredentialTypes.CERTIFICATE ? 12 : 14;
+              break;
 
-            case 7:
-              this.msalConfig = MsalConfiguration.getMsalConfiguration(this.appSettings);
+            case 10:
+              this.msalConfig.auth.clientSecret = credential.value;
+              return _context.abrupt("break", 14);
+
+            case 12:
+              this.msalConfig.auth.clientCertificate = credential.value;
+              return _context.abrupt("break", 14);
+
+            case 14:
+              if (this.customCachePlugin) {
+                this.msalConfig.cache = {
+                  cachePlugin: this.customCachePlugin
+                };
+              }
+
+              _context.next = 17;
+              return Promise.all([FetchManager.fetchCloudDiscoveryMetadata(this.appSettings.appCredentials.tenantId), FetchManager.fetchAuthorityMetadata(this.appSettings.appCredentials.tenantId)]);
+
+            case 17:
+              _yield$Promise$all = _context.sent;
+              discoveryMetadata = _yield$Promise$all[0];
+              authorityMetadata = _yield$Promise$all[1];
+              this.msalConfig.auth.cloudDiscoveryMetadata = discoveryMetadata;
+              this.msalConfig.auth.authorityMetadata = authorityMetadata;
 
               if (!EnvironmentUtils.isAppServiceAuthEnabled()) {
-                _context.next = 12;
+                _context.next = 26;
                 break;
               }
 
               return _context.abrupt("return", new AppServiceWebAppAuthClient(this.appSettings, this.msalConfig));
 
-            case 12:
+            case 26:
               return _context.abrupt("return", new MsalWebAppAuthClient(this.appSettings, this.msalConfig));
 
-            case 13:
-              _context.next = 18;
+            case 27:
+              _context.next = 32;
               break;
 
-            case 15:
-              _context.prev = 15;
-              _context.t0 = _context["catch"](0);
-              throw new Error(ErrorMessages.CANNOT_OBTAIN_CREDENTIALS_FROM_KEY_VAULT);
+            case 29:
+              _context.prev = 29;
+              _context.t1 = _context["catch"](0);
+              throw _context.t1;
 
-            case 18:
+            case 32:
             case "end":
               return _context.stop();
           }
         }
-      }, _callee, this, [[0, 15]]);
+      }, _callee, this, [[0, 29]]);
     }));
 
     function buildAsync() {

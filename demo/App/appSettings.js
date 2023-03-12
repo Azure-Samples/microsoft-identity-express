@@ -6,6 +6,16 @@ const appSettings = {
         tenantId: process.env.AAD_TENANT_ID,
         clientSecret: process.env.AAD_CLIENT_SECRET
     },
+    loggerOptions: {
+        loggerCallback: (logLevel, message, containsPii) => {
+            if (containsPii) {
+                return;
+            }
+            console.log(message);
+        },
+        piiLoggingEnabled: true,
+        logLevel: 4,
+    },
     authRoutes: {
         redirect: "/redirect",
         unauthorized: "/unauthorized"

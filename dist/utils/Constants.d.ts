@@ -1,4 +1,4 @@
-import { LoggerOptions } from '@azure/msal-common';
+import { LoggerOptions } from "@azure/msal-common";
 /**
  * Basic authentication stages used to determine
  * appropriate action after redirect occurs

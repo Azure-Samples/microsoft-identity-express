@@ -1,8 +1,8 @@
-import { AccountInfo, AuthorizationUrlRequest, AuthorizationCodeRequest, SilentFlowRequest } from '@azure/msal-node';
-import { TokenClaims } from '@azure/msal-common';
-import { Resource } from '../config/AppSettings';
-import { AppStages } from './Constants';
-declare module 'express-session' {
+import { AccountInfo, AuthorizationUrlRequest, AuthorizationCodeRequest, SilentFlowRequest } from "@azure/msal-node";
+import { TokenClaims } from "@azure/msal-common";
+import { Resource } from "../config/AppSettings";
+import { AppStages } from "./Constants";
+declare module "express-session" {
     interface SessionData {
         id: string;
         key: string;
@@ -14,13 +14,7 @@ declare module 'express-session' {
         authorizationCodeRequest: AuthorizationCodeRequest;
         silentFlowRequest: SilentFlowRequest;
         protectedResources?: Record<string, Resource>;
-    }
-}
-declare module 'express' {
-    interface Request {
-        authInfo?: object;
-        oboToken?: string;
-        oboAssertion?: string;
+        tokenCache: string;
     }
 }
 export declare type AppState = {

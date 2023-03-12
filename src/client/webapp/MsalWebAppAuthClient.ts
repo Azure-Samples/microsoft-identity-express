@@ -57,7 +57,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
              * Expose front-channel logout route. For more information, visit:
              * https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#single-sign-out
              */
-            appRouter.get(this.webAppSettings.authRoutes.frontChannelLogout, (req: Request, res: Response) => {
+            appRouter.get(this.webAppSettings.authRoutes.frontChannelLogout, this.isAuthenticated, (req: Request, res: Response) => {
                 req.session.destroy(() => {
                     res.sendStatus(200);
                 });
@@ -119,7 +119,8 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
              */
             const logoutUri = `${this.msalConfig.auth.authority}/oauth2/v2.0/logout?post_logout_redirect_uri=${postLogoutRedirectUri}`;
 
-            const tokenCache = this.msalClient.getTokenCache();
+            const msalInstance = this.getMsalInstance();
+            const tokenCache = msalInstance.getTokenCache();
 
             const account =
                 req.session.account?.homeAccountId && await tokenCache.getAccountByHomeId(req.session.account.homeAccountId)
@@ -169,13 +170,15 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
                             req.session.authorizationCodeRequest.code = req.body.code as string;
 
                             try {
+                                const msalInstance = this.getMsalInstance();
                                 // exchange auth code for tokens
-                                const tokenResponse = await this.msalClient.acquireTokenByCode(
+                                const tokenResponse = await msalInstance.acquireTokenByCode(
                                     req.session.authorizationCodeRequest
                                 );
 
                                 if (!tokenResponse) return res.redirect(this.webAppSettings.authRoutes.unauthorized);
 
+                                req.session.tokenCache = msalInstance.getTokenCache().serialize();
                                 req.session.isAuthenticated = true;
                                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                                 req.session.account = tokenResponse.account!; // this won't be null in any web app scenario
@@ -196,12 +199,14 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
                             req.session.authorizationCodeRequest.code = req.body.code as string;
 
                             try {
-                                const tokenResponse = await this.msalClient.acquireTokenByCode(
+                                const msalInstance = this.getMsalInstance();
+                                const tokenResponse = await msalInstance.acquireTokenByCode(
                                     req.session.authorizationCodeRequest
                                 );
-
+                                
                                 if (!tokenResponse) return res.redirect(this.webAppSettings.authRoutes.unauthorized);
 
+                                req.session.tokenCache = msalInstance.getTokenCache().serialize();
                                 req.session.protectedResources = {
                                     [resourceName]: {
                                         accessToken: tokenResponse.accessToken,
@@ -258,7 +263,9 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
                 } as SilentFlowRequest;
 
                 // acquire token silently to be used in resource call
-                const tokenResponse = await this.msalClient.acquireTokenSilent(silentRequest);
+                const msalInstance = this.getMsalInstance();
+                msalInstance.getTokenCache().deserialize(req.session.tokenCache || "");
+                const tokenResponse = await msalInstance.acquireTokenSilent(silentRequest);
 
                 if (!tokenResponse || StringUtils.isEmpty(tokenResponse.accessToken)) {
                     /*
@@ -269,6 +276,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
                     throw new InteractionRequiredAuthError(ErrorMessages.INTERACTION_REQUIRED);
                 }
 
+                req.session.tokenCache = msalInstance.getTokenCache().serialize();
                 req.session.protectedResources[resourceName].accessToken = tokenResponse.accessToken;
                 next();
             } catch (error) {
@@ -422,7 +430,8 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
 
         // request an authorization code to exchange for tokens
         try {
-            const response = await this.msalClient.getAuthCodeUrl(req.session.authorizationUrlRequest);
+            const msalInstance = this.getMsalInstance();
+            const response = await msalInstance.getAuthCodeUrl(req.session.authorizationUrlRequest);
             res.redirect(response);
         } catch (error) {
             next(error);
@@ -452,9 +461,12 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
 
         try {
             // acquire token silently to be used in resource call
-            const tokenResponse = await this.msalClient.acquireTokenSilent(silentRequest);
+            const msalInstance = this.getMsalInstance();
+            msalInstance.getTokenCache().deserialize(req.session.tokenCache || "");
+            const tokenResponse = await msalInstance.acquireTokenSilent(silentRequest);
 
             if (!tokenResponse) return res.redirect(this.webAppSettings.authRoutes.unauthorized);
+            req.session.tokenCache = msalInstance.getTokenCache().serialize();
 
             try {
                 const graphResponse = await FetchManager.callApiEndpointWithToken(

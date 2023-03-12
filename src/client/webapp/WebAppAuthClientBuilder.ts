@@ -12,7 +12,8 @@ import { KeyVaultManager } from "../../network/KeyVaultManager";
 import { MsalConfiguration } from "../../config/MsalConfiguration";
 import { AppSettings, AppType } from "../../config/AppSettings";
 import { EnvironmentUtils } from "../../utils/EnvironmentUtils";
-import { ErrorMessages } from "../../utils/Constants";
+import { KeyVaultCredentialTypes } from "../../utils/Constants";
+import { FetchManager } from "../../network/FetchManager";
 
 export class WebAppAuthClientBuilder extends BaseAuthClientBuilder {
     appSettings!: AppSettings;
@@ -23,9 +24,15 @@ export class WebAppAuthClientBuilder extends BaseAuthClientBuilder {
     }
 
     build(): MsalWebAppAuthClient | AppServiceWebAppAuthClient {
-        // TODO: throw error if key vault credential is being built
+        if (this.keyVaultCredential) {
+            throw new Error("Key Vault credentials cannot be used in a synchronous build.");
+        }
 
         this.msalConfig = MsalConfiguration.getMsalConfiguration(this.appSettings);
+
+        if (this.customCachePlugin) {
+            this.msalConfig.cache = { cachePlugin: this.customCachePlugin };
+        }
 
         if (EnvironmentUtils.isAppServiceAuthEnabled()) {
             return new AppServiceWebAppAuthClient(this.appSettings, this.msalConfig);
@@ -36,13 +43,33 @@ export class WebAppAuthClientBuilder extends BaseAuthClientBuilder {
 
     async buildAsync(): Promise<MsalWebAppAuthClient | AppServiceWebAppAuthClient> {
         try {
+            this.msalConfig = MsalConfiguration.getMsalConfiguration(this.appSettings);
+
             if (this.keyVaultCredential) {
                 const keyVaultManager = new KeyVaultManager();
                 const credential = await keyVaultManager.getCredentialFromKeyVault(this.keyVaultCredential);
-                this.appSettings.appCredentials[credential.type] = credential.value;
+
+                switch (credential.type) {
+                    case KeyVaultCredentialTypes.SECRET:
+                        this.msalConfig.auth.clientSecret = credential.value;
+                        break;
+                    case KeyVaultCredentialTypes.CERTIFICATE:
+                        this.msalConfig.auth.clientCertificate = credential.value;
+                        break;
+                }
             }
 
-            this.msalConfig = MsalConfiguration.getMsalConfiguration(this.appSettings);
+            if (this.customCachePlugin) {
+                this.msalConfig.cache = { cachePlugin: this.customCachePlugin };
+            }
+
+            const [discoveryMetadata, authorityMetadata] = await Promise.all([
+                FetchManager.fetchCloudDiscoveryMetadata(this.appSettings.appCredentials.tenantId),
+                FetchManager.fetchAuthorityMetadata(this.appSettings.appCredentials.tenantId)
+            ]);
+
+            this.msalConfig.auth.cloudDiscoveryMetadata = discoveryMetadata;
+            this.msalConfig.auth.authorityMetadata = authorityMetadata;
 
             if (EnvironmentUtils.isAppServiceAuthEnabled()) {
                 return new AppServiceWebAppAuthClient(this.appSettings, this.msalConfig);
@@ -50,7 +77,7 @@ export class WebAppAuthClientBuilder extends BaseAuthClientBuilder {
                 return new MsalWebAppAuthClient(this.appSettings, this.msalConfig);
             }
         } catch (error) {
-            throw new Error(ErrorMessages.CANNOT_OBTAIN_CREDENTIALS_FROM_KEY_VAULT);
+            throw error;
         }
     }
 }
