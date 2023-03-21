@@ -2,7 +2,12 @@ const fetchManager = require('../utils/fetchManager');
 const appSettings = require('../appSettings');
 
 exports.getHomePage = (req, res, next) => {
-    res.render('home', { isAuthenticated: req.session.isAuthenticated, username: req.session.account?.idTokenClaims?.preferred_username });
+    res.render('home', {
+        isAuthenticated: req.session.isAuthenticated,
+        username: req.session.account?.idTokenClaims?.preferred_username
+            ? req.session.account?.idTokenClaims?.preferred_username
+            : req.session.account?.username,
+    });
 }
 
 exports.getIdPage = (req, res, next) => {
@@ -10,7 +15,8 @@ exports.getIdPage = (req, res, next) => {
         name: req.session.account.idTokenClaims.name,
         preferred_username: req.session.account.idTokenClaims.preferred_username,
         oid: req.session.account.idTokenClaims.oid,
-        sub: req.session.account.idTokenClaims.sub
+        sub: req.session.account.idTokenClaims.sub,
+        roles: req.session.account.idTokenClaims.roles ? req.session.account.idTokenClaims.roles.join(' ') : null,
     };
 
     res.render('id', { isAuthenticated: req.session.isAuthenticated, claims: claims });
@@ -39,3 +45,11 @@ exports.getTenantPage = async(req, res, next) => {
         next(error);
     }
 }
+
+exports.getRoles = async (req, res, next) => {
+    res.render('roles', { isAuthenticated: req.session.isAuthenticated });
+};
+
+exports.getGroups = async (req, res, next) => {
+    res.render('groups', { isAuthenticated: req.session.isAuthenticated });
+};
