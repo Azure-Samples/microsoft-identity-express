@@ -1,11 +1,16 @@
 import { IdTokenEntity, AccessTokenEntity, RefreshTokenEntity } from '@azure/msal-common';
 import { CacheKVStore } from '@azure/msal-node';
-import { CREDENTIAL_TYPES } from './constants'
 
-export type tokenMap = {
+type tokenMap = {
     idTokens: IdTokenEntity[];
     accessTokens: AccessTokenEntity[];
     refreshTokens: RefreshTokenEntity[];
+};
+
+const CREDENTIAL_TYPES = {
+    ID_TOKEN: 'IdToken',
+    ACCESS_TOKEN: 'AccessToken',
+    REFRESH_TOKEN: 'RefreshToken',
 };
 
 export class NodeCacheTestUtils {

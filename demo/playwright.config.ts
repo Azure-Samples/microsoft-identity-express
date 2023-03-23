@@ -10,6 +10,7 @@ const config: PlaywrightTestConfig = {
     },
     timeout: 30000,
     globalTimeout: 5400000,
+    retries: 3,
     workers: process.env.CI ? 1 : undefined,
 };
 

@@ -17,7 +17,7 @@ const router = require('./routes/router');
 
 const app = express();
 
-async function main(msid = null) {
+async function main(msid) {
     /**
      * Using express-session middleware. Be sure to familiarize yourself with available options
      * and set the desired options. Visit: https://www.npmjs.com/package/express-session
@@ -56,7 +56,7 @@ async function main(msid = null) {
 
     app.set('trust proxy', 1); // trust first proxy
 
-    if (msid == null) {
+    if (msid === undefined) {
         msid = new MsIdExpress.WebAppAuthClientBuilder(appSettings).build();
     }
    
@@ -64,10 +64,6 @@ async function main(msid = null) {
 
     app.use(router(msid));
 
-}
-
-if(process.env.ENV_TYPE !== "test") {
-    main();
 }
 
 module.exports = { 

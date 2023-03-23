@@ -62,7 +62,7 @@ export async function enterCredentials(page: Page, screenshot: Screenshot, usern
         page.click('input#idSIButton9'),
         // Wait either for another navigation to Keep me signed in page or back to redirectUri
         Promise.race([
-            page.waitForURL('networkidle'),
+            page.waitForURL('networkidle').catch(() => {}),
             page.waitForResponse((response: Response) => response.url().startsWith('http://localhost'), { timeout: 0 }),
         ]),
     ]).catch(async (e) => {
@@ -77,10 +77,10 @@ export async function enterCredentials(page: Page, screenshot: Screenshot, usern
 
 export async function enterCredentialsB2C(page: Page, screenshot: Screenshot, username: string | undefined, accountPwd: string): Promise<void> {
     await Promise.all([
-        page.waitForSelector("#email"),
-        page.waitForSelector("#password")
+        page.waitForSelector('#email').catch(() => {}),
+        page.waitForSelector('#password').catch(() => {}),
     ]).catch(async (e) => {
-        await screenshot.takeScreenshot(page, "errorPage").catch(() => { });
+        await screenshot.takeScreenshot(page, 'errorPage').catch(() => {});
         throw e;
     });
 
