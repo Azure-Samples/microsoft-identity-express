@@ -96,7 +96,7 @@ const appSettings = {
 
 ### Integration with Express.js
 
-Import the package and instantiate [MsalWebAppAuthClient](https://azure-samples.github.io/microsoft-identity-express/classes/msalwebappauthclient.html) class, via the *WebAppAuthClientBuilder*, which exposes the middleware you can use in your routes. The constructor takes the settings object and an (optional) persistent cache:
+Import the package and instantiate [MsalWebAppAuthClient](https://azure-samples.github.io/microsoft-identity-express/classes/MsalWebAppAuthClient.html) class, via the *WebAppAuthClientBuilder*, which exposes the middleware you can use in your routes. The constructor takes the settings object and an (optional) persistent cache:
 
 ```javascript
 const express = require('express');
@@ -139,7 +139,7 @@ The wrapper stores user data on `req.session` variable. Below are some of the us
 
 #### Authentication
 
-Add [signIn()](https://azure-samples.github.io/microsoft-identity-express/classes/msalwebappauthclient.html#signin) and [signOut()](https://azure-samples.github.io/microsoft-identity-express/classes/msalwebappauthclient.html#signout) middleware to routes you want users to sign-in and sign-out, respectively. You will need to pass the routes for redirect after as parameters to each:
+Add [signIn()](https://azure-samples.github.io/microsoft-identity-express/classes/MsalWebAppAuthClient.html#signin) and [signOut()](https://azure-samples.github.io/microsoft-identity-express/classes/MsalWebAppAuthClient.html#signout) middleware to routes you want users to sign-in and sign-out, respectively. You will need to pass the routes for redirect after as parameters to each:
 
 ```javascript
 const express = require('express');
@@ -181,7 +181,7 @@ module.exports = (msid) => {
 
 #### Securing routes
 
-Simply add the [isAuthenticated()](https://azure-samples.github.io/microsoft-identity-express/classes/msalwebappauthclient.html#isauthenticated) middleware before the controller that serves the page you would like to secure:
+Simply add the [isAuthenticated()](https://azure-samples.github.io/microsoft-identity-express/classes/MsalWebAppAuthClient.html#isauthenticated) middleware before the controller that serves the page you would like to secure:
 
 ```javascript
 // secure routes
@@ -195,7 +195,7 @@ app.get('/id',
 
 #### Acquiring tokens
 
-[getToken()](https://azure-samples.github.io/microsoft-identity-express/classes/msalwebappauthclient.html#gettoken) can be used before middleware that calls a web API. The access token will be available via `req.session`:
+[getToken()](https://azure-samples.github.io/microsoft-identity-express/classes/MsalWebAppAuthClient.html#gettoken) can be used before middleware that calls a web API. The access token will be available via `req.session`:
 
 ```javascript
     router.get('/profile',
@@ -226,7 +226,7 @@ app.get('/id',
 
 #### Controlling access
 
-Use [hasAccess()](https://azure-samples.github.io/microsoft-identity-express/classes/msalwebappauthclient.html#hasaccess) middleware to control access for Azure AD App Roles and/or Security Groups:
+Use [hasAccess()](https://azure-samples.github.io/microsoft-identity-express/classes/MsalWebAppAuthClient.html#hasaccess) middleware to control access for Azure AD App Roles and/or Security Groups:
 
 ```javascript
     router.use('/admin',
