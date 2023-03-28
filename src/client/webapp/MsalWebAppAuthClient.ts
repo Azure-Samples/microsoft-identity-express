@@ -273,7 +273,14 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
                 next();
             } catch (error) {
                 // in case there are no cached tokens, initiate an interactive call
-                if (error instanceof InteractionRequiredAuthError) {
+                if (
+                    error instanceof InteractionRequiredAuthError ||
+                    InteractionRequiredAuthError.isInteractionRequiredError(
+                        error?.errorCode,
+                        error?.errorMessage,
+                        error?.subError
+                    )
+                ) {
                     const appState = {
                         appStage: AppStages.ACQUIRE_TOKEN,
                         redirectTo: req.originalUrl,
