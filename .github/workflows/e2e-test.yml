@@ -52,6 +52,15 @@ jobs:
         AAD_CLIENT_ID: ${{ secrets.AAD_CLIENT_ID }}
         AAD_TEST_USER_USERNAME: ${{ secrets.AAD_TEST_USER_USERNAME }}
         AAD_TEST_USER_PASSWORD: ${{ secrets.AAD_TEST_USER_PASSWORD }}
+        ADD_SECURITY_GROUP_ID: ${{ secrets.ADD_SECURITY_GROUP_ID }}
+        ADD_LEAST_PRIVILEGE_TEST_USER_USERNAME: ${{ secrets.ADD_LEAST_PRIVILEGE_TEST_USER_USERNAME }}
+        ADD_LEAST_PRIVILEGE_TEST_USER_PASSWORD: ${{ secrets.ADD_LEAST_PRIVILEGE_TEST_USER_PASSWORD }}
+        B2C_CLIENT_ID: ${{ secrets.B2C_CLIENT_ID }}
+        B2C_TENANT_ID: ${{ secrets.B2C_TENANT_ID }}
+        B2C_CLIENT_SECRET: ${{ secrets.B2C_CLIENT_SECRET }}
+        B2C_TEST_USER_USERNAME: ${{ secrets.B2C_TEST_USER_USERNAME }}
+        B2C_TEST_USER_PASSWORD: ${{ secrets.B2C_TEST_USER_PASSWORD }}
+        B2C_AUTHORITY: ${{ secrets.B2C_AUTHORITY }}
       run: npm test
 
     - name: Upload E2E Test Screenshots

@@ -2,13 +2,18 @@ require('dotenv').config();
 
 const appSettings = {
     appCredentials: {
-        clientId: process.env.AAD_CLIENT_ID,
-        tenantId: process.env.AAD_TENANT_ID,
-        clientSecret: process.env.AAD_CLIENT_SECRET,
+        clientId: process.env.B2C_CLIENT_ID,
+        tenantId: process.env.B2C_TENANT_ID,
+        clientSecret: process.env.B2C_CLIENT_SECRET,
     },
     authRoutes: {
         redirect: '/redirect',
         unauthorized: '/unauthorized',
+    },
+    b2cPolicies: {
+        signUpSignIn: {
+            authority: process.env.B2C_AUTHORITY,
+        },
     },
     protectedResources: {
         graphAPI: {
@@ -27,7 +32,7 @@ const appSettings = {
         },
         groupsTodoList: {
             methods: ['GET'],
-            groups: [process.env.ADD_SECURITY_GROUP_ID],
+            groups: ['Enter_the_Object_Id_of_Your_Group_Here'],
         },
     },
 };
