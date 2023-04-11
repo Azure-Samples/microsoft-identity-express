@@ -12,6 +12,8 @@ const path = require('path');
 
 const MsIdExpress = require('../../dist/index');
 const appSettings = require('./appSettings');
+const WebAppAuthClientPerformanceWrapper = require('./auth/WebAppAuthClientPerformanceWrapper')
+
 
 const router = require('./routes/router');
 
@@ -57,14 +59,20 @@ async function main(msid) {
     app.set('trust proxy', 1); // trust first proxy
 
     if (msid === undefined) {
-        msid = new MsIdExpress.WebAppAuthClientBuilder(appSettings).build();
+        // msid = new MsIdExpress.WebAppAuthClientBuilder(appSettings).build();
+        msid = new WebAppAuthClientPerformanceWrapper(appSettings).getWebAppAuthClientBuilderInstance();
     }
    
     app.use(msid.initialize());
 
     app.use(router(msid));
 
+    // app.listen(3000, () => {
+    //     console.log("in here");
+    // })
 }
+
+// main();
 
 module.exports = { 
     main: main,

@@ -8,8 +8,8 @@ import { test, expect } from "@playwright/test";
 import { CacheKVStore, ConfidentialClientApplication } from "@azure/msal-node";
 
 const { app, main } = require("../App/app");
-const MsIdExpress = require("../../dist/index");
 const appSettings = require("../App/appSettings");
+const WebAppAuthClientPerformanceWrapper = require('../App/auth/WebAppAuthClientPerformanceWrapper');
 
 import {
     Screenshot,
@@ -61,7 +61,7 @@ test.describe("Auth Code AAD Tests", () => {
 
         test.beforeAll(async () => {
             server = app.listen(port);
-            msid = new MsIdExpress.WebAppAuthClientBuilder(appSettings).build();
+            msid = new WebAppAuthClientPerformanceWrapper(appSettings).getWebAppAuthClientBuilderInstance();
             msalInstance = msid.getMsalClient();
             tokenCache = msalInstance.getTokenCache().getKVStore();
             main(msid);

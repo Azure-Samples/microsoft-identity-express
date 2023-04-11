@@ -3,6 +3,7 @@ import { PlaywrightTestConfig } from "@playwright/test";
 import * as path from 'path';
 
 const config: PlaywrightTestConfig = {
+    reporter: './test/TestReporter.ts',
     testDir: path.join(__dirname, '/test'),
     use: {
         headless: true,
