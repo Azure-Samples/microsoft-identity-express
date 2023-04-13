@@ -10,11 +10,8 @@ const session = require('express-session');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
 
-const MsIdExpress = require('../../dist/index');
 const appSettings = require('./appSettings');
-const WebAppAuthClientPerformanceWrapper = require('./auth/WebAppAuthClientPerformanceWrapper')
-
-
+const WebAppAuthClientPerformanceWrapper = require('./auth/WebAppAuthClientPerformanceWrapper');
 const router = require('./routes/router');
 
 const app = express();
@@ -59,23 +56,18 @@ async function main(msid) {
     app.set('trust proxy', 1); // trust first proxy
 
     if (msid === undefined) {
-        // msid = new MsIdExpress.WebAppAuthClientBuilder(appSettings).build();
-        msid = new WebAppAuthClientPerformanceWrapper(appSettings).getWebAppAuthClientBuilderInstance();
+        msid = new WebAppAuthClientPerformanceWrapper({
+            appSettings: appSettings,
+            outputPath: '../reports/measurements.txt',
+        }).getWebAppAuthClientBuilderInstance();
     }
-   
+
     app.use(msid.initialize());
 
     app.use(router(msid));
-
-    // app.listen(3000, () => {
-    //     console.log("in here");
-    // })
 }
 
-// main();
-
-module.exports = { 
+module.exports = {
     main: main,
-    app: app 
-}
-
+    app: app,
+};

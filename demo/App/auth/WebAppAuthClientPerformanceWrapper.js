@@ -11,7 +11,7 @@ class WebAppAuthClientPerformanceWrapper {
 
     constructor(config) {
         this.config = config;
-        this.webAppAuthClientBuilderInstance = new MsIdExpress.WebAppAuthClientBuilder(config).build();
+        this.webAppAuthClientBuilderInstance = new MsIdExpress.WebAppAuthClientBuilder(config.appSettings).build();
 
         this.initializePerfObserver();
     }
@@ -24,14 +24,14 @@ class WebAppAuthClientPerformanceWrapper {
         const perfObserver = new PerformanceObserver((items) => {
             items.getEntries().forEach((entry) => {
                 const data = `${entry.name} ${entry.startTime} ${entry.duration}\n`;
-                fs.appendFile(path.join(__dirname, '../reports/measurements.txt'), data, function(err) {
+                fs.appendFile(path.join(__dirname, `${this.config.outputPath}`), data, function(err) {
                     if (err) throw err;
                 });
             });
         });
-
         perfObserver.observe({ entryTypes: ['measure'], buffer: true });
     }
+    
 }
 
 module.exports = WebAppAuthClientPerformanceWrapper;

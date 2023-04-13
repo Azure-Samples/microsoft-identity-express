@@ -4,8 +4,9 @@
  */
 
 import { Page, Browser, BrowserContext, chromium } from 'playwright';
-import { test, expect } from '@playwright/test';
+import { expect } from '@playwright/test';
 import { CacheKVStore, ConfidentialClientApplication } from '@azure/msal-node';
+import { test } from './testOptions';
 
 const { app, main } = require('../App/app');
 const appSettings = require('../App/appSettings');
@@ -28,7 +29,7 @@ test.describe('Auth Code AAD Tests', () => {
     let browser: Browser;
     let context: BrowserContext;
     let page: Page;
-    let port: number;
+    let portNumber: string;
     let homeRoute: string;
 
     let username: string;
@@ -42,11 +43,11 @@ test.describe('Auth Code AAD Tests', () => {
 
     const screenshotFolder = `${SCREENSHOT_BASE_FOLDER_NAME}/web-app/aad`;
 
-    test.beforeAll(async () => {
+    test.beforeAll(async ({ port }) => {
         browser = await chromium.launch();
 
-        port = 5000;
-        homeRoute = `http://localhost:${port}`;
+        portNumber = `5${port}`;
+        homeRoute = `http://localhost:${portNumber}`;
 
         createFolder(screenshotFolder);
 
@@ -64,9 +65,12 @@ test.describe('Auth Code AAD Tests', () => {
     test.describe('Acquire Token', () => {
         let server: any;
 
-        test.beforeAll(async () => {
-            server = app.listen(port);
-            msid = new WebAppAuthClientPerformanceWrapper(appSettings).getWebAppAuthClientBuilderInstance();
+        test.beforeAll(async ({ output }) => {
+            server = app.listen(portNumber);
+            msid = new WebAppAuthClientPerformanceWrapper({
+                appSettings: appSettings,
+                outputPath: output,
+            }).getWebAppAuthClientBuilderInstance();
             msalInstance = msid.getMsalClient();
             tokenCache = msalInstance.getTokenCache().getKVStore();
             main(msid);

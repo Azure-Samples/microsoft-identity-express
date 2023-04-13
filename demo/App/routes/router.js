@@ -106,9 +106,22 @@ module.exports = (msid) => {
     router.use(
         '/roles',
         msid.isAuthenticated(),
+        (req, res, next) => {
+            performance.mark('test-access-control-roles-start');
+            next();
+        },
         msid.hasAccess({
             accessRule: appSettings.accessMatrix.rolesTodolist,
         }),
+        (req, res, next) => {
+            performance.mark('test-access-control-roles-end');
+            performance.measure(
+                'test-access-control-roles',
+                'test-access-control-roles-start',
+                'test-access-control-roles-end'
+            );
+            next();
+        },
         mainController.getRoles
     );
 

@@ -3,12 +3,13 @@
  * Licensed under the MIT License.
  */
 
-import { Page, Browser, BrowserContext, chromium } from "playwright";
-import { test, expect } from "@playwright/test";
-import { CacheKVStore, ConfidentialClientApplication } from "@azure/msal-node";
+import { Page, Browser, BrowserContext, chromium } from 'playwright';
+import { expect } from '@playwright/test';
+import { CacheKVStore, ConfidentialClientApplication } from '@azure/msal-node';
+import { test } from './testOptions';
 
-const { app, main } = require("../App/app");
-const appSettings = require("../App/appSettings");
+const { app, main } = require('../App/app');
+const appSettings = require('../App/appSettings');
 const WebAppAuthClientPerformanceWrapper = require('../App/auth/WebAppAuthClientPerformanceWrapper');
 
 import {
@@ -19,17 +20,17 @@ import {
     SAMPLE_HOME_URL,
     clickSignIn,
     clickSignOut,
-} from "./e2eTestUtils/e2eTestUtils";
+} from './e2eTestUtils/e2eTestUtils';
 
-import { NodeCacheTestUtils } from "./e2eTestUtils/NodeCacheTestUtils";
+import { NodeCacheTestUtils } from './e2eTestUtils/NodeCacheTestUtils';
 
 require('dotenv').config();
 
-test.describe("Auth Code AAD Tests", () => {
+test.describe('Auth Code AAD Tests', () => {
     let browser: Browser;
     let context: BrowserContext;
     let page: Page;
-    let port: number;
+    let portNumber: string;
     let homeRoute: string;
 
     let username: string;
@@ -41,11 +42,12 @@ test.describe("Auth Code AAD Tests", () => {
 
     const screenshotFolder = `${SCREENSHOT_BASE_FOLDER_NAME}/web-app/aad`;
 
-    test.beforeAll(async () => {
+    test.beforeAll(async ({ port }) => {
+        
         browser = await chromium.launch();
 
-        port = 4000;
-        homeRoute = `http://localhost:${port}`;
+        portNumber = `4${port}`;
+        homeRoute = `http://localhost:${portNumber}`;
 
         createFolder(screenshotFolder);
 
@@ -56,15 +58,21 @@ test.describe("Auth Code AAD Tests", () => {
         await browser.close();
     });
 
-    test.describe("Acquire Token", () => {
+    test.describe('Acquire Token', () => {
         let server: any;
 
-        test.beforeAll(async () => {
-            server = app.listen(port);
-            msid = new WebAppAuthClientPerformanceWrapper(appSettings).getWebAppAuthClientBuilderInstance();
+        test.beforeAll(async ({ output }) => {
+            server = app.listen(portNumber);
+
+            msid = new WebAppAuthClientPerformanceWrapper({
+                appSettings: appSettings,
+                outputPath: output,
+            }).getWebAppAuthClientBuilderInstance();
+
             msalInstance = msid.getMsalClient();
             tokenCache = msalInstance.getTokenCache().getKVStore();
-            main(msid);
+
+            await main(msid);
         });
 
         test.afterAll(async () => {
@@ -90,7 +98,7 @@ test.describe("Auth Code AAD Tests", () => {
             await context.close();
         });
 
-        test("Sign-in with AAD", async () => {
+        test('Sign-in with AAD', async () => {
             const screenshot = new Screenshot(`${screenshotFolder}/sign-in-with-aad`);
             await page.goto(homeRoute);
             await clickSignIn(page, screenshot);
@@ -105,7 +113,7 @@ test.describe("Auth Code AAD Tests", () => {
             expect(cachedTokens.refreshTokens.length).toBe(1);
         });
 
-        test("Acquire token with AAD", async () => {
+        test('Acquire token with AAD', async () => {
             const screenshot = new Screenshot(`${screenshotFolder}/acquire-token-with-aad`);
             await page.goto(homeRoute);
             await clickSignIn(page, screenshot);
@@ -126,7 +134,7 @@ test.describe("Auth Code AAD Tests", () => {
             expect(cachedTokens.refreshTokens.length).toBe(1);
         });
 
-        test("Sign-out with AAD", async () => {
+        test('Sign-out with AAD', async () => {
             const screenshot = new Screenshot(`${screenshotFolder}/sign-out-with-aad`);
             await page.goto(homeRoute);
             await clickSignIn(page, screenshot);
@@ -147,7 +155,7 @@ test.describe("Auth Code AAD Tests", () => {
             expect(cachedTokens.refreshTokens.length).toBe(0);
         });
 
-        test("Acquire tokens for multi-resources from ADD", async () => {
+        test('Acquire tokens for multi-resources from ADD', async () => {
             const screenshot = new Screenshot(`${screenshotFolder}/acquire-token-for-multi-resource`);
             await page.goto(homeRoute);
             await clickSignIn(page, screenshot);

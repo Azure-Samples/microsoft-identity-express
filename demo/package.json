@@ -8,7 +8,7 @@
     "install:local": "npm install ../",
     "start": "node app/app.js",
     "dev": "nodemon app/app.js",
-    "test": "npx playwright test",
+    "test": "npx playwright test",    
     "postinstall": "npx playwright install --with-deps chromium"
   },
   "author": "derisen",
