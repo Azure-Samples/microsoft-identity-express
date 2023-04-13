@@ -13,11 +13,11 @@ export default defineConfig<TestOptions>({
     projects: [
     {
       name: 'auth-code-single-no-cache',
-      use: { output: '../reports/measurements.txt', port:"000" },
+      use: { output: '../reports/measurements.txt', port:"000", testName: "auth-code-single-no-cache" },
     },
     {
       name: 'auth-code-with-cache',
-      use: { output: '../reports/measurements.txt', port:"001" },
+      use: { output: '../reports/measurements.txt', port:"001", testName: "auth-code-with-cache" },
     },
 ],
     timeout: 30000,

@@ -3,6 +3,7 @@ import { test as base } from '@playwright/test';
 export type TestOptions = {
     output: string;
     port: string;
+    testName: string;
 };
 
 
@@ -11,4 +12,5 @@ export const test = base.extend<TestOptions>({
     // We can later override it in the config.
     output: ['output', { option: true }],
     port: ["000", {option: true}],
+    testName: ["name", {option: true}]
 });

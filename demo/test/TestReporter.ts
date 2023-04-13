@@ -12,7 +12,7 @@ class TestReporter implements Reporter {
     }
 
     onTestEnd(test: TestCase, result: TestResult) {
-        const data = `${test.title}: ${result.status} ${result.duration}\n`;
+        const data = `${test._projectId}: ${test.title} ${result.status} ${result.duration}\n`;
         fs.appendFile(path.join(__dirname, '../App/reports/testruns.txt'), data, function(err) {
             if (err) throw err;
         });
@@ -21,7 +21,7 @@ class TestReporter implements Reporter {
     onEnd(result: FullResult) {
         console.log(`Finished the run: ${result.status}`);
     }
-    
+
 }
 
 export default TestReporter;

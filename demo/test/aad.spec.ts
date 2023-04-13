@@ -61,12 +61,13 @@ test.describe('Auth Code AAD Tests', () => {
     test.describe('Acquire Token', () => {
         let server: any;
 
-        test.beforeAll(async ({ output }) => {
+        test.beforeAll(async ({ output, testName }) => {
             server = app.listen(portNumber);
 
             msid = new WebAppAuthClientPerformanceWrapper({
                 appSettings: appSettings,
                 outputPath: output,
+                testName: testName,
             }).getWebAppAuthClientBuilderInstance();
 
             msalInstance = msid.getMsalClient();

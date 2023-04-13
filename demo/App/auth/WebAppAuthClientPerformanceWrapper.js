@@ -23,7 +23,7 @@ class WebAppAuthClientPerformanceWrapper {
     initializePerfObserver() {
         const perfObserver = new PerformanceObserver((items) => {
             items.getEntries().forEach((entry) => {
-                const data = `${entry.name} ${entry.startTime} ${entry.duration}\n`;
+                const data = `${this.config.testName}: ${entry.name} ${entry.startTime} ${entry.duration}\n`;
                 fs.appendFile(path.join(__dirname, `${this.config.outputPath}`), data, function(err) {
                     if (err) throw err;
                 });
