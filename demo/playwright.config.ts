@@ -17,7 +17,7 @@ export default defineConfig<TestOptions>({
     },
     {
       name: 'auth-code-with-cache',
-      use: { output: '.../reports/measurements.txt', port:"001" },
+      use: { output: '../reports/measurements.txt', port:"001" },
     },
 ],
     timeout: 30000,
