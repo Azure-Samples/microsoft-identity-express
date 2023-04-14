@@ -1,4 +1,4 @@
-import { Resource, AccessRule } from '../config/AppSettings';
+import { Resource, AccessRule } from "../config/AppSettings";
 export declare type SignInOptions = {
     postLoginRedirect: string;
     failureRedirect: string;

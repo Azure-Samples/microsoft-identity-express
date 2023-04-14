@@ -1,5 +1,5 @@
-import { Configuration } from '@azure/msal-node';
-import { AppSettings } from './AppSettings';
+import { Configuration } from "@azure/msal-node";
+import { AppSettings } from "./AppSettings";
 export declare class MsalConfiguration {
     /**
      * Maps the custom configuration object to configuration
