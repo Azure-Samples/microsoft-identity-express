@@ -14,6 +14,7 @@ import { ConfigHelper } from "../../config/ConfigHelper";
 import { FetchManager } from "../../network/FetchManager";
 import { UrlUtils } from "../../utils/UrlUtils";
 import { AppState } from "../../utils/Types";
+import { IsAnInteractionRequiredAuthError } from "../../utils/Helpers";
 
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
@@ -273,7 +274,7 @@ export class MsalWebAppAuthClient extends BaseAuthClient {
                 next();
             } catch (error) {
                 // in case there are no cached tokens, initiate an interactive call
-                if (error instanceof InteractionRequiredAuthError) {
+                if (error instanceof InteractionRequiredAuthError || IsAnInteractionRequiredAuthError(error)) {
                     const appState = {
                         appStage: AppStages.ACQUIRE_TOKEN,
                         redirectTo: req.originalUrl,

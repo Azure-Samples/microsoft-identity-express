@@ -1,8 +1,8 @@
-import { RequestHandler, Router } from 'express';
-import { Configuration } from '@azure/msal-node';
-import { AppSettings, WebAppSettings } from '../../config/AppSettings';
-import { TokenRequestOptions, GuardOptions, SignInOptions, SignOutOptions } from '../MiddlewareOptions';
-import { BaseAuthClient } from '../BaseAuthClient';
+import { RequestHandler, Router } from "express";
+import { Configuration } from "@azure/msal-node";
+import { AppSettings, WebAppSettings } from "../../config/AppSettings";
+import { TokenRequestOptions, GuardOptions, SignInOptions, SignOutOptions } from "../MiddlewareOptions";
+import { BaseAuthClient } from "../BaseAuthClient";
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
  * It offers a collection of middleware and utility methods that automate

@@ -1,8 +1,8 @@
-import { DefaultAzureCredential } from '@azure/identity';
-import { KeyVaultCertificate } from '@azure/keyvault-certificates';
-import { KeyVaultSecret } from '@azure/keyvault-secrets';
-import { KeyVaultCredential, ClientCertificate } from '../config/AppSettings';
-import { KeyVaultCredentialTypes } from '../utils/Constants';
+import { DefaultAzureCredential } from "@azure/identity";
+import { KeyVaultCertificate } from "@azure/keyvault-certificates";
+import { KeyVaultSecret } from "@azure/keyvault-secrets";
+import { KeyVaultCredential, ClientCertificate } from "../config/AppSettings";
+import { KeyVaultCredentialTypes } from "../utils/Constants";
 export declare type KeyVaultCredentialResponse = {
     type: KeyVaultCredentialTypes.SECRET | KeyVaultCredentialTypes.CERTIFICATE;
     value: string & ClientCertificate;

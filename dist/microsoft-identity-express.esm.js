@@ -1,4 +1,4 @@
-import { LogLevel, StringUtils, Logger, UrlString, OIDC_DEFAULT_SCOPES, InteractionRequiredAuthError, ResponseMode, AuthToken, Constants } from '@azure/msal-common';
+import { LogLevel, StringUtils, Logger, UrlString, InteractionRequiredAuthError, OIDC_DEFAULT_SCOPES, ResponseMode, AuthToken, Constants } from '@azure/msal-common';
 import express from 'express';
 import { CryptoProvider, ConfidentialClientApplication } from '@azure/msal-node';
 import { randomBytes, scryptSync, createCipheriv, createDecipheriv } from 'crypto';
@@ -75,21 +75,6 @@ function _setPrototypeOf(o, p) {
   };
 
   return _setPrototypeOf(o, p);
-}
-
-function _objectWithoutPropertiesLoose(source, excluded) {
-  if (source == null) return {};
-  var target = {};
-  var sourceKeys = Object.keys(source);
-  var key, i;
-
-  for (i = 0; i < sourceKeys.length; i++) {
-    key = sourceKeys[i];
-    if (excluded.indexOf(key) >= 0) continue;
-    target[key] = source[key];
-  }
-
-  return target;
 }
 
 function createCommonjsModule(fn, module) {
@@ -874,9 +859,9 @@ var AppStages;
 
 
 var AADAuthorityConstants = {
-  COMMON: 'common',
-  ORGANIZATIONS: 'organizations',
-  CONSUMERS: 'consumers'
+  COMMON: "common",
+  ORGANIZATIONS: "organizations",
+  CONSUMERS: "consumers"
 };
 /**
  * String constants related credential type
@@ -889,128 +874,129 @@ var KeyVaultCredentialTypes;
   KeyVaultCredentialTypes["CERTIFICATE"] = "clientCertificate";
 })(KeyVaultCredentialTypes || (KeyVaultCredentialTypes = {}));
 
-var OIDC_SCOPES = ['openid', 'profile', 'email', 'offline_access'];
+var OIDC_SCOPES = ["openid", "profile", "email", "offline_access"];
 /**
  * Request headers used by App Service authentication
  */
 
 var AppServiceAuthenticationHeaders = {
-  APP_SERVICE_AUTHENTICATION_HEADER: 'X-MSAL-APP-SERVICE-AUTHENTICATION',
-  APP_SERVICE_ACCESS_TOKEN_HEADER: 'X-MS-TOKEN-AAD-ACCESS-TOKEN',
-  APP_SERVICE_ID_TOKEN_HEADER: 'X-MS-TOKEN-AAD-ID-TOKEN',
-  APP_SERVICE_REFRESH_TOKEN_HEADER: 'X-MS-TOKEN-AAD-REFRESH-TOKEN',
-  APP_SERVICE_ACCESS_TOKEN_EXPIRES_HEADER: 'X-MS-TOKEN-AAD-EXPIRES-ON',
-  APP_SERVICE_USER_OID_HEADER: 'X-MS-CLIENT-PRINCIPAL-ID',
-  APP_SERVICE_USER_UPN_HEADER: 'X-MS-CLIENT-PRINCIPAL-NAME',
-  APP_SERVICE_IDP_X_HEADER: 'X-MS-CLIENT-PRINCIPAL-IDP'
+  APP_SERVICE_AUTHENTICATION_HEADER: "X-MSAL-APP-SERVICE-AUTHENTICATION",
+  APP_SERVICE_ACCESS_TOKEN_HEADER: "X-MS-TOKEN-AAD-ACCESS-TOKEN",
+  APP_SERVICE_ID_TOKEN_HEADER: "X-MS-TOKEN-AAD-ID-TOKEN",
+  APP_SERVICE_REFRESH_TOKEN_HEADER: "X-MS-TOKEN-AAD-REFRESH-TOKEN",
+  APP_SERVICE_ACCESS_TOKEN_EXPIRES_HEADER: "X-MS-TOKEN-AAD-EXPIRES-ON",
+  APP_SERVICE_USER_OID_HEADER: "X-MS-CLIENT-PRINCIPAL-ID",
+  APP_SERVICE_USER_UPN_HEADER: "X-MS-CLIENT-PRINCIPAL-NAME",
+  APP_SERVICE_IDP_X_HEADER: "X-MS-CLIENT-PRINCIPAL-IDP"
 };
 /**
  * Endpoints used by App Service authentication
  */
 
 var AppServiceAuthenticationEndpoints = {
-  ID_TOKEN_ENDPOINT: '/.auth/me',
-  POST_LOGOUT_DEFAULT_ENDPOINT: '/.auth/logout/done',
-  POST_LOGIN_DEFAULT_ENDPOINT: '/.auth/login/done',
-  AAD_SIGN_IN_ENDPOINT: '/.auth/login/aad',
-  AAD_SIGN_OUT_ENDPOINT: '/.auth/logout',
-  TOKEN_REFRESH_ENDPOINT: '/.auth/refresh',
-  AAD_REDIRECT_ENDPOINT: '/.auth/login/aad/callback'
+  ID_TOKEN_ENDPOINT: "/.auth/me",
+  POST_LOGOUT_DEFAULT_ENDPOINT: "/.auth/logout/done",
+  POST_LOGIN_DEFAULT_ENDPOINT: "/.auth/login/done",
+  AAD_SIGN_IN_ENDPOINT: "/.auth/login/aad",
+  AAD_SIGN_OUT_ENDPOINT: "/.auth/logout",
+  TOKEN_REFRESH_ENDPOINT: "/.auth/refresh",
+  AAD_REDIRECT_ENDPOINT: "/.auth/login/aad/callback"
 };
 /**
  * Query parameters used by App Service authentication endpoints
  */
 
 var AppServiceAuthenticationQueryParameters = {
-  POST_LOGIN_REDIRECT_QUERY_PARAM: '?post_login_redirect_url=',
-  POST_LOGOUT_REDIRECT_QUERY_PARAM: '?post_logout_redirect_uri='
+  POST_LOGIN_REDIRECT_QUERY_PARAM: "?post_login_redirect_url=",
+  POST_LOGOUT_REDIRECT_QUERY_PARAM: "?post_logout_redirect_uri="
 };
 /**
  * Environment variables used by App Service authentication
  */
 
 var AppServiceEnvironmentVariables = {
-  WEBSITE_AUTH_ENABLED: 'WEBSITE_AUTH_ENABLED',
-  WEBSITE_AUTH_ALLOWED_AUDIENCES: 'WEBSITE_AUTH_ALLOWED_AUDIENCES',
-  WEBSITE_AUTH_DEFAULT_PROVIDER: 'WEBSITE_AUTH_DEFAULT_PROVIDER',
-  WEBSITE_AUTH_TOKEN_STORE: 'WEBSITE_AUTH_TOKEN_STORE',
-  WEBSITE_AUTH_LOGIN_PARAMS: 'WEBSITE_AUTH_LOGIN_PARAMS',
-  WEBSITE_AUTH_PRESERVE_URL_FRAGMENT: 'WEBSITE_AUTH_PRESERVE_URL_FRAGMENT',
-  WEBSITE_AUTH_OPENID_ISSUER: 'WEBSITE_AUTH_OPENID_ISSUER',
-  WEBSITE_AUTH_CLIENT_ID: 'WEBSITE_AUTH_CLIENT_ID',
-  WEBSITE_HOSTNAME: 'WEBSITE_HOSTNAME',
-  WEBSITE_SITE_NAME: 'WEBSITE_SITE_NAME',
-  WEBSITE_AUTH_REQUIRE_HTTPS: 'WEBSITE_AUTH_REQUIRE_HTTPS',
-  WEBSITE_AUTH_UNAUTHENTICATED_ACTION: 'WEBSITE_AUTH_UNAUTHENTICATED_ACTION',
-  WEBSITE_AUTH_API_PREFIX: 'WEBSITE_AUTH_API_PREFIX',
-  MICROSOFT_PROVIDER_AUTHENTICATION_SECRET: 'MICROSOFT_PROVIDER_AUTHENTICATION_SECRET'
+  WEBSITE_AUTH_ENABLED: "WEBSITE_AUTH_ENABLED",
+  WEBSITE_AUTH_ALLOWED_AUDIENCES: "WEBSITE_AUTH_ALLOWED_AUDIENCES",
+  WEBSITE_AUTH_DEFAULT_PROVIDER: "WEBSITE_AUTH_DEFAULT_PROVIDER",
+  WEBSITE_AUTH_TOKEN_STORE: "WEBSITE_AUTH_TOKEN_STORE",
+  WEBSITE_AUTH_LOGIN_PARAMS: "WEBSITE_AUTH_LOGIN_PARAMS",
+  WEBSITE_AUTH_PRESERVE_URL_FRAGMENT: "WEBSITE_AUTH_PRESERVE_URL_FRAGMENT",
+  WEBSITE_AUTH_OPENID_ISSUER: "WEBSITE_AUTH_OPENID_ISSUER",
+  WEBSITE_AUTH_CLIENT_ID: "WEBSITE_AUTH_CLIENT_ID",
+  WEBSITE_HOSTNAME: "WEBSITE_HOSTNAME",
+  WEBSITE_SITE_NAME: "WEBSITE_SITE_NAME",
+  WEBSITE_AUTH_REQUIRE_HTTPS: "WEBSITE_AUTH_REQUIRE_HTTPS",
+  WEBSITE_AUTH_UNAUTHENTICATED_ACTION: "WEBSITE_AUTH_UNAUTHENTICATED_ACTION",
+  WEBSITE_AUTH_API_PREFIX: "WEBSITE_AUTH_API_PREFIX",
+  MICROSOFT_PROVIDER_AUTHENTICATION_SECRET: "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
 };
 /**
  * Constants used in access control scenarios
  */
 
 var AccessControlConstants = {
-  GROUPS: 'groups',
-  ROLES: 'roles',
-  CLAIM_NAMES: '_claim_name',
-  CLAIM_SOURCES: '_claim_sources',
-  PAGINATION_LINK: '@odata.nextLink',
-  GRAPH_MEMBERS_ENDPOINT: 'https://graph.microsoft.com/v1.0/me/memberOf',
-  GRAPH_MEMBER_SCOPES: 'User.Read GroupMember.Read.All'
+  GROUPS: "groups",
+  ROLES: "roles",
+  CLAIM_NAMES: "_claim_name",
+  CLAIM_SOURCES: "_claim_sources",
+  PAGINATION_LINK: "@odata.nextLink",
+  GRAPH_MEMBERS_ENDPOINT: "https://graph.microsoft.com/v1.0/me/memberOf",
+  GRAPH_MEMBER_SCOPES: "User.Read GroupMember.Read.All"
 };
 /**
  * Various error constants
  */
 
 var ErrorMessages = {
-  NOT_PERMITTED: 'Not permitted',
-  INVALID_TOKEN: 'Invalid token',
-  CANNOT_DETERMINE_APP_STAGE: 'Cannot determine application stage',
-  CANNOT_VALIDATE_TOKEN: 'Cannot validate token',
-  CSRF_TOKEN_MISMATCH: 'CSRF token in response does not match to original request',
-  INTERACTION_REQUIRED: 'interaction_required',
-  TOKEN_ACQUISITION_FAILED: 'Token acquisition failed',
-  TOKEN_RESPONSE_NULL: 'Token response is null',
-  AUTH_CODE_URL_NOT_OBTAINED: 'Authorization code url cannot be obtained',
-  TOKEN_NOT_FOUND: 'No token found',
-  TOKEN_NOT_DECODED: 'Token cannot be decoded',
-  TOKEN_NOT_VERIFIED: 'Token cannot be verified',
-  KEYS_NOT_OBTAINED: 'Signing keys cannot be obtained',
-  STATE_NOT_FOUND: 'State not found',
-  USER_HAS_NO_ROLE: 'User does not have any roles',
-  USER_NOT_IN_ROLE: 'User does not have this role',
-  USER_HAS_NO_GROUP: 'User does not have any groups',
-  USER_NOT_IN_GROUP: 'User does not have this group',
-  METHOD_NOT_ALLOWED: 'Method not allowed for this route',
-  RULE_NOT_FOUND: 'No rule found for this route',
-  SESSION_NOT_FOUND: 'No session found for this request',
-  KEY_VAULT_CONFIG_NOT_FOUND: 'No coordinates found for Key Vault',
-  CANNOT_OBTAIN_CREDENTIALS_FROM_KEY_VAULT: 'Cannot obtain credentials from Key Vault',
-  SESSION_KEY_NOT_FOUND: 'No session key found in session. Cannot encrypt state data',
-  AUTH_CODE_REQUEST_OBJECT_NOT_FOUND: 'No auth code request object found in session',
-  ID_TOKEN_CLAIMS_NOT_FOUND: 'No id token claims found in session'
+  NOT_PERMITTED: "Not permitted",
+  INVALID_TOKEN: "Invalid token",
+  CANNOT_DETERMINE_APP_STAGE: "Cannot determine application stage",
+  CANNOT_VALIDATE_TOKEN: "Cannot validate token",
+  CSRF_TOKEN_MISMATCH: "CSRF token in response does not match to original request",
+  INTERACTION_REQUIRED: "interaction_required",
+  TOKEN_ACQUISITION_FAILED: "Token acquisition failed",
+  TOKEN_RESPONSE_NULL: "Token response is null",
+  AUTH_CODE_URL_NOT_OBTAINED: "Authorization code url cannot be obtained",
+  TOKEN_NOT_FOUND: "No token found",
+  TOKEN_NOT_DECODED: "Token cannot be decoded",
+  TOKEN_NOT_VERIFIED: "Token cannot be verified",
+  KEYS_NOT_OBTAINED: "Signing keys cannot be obtained",
+  STATE_NOT_FOUND: "State not found",
+  USER_HAS_NO_ROLE: "User does not have any roles",
+  USER_NOT_IN_ROLE: "User does not have this role",
+  USER_HAS_NO_GROUP: "User does not have any groups",
+  USER_NOT_IN_GROUP: "User does not have this group",
+  METHOD_NOT_ALLOWED: "Method not allowed for this route",
+  RULE_NOT_FOUND: "No rule found for this route",
+  SESSION_NOT_FOUND: "No session found for this request",
+  KEY_VAULT_CONFIG_NOT_FOUND: "No coordinates found for Key Vault",
+  CANNOT_OBTAIN_CREDENTIALS_FROM_KEY_VAULT: "Cannot obtain credentials from Key Vault",
+  SESSION_KEY_NOT_FOUND: "No session key found in session. Cannot encrypt state data",
+  AUTH_CODE_REQUEST_OBJECT_NOT_FOUND: "No auth code request object found in session",
+  ID_TOKEN_CLAIMS_NOT_FOUND: "No id token claims found in session"
 };
 /**
  * Various configuration error constants
  */
 
 var ConfigurationErrorMessages = {
-  AUTH_ROUTES_NOT_CONFIGURED: 'Authentication routes are not defined. Ensure that the application settings are configured properly.',
-  NO_PROTECTED_RESOURCE_CONFIGURED: 'No protected resource is configured to acquire a token for. Ensure that the application settings are configured properly.',
-  NO_ACCESS_MATRIX_CONFIGURED: 'No access matrix is configured to control access for. Ensure that the application settings are configured properly.',
-  NO_CLIENT_ID: 'No clientId provided!',
-  INVALID_CLIENT_ID: 'Invalid clientId!',
-  NO_TENANT_INFO: 'No tenant info provided!',
-  INVALID_TENANT_INFO: 'Invalid tenant info!',
-  NO_CLIENT_CREDENTIAL: 'No client credential provided!',
-  NO_REDIRECT_URI: 'No redirect URI provided!',
-  NO_UNAUTHORIZED_ROUTE: 'No unauthorized route provided!'
+  AUTH_ROUTES_NOT_CONFIGURED: "Authentication routes are not defined. Ensure that the application settings are configured properly.",
+  NO_PROTECTED_RESOURCE_CONFIGURED: "No protected resource is configured to acquire a token for. Ensure that the application settings are configured properly.",
+  NO_ACCESS_MATRIX_CONFIGURED: "No access matrix is configured to control access for. Ensure that the application settings are configured properly.",
+  NO_CLIENT_ID: "No clientId provided!",
+  INVALID_CLIENT_ID: "Invalid clientId!",
+  NO_TENANT_INFO: "No tenant info provided!",
+  INVALID_TENANT_INFO: "Invalid tenant info!",
+  NO_CLIENT_CREDENTIAL: "No client credential provided!",
+  NO_REDIRECT_URI: "No redirect URI provided!",
+  NO_UNAUTHORIZED_ROUTE: "No unauthorized route provided!"
 };
 var DEFAULT_LOGGER_OPTIONS = {
   loggerCallback: function loggerCallback(logLevel, message, containsPii) {
     if (containsPii) {
       return;
-    }
+    } // eslint-disable-next-line no-console
+
 
     console.info(message);
   },
@@ -1078,7 +1064,7 @@ var ConfigHelper = /*#__PURE__*/function () {
   /**
    * Util method to get the resource name for a given scope(s)
    * @param {Array} scopes: an array of scopes that the resource is associated with
-   * @param {AppSettings} appSettings: application authentication parameters
+   * @param {webAppSettings} webAppSettings: application authentication parameters
    * @returns {string}
    */
   ;
@@ -1093,7 +1079,7 @@ var ConfigHelper = /*#__PURE__*/function () {
   /**
    * Util method to get the scopes for a given resource name
    * @param {string} resourceEndpoint: the resource name
-   * @param {AppSettings} appSettings: application authentication parameters
+   * @param {webAppSettings} webAppSettings: application authentication parameters
    * @returns {string}
    */
   ;
@@ -1155,7 +1141,7 @@ var BaseAuthClientBuilder = /*#__PURE__*/function () {
 var CryptoUtils = /*#__PURE__*/function () {
   function CryptoUtils(algorithm) {
     if (algorithm === void 0) {
-      algorithm = 'aes-192-cbc';
+      algorithm = "aes-192-cbc";
     }
 
     this.algorithm = algorithm;
@@ -1164,7 +1150,7 @@ var CryptoUtils = /*#__PURE__*/function () {
   var _proto = CryptoUtils.prototype;
 
   _proto.generateSalt = function generateSalt() {
-    return randomBytes(20).toString('hex');
+    return randomBytes(20).toString("hex");
   };
 
   _proto.createKey = function createKey(password, salt) {
@@ -1174,17 +1160,17 @@ var CryptoUtils = /*#__PURE__*/function () {
   _proto.encryptData = function encryptData(stringifiedData, key) {
     var iv = randomBytes(16);
     var cipher = createCipheriv(this.algorithm, key, iv);
-    var encryptedData = cipher.update(stringifiedData, 'utf8', 'hex');
-    return [iv.toString('hex'), encryptedData + cipher["final"]('hex')].join('.');
+    var encryptedData = cipher.update(stringifiedData, "utf8", "hex");
+    return [iv.toString("hex"), encryptedData + cipher["final"]("hex")].join(".");
   };
 
   _proto.decryptData = function decryptData(encryptedData, key) {
-    var _encryptedData$split = encryptedData.split('.'),
+    var _encryptedData$split = encryptedData.split("."),
         iv = _encryptedData$split[0],
         encrypted = _encryptedData$split[1];
 
-    var decipher = createDecipheriv(this.algorithm, key, Buffer.from(iv, 'hex'));
-    return decipher.update(encrypted, 'hex', 'utf8') + decipher["final"]('utf8');
+    var decipher = createDecipheriv(this.algorithm, key, Buffer.from(iv, "hex"));
+    return decipher.update(encrypted, "hex", "utf8") + decipher["final"]("utf8");
   };
 
   return CryptoUtils;
@@ -1194,8 +1180,8 @@ var CryptoUtils = /*#__PURE__*/function () {
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
-var packageName = '@azure-samples/microsoft-identity-express';
-var packageVersion = 'beta';
+var packageName = "@azure-samples/microsoft-identity-express";
+var packageVersion = "beta";
 
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -1203,13 +1189,17 @@ var packageVersion = 'beta';
  */
 var BaseAuthClient = /*#__PURE__*/function () {
   function BaseAuthClient(appSettings, msalConfig) {
-    var _this$msalConfig$syst;
-
     this.appSettings = appSettings;
     this.msalConfig = msalConfig;
     this.cryptoProvider = new CryptoProvider();
     this.cryptoUtils = new CryptoUtils();
-    this.logger = new Logger((_this$msalConfig$syst = this.msalConfig.system) == null ? void 0 : _this$msalConfig$syst.loggerOptions, packageName, packageVersion);
+    this.loggerOptions = this.msalConfig.system && this.msalConfig.system.loggerOptions ? this.msalConfig.system.loggerOptions : {
+      loggerCallback: function loggerCallback() {// allow users to not set loggerCallback
+      },
+      piiLoggingEnabled: false,
+      logLevel: LogLevel.Info
+    };
+    this.logger = new Logger(this.loggerOptions, packageName, packageVersion);
     this.msalClient = new ConfidentialClientApplication(this.msalConfig);
   }
 
@@ -1276,6 +1266,7 @@ FetchManager.callApiEndpoint = /*#__PURE__*/function () {
  * @param {string} accessToken
  * @returns {Promise}
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
 
 
 FetchManager.callApiEndpointWithToken = /*#__PURE__*/function () {
@@ -1353,7 +1344,8 @@ FetchManager.handlePagination = /*#__PURE__*/function () {
 
           case 6:
             graphResponse = _context3.sent;
-            graphResponse['value'].map(function (v) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+            graphResponse["value"].map(function (v) {
               return data.push(v.id);
             });
 
@@ -1409,15 +1401,15 @@ UrlUtils.ensureAbsoluteUrl = function (req, url) {
   var urlComponents = new UrlString(url).getUrlComponents();
 
   if (!urlComponents.Protocol) {
-    if (!urlComponents.HostNameAndPort && !url.startsWith('www')) {
-      if (!url.startsWith('/')) {
-        return req.protocol + '://' + req.get('host') + '/' + url;
+    if (!urlComponents.HostNameAndPort && !url.startsWith("www")) {
+      if (!url.startsWith("/")) {
+        return req.protocol + "://" + req.get("host") + "/" + url;
       }
 
-      return req.protocol + '://' + req.get('host') + url;
+      return req.protocol + "://" + req.get("host") + url;
     }
 
-    return req.protocol + '://' + url;
+    return req.protocol + "://" + url;
   } else {
     return url;
   }
@@ -1431,10 +1423,23 @@ UrlUtils.ensureAbsoluteUrl = function (req, url) {
 
 UrlUtils.getPathFromUrl = function (url) {
   var urlComponents = new UrlString(url).getUrlComponents();
-  return "/" + urlComponents.PathSegments.join('/');
+  return "/" + urlComponents.PathSegments.join("/");
 };
 
-var _excluded = ["_claim_names", "_claim_sources"];
+/*
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ */
+/**
+ * Helper function used to determine if an error thrown by the server requires interaction to resolve
+ * @param error
+ */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
+
+function IsAnInteractionRequiredAuthError(error) {
+  return InteractionRequiredAuthError.isInteractionRequiredError(error == null ? void 0 : error.errorCode, error == null ? void 0 : error.errorMessage, error == null ? void 0 : error.subError);
+}
+
 /**
  * A simple wrapper around MSAL Node ConfidentialClientApplication object.
  * It offers a collection of middleware and utility methods that automate
@@ -1505,8 +1510,8 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
 
     if (options === void 0) {
       options = {
-        postLoginRedirect: '/',
-        failureRedirect: '/'
+        postLoginRedirect: "/",
+        failureRedirect: "/"
       };
     }
 
@@ -1538,7 +1543,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
 
     if (options === void 0) {
       options = {
-        postLogoutRedirect: '/'
+        postLogoutRedirect: "/"
       };
     }
 
@@ -1561,44 +1566,60 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
 
                 logoutUri = _this4.msalConfig.auth.authority + "/oauth2/v2.0/logout?post_logout_redirect_uri=" + postLogoutRedirectUri;
                 tokenCache = _this4.msalClient.getTokenCache();
+                _context.t1 = (_req$session$account = req.session.account) == null ? void 0 : _req$session$account.homeAccountId;
 
-                if (!((_req$session$account = req.session.account) != null && _req$session$account.homeAccountId)) {
-                  _context.next = 9;
+                if (!_context.t1) {
+                  _context.next = 8;
                   break;
                 }
 
-                _context.next = 6;
+                _context.next = 7;
                 return tokenCache.getAccountByHomeId(req.session.account.homeAccountId);
 
-              case 6:
-                _context.t0 = _context.sent;
-                _context.next = 12;
-                break;
+              case 7:
+                _context.t1 = _context.sent;
 
-              case 9:
-                _context.next = 11;
-                return tokenCache.getAccountByLocalId((_req$session$account2 = req.session.account) == null ? void 0 : _req$session$account2.localAccountId);
+              case 8:
+                _context.t0 = _context.t1;
 
-              case 11:
-                _context.t0 = _context.sent;
-
-              case 12:
-                account = _context.t0;
-
-                if (!account) {
+                if (_context.t0) {
                   _context.next = 16;
                   break;
                 }
 
-                _context.next = 16;
-                return tokenCache.removeAccount(account);
+                _context.t2 = (_req$session$account2 = req.session.account) == null ? void 0 : _req$session$account2.localAccountId;
+
+                if (!_context.t2) {
+                  _context.next = 15;
+                  break;
+                }
+
+                _context.next = 14;
+                return tokenCache.getAccountByLocalId(req.session.account.localAccountId);
+
+              case 14:
+                _context.t2 = _context.sent;
+
+              case 15:
+                _context.t0 = _context.t2;
 
               case 16:
+                account = _context.t0;
+
+                if (!account) {
+                  _context.next = 20;
+                  break;
+                }
+
+                _context.next = 20;
+                return tokenCache.removeAccount(account);
+
+              case 20:
                 req.session.destroy(function () {
                   res.redirect(logoutUri);
                 });
 
-              case 17:
+              case 21:
               case "end":
                 return _context.stop();
             }
@@ -1654,7 +1675,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
                   break;
                 }
 
-                state = JSON.parse(_this5.cryptoUtils.decryptData(_this5.cryptoProvider.base64Decode(req.body.state), Buffer.from(req.session.key, 'hex'))); // check if csrfToken matches
+                state = JSON.parse(_this5.cryptoUtils.decryptData(_this5.cryptoProvider.base64Decode(req.body.state), Buffer.from(req.session.key, "hex"))); // check if csrfToken matches
 
                 if (!(state.csrfToken === req.session.csrfToken)) {
                   _context2.next = 48;
@@ -1683,7 +1704,8 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
                 return _context2.abrupt("return", res.redirect(_this5.webAppSettings.authRoutes.unauthorized));
 
               case 19:
-                req.session.isAuthenticated = true;
+                req.session.isAuthenticated = true; // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
                 req.session.account = tokenResponse.account; // this won't be null in any web app scenario
 
                 res.redirect(state.redirectTo);
@@ -1827,7 +1849,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
                 _context3.prev = 17;
                 _context3.t0 = _context3["catch"](6);
 
-                if (!(_context3.t0 instanceof InteractionRequiredAuthError)) {
+                if (!(_context3.t0 instanceof InteractionRequiredAuthError || IsAnInteractionRequiredAuthError(_context3.t0))) {
                   _context3.next = 26;
                   break;
                 }
@@ -2021,7 +2043,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
               // add session csrfToken for crsf
               req.session.csrfToken = this.cryptoProvider.createNewGuid();
               key = this.cryptoUtils.createKey(req.session.csrfToken, this.cryptoUtils.generateSalt());
-              req.session.key = key.toString('hex');
+              req.session.key = key.toString("hex");
               state = JSON.stringify(_extends({}, appState, {
                 csrfToken: req.session.csrfToken
               })); // prepare the request
@@ -2033,7 +2055,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
               });
               req.session.authorizationCodeRequest = _extends({}, authCodeParams, {
                 redirectUri: UrlUtils.ensureAbsoluteUrl(req, this.webAppSettings.authRoutes.redirect),
-                code: ''
+                code: ""
               }); // request an authorization code to exchange for tokens
 
               _context5.prev = 6;
@@ -2081,8 +2103,7 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
     var _handleOverage = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee6(req, res, next, rule) {
       var _req$session$account4;
 
-      var _req$session$account$, newIdTokenClaims, silentRequest, tokenResponse, graphResponse, userGroups;
-
+      var newIdTokenClaims, silentRequest, tokenResponse, graphResponse, userGroups;
       return runtime_1.wrap(function _callee6$(_context6) {
         while (1) {
           switch (_context6.prev = _context6.next) {
@@ -2096,10 +2117,10 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
               return _context6.abrupt("return", next(new Error(ErrorMessages.ID_TOKEN_CLAIMS_NOT_FOUND)));
 
             case 3:
-              _req$session$account$ = req.session.account.idTokenClaims, newIdTokenClaims = _objectWithoutPropertiesLoose(_req$session$account$, _excluded);
+              newIdTokenClaims = _extends({}, req.session.account.idTokenClaims);
               silentRequest = {
                 account: req.session.account,
-                scopes: AccessControlConstants.GRAPH_MEMBER_SCOPES.split(' ')
+                scopes: AccessControlConstants.GRAPH_MEMBER_SCOPES.split(" ")
               };
               _context6.prev = 5;
               _context6.next = 8;
@@ -2163,7 +2184,8 @@ var MsalWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
 
             case 33:
               req.session.account.idTokenClaims = _extends({}, newIdTokenClaims, {
-                groups: graphResponse.data['value'].map(function (v) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                groups: graphResponse.data["value"].map(function (v) {
                   return v.id;
                 })
               });
@@ -2302,9 +2324,9 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
           req.session.isAuthenticated = true;
           req.session.account = {
             tenantId: idTokenClaims.tid,
-            homeAccountId: idTokenClaims.oid + '.' + idTokenClaims.tid,
+            homeAccountId: idTokenClaims.oid + "." + idTokenClaims.tid,
             localAccountId: idTokenClaims.oid,
-            environment: (_idTokenClaims$iss = idTokenClaims.iss) == null ? void 0 : _idTokenClaims$iss.split('://')[1].split('/')[0],
+            environment: (_idTokenClaims$iss = idTokenClaims.iss) == null ? void 0 : _idTokenClaims$iss.split("://")[1].split("/")[0],
             username: idTokenClaims.preferred_username,
             name: idTokenClaims.name,
             idTokenClaims: idTokenClaims
@@ -2326,15 +2348,14 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
   _proto.signIn = function signIn(options) {
     if (options === void 0) {
       options = {
-        postLoginRedirect: '/',
-        failureRedirect: '/'
+        postLoginRedirect: "/",
+        failureRedirect: "/"
       };
     }
 
-    return function (req, res, next) {
-      var loginUri;
+    return function (req, res) {
       var postLoginRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.postLoginRedirect);
-      loginUri = 'https://' + process.env[AppServiceEnvironmentVariables.WEBSITE_HOSTNAME] + AppServiceAuthenticationEndpoints.AAD_SIGN_IN_ENDPOINT + AppServiceAuthenticationQueryParameters.POST_LOGIN_REDIRECT_QUERY_PARAM + postLoginRedirectUri;
+      var loginUri = "https://" + process.env[AppServiceEnvironmentVariables.WEBSITE_HOSTNAME] + AppServiceAuthenticationEndpoints.AAD_SIGN_IN_ENDPOINT + AppServiceAuthenticationQueryParameters.POST_LOGIN_REDIRECT_QUERY_PARAM + postLoginRedirectUri;
       res.redirect(loginUri);
     };
   }
@@ -2348,13 +2369,13 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
   _proto.signOut = function signOut(options) {
     if (options === void 0) {
       options = {
-        postLogoutRedirect: '/'
+        postLogoutRedirect: "/"
       };
     }
 
-    return function (req, res, next) {
+    return function (req, res) {
       var postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.postLogoutRedirect);
-      var logoutUri = 'https://' + process.env[AppServiceEnvironmentVariables.WEBSITE_HOSTNAME] + AppServiceAuthenticationEndpoints.AAD_SIGN_OUT_ENDPOINT + AppServiceAuthenticationQueryParameters.POST_LOGOUT_REDIRECT_QUERY_PARAM + postLogoutRedirectUri;
+      var logoutUri = "https://" + process.env[AppServiceEnvironmentVariables.WEBSITE_HOSTNAME] + AppServiceAuthenticationEndpoints.AAD_SIGN_OUT_ENDPOINT + AppServiceAuthenticationQueryParameters.POST_LOGOUT_REDIRECT_QUERY_PARAM + postLogoutRedirectUri;
       req.session.destroy(function () {
         res.redirect(logoutUri);
       });
@@ -2415,7 +2436,7 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
 
                 accessTokenClaims = AuthToken.extractTokenClaims(rawAccessToken, _this3.cryptoProvider); // get the name of the resource associated with scope
 
-                scopes = accessTokenClaims == null ? void 0 : accessTokenClaims.scp.split(' ');
+                scopes = accessTokenClaims == null ? void 0 : accessTokenClaims.scp.split(" ");
                 effectiveScopes = ConfigHelper.getEffectiveScopes(scopes);
 
                 if (!options.resource.scopes.every(function (elem) {
@@ -2429,7 +2450,7 @@ var AppServiceWebAppAuthClient = /*#__PURE__*/function (_BaseAuthClient) {
                 return _context.abrupt("return", next());
 
               case 15:
-                return _context.abrupt("return", next(new Error('No tokens found for given scopes')));
+                return _context.abrupt("return", next(new Error("No tokens found for given scopes")));
 
               case 16:
               case "end":
@@ -2529,7 +2550,7 @@ var KeyVaultManager = /*#__PURE__*/function () {
                 type: KeyVaultCredentialTypes.CERTIFICATE,
                 value: {
                   thumbprint: certificateResponse == null ? void 0 : (_certificateResponse$ = certificateResponse.properties) == null ? void 0 : (_certificateResponse$2 = _certificateResponse$.x509Thumbprint) == null ? void 0 : _certificateResponse$2.toString(),
-                  privateKey: _secretResponse == null ? void 0 : (_secretResponse$value = _secretResponse.value) == null ? void 0 : _secretResponse$value.split('-----BEGIN CERTIFICATE-----\n')[0]
+                  privateKey: _secretResponse == null ? void 0 : (_secretResponse$value = _secretResponse.value) == null ? void 0 : _secretResponse$value.split("-----BEGIN CERTIFICATE-----\n")[0]
                 }
               };
               _context.next = 29;
@@ -2674,14 +2695,14 @@ var MsalConfiguration = /*#__PURE__*/function () {
     return {
       auth: _extends({
         clientId: appSettings.appCredentials.clientId,
-        authority: appSettings.b2cPolicies ? Object.entries(appSettings.b2cPolicies)[0][1]['authority'] // the first policy/user-flow is the default authority
+        authority: appSettings.b2cPolicies ? Object.entries(appSettings.b2cPolicies)[0][1]["authority"] // the first policy/user-flow is the default authority
         : appSettings.appCredentials.instance ? "https://" + appSettings.appCredentials.instance + "/" + appSettings.appCredentials.tenantId : "https://" + Constants.DEFAULT_AUTHORITY_HOST + "/" + appSettings.appCredentials.tenantId
-      }, appSettings.appCredentials.hasOwnProperty('clientSecret') && {
+      }, appSettings.appCredentials.hasOwnProperty("clientSecret") && {
         clientSecret: appSettings.appCredentials.clientSecret
-      }, appSettings.appCredentials.hasOwnProperty('clientCertificate') && {
+      }, appSettings.appCredentials.hasOwnProperty("clientCertificate") && {
         clientCertificate: appSettings.appCredentials.clientCertificate
       }, {
-        knownAuthorities: appSettings.b2cPolicies ? [UrlString.getDomainFromUrl(Object.entries(appSettings.b2cPolicies)[0][1]['authority'])] // in B2C scenarios
+        knownAuthorities: appSettings.b2cPolicies ? [UrlString.getDomainFromUrl(Object.entries(appSettings.b2cPolicies)[0][1]["authority"])] // in B2C scenarios
         : []
       }),
       system: {
@@ -2701,15 +2722,15 @@ var EnvironmentUtils = /*#__PURE__*/function () {
   function EnvironmentUtils() {}
 
   EnvironmentUtils.isProduction = function isProduction() {
-    return process.env.NODE_ENV === 'production';
+    return process.env.NODE_ENV === "production";
   };
 
   EnvironmentUtils.isDevelopment = function isDevelopment() {
-    return process.env.NODE_ENV === 'development';
+    return process.env.NODE_ENV === "development";
   };
 
   EnvironmentUtils.isAppServiceAuthEnabled = function isAppServiceAuthEnabled() {
-    return process.env[AppServiceEnvironmentVariables.WEBSITE_AUTH_ENABLED] === 'True';
+    return process.env[AppServiceEnvironmentVariables.WEBSITE_AUTH_ENABLED] === "True";
   };
 
   return EnvironmentUtils;
