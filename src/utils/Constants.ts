@@ -3,7 +3,7 @@
  * Licensed under the MIT License.
  */
 
-import { LoggerOptions, LogLevel } from "@azure/msal-common";
+import { LoggerOptions, LogLevel, OIDC_DEFAULT_SCOPES } from "@azure/msal-common";
 
 /**
  * Basic authentication stages used to determine
@@ -24,70 +24,7 @@ export const AADAuthorityConstants = {
     CONSUMERS: "consumers",
 };
 
-/**
- * String constants related credential type
- */
-export enum KeyVaultCredentialTypes {
-    SECRET = "clientSecret",
-    CERTIFICATE = "clientCertificate",
-}
-
-export const OIDC_SCOPES = ["openid", "profile", "email", "offline_access"];
-
-/**
- * Request headers used by App Service authentication
- */
-export const AppServiceAuthenticationHeaders = {
-    APP_SERVICE_AUTHENTICATION_HEADER: "X-MSAL-APP-SERVICE-AUTHENTICATION",
-    APP_SERVICE_ACCESS_TOKEN_HEADER: "X-MS-TOKEN-AAD-ACCESS-TOKEN",
-    APP_SERVICE_ID_TOKEN_HEADER: "X-MS-TOKEN-AAD-ID-TOKEN",
-    APP_SERVICE_REFRESH_TOKEN_HEADER: "X-MS-TOKEN-AAD-REFRESH-TOKEN",
-    APP_SERVICE_ACCESS_TOKEN_EXPIRES_HEADER: "X-MS-TOKEN-AAD-EXPIRES-ON",
-    APP_SERVICE_USER_OID_HEADER: "X-MS-CLIENT-PRINCIPAL-ID",
-    APP_SERVICE_USER_UPN_HEADER: "X-MS-CLIENT-PRINCIPAL-NAME",
-    APP_SERVICE_IDP_X_HEADER: "X-MS-CLIENT-PRINCIPAL-IDP",
-};
-
-/**
- * Endpoints used by App Service authentication
- */
-export const AppServiceAuthenticationEndpoints = {
-    ID_TOKEN_ENDPOINT: "/.auth/me",
-    POST_LOGOUT_DEFAULT_ENDPOINT: "/.auth/logout/done",
-    POST_LOGIN_DEFAULT_ENDPOINT: "/.auth/login/done",
-    AAD_SIGN_IN_ENDPOINT: "/.auth/login/aad",
-    AAD_SIGN_OUT_ENDPOINT: "/.auth/logout",
-    TOKEN_REFRESH_ENDPOINT: "/.auth/refresh",
-    AAD_REDIRECT_ENDPOINT: "/.auth/login/aad/callback",
-};
-
-/**
- * Query parameters used by App Service authentication endpoints
- */
-export const AppServiceAuthenticationQueryParameters = {
-    POST_LOGIN_REDIRECT_QUERY_PARAM: "?post_login_redirect_url=",
-    POST_LOGOUT_REDIRECT_QUERY_PARAM: "?post_logout_redirect_uri=",
-};
-
-/**
- * Environment variables used by App Service authentication
- */
-export const AppServiceEnvironmentVariables = {
-    WEBSITE_AUTH_ENABLED: "WEBSITE_AUTH_ENABLED",
-    WEBSITE_AUTH_ALLOWED_AUDIENCES: "WEBSITE_AUTH_ALLOWED_AUDIENCES",
-    WEBSITE_AUTH_DEFAULT_PROVIDER: "WEBSITE_AUTH_DEFAULT_PROVIDER",
-    WEBSITE_AUTH_TOKEN_STORE: "WEBSITE_AUTH_TOKEN_STORE",
-    WEBSITE_AUTH_LOGIN_PARAMS: "WEBSITE_AUTH_LOGIN_PARAMS",
-    WEBSITE_AUTH_PRESERVE_URL_FRAGMENT: "WEBSITE_AUTH_PRESERVE_URL_FRAGMENT",
-    WEBSITE_AUTH_OPENID_ISSUER: "WEBSITE_AUTH_OPENID_ISSUER",
-    WEBSITE_AUTH_CLIENT_ID: "WEBSITE_AUTH_CLIENT_ID",
-    WEBSITE_HOSTNAME: "WEBSITE_HOSTNAME",
-    WEBSITE_SITE_NAME: "WEBSITE_SITE_NAME",
-    WEBSITE_AUTH_REQUIRE_HTTPS: "WEBSITE_AUTH_REQUIRE_HTTPS",
-    WEBSITE_AUTH_UNAUTHENTICATED_ACTION: "WEBSITE_AUTH_UNAUTHENTICATED_ACTION",
-    WEBSITE_AUTH_API_PREFIX: "WEBSITE_AUTH_API_PREFIX",
-    MICROSOFT_PROVIDER_AUTHENTICATION_SECRET: "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET",
-};
+export const OIDC_SCOPES = [...OIDC_DEFAULT_SCOPES, "email"];
 
 /**
  * Constants used in access control scenarios
@@ -106,7 +43,6 @@ export const AccessControlConstants = {
  * Various information constants
  */
 export const InfoMessages = {
-    APP_SERVICE_AUTH_DETECTED: "App Service Authentication detected",
     REQUEST_FOR_RESOURCE: "Request made to web API",
     OVERAGE_OCCURRED: "User has too many groups. Groups overage claim occurred",
 };
@@ -147,12 +83,9 @@ export const ErrorMessages = {
  * Various configuration error constants
  */
 export const ConfigurationErrorMessages = {
-    AUTH_ROUTES_NOT_CONFIGURED:
-        "Authentication routes are not defined. Ensure that the application settings are configured properly.",
-    NO_PROTECTED_RESOURCE_CONFIGURED:
-        "No protected resource is configured to acquire a token for. Ensure that the application settings are configured properly.",
-    NO_ACCESS_MATRIX_CONFIGURED:
-        "No access matrix is configured to control access for. Ensure that the application settings are configured properly.",
+    AUTH_ROUTES_NOT_CONFIGURED: "Authentication routes are not defined. Ensure that the application settings are configured properly.",
+    NO_PROTECTED_RESOURCE_CONFIGURED: "No protected resource is configured to acquire a token for. Ensure that the application settings are configured properly.",
+    NO_ACCESS_MATRIX_CONFIGURED: "No access matrix is configured to control access for. Ensure that the application settings are configured properly.",
     NO_CLIENT_ID: "No clientId provided!",
     INVALID_CLIENT_ID: "Invalid clientId!",
     NO_TENANT_INFO: "No tenant info provided!",
@@ -188,3 +121,5 @@ export const DEFAULT_LOGGER_OPTIONS: LoggerOptions = {
     piiLoggingEnabled: false,
     logLevel: LogLevel.Info,
 };
+
+export const EMPTY_STRING = "";

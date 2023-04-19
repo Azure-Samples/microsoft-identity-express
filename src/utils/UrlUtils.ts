@@ -3,39 +3,43 @@
  * Licensed under the MIT License.
  */
 
-import { Request } from "express";
 import { IUri, UrlString } from "@azure/msal-common";
 
 export class UrlUtils {
     /**
-     * Gets the absolute URL from a given request and path string
-     * @param {Request} req: express request object
+     * Returns the absolute URL from a given request and path string
      * @param {string} url: a given URL
+     * @param {string} protocol: protocol of the request
+     * @param {string} host: host of the request
      * @returns {string}
      */
-    static ensureAbsoluteUrl = (req: Request, url: string): string => {
+    static ensureAbsoluteUrl = (url: string, protocol: string, host: string): string => {
         const urlComponents: IUri = new UrlString(url).getUrlComponents();
 
         if (!urlComponents.Protocol) {
             if (!urlComponents.HostNameAndPort && !url.startsWith("www")) {
                 if (!url.startsWith("/")) {
-                    return req.protocol + "://" + req.get("host") + "/" + url;
+                    return protocol + "://" + host + "/" + url;
                 }
-                return req.protocol + "://" + req.get("host") + url;
+                return protocol + "://" + host + url;
             }
-            return req.protocol + "://" + url;
+            return protocol + "://" + url;
         } else {
             return url;
         }
     };
 
     /**
-     * Gets the path segment from a given URL
+     * Returns the path segment from a given URL
      * @param {string} url: a given URL
      * @returns {string}
      */
     static getPathFromUrl = (url: string): string => {
         const urlComponents: IUri = new UrlString(url).getUrlComponents();
         return `/${urlComponents.PathSegments.join("/")}`;
+    };
+
+    static enforceLeadingSlash = (path: string): string => {
+        return path.split("")[0] === "/" ? path : "/" + path;
     };
 }

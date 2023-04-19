@@ -6,7 +6,7 @@
   "main": "app.js",
   "scripts": {
     "install:local": "npm install ../",
-    "start": "node app/app.js",
+    "start": "node app/app.js --trace-sync-io",
     "dev": "nodemon app/app.js",
     "test": "playwright test",
     "postinstall": "npx playwright install --with-deps chromium"

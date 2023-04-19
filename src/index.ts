@@ -3,40 +3,20 @@
  * Licensed under the MIT License.
  */
 
-export { WebAppAuthClientBuilder } from "./client/webapp/WebAppAuthClientBuilder";
+export { WebAppAuthProvider } from "./provider/WebAppAuthProvider";
 
-export { MsalWebAppAuthClient } from "./client/webapp/MsalWebAppAuthClient";
-export { AppServiceWebAppAuthClient } from "./client/webapp/AppServiceWebAppAuthClient";
-
-export { 
-    AppSettings, 
-    AppCredentials, 
-    AccessRule,
-    ClientCertificate, 
-    AuthRoutes, 
-    Policy, 
-    Resource, 
+export {
     WebAppSettings,
-    KeyVaultCredential
-} from "./config/AppSettings";
+    AppCredentials,
+    ClientCertificate,
+    AuthRoutes,
+} from "./config/AppSettingsTypes";
 
 export {
-    GuardOptions, 
-    SignInOptions, 
-    SignOutOptions, 
+    RouteGuardOptions,
+    SignInOptions,
+    SignOutOptions,
     TokenRequestOptions
-} from "./client/MiddlewareOptions";
-
-export {
-    AccessTokenClaims,
-    IdTokenClaims,
-    AppState,
-} from "./utils/Types";
-
-export { ConfigHelper } from "./config/ConfigHelper";
-export { MsalConfiguration } from "./config/MsalConfiguration";
-
-export { FetchManager } from "./network/FetchManager";
-export { KeyVaultManager } from "./network/KeyVaultManager";
+} from "./middleware/MiddlewareOptions";
 
 export { packageVersion } from "./packageMetadata";

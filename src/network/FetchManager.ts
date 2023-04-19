@@ -5,7 +5,6 @@
 
 import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
 import { StringUtils } from "@azure/msal-common";
-
 import { AccessControlConstants, ErrorMessages } from "../utils/Constants";
 
 export class FetchManager {
@@ -14,10 +13,11 @@ export class FetchManager {
      * @param {string} endpoint
      * @returns {Promise}
      */
-    static callApiEndpoint = async (endpoint: string): Promise<AxiosResponse> => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+    static callApiEndpoint = async (endpoint: string, options?: AxiosRequestConfig): Promise<any> => {
         try {
-            const response: AxiosResponse = await axios.get(endpoint);
-            return response.data;
+            const response: AxiosResponse = await axios.get(endpoint, options);
+            return response;
         } catch (error) {
             throw error;
         }
@@ -31,7 +31,7 @@ export class FetchManager {
      * @returns {Promise}
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
-    static callApiEndpointWithToken = async (endpoint: string, accessToken: string): Promise<AxiosResponse<any>> => {
+    static callApiEndpointWithToken = async (endpoint: string, accessToken: string): Promise<any> => {
         if (StringUtils.isEmpty(accessToken)) {
             throw new Error(ErrorMessages.TOKEN_NOT_FOUND);
         }
@@ -43,12 +43,41 @@ export class FetchManager {
         };
 
         try {
-            const response: AxiosResponse = await axios.get(endpoint, options);
+            const response = await FetchManager.callApiEndpoint(endpoint, options);
             return response.data;
         } catch (error) {
             throw error;
         }
     };
+
+    static async fetchCloudDiscoveryMetadata(tenantId: string): Promise<string> {
+        const endpoint = "https://login.microsoftonline.com/common/discovery/instance";
+
+        try {
+            const response = await FetchManager.callApiEndpoint(endpoint, {
+                params: {
+                    "api-version": "1.1",
+                    "authorization_endpoint": `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/authorize`
+                }
+            });
+            const cloudDiscoveryMetadata = JSON.stringify(response.data);
+            return cloudDiscoveryMetadata;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async fetchAuthorityMetadata(tenantId: string): Promise<string> {
+        const endpoint = `https://login.microsoftonline.com/${tenantId}/v2.0/.well-known/openid-configuration`;
+
+        try {
+            const response = await FetchManager.callApiEndpoint(endpoint);
+            const authorityMetadata = JSON.stringify(response.data);
+            return authorityMetadata;
+        } catch (error) {
+            throw error;
+        }
+    }
 
     /**
      * Handles queries against Microsoft Graph that return multiple pages of data

@@ -1,16 +1,17 @@
-import { Request } from 'express';
 export declare class UrlUtils {
     /**
-     * Gets the absolute URL from a given request and path string
-     * @param {Request} req: express request object
+     * Returns the absolute URL from a given request and path string
      * @param {string} url: a given URL
+     * @param {string} protocol: protocol of the request
+     * @param {string} host: host of the request
      * @returns {string}
      */
-    static ensureAbsoluteUrl: (req: Request, url: string) => string;
+    static ensureAbsoluteUrl: (url: string, protocol: string, host: string) => string;
     /**
-     * Gets the path segment from a given URL
+     * Returns the path segment from a given URL
      * @param {string} url: a given URL
      * @returns {string}
      */
     static getPathFromUrl: (url: string) => string;
+    static enforceLeadingSlash: (path: string) => string;
 }

@@ -6,34 +6,39 @@ exports.getHomePage = (req, res, next) => {
 }
 
 exports.getIdPage = (req, res, next) => {
-    const claims = {
+    const claims = req.session.account ? {
         name: req.session.account.idTokenClaims.name,
         preferred_username: req.session.account.idTokenClaims.preferred_username,
         oid: req.session.account.idTokenClaims.oid,
         sub: req.session.account.idTokenClaims.sub
-    };
+    } : {};
 
     res.render('id', { isAuthenticated: req.session.isAuthenticated, claims: claims });
 }
 
-exports.getProfilePage = async(req, res, next) => {
-    let profile;
-
+exports.getProfilePage = async (req, res, next) => {
     try {
-        profile = await fetchManager.callAPI(appSettings.protectedResources.graphAPI.endpoint, req.session.protectedResources["graphAPI"].accessToken);
-        res.render('profile', { isAuthenticated: req.session.isAuthenticated, profile: profile });
+        const tokenResponse = await req.authContext.getToken({
+            scopes: ["user.Read"],
+            account: req.authContext.getAccount(),
+        })(req, res, next);
+
+        const profile = await fetchManager.callAPI("https://graph.microsoft.com/v1.0/me", tokenResponse.accessToken);
+        return res.render('profile', { isAuthenticated: req.authContext.isAuthenticated(), profile: profile });
     } catch (error) {
-        console.log(error);
-        next(error);
+        return next(error);
     }
 }
 
-exports.getTenantPage = async(req, res, next) => {
-    let tenant;
-
+exports.getTenantPage = async (req, res, next) => {
     try {
-        tenant = await fetchManager.callAPI(appSettings.protectedResources.armAPI.endpoint, req.session.protectedResources["armAPI"].accessToken);
-        res.render('tenant', { isAuthenticated: req.session.isAuthenticated, tenant: tenant.value[0] });
+        const tokenResponse = await req.authContext.getToken({
+            scopes: ["https://management.azure.com/user_impersonation"],
+            account: req.authContext.getAccount(),
+        })(req, res, next);
+
+        const tenant = await fetchManager.callAPI("https://management.azure.com/tenants?api-version=2020-01-01", tokenResponse.accessToken);
+        res.render('tenant', { isAuthenticated: req.authContext.isAuthenticated(), tenant: tenant.value[0] });
     } catch (error) {
         console.log(error);
         next(error);

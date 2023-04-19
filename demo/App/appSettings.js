@@ -7,18 +7,26 @@ const appSettings = {
         clientSecret: process.env.AAD_CLIENT_SECRET
     },
     authRoutes: {
-        redirect: "/redirect",
-        unauthorized: "/unauthorized"
+        redirectUri: "/redirect"
     },
     protectedResources: {
-        graphAPI: {
-            endpoint: "https://graph.microsoft.com/v1.0/me",
-            scopes: ["user.read"]
+        "graph.microsoft.com": {
+            scopes: ["User.Read", "mail.Read", "Calendars.Read"],
         },
-        armAPI: {
-            endpoint: "https://management.azure.com/tenants?api-version=2020-01-01",
-            scopes: ["https://management.azure.com/user_impersonation"]
-        }
+    },
+    loggerOptions: {
+        loggerCallback: (logLevel, message, containsPii) => {
+            if (containsPii) {
+                return;
+            }
+
+            console.log(message);
+        },
+        piiLoggingEnabled: false,
+        logLevel: 3,
+    },
+    systemOptions: {
+        proxyUrl: "http://localhost:8888",
     }
 }
 

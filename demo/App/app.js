@@ -8,52 +8,72 @@ const session = require('express-session');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
 
-const MsIdExpress = require('../../dist/index');
+const { WebAppAuthProvider } = require('../../dist/index');
 const appSettings = require('./appSettings');
-
 const router = require('./routes/router');
 
 const app = express();
 
-/**
- * Using express-session middleware. Be sure to familiarize yourself with available options
- * and set the desired options. Visit: https://www.npmjs.com/package/express-session
- */
-app.use(session({
-    secret: 'ENTER_YOUR_SECRET_HERE',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: false,
-    }
-}));
+async function main() {
 
-app.set('views', path.join(__dirname, './views'));
-app.set('view engine', 'ejs');
+    /**
+     * Using express-session middleware. Be sure to familiarize yourself with available options
+     * and set the desired options. Visit: https://www.npmjs.com/package/express-session
+     */
+    app.use(session({
+        secret: 'ENTER_YOUR_SECRET_HERE',
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            secure: false,
+        }
+    }));
 
-app.use('/css', express.static(path.join(__dirname, 'node_modules/bootstrap/dist/css')));
-app.use('/js', express.static(path.join(__dirname, 'node_modules/bootstrap/dist/js')));
+    app.set('views', path.join(__dirname, './views'));
+    app.set('view engine', 'ejs');
 
-app.use(express.static(path.join(__dirname, './public')));
+    app.use('/css', express.static(path.join(__dirname, 'node_modules/bootstrap/dist/css')));
+    app.use('/js', express.static(path.join(__dirname, 'node_modules/bootstrap/dist/js')));
 
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+    app.use(express.static(path.join(__dirname, './public')));
 
-// Apply the rate limiting middleware to all requests
-app.use(rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-}));
+    app.use(express.urlencoded({ extended: false }));
+    app.use(express.json());
 
-app.set('trust proxy', 1) // trust first proxy
+    // Apply the rate limiting middleware to all requests
+    app.use(rateLimit({
+        windowMs: 15 * 60 * 1000, // 15 minutes
+        max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+        standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+        legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+    }));
 
-// building the identity-express-wrapper
-const msid = new MsIdExpress.WebAppAuthClientBuilder(appSettings).build();
+    app.set('trust proxy', 1) // trust first proxy
 
-app.use(msid.initialize());
+    // building the identity-express-wrapper
+    const msid = await WebAppAuthProvider.initialize(appSettings);
 
-app.use(router(msid));
+    app.use(msid.authenticate({
+        protectAllRoutes: false,
+        useSession: true,
+    }));
+
+    app.get('/id', msid.guard({
+        forceLogin: true,
+        // idTokenClaims: {
+        //     'roles': ['some_role']
+        // }
+    }));
+
+    app.use(router);
+
+    app.use(msid.interactionErrorHandler());
+
+    app.listen(3000, () => {
+        console.log('App listening on port 3000');
+    });
+}
+
+main();
 
 module.exports = app;

@@ -1,4 +1,4 @@
-import { LoggerOptions } from '@azure/msal-common';
+import { LoggerOptions } from "@azure/msal-common";
 /**
  * Basic authentication stages used to determine
  * appropriate action after redirect occurs
@@ -16,65 +16,7 @@ export declare const AADAuthorityConstants: {
     ORGANIZATIONS: string;
     CONSUMERS: string;
 };
-/**
- * String constants related credential type
- */
-export declare enum KeyVaultCredentialTypes {
-    SECRET = "clientSecret",
-    CERTIFICATE = "clientCertificate"
-}
 export declare const OIDC_SCOPES: string[];
-/**
- * Request headers used by App Service authentication
- */
-export declare const AppServiceAuthenticationHeaders: {
-    APP_SERVICE_AUTHENTICATION_HEADER: string;
-    APP_SERVICE_ACCESS_TOKEN_HEADER: string;
-    APP_SERVICE_ID_TOKEN_HEADER: string;
-    APP_SERVICE_REFRESH_TOKEN_HEADER: string;
-    APP_SERVICE_ACCESS_TOKEN_EXPIRES_HEADER: string;
-    APP_SERVICE_USER_OID_HEADER: string;
-    APP_SERVICE_USER_UPN_HEADER: string;
-    APP_SERVICE_IDP_X_HEADER: string;
-};
-/**
- * Endpoints used by App Service authentication
- */
-export declare const AppServiceAuthenticationEndpoints: {
-    ID_TOKEN_ENDPOINT: string;
-    POST_LOGOUT_DEFAULT_ENDPOINT: string;
-    POST_LOGIN_DEFAULT_ENDPOINT: string;
-    AAD_SIGN_IN_ENDPOINT: string;
-    AAD_SIGN_OUT_ENDPOINT: string;
-    TOKEN_REFRESH_ENDPOINT: string;
-    AAD_REDIRECT_ENDPOINT: string;
-};
-/**
- * Query parameters used by App Service authentication endpoints
- */
-export declare const AppServiceAuthenticationQueryParameters: {
-    POST_LOGIN_REDIRECT_QUERY_PARAM: string;
-    POST_LOGOUT_REDIRECT_QUERY_PARAM: string;
-};
-/**
- * Environment variables used by App Service authentication
- */
-export declare const AppServiceEnvironmentVariables: {
-    WEBSITE_AUTH_ENABLED: string;
-    WEBSITE_AUTH_ALLOWED_AUDIENCES: string;
-    WEBSITE_AUTH_DEFAULT_PROVIDER: string;
-    WEBSITE_AUTH_TOKEN_STORE: string;
-    WEBSITE_AUTH_LOGIN_PARAMS: string;
-    WEBSITE_AUTH_PRESERVE_URL_FRAGMENT: string;
-    WEBSITE_AUTH_OPENID_ISSUER: string;
-    WEBSITE_AUTH_CLIENT_ID: string;
-    WEBSITE_HOSTNAME: string;
-    WEBSITE_SITE_NAME: string;
-    WEBSITE_AUTH_REQUIRE_HTTPS: string;
-    WEBSITE_AUTH_UNAUTHENTICATED_ACTION: string;
-    WEBSITE_AUTH_API_PREFIX: string;
-    MICROSOFT_PROVIDER_AUTHENTICATION_SECRET: string;
-};
 /**
  * Constants used in access control scenarios
  */
@@ -91,7 +33,6 @@ export declare const AccessControlConstants: {
  * Various information constants
  */
 export declare const InfoMessages: {
-    APP_SERVICE_AUTH_DETECTED: string;
     REQUEST_FOR_RESOURCE: string;
     OVERAGE_OCCURRED: string;
 };
@@ -156,3 +97,4 @@ export declare const ErrorCodes: {
     90118: string;
 };
 export declare const DEFAULT_LOGGER_OPTIONS: LoggerOptions;
+export declare const EMPTY_STRING = "";
