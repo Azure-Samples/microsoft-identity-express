@@ -14,10 +14,13 @@ import {
   clickSignOut
 } from "./e2eTestUtils";
 
+const { WebAppAuthProvider } =  require("../../dist/index");
+const appSettings = require("../App/appSettings");
+const { app, main } = require('../App/app');
+
 require('dotenv').config();
 
 // Get flow-specific routes from sample application
-const expressApp = require("../App/app");
 
 test.describe("Auth Code AAD Tests", () => {
   let browser: Browser;
@@ -28,7 +31,8 @@ test.describe("Auth Code AAD Tests", () => {
 
   let username: string;
   let accountPwd: string;
-
+  let msid: any;
+  
   const screenshotFolder = `${SCREENSHOT_BASE_FOLDER_NAME}/web-app/aad`;
 
   test.beforeAll(async () => {
@@ -46,11 +50,12 @@ test.describe("Auth Code AAD Tests", () => {
     await browser.close();
   });
 
-  test.describe("Acquire Token", () => {
+  test.describe("Acquire Token", async () => {
     let server: any;
-
     test.beforeAll(async () => {
-      server = expressApp.listen(port);
+      server = app.listen(port);
+      msid = await new WebAppAuthProvider.initialize(appSettings);
+      main(msid);
     });
 
     test.afterAll(async () => {
@@ -108,11 +113,33 @@ test.describe("Auth Code AAD Tests", () => {
       await expect(page.locator(`text=${username}`).first()).toBeVisible();
 
       await clickSignOut(page, screenshot);
-      await page.locator(`text=${username}`).click()
       await page.waitForFunction(`window.location.href.startsWith("${SAMPLE_HOME_URL}")`);
       await screenshot.takeScreenshot(page, "samplePagePostLogout");
       await expect(page.locator(`text=${username}`).first()).not.toBeVisible();
       await expect(page.locator(`text=Sign-in to access your resources`).first()).toBeVisible();
+    });
+
+    test('Acquire tokens for multi-resources from ADD', async () => {
+        const screenshot = new Screenshot(`${screenshotFolder}/acquire-token-for-multi-resource`);
+        await page.goto(homeRoute);
+        await clickSignIn(page, screenshot);
+        await enterCredentials(page, screenshot, username, accountPwd);
+        await page.waitForFunction(`window.location.href.startsWith("${SAMPLE_HOME_URL}")`);
+        await expect(page.locator(`text=${username}`).first()).toBeVisible();
+
+        await page.waitForSelector('#acquireTokenGraph');
+        await screenshot.takeScreenshot(page, 'samplePagePostLogin');
+        page.click('#acquireTokenGraph');
+        await page.waitForFunction(`window.location.href.startsWith("${SAMPLE_HOME_URL}")`);
+        await screenshot.takeScreenshot(page, 'samplePageAcquireTokenCallGraph');
+        await expect(page.locator(`text=Calling Microsoft Graph API`).first()).toBeVisible();
+
+        await page.goBack();
+        await screenshot.takeScreenshot(page, 'samplePageAcquireTokenCallArm');
+        await page.waitForSelector('#acquireTokenArm');
+        page.click('#acquireTokenArm');
+        await page.waitForFunction(`window.location.href.startsWith("${SAMPLE_HOME_URL}")`);
+        await expect(page.locator(`text=Calling Azure Resource Manager API`).first()).toBeVisible();
     });
   });
 });

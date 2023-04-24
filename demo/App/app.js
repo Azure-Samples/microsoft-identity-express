@@ -11,10 +11,13 @@ const path = require('path');
 const { WebAppAuthProvider } = require('../../dist/index');
 const appSettings = require('./appSettings');
 const router = require('./routes/router');
+const mainController = require('./controllers/mainController'); 
 
 const app = express();
 
-async function main() {
+require('dotenv').config();
+
+async function main(msid) {
 
     /**
      * Using express-session middleware. Be sure to familiarize yourself with available options
@@ -51,29 +54,44 @@ async function main() {
     app.set('trust proxy', 1) // trust first proxy
 
     // building the identity-express-wrapper
-    const msid = await WebAppAuthProvider.initialize(appSettings);
+
+    if(!msid) {
+        msid = await WebAppAuthProvider.initialize(appSettings);
+    }
 
     app.use(msid.authenticate({
         protectAllRoutes: false,
         useSession: true,
     }));
 
-    app.get('/id', msid.guard({
-        forceLogin: true,
-        // idTokenClaims: {
-        //     'roles': ['some_role']
-        // }
-    }));
+    app.get(
+        '/roles',
+        msid.guard({
+            forceLogin: true,
+            idTokenClaims: {
+                roles: [process.env.ADD_APP_ROLE],
+            },
+        }),
+        mainController.getRoles
+    );
+
+    app.get(
+        '/groups',
+        msid.guard({
+            forceLogin: true,
+            idTokenClaims: {
+                groups: [process.env.ADD_SECURITY_GROUP_ID],
+            },
+        }),
+        mainController.getGroups
+    );
 
     app.use(router);
-
+    
     app.use(msid.interactionErrorHandler());
-
-    app.listen(3000, () => {
-        console.log('App listening on port 3000');
-    });
 }
 
-main();
-
-module.exports = app;
+module.exports = {
+    app,
+    main
+}

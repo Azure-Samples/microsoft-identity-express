@@ -44,3 +44,11 @@ exports.getTenantPage = async (req, res, next) => {
         next(error);
     }
 }
+
+exports.getRoles = async (req, res, next) => {
+    res.render('roles', { isAuthenticated: req.session.isAuthenticated });   
+}
+
+exports.getGroups = async (req, res, next) => {
+    res.render('groups', { isAuthenticated: req.session.isAuthenticated });
+};

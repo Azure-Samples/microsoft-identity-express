@@ -25,9 +25,6 @@ const appSettings = {
         piiLoggingEnabled: false,
         logLevel: 3,
     },
-    systemOptions: {
-        proxyUrl: "http://localhost:8888",
-    }
 }
 
 module.exports = appSettings;
