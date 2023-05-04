@@ -73,6 +73,8 @@ export const TEST_CONSTANTS = {
         nonce: "123523",
         aio: "Df2UVXL1ix!lMCWMSOJBcFatzcGfvFGhjKv8q5g0x732dR5MB5BisvGQO7YWByjd8iQDLq!eGbIDakyp5mnOrcdqHeYSnltepQmRp6AIZ8jY",
     },
+    authorityMetadata: "mock authority metadata",
+    cloudDiscoveryMetadata: "mock discovery metadata"
 };
 
 export const TEST_APP_SETTINGS = {
@@ -80,9 +82,11 @@ export const TEST_APP_SETTINGS = {
         clientId: TEST_CONSTANTS.CLIENT_ID,
         tenantId: TEST_CONSTANTS.TENANT_ID,
         clientSecret: TEST_CONSTANTS.CLIENT_SECRET,
+        authorityMetadata: TEST_CONSTANTS.authorityMetadata,
+        cloudDiscoveryMetadata: TEST_CONSTANTS.cloudDiscoveryMetadata
     },
     authRoutes: {
-        redirect: "/redirect",
+        redirectUri: "/redirect",
         unauthorized: "/unauthorized",
     },
     protectedResources: {

@@ -26,6 +26,6 @@ describe("Fetch manager tests", () => {
     it("should fetch data from an unprotected endpoint", async () => {
         mocked(axios.get).mockResolvedValueOnce(axiosResponse);
         const result = await FetchManager.callApiEndpoint("url");
-        expect(result).toMatchObject(axiosResponse.data);
+        expect(result.data).toMatchObject(axiosResponse.data);
     });
 });

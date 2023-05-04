@@ -14,6 +14,8 @@ export declare type AppCredentials = {
     tenantId: string;
     clientSecret?: string;
     clientCertificate?: ClientCertificate;
+    cloudDiscoveryMetadata?: string;
+    authorityMetadata?: string;
 };
 export declare type ClientCertificate = {
     thumbprint: string;

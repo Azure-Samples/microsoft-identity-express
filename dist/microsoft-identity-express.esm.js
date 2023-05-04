@@ -1017,6 +1017,10 @@ var AppSettingsHelper = /*#__PURE__*/function () {
         clientSecret: appSettings.appCredentials.clientSecret
       }, appSettings.appCredentials.hasOwnProperty("clientCertificate") && {
         clientCertificate: appSettings.appCredentials.clientCertificate
+      }, appSettings.appCredentials.hasOwnProperty("authorityMetadata") && {
+        authorityMetadata: appSettings.appCredentials.authorityMetadata
+      }, appSettings.appCredentials.hasOwnProperty("cloudDiscoveryMetadata") && {
+        cloudDiscoveryMetadata: appSettings.appCredentials.cloudDiscoveryMetadata
       }),
       system: {
         loggerOptions: appSettings.loggerOptions ? appSettings.loggerOptions : DEFAULT_LOGGER_OPTIONS,
@@ -1025,10 +1029,10 @@ var AppSettingsHelper = /*#__PURE__*/function () {
     };
   }
   /**
-  * Validates the fields in the configuration file
-  * @param {AppSettings} appSettings: configuration object
-  * @returns {void}
-  */
+   * Validates the fields in the configuration file
+   * @param {AppSettings} appSettings: configuration object
+   * @returns {void}
+   */
   ;
 
   AppSettingsHelper.validateAppSettings = function validateAppSettings(appSettings, appType) {
@@ -1437,7 +1441,7 @@ function acquireTokenHandler(options) {
                 break;
               }
 
-              throw new InteractionRequiredError("no_account_found", "No account found in the cache", undefined, options.scopes);
+              throw new InteractionRequiredError("no_account_found", "No account found either in options or in session", undefined, options.scopes);
 
             case 4:
               silentRequest = {
@@ -1452,16 +1456,16 @@ function acquireTokenHandler(options) {
 
             case 10:
               tokenResponse = _context.sent;
+              req.session.tokenCache = msalInstance.getTokenCache().serialize();
 
               if (tokenResponse) {
-                _context.next = 13;
+                _context.next = 14;
                 break;
               }
 
               throw new InteractionRequiredError("null_response", "AcquireTokenSilent return null response", undefined, options.scopes);
 
-            case 13:
-              req.session.tokenCache = msalInstance.getTokenCache().serialize();
+            case 14:
               return _context.abrupt("return", tokenResponse);
 
             case 17:
@@ -1596,7 +1600,7 @@ function logoutHandler(options) {
               }
 
               req.session.destroy(function () {
-                // TODO: destroy cookie?
+                // TODO: destroy cookie? Or set expiry
                 res.redirect(logoutUri);
               });
 
@@ -1637,7 +1641,7 @@ var AuthContext = /*#__PURE__*/function () {
       };
     }
 
-    // TODO consider passing context IIFE
+    // TODO: consider passing context IIFE
     return loginHandler.call(this.provider, options);
   }
   /**
@@ -1681,6 +1685,11 @@ var AuthContext = /*#__PURE__*/function () {
   _proto.isAuthenticated = function isAuthenticated() {
     // TODO: check if account or session
     return this.context.req.session.isAuthenticated;
+  };
+
+  _proto.getCachedTokenForResource = function getCachedTokenForResource(resource) {
+    // TODO: should keep an internal map of tokens and check that
+    return resource;
   };
 
   return AuthContext;
@@ -1730,8 +1739,10 @@ function redirectHandler() {
               return _context.abrupt("return", res.status(403).send("No token response found"));
 
             case 14:
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              req.session.account = tokenResponse.account; // account will never be null in this grant type
+
               req.session.isAuthenticated = true;
-              req.session.account = tokenResponse.account; // eslint-disable-line @typescript-eslint/no-non-null-assertion
 
               if (_this.webAppSettings.protectedResources) {
                 // TODO: what if they are just acquiring a token without configuring protected resources?
@@ -1776,7 +1787,7 @@ function redirectHandler() {
  */
 /**
  * Initialize AuthProvider and set default routes and handlers
- * @returns {Router}
+ * @returns {RequestHandler}
  */
 
 function authenticateMiddleware(options) {
@@ -1849,12 +1860,31 @@ function guardMiddleware(options) {
       var _req$session$account;
 
       // TODO: no need to rely on session for account
-      var tokenClaims = Object.values(((_req$session$account = req.session.account) == null ? void 0 : _req$session$account.idTokenClaims) || {});
-      var requiredClaims = Object.values(options.idTokenClaims);
+      var tokenClaims = ((_req$session$account = req.session.account) == null ? void 0 : _req$session$account.idTokenClaims) || {};
+      var requiredClaims = options.idTokenClaims;
+      var hasClaims = Object.keys(requiredClaims).every(function (claim) {
+        if (requiredClaims[claim] && tokenClaims[claim]) {
+          switch (typeof requiredClaims[claim]) {
+            case "string" :
+              return requiredClaims[claim] === tokenClaims[claim];
 
-      if (!requiredClaims.every(function (claim) {
-        return tokenClaims.includes(claim);
-      })) {
+            case "object":
+              if (Array.isArray(requiredClaims[claim])) {
+                var requiredClaimsArray = requiredClaims[claim];
+                var tokenClaimsArray = tokenClaims[claim];
+                return requiredClaimsArray.some(function (requiredClaim) {
+                  return tokenClaimsArray.indexOf(requiredClaim) >= 0;
+                });
+              }
+
+              break;
+          }
+        }
+
+        return false;
+      });
+
+      if (!hasClaims) {
         return res.status(403).send("Forbidden");
       }
     }
@@ -1868,7 +1898,7 @@ function guardMiddleware(options) {
  * Licensed under the MIT License.
  */
 
-function unauthorizedMiddleware() {
+function errorMiddleware() {
   return function (err, req, res, next) {
     if (err instanceof InteractionRequiredError) {
       return req.authContext.signIn({
@@ -1876,7 +1906,8 @@ function unauthorizedMiddleware() {
         claims: err.claims || undefined,
         postLoginRedirectUri: req.originalUrl
       })(req, res, next);
-    }
+    } // TODO: could this also serve as an interceptor?
+
 
     next(err);
   };
@@ -1922,18 +1953,26 @@ var WebAppAuthProvider = /*#__PURE__*/function (_BaseAuthProvider) {
             case 0:
               AppSettingsHelper.validateAppSettings(appSettings, AppType.WebApp);
               msalConfig = AppSettingsHelper.getMsalConfiguration(appSettings);
-              _context.next = 4;
+
+              if (!(!msalConfig.auth.cloudDiscoveryMetadata && !msalConfig.auth.authorityMetadata)) {
+                _context.next = 10;
+                break;
+              }
+
+              _context.next = 5;
               return Promise.all([FetchManager.fetchCloudDiscoveryMetadata(appSettings.appCredentials.tenantId), FetchManager.fetchAuthorityMetadata(appSettings.appCredentials.tenantId)]);
 
-            case 4:
+            case 5:
               _yield$Promise$all = _context.sent;
               discoveryMetadata = _yield$Promise$all[0];
               authorityMetadata = _yield$Promise$all[1];
               msalConfig.auth.cloudDiscoveryMetadata = discoveryMetadata;
               msalConfig.auth.authorityMetadata = authorityMetadata;
-              return _context.abrupt("return", new WebAppAuthProvider(appSettings, msalConfig));
 
             case 10:
+              return _context.abrupt("return", new WebAppAuthProvider(appSettings, msalConfig));
+
+            case 11:
             case "end":
               return _context.stop();
           }
@@ -1971,8 +2010,8 @@ var WebAppAuthProvider = /*#__PURE__*/function (_BaseAuthProvider) {
     return guardMiddleware.call(this, options);
   };
 
-  _proto.unauthorized = function unauthorized() {
-    return unauthorizedMiddleware.call(this);
+  _proto.interactionErrorHandler = function interactionErrorHandler() {
+    return errorMiddleware.call(this);
   };
 
   return WebAppAuthProvider;

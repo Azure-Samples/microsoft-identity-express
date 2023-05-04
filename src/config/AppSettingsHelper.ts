@@ -29,6 +29,12 @@ export class AppSettingsHelper {
                 ...(appSettings.appCredentials.hasOwnProperty("clientCertificate") && {
                     clientCertificate: appSettings.appCredentials.clientCertificate,
                 }),
+                ...(appSettings.appCredentials.hasOwnProperty("authorityMetadata") && {
+                    authorityMetadata: appSettings.appCredentials.authorityMetadata,
+                }),
+                ...(appSettings.appCredentials.hasOwnProperty("cloudDiscoveryMetadata") && {
+                    cloudDiscoveryMetadata: appSettings.appCredentials.cloudDiscoveryMetadata
+                })
             },
             system: {
                 loggerOptions: appSettings.loggerOptions ? appSettings.loggerOptions : DEFAULT_LOGGER_OPTIONS,
