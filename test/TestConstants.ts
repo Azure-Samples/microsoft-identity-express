@@ -73,8 +73,8 @@ export const TEST_CONSTANTS = {
         nonce: "123523",
         aio: "Df2UVXL1ix!lMCWMSOJBcFatzcGfvFGhjKv8q5g0x732dR5MB5BisvGQO7YWByjd8iQDLq!eGbIDakyp5mnOrcdqHeYSnltepQmRp6AIZ8jY",
     },
-    authorityMetadata: "mock authority metadata",
-    cloudDiscoveryMetadata: "mock discovery metadata"
+    AUTHORITY_METADAT: "mock authority metadata",
+    CLOUD_DISCOVERY_METADATA: "mock discovery metadata",
 };
 
 export const TEST_APP_SETTINGS = {
@@ -82,8 +82,8 @@ export const TEST_APP_SETTINGS = {
         clientId: TEST_CONSTANTS.CLIENT_ID,
         tenantId: TEST_CONSTANTS.TENANT_ID,
         clientSecret: TEST_CONSTANTS.CLIENT_SECRET,
-        authorityMetadata: TEST_CONSTANTS.authorityMetadata,
-        cloudDiscoveryMetadata: TEST_CONSTANTS.cloudDiscoveryMetadata
+        authorityMetadata: TEST_CONSTANTS.AUTHORITY_METADAT,
+        cloudDiscoveryMetadata: TEST_CONSTANTS.CLOUD_DISCOVERY_METADATA, 
     },
     authRoutes: {
         redirectUri: "/redirect",
@@ -110,6 +110,7 @@ export const TEST_MSAL_CONFIG = {
         clientId: TEST_APP_SETTINGS.appCredentials.clientId,
         authority: `https://${TEST_CONSTANTS.DEFAULT_AUTHORITY_HOST}/${TEST_APP_SETTINGS.appCredentials.tenantId}`,
         clientSecret: TEST_APP_SETTINGS.appCredentials.clientSecret,
-        knownAuthorities: [],
+        authorityMetadata: TEST_APP_SETTINGS.appCredentials.authorityMetadata,
+        cloudDiscoveryMetadata: TEST_APP_SETTINGS.appCredentials.cloudDiscoveryMetadata,
     },
 };

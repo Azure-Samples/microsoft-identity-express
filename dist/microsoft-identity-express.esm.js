@@ -1070,8 +1070,8 @@ var AppSettingsHelper = /*#__PURE__*/function () {
       return scope.toLowerCase();
     });
     var index = Object.values(protectedResources).findIndex(function (resourceParams) {
-      return resourceParams.scopes.every(function (scope) {
-        return effectiveScopes.includes(scope.toLowerCase());
+      return effectiveScopes.every(function (scope) {
+        return resourceParams.scopes.includes(scope.toLowerCase());
       });
     });
     var resourceName = Object.keys(protectedResources)[index];
