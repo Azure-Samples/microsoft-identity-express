@@ -3,8 +3,6 @@
  * Licensed under the MIT License.
  */
 
-import { Request } from "express";
-
 import { UrlUtils } from "../../src/utils/UrlUtils";
 
 describe("Url utilities tests", () => {
@@ -14,20 +12,12 @@ describe("Url utilities tests", () => {
         const url1 = "/myPath";
         const url2 = "myPath";
         const url3 = "www.microsoft.com/myPath";
+        const protocol = "https";
+        const host = "www.microsoft.com";
 
-        const mockRequest = {
-            protocol: "https",
-            headers: {
-                host: "www.microsoft.com",
-            },
-            get: (header: string) => {
-                return mockRequest.headers[header];
-            }
-        } as Request;
-
-        expect(UrlUtils.ensureAbsoluteUrl(mockRequest, url1)).toBe(absoluteUrl);
-        expect(UrlUtils.ensureAbsoluteUrl(mockRequest, url2)).toBe(absoluteUrl);
-        expect(UrlUtils.ensureAbsoluteUrl(mockRequest, url3)).toBe(absoluteUrl);
+        expect(UrlUtils.ensureAbsoluteUrl(url1, protocol, host)).toBe(absoluteUrl);
+        expect(UrlUtils.ensureAbsoluteUrl(url2, protocol, host)).toBe(absoluteUrl);
+        expect(UrlUtils.ensureAbsoluteUrl(url3, protocol, host)).toBe(absoluteUrl);
     });
 
     it("should get path component from a given url", () => {

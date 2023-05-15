@@ -8,8 +8,6 @@ import { BaseAuthProvider } from "./BaseAuthProvider";
 import { AppSettingsHelper } from "../config/AppSettingsHelper";
 import { FetchManager } from "../network/FetchManager";
 import { AppSettings, WebAppSettings, AppType } from "../config/AppSettingsTypes";
-import { RequestHandler, ErrorRequestHandler } from "../middleware/MiddlewareTypes";
-import { AuthenticateMiddlewareOptions, RouteGuardOptions } from "../middleware/MiddlewareOptions";
 import authenticateMiddleware from "../middleware/authenticateMiddleware";
 import guardMiddleware from "../middleware/guardMiddleware";
 import errorMiddleware from "../middleware/errorMiddlewarer";
@@ -36,14 +34,15 @@ export class WebAppAuthProvider extends BaseAuthProvider {
         AppSettingsHelper.validateAppSettings(appSettings, AppType.WebApp);
 
         const msalConfig = AppSettingsHelper.getMsalConfiguration(appSettings);
+        if (!msalConfig.auth.cloudDiscoveryMetadata && !msalConfig.auth.authorityMetadata) {
+            const [discoveryMetadata, authorityMetadata] = await Promise.all([
+                FetchManager.fetchCloudDiscoveryMetadata(appSettings.appCredentials.tenantId),
+                FetchManager.fetchAuthorityMetadata(appSettings.appCredentials.tenantId),
+            ]);
 
-        const [discoveryMetadata, authorityMetadata] = await Promise.all([
-            FetchManager.fetchCloudDiscoveryMetadata(appSettings.authOptions.tenantId),
-            FetchManager.fetchAuthorityMetadata(appSettings.authOptions.tenantId)
-        ]);
-
-        msalConfig.auth.cloudDiscoveryMetadata = discoveryMetadata;
-        msalConfig.auth.authorityMetadata = authorityMetadata;
+            msalConfig.auth.cloudDiscoveryMetadata = discoveryMetadata;
+            msalConfig.auth.authorityMetadata = authorityMetadata;
+        }
 
         return new WebAppAuthProvider(appSettings, msalConfig);
     }

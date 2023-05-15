@@ -33,6 +33,7 @@ describe("Configuration helper tests", () => {
     });
 
     it("should get resource name from a given list of scopes", () => {
+        
         const myTenantScopes = Object.values(TEST_APP_SETTINGS.protectedResources)[1].scopes;
         const resourceName1 = AppSettingsHelper.getResourceNameFromScopes(myTenantScopes, TEST_APP_SETTINGS.protectedResources);
         expect(resourceName1).toEqual(Object.keys(TEST_APP_SETTINGS.protectedResources)[1]);
