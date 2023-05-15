@@ -42,14 +42,15 @@ export class WebAppAuthProvider extends BaseAuthProvider {
         AppSettingsHelper.validateAppSettings(appSettings, AppType.WebApp);
 
         const msalConfig = AppSettingsHelper.getMsalConfiguration(appSettings);
+        if (!msalConfig.auth.cloudDiscoveryMetadata && !msalConfig.auth.authorityMetadata) {
+            const [discoveryMetadata, authorityMetadata] = await Promise.all([
+                FetchManager.fetchCloudDiscoveryMetadata(appSettings.appCredentials.tenantId),
+                FetchManager.fetchAuthorityMetadata(appSettings.appCredentials.tenantId),
+            ]);
 
-        const [discoveryMetadata, authorityMetadata] = await Promise.all([
-            FetchManager.fetchCloudDiscoveryMetadata(appSettings.appCredentials.tenantId),
-            FetchManager.fetchAuthorityMetadata(appSettings.appCredentials.tenantId)
-        ]);
-
-        msalConfig.auth.cloudDiscoveryMetadata = discoveryMetadata;
-        msalConfig.auth.authorityMetadata = authorityMetadata;
+            msalConfig.auth.cloudDiscoveryMetadata = discoveryMetadata;
+            msalConfig.auth.authorityMetadata = authorityMetadata;
+        }
 
         return new WebAppAuthProvider(appSettings, msalConfig);
     }

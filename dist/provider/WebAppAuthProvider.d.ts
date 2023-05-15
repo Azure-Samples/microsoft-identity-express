@@ -28,5 +28,5 @@ export declare class WebAppAuthProvider extends BaseAuthProvider {
      */
     authenticate(options?: AuthenticateMiddlewareOptions): RequestHandler;
     guard(options: RouteGuardOptions): RequestHandler;
-    unauthorized(): ErrorRequestHandler;
+    interactionErrorHandler(): ErrorRequestHandler;
 }

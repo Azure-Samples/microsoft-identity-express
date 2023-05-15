@@ -29,6 +29,12 @@ export class AppSettingsHelper {
                 ...(appSettings.appCredentials.hasOwnProperty("clientCertificate") && {
                     clientCertificate: appSettings.appCredentials.clientCertificate,
                 }),
+                ...(appSettings.appCredentials.hasOwnProperty("authorityMetadata") && {
+                    authorityMetadata: appSettings.appCredentials.authorityMetadata,
+                }),
+                ...(appSettings.appCredentials.hasOwnProperty("cloudDiscoveryMetadata") && {
+                    cloudDiscoveryMetadata: appSettings.appCredentials.cloudDiscoveryMetadata
+                })
             },
             system: {
                 loggerOptions: appSettings.loggerOptions ? appSettings.loggerOptions : DEFAULT_LOGGER_OPTIONS,
@@ -79,11 +85,10 @@ export class AppSettingsHelper {
     static getResourceNameFromScopes(scopes: string[], protectedResources: ProtectedResourcesMap): string {
         const effectiveScopes = this.getEffectiveScopes(scopes).map((scope) => scope.toLowerCase());
 
-        const index = Object.values(protectedResources)
-            .findIndex((resourceParams: ProtectedResourceParams) =>
-                resourceParams.scopes.every((scope) => effectiveScopes.includes(scope.toLowerCase()))
-            );
-
+        const index = Object.values(protectedResources).findIndex((resourceParams: ProtectedResourceParams) =>
+            effectiveScopes.every((scope) => resourceParams.scopes.includes(scope.toLowerCase()))
+        );
+            
         const resourceName = Object.keys(protectedResources)[index];
         return resourceName;
     }

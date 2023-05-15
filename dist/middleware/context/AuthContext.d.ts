@@ -31,5 +31,6 @@ export declare class AuthContext {
     getToken(options?: TokenRequestOptions): RequestHandler;
     getAccount(): AccountInfo;
     isAuthenticated(): boolean;
+    getCachedTokenForResource(resource: string): string | null;
 }
 export {};

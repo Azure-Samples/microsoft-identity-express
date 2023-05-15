@@ -9,10 +9,10 @@ export declare class AppSettingsHelper {
      */
     static getMsalConfiguration(appSettings: AppSettings): Configuration;
     /**
- * Validates the fields in the configuration file
- * @param {AppSettings} appSettings: configuration object
- * @returns {void}
- */
+     * Validates the fields in the configuration file
+     * @param {AppSettings} appSettings: configuration object
+     * @returns {void}
+     */
     static validateAppSettings(appSettings: AppSettings, appType: AppType): void;
     /**
      * Util method to get the resource name for a given scope(s)

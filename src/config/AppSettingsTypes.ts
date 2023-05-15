@@ -22,6 +22,8 @@ export type AppCredentials = {
     tenantId: string;
     clientSecret?: string;
     clientCertificate?: ClientCertificate;
+    cloudDiscoveryMetadata?: string;
+    authorityMetadata?: string;
 };
 
 export type ClientCertificate = {
