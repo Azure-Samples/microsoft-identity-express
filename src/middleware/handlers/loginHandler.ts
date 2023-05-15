@@ -5,22 +5,15 @@
 
 import { ResponseMode } from "@azure/msal-common";
 import { AuthorizationCodeRequest, AuthorizationUrlRequest } from "@azure/msal-node";
-
 import { WebAppAuthProvider } from "../../provider/WebAppAuthProvider";
-import { SignInOptions, AppState } from "../MiddlewareOptions";
+import { LoginOptions, AppState } from "../MiddlewareOptions";
 import { Request, Response, NextFunction, RequestHandler } from "../MiddlewareTypes";
 import { UrlUtils } from "../../utils/UrlUtils";
 import { EMPTY_STRING } from "../../utils/Constants";
 
-function loginHandler(
-    this: WebAppAuthProvider,
-    options: SignInOptions
-): RequestHandler {
+function loginHandler(this: WebAppAuthProvider, options: LoginOptions): RequestHandler {
     return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        this.getLogger().verbose("LoginHandler called");
-
-        // eslint-disable-next-line no-console
-        console.log(req.originalUrl);
+        this.getLogger().trace("LoginHandler called");
 
         const state: AppState = {
             redirectTo: options.postLoginRedirectUri || "/",
@@ -46,7 +39,6 @@ function loginHandler(
             code: EMPTY_STRING,
         };
 
-        // prepare the request
         req.session.tokenRequestParams = {
             ...authCodeParams,
         };

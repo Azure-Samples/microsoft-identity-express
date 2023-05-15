@@ -1,5 +1,6 @@
-import { LogLevel, OIDC_DEFAULT_SCOPES, Logger, Constants, StringUtils, UrlString, ResponseMode } from '@azure/msal-common';
 import { ConfidentialClientApplication, CryptoProvider, InteractionRequiredAuthError } from '@azure/msal-node';
+export { AuthError, InteractionRequiredAuthError, Logger } from '@azure/msal-node';
+import { LogLevel, OIDC_DEFAULT_SCOPES, Logger, Constants, StringUtils, UrlString, ResponseMode, TimeUtils } from '@azure/msal-common';
 import axios from 'axios';
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
@@ -928,6 +929,10 @@ var ConfigurationErrorMessages = {
   NO_REDIRECT_URI: "No redirect URI provided!",
   NO_UNAUTHORIZED_ROUTE: "No unauthorized route provided!"
 };
+/**
+ * Default logger options
+ */
+
 var DEFAULT_LOGGER_OPTIONS = {
   loggerCallback: function loggerCallback(logLevel, message, containsPii) {
     if (containsPii) {
@@ -939,6 +944,14 @@ var DEFAULT_LOGGER_OPTIONS = {
   },
   piiLoggingEnabled: false,
   logLevel: LogLevel.Info
+};
+var HttpMethods = {
+  GET: "GET",
+  POST: "POST",
+  PUT: "PUT",
+  PATCH: "PATCH",
+  DELETE: "DELETE",
+  OPTIONS: "OPTIONS"
 };
 var EMPTY_STRING = "";
 
@@ -959,6 +972,7 @@ var BaseAuthProvider = /*#__PURE__*/function () {
 
     this.appSettings = appSettings;
     this.msalConfig = msalConfig;
+    this.cryptoProvider = new CryptoProvider();
     this.logger = new Logger(((_this$msalConfig$syst = this.msalConfig.system) == null ? void 0 : _this$msalConfig$syst.loggerOptions) || DEFAULT_LOGGER_OPTIONS, packageName, packageVersion);
   }
 
@@ -977,11 +991,11 @@ var BaseAuthProvider = /*#__PURE__*/function () {
   };
 
   _proto.getCryptoProvider = function getCryptoProvider() {
-    return new CryptoProvider();
+    return this.cryptoProvider;
   };
 
   _proto.getLogger = function getLogger() {
-    return this.logger.clone(packageName, packageVersion);
+    return this.logger;
   };
 
   return BaseAuthProvider;
@@ -1007,40 +1021,39 @@ var AppSettingsHelper = /*#__PURE__*/function () {
    * @returns {Configuration}
    */
   AppSettingsHelper.getMsalConfiguration = function getMsalConfiguration(appSettings) {
-    var _appSettings$systemOp;
+    var _appSettings$systemOp, _appSettings$systemOp2;
 
     return {
       auth: _extends({
-        clientId: appSettings.appCredentials.clientId,
-        authority: appSettings.appCredentials.instance ? "https://" + appSettings.appCredentials.instance + "/" + appSettings.appCredentials.tenantId : "https://" + Constants.DEFAULT_AUTHORITY_HOST + "/" + appSettings.appCredentials.tenantId
-      }, appSettings.appCredentials.hasOwnProperty("clientSecret") && {
-        clientSecret: appSettings.appCredentials.clientSecret
-      }, appSettings.appCredentials.hasOwnProperty("clientCertificate") && {
-        clientCertificate: appSettings.appCredentials.clientCertificate
+        clientId: appSettings.authOptions.clientId,
+        authority: appSettings.authOptions.instance ? "https://" + appSettings.authOptions.instance + "/" + appSettings.authOptions.tenantId : "https://" + Constants.DEFAULT_AUTHORITY_HOST + "/" + appSettings.authOptions.tenantId
+      }, appSettings.authOptions.hasOwnProperty("clientSecret") && {
+        clientSecret: appSettings.authOptions.clientSecret
+      }, appSettings.authOptions.hasOwnProperty("clientCertificate") && {
+        clientCertificate: appSettings.authOptions.clientCertificate
       }),
       system: {
-        loggerOptions: appSettings.loggerOptions ? appSettings.loggerOptions : DEFAULT_LOGGER_OPTIONS,
-        proxyUrl: (_appSettings$systemOp = appSettings.systemOptions) == null ? void 0 : _appSettings$systemOp.proxyUrl
+        loggerOptions: (_appSettings$systemOp = appSettings.systemOptions) != null && _appSettings$systemOp.loggerOptions ? appSettings.systemOptions.loggerOptions : DEFAULT_LOGGER_OPTIONS,
+        proxyUrl: (_appSettings$systemOp2 = appSettings.systemOptions) == null ? void 0 : _appSettings$systemOp2.proxyUrl
       }
     };
   }
   /**
-  * Validates the fields in the configuration file
-  * @param {AppSettings} appSettings: configuration object
-  * @returns {void}
-  */
+   * Validates the fields in the configuration file
+   * @param {AppSettings} appSettings: configuration object
+   */
   ;
 
   AppSettingsHelper.validateAppSettings = function validateAppSettings(appSettings, appType) {
-    if (StringUtils.isEmpty(appSettings.appCredentials.clientId)) {
+    if (StringUtils.isEmpty(appSettings.authOptions.clientId)) {
       throw new Error(ConfigurationErrorMessages.NO_CLIENT_ID);
-    } else if (!AppSettingsHelper.isGuid(appSettings.appCredentials.clientId)) {
+    } else if (!AppSettingsHelper.isGuid(appSettings.authOptions.clientId)) {
       throw new Error(ConfigurationErrorMessages.INVALID_CLIENT_ID);
     }
 
-    if (StringUtils.isEmpty(appSettings.appCredentials.tenantId)) {
+    if (StringUtils.isEmpty(appSettings.authOptions.tenantId)) {
       throw new Error(ConfigurationErrorMessages.NO_TENANT_INFO);
-    } else if (!AppSettingsHelper.isGuid(appSettings.appCredentials.tenantId) && !Object.values(AADAuthorityConstants).includes(appSettings.appCredentials.tenantId)) {
+    } else if (!AppSettingsHelper.isGuid(appSettings.authOptions.tenantId) && !Object.values(AADAuthorityConstants).includes(appSettings.authOptions.tenantId)) {
       throw new Error(ConfigurationErrorMessages.INVALID_TENANT_INFO);
     }
 
@@ -1075,8 +1088,8 @@ var AppSettingsHelper = /*#__PURE__*/function () {
   }
   /**
    * Util method to strip the default OIDC scopes from the scopes array
-   * @param {Array} scopesList full list of scopes for this resource
-   * @returns
+   * @param {Array} scopesList: full list of scopes for this resource
+   * @returns {Array}
    */
   ;
 
@@ -1087,7 +1100,7 @@ var AppSettingsHelper = /*#__PURE__*/function () {
     return effectiveScopesList;
   }
   /**
-   * Verifies if a string is GUID
+   * Verifies if a given string is GUID
    * @param {string} guid
    * @returns {boolean}
    */
@@ -1187,8 +1200,8 @@ var FetchManager = /*#__PURE__*/function () {
 }();
 /**
  * Calls a resource endpoint
- * @param {string} endpoint
- * @returns {Promise}
+ * @param {string} endpoint: URL of the endpoint to be called
+ * @returns {Promise<any>}
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
 
@@ -1227,9 +1240,9 @@ FetchManager.callApiEndpoint = /*#__PURE__*/function () {
 /**
  * Calls a resource endpoint with a raw access token
  * using the authorization bearer token scheme
- * @param {string} endpoint
- * @param {string} accessToken
- * @returns {Promise}
+ * @param {string} endpoint: URL of the endpoint to be called
+ * @param {string} accessToken: Raw access token
+ * @returns {Promise<any>}
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
 
@@ -1284,7 +1297,7 @@ FetchManager.callApiEndpointWithToken = /*#__PURE__*/function () {
  * @param {string} accessToken: access token required by endpoint
  * @param {string} nextPage: next page link
  * @param {Array} data: stores data from each page
- * @returns {Promise}
+ * @returns {Promise<string[]>}
  */
 
 
@@ -1381,6 +1394,32 @@ UrlUtils.ensureAbsoluteUrl = function (url, protocol, host) {
   }
 };
 /**
+ *
+ * @param req
+ * @param url
+ * @returns
+ */
+
+
+UrlUtils.ensureAbsoluteUrlFromRequest = function (req, url) {
+  if (url) {
+    return UrlUtils.ensureAbsoluteUrl(url, req.protocol, req.get("host") || req.hostname);
+  } else {
+    return UrlUtils.ensureAbsoluteUrl(req.originalUrl, req.protocol, req.get("host") || req.hostname);
+  }
+};
+/**
+ *
+ * @param req
+ * @param url
+ * @returns
+ */
+
+
+UrlUtils.checkIfRequestsMatch = function (req, url) {
+  return UrlUtils.ensureAbsoluteUrlFromRequest(req) === UrlUtils.ensureAbsoluteUrlFromRequest(req, url);
+};
+/**
  * Returns the path segment from a given URL
  * @param {string} url: a given URL
  * @returns {string}
@@ -1391,10 +1430,146 @@ UrlUtils.getPathFromUrl = function (url) {
   var urlComponents = new UrlString(url).getUrlComponents();
   return "/" + urlComponents.PathSegments.join("/");
 };
+/**
+ * Ensures that the URL contains a trailing slash at the end
+ * @param {string} path: a given path
+ * @returns {string}
+ */
+
 
 UrlUtils.enforceLeadingSlash = function (path) {
   return path.split("")[0] === "/" ? path : "/" + path;
 };
+
+function loginHandler(options) {
+  var _this = this;
+
+  return /*#__PURE__*/function () {
+    var _ref = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(req, res, next) {
+      var state, authUrlParams, authCodeParams, response;
+      return runtime_1.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              _this.getLogger().trace("LoginHandler called");
+
+              state = {
+                redirectTo: options.postLoginRedirectUri || "/",
+                customState: options.state
+              };
+              authUrlParams = {
+                scopes: options.scopes,
+                state: _this.getCryptoProvider().base64Encode(JSON.stringify(state)),
+                redirectUri: UrlUtils.ensureAbsoluteUrl(_this.webAppSettings.authRoutes.redirectUri, req.protocol, req.get("host") || req.hostname),
+                responseMode: ResponseMode.FORM_POST,
+                prompt: options.prompt || undefined
+              };
+              authCodeParams = {
+                scopes: authUrlParams.scopes,
+                state: authUrlParams.state,
+                redirectUri: authUrlParams.redirectUri,
+                code: EMPTY_STRING
+              };
+              req.session.tokenRequestParams = _extends({}, authCodeParams);
+              _context.prev = 5;
+              _context.next = 8;
+              return _this.getMsalClient().getAuthCodeUrl(authUrlParams);
+
+            case 8:
+              response = _context.sent;
+              res.redirect(response);
+              _context.next = 15;
+              break;
+
+            case 12:
+              _context.prev = 12;
+              _context.t0 = _context["catch"](5);
+              next(_context.t0);
+
+            case 15:
+            case "end":
+              return _context.stop();
+          }
+        }
+      }, _callee, null, [[5, 12]]);
+    }));
+
+    return function (_x, _x2, _x3) {
+      return _ref.apply(this, arguments);
+    };
+  }();
+}
+
+function logoutHandler(options) {
+  var _this = this;
+
+  return /*#__PURE__*/function () {
+    var _ref = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(req, res) {
+      var logoutUri, tokenCache, account, postLogoutRedirectUri;
+      return runtime_1.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              _this.getLogger().trace("logoutHandler called");
+
+              logoutUri = options.postLogoutRedirectUri || "/";
+              _context.prev = 2;
+              tokenCache = _this.getMsalClient().getTokenCache();
+              _context.next = 6;
+              return tokenCache.getAccountByHomeId(req.authContext.getAccount().homeAccountId);
+
+            case 6:
+              account = _context.sent;
+
+              if (!account) {
+                _context.next = 10;
+                break;
+              }
+
+              _context.next = 10;
+              return tokenCache.removeAccount(account);
+
+            case 10:
+              _context.next = 15;
+              break;
+
+            case 12:
+              _context.prev = 12;
+              _context.t0 = _context["catch"](2);
+
+              _this.logger.error("Error occurred while clearing cache for user: " + JSON.stringify(_context.t0));
+
+            case 15:
+              // TODO: should be default
+              if (options.idpLogout) {
+                /**
+                 * Construct a logout URI and redirect the user to end the
+                 * session with Azure AD. For more information, visit:
+                 * (AAD) https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request
+                 */
+                postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(options.postLogoutRedirectUri || "/", req.protocol, req.get("host") || req.hostname); // FIXME: need the canonical uri (ending with slash) && esnure absolute url
+
+                logoutUri = _this.getMsalConfig().auth.authority + "/oauth2/v2.0/logout?post_logout_redirect_uri=" + postLogoutRedirectUri;
+              }
+
+              req.session.destroy(function () {
+                // TODO: remove/expire cookie?
+                res.redirect(logoutUri);
+              });
+
+            case 17:
+            case "end":
+              return _context.stop();
+          }
+        }
+      }, _callee, null, [[2, 12]]);
+    }));
+
+    return function (_x, _x2) {
+      return _ref.apply(this, arguments);
+    };
+  }();
+}
 
 /**
  * Token Validation library error class thrown for configuration errors
@@ -1418,33 +1593,34 @@ var InteractionRequiredError = /*#__PURE__*/function (_InteractionRequiredA) {
   return InteractionRequiredError;
 }(InteractionRequiredAuthError);
 
-function acquireTokenHandler(options) {
+function acquireTokenHandler(options, useAsMiddleware) {
   var _this = this;
 
   return /*#__PURE__*/function () {
     var _ref = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(req, res, next) {
-      var account, silentRequest, msalInstance, tokenResponse;
+      var account, silentRequest, msalInstance, tokenResponse, resource, _req$session$protecte;
+
       return runtime_1.wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
-              _this.getLogger().verbose("acquireTokenHandler called");
+              _this.getLogger().trace("acquireTokenHandler called");
 
+              _context.prev = 1;
               account = options.account || req.session.account;
 
               if (account) {
-                _context.next = 4;
+                _context.next = 5;
                 break;
               }
 
-              throw new InteractionRequiredError("no_account_found", "No account found in the cache", undefined, options.scopes);
+              throw new InteractionRequiredError("no_account_found", "No account found either in options or in session", undefined, options.scopes);
 
-            case 4:
+            case 5:
               silentRequest = {
                 account: account,
                 scopes: options.scopes
               };
-              _context.prev = 5;
               msalInstance = _this.getMsalClient();
               msalInstance.getTokenCache().deserialize(req.session.tokenCache || "");
               _context.next = 10;
@@ -1452,38 +1628,56 @@ function acquireTokenHandler(options) {
 
             case 10:
               tokenResponse = _context.sent;
+              req.session.tokenCache = msalInstance.getTokenCache().serialize();
 
               if (tokenResponse) {
-                _context.next = 13;
+                _context.next = 14;
                 break;
               }
 
               throw new InteractionRequiredError("null_response", "AcquireTokenSilent return null response", undefined, options.scopes);
 
-            case 13:
-              req.session.tokenCache = msalInstance.getTokenCache().serialize();
-              return _context.abrupt("return", tokenResponse);
+            case 14:
+              if (!useAsMiddleware) {
+                _context.next = 17;
+                break;
+              }
+
+              if (_this.webAppSettings.protectedResources) {
+                resource = AppSettingsHelper.getResourceNameFromScopes(tokenResponse.scopes, _this.webAppSettings.protectedResources);
+
+                if (!req.session.protectedResources) {
+                  req.session.protectedResources = (_req$session$protecte = {}, _req$session$protecte[resource] = tokenResponse, _req$session$protecte);
+                } else {
+                  req.session.protectedResources[resource] = tokenResponse;
+                }
+              }
+
+              return _context.abrupt("return", next());
 
             case 17:
-              _context.prev = 17;
-              _context.t0 = _context["catch"](5);
+              return _context.abrupt("return", tokenResponse);
+
+            case 20:
+              _context.prev = 20;
+              _context.t0 = _context["catch"](1);
 
               if (!(_context.t0 instanceof InteractionRequiredAuthError)) {
-                _context.next = 21;
+                _context.next = 24;
                 break;
               }
 
               return _context.abrupt("return", next(new InteractionRequiredError(_context.t0.errorCode, _context.t0.errorMessage, _context.t0.subError, options.scopes, _context.t0.claims)));
 
-            case 21:
+            case 24:
               next(_context.t0);
 
-            case 22:
+            case 25:
             case "end":
               return _context.stop();
           }
         }
-      }, _callee, null, [[5, 17]]);
+      }, _callee, null, [[1, 20]]);
     }));
 
     return function (_x, _x2, _x3) {
@@ -1492,143 +1686,25 @@ function acquireTokenHandler(options) {
   }();
 }
 
-function loginHandler(options) {
-  var _this = this;
-
-  return /*#__PURE__*/function () {
-    var _ref = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(req, res, next) {
-      var state, authUrlParams, authCodeParams, response;
-      return runtime_1.wrap(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              _this.getLogger().verbose("LoginHandler called"); // eslint-disable-next-line no-console
-
-
-              console.log(req.originalUrl);
-              state = {
-                redirectTo: options.postLoginRedirectUri || "/",
-                customState: options.state
-              };
-              authUrlParams = {
-                scopes: options.scopes,
-                state: _this.getCryptoProvider().base64Encode(JSON.stringify(state)),
-                redirectUri: UrlUtils.ensureAbsoluteUrl(_this.webAppSettings.authRoutes.redirectUri, req.protocol, req.get("host") || req.hostname),
-                responseMode: ResponseMode.FORM_POST,
-                prompt: options.prompt || undefined
-              };
-              authCodeParams = {
-                scopes: authUrlParams.scopes,
-                state: authUrlParams.state,
-                redirectUri: authUrlParams.redirectUri,
-                code: EMPTY_STRING
-              }; // prepare the request
-
-              req.session.tokenRequestParams = _extends({}, authCodeParams);
-              _context.prev = 6;
-              _context.next = 9;
-              return _this.getMsalClient().getAuthCodeUrl(authUrlParams);
-
-            case 9:
-              response = _context.sent;
-              res.redirect(response);
-              _context.next = 16;
-              break;
-
-            case 13:
-              _context.prev = 13;
-              _context.t0 = _context["catch"](6);
-              next(_context.t0);
-
-            case 16:
-            case "end":
-              return _context.stop();
-          }
-        }
-      }, _callee, null, [[6, 13]]);
-    }));
-
-    return function (_x, _x2, _x3) {
-      return _ref.apply(this, arguments);
-    };
-  }();
-}
-
-function logoutHandler(options) {
-  var _this = this;
-
-  return /*#__PURE__*/function () {
-    var _ref = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee(req, res) {
-      var logoutUri, tokenCache, account, postLogoutRedirectUri;
-      return runtime_1.wrap(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              _this.getLogger().verbose("logoutHandler called");
-
-              logoutUri = options.postLogoutRedirectUri || "/";
-              tokenCache = _this.getMsalClient().getTokenCache();
-              _context.next = 5;
-              return tokenCache.getAccountByHomeId(req.session.account.homeAccountId);
-
-            case 5:
-              account = _context.sent;
-
-              if (!account) {
-                _context.next = 9;
-                break;
-              }
-
-              _context.next = 9;
-              return tokenCache.removeAccount(account);
-
-            case 9:
-              if (options.idpLogout) {
-                /**
-                 * Construct a logout URI and redirect the user to end the
-                 * session with Azure AD/B2C. For more information, visit:
-                 * (AAD) https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request
-                 * (B2C) https://docs.microsoft.com/azure/active-directory-b2c/openid-connect#send-a-sign-out-request
-                 */
-                postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(options.postLogoutRedirectUri || "/", req.protocol, req.get("host") || req.hostname); // FIXME: need the canonical uri (ending with slash)
-
-                logoutUri = _this.msalConfig.auth.authority + "/oauth2/v2.0/logout?post_logout_redirect_uri=" + postLogoutRedirectUri;
-              }
-
-              req.session.destroy(function () {
-                // TODO: destroy cookie?
-                res.redirect(logoutUri);
-              });
-
-            case 11:
-            case "end":
-              return _context.stop();
-          }
-        }
-      }, _callee);
-    }));
-
-    return function (_x, _x2) {
-      return _ref.apply(this, arguments);
-    };
-  }();
-}
-
+/*
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ */
 var AuthContext = /*#__PURE__*/function () {
   function AuthContext(provider, context) {
     this.provider = provider;
     this.context = context;
   }
   /**
-   * Initiates sign in flow
-   * @param {SignInOptions} options: options to modify login request
+   * Initiates login flow
+   * @param {LoginOptions} options: options to modify login request
    * @returns {RequestHandler}
    */
 
 
   var _proto = AuthContext.prototype;
 
-  _proto.signIn = function signIn(options) {
+  _proto.login = function login(options) {
     if (options === void 0) {
       options = {
         postLoginRedirectUri: "/",
@@ -1637,17 +1713,16 @@ var AuthContext = /*#__PURE__*/function () {
       };
     }
 
-    // TODO consider passing context IIFE
     return loginHandler.call(this.provider, options);
   }
   /**
-   * Initiate sign out and destroy the session
-   * @param {SignOutOptions} options: options to modify logout request
+   * Initiates logout flow and destroys the current session
+   * @param {LogoutOptions} options: options to modify logout request
    * @returns {RequestHandler}
    */
   ;
 
-  _proto.signOut = function signOut(options) {
+  _proto.logout = function logout(options) {
     if (options === void 0) {
       options = {
         postLogoutRedirectUri: "/",
@@ -1658,13 +1733,13 @@ var AuthContext = /*#__PURE__*/function () {
     return logoutHandler.call(this.provider, options);
   }
   /**
-   * Middleware that gets tokens via acquireToken*
-   * @param {TokenRequestOptions} options: options to modify this middleware
+   * Acquires an access token for given scopes
+   * @param {TokenRequestOptions} options: options to modify token request
    * @returns {RequestHandler}
    */
   ;
 
-  _proto.getToken = function getToken(options) {
+  _proto.acquireToken = function acquireToken(options) {
     if (options === void 0) {
       options = {
         scopes: []
@@ -1672,15 +1747,49 @@ var AuthContext = /*#__PURE__*/function () {
     }
 
     return acquireTokenHandler.call(this.provider, options);
-  };
+  }
+  /**
+   * Returns the account object from the session
+   * @returns {AccountInfo} account object
+   */
+  ;
 
   _proto.getAccount = function getAccount() {
-    return _extends({}, this.context.req.session.account);
-  };
+    return this.context.req.session.account;
+  }
+  /**
+   * Returns true if the account object is not null
+   * @returns {boolean} authentication status
+   */
+  ;
 
   _proto.isAuthenticated = function isAuthenticated() {
-    // TODO: check if account or session
-    return this.context.req.session.isAuthenticated;
+    return !!this.getAccount();
+  }
+  /**
+   * Returns the cached token for a given resource
+   * @param {string} resourceName: name of resource to retrieve token for
+   * @returns {string | null} cached access token
+   */
+  ;
+
+  _proto.getCachedTokenForResource = function getCachedTokenForResource(resourceName) {
+    if (this.context.req.session.protectedResources && this.context.req.session.protectedResources[resourceName]) {
+      var expiresOn = new Date(this.context.req.session.protectedResources[resourceName].expiresOn);
+
+      if (!expiresOn) {
+        return null; // would this ever happen?
+      }
+
+      var isTokenExpired = TimeUtils.isTokenExpired(Math.floor(expiresOn.getTime() / 1000).toString(), 300 // offset in seconds TODO: should get from config
+      );
+
+      if (!isTokenExpired) {
+        return this.context.req.session.protectedResources[resourceName].accessToken;
+      }
+    }
+
+    return null;
   };
 
   return AuthContext;
@@ -1704,7 +1813,7 @@ function redirectHandler() {
                 break;
               }
 
-              _this.logger.error("AUTH_CODE_NOT_FOUND");
+              _this.logger.error("Authorization code not found in the response");
 
               return _context.abrupt("return", next(new Error("AUTH_CODE_NOT_FOUND")));
 
@@ -1730,17 +1839,19 @@ function redirectHandler() {
               return _context.abrupt("return", res.status(403).send("No token response found"));
 
             case 14:
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              req.session.account = tokenResponse.account; // account will never be null in this grant type
+
               req.session.isAuthenticated = true;
-              req.session.account = tokenResponse.account; // eslint-disable-line @typescript-eslint/no-non-null-assertion
 
               if (_this.webAppSettings.protectedResources) {
-                // TODO: what if they are just acquiring a token without configuring protected resources?
+                // TODO: what if just acquiring a token without configuring protectedResources?
                 resource = AppSettingsHelper.getResourceNameFromScopes(tokenResponse.scopes, _this.webAppSettings.protectedResources);
 
                 if (!req.session.protectedResources) {
-                  req.session.protectedResources = (_req$session$protecte = {}, _req$session$protecte[resource] = tokenResponse.accessToken, _req$session$protecte);
+                  req.session.protectedResources = (_req$session$protecte = {}, _req$session$protecte[resource] = tokenResponse, _req$session$protecte);
                 } else {
-                  req.session.protectedResources[resource] = tokenResponse.accessToken;
+                  req.session.protectedResources[resource] = tokenResponse;
                 }
               }
 
@@ -1775,15 +1886,21 @@ function redirectHandler() {
  * Licensed under the MIT License.
  */
 /**
- * Initialize AuthProvider and set default routes and handlers
- * @returns {Router}
+ * Authenticates incoming requests using the WebAppAuthProvider
+ * @param {WebAppAuthProvider} this
+ * @param {AuthenticateMiddlewareOptions} options
+ * @returns {RequestHandler}
  */
 
 function authenticateMiddleware(options) {
   var _this = this;
 
   return function (req, res, next) {
-    _this.getLogger().info("Authenticating request");
+    _this.getLogger().trace("Authenticating request");
+
+    if (options.useSession && !req.session) {
+      throw new Error(ErrorMessages.SESSION_NOT_FOUND);
+    }
 
     req.authContext = new AuthContext(_this, {
       req: req,
@@ -1791,36 +1908,64 @@ function authenticateMiddleware(options) {
       next: next
     });
 
-    if (options && options.useSession && !req.session) {
-      throw new Error(ErrorMessages.SESSION_NOT_FOUND);
-    }
+    if (req.method === HttpMethods.POST) {
+      if (UrlUtils.ensureAbsoluteUrlFromRequest(req) === UrlUtils.ensureAbsoluteUrlFromRequest(req, _this.webAppSettings.authRoutes.redirectUri)) {
+        _this.getLogger().trace("Handling redirect");
 
-    if (req.method === "POST" && UrlUtils.ensureAbsoluteUrl(req.originalUrl, req.protocol, req.get("host") || req.hostname) === UrlUtils.ensureAbsoluteUrl(_this.webAppSettings.authRoutes.redirectUri, req.protocol, req.get("host") || req.hostname)) {
-      _this.getLogger().verbose("Handling redirect");
-
-      return redirectHandler.call(_this)(req, res, next);
-    }
-
-    if (_this.webAppSettings.authRoutes.frontChannelLogoutUri) {
-      if (req.method === "GET" && UrlUtils.ensureAbsoluteUrl(req.originalUrl, req.protocol, req.get("host") || req.hostname) === UrlUtils.getPathFromUrl(_this.webAppSettings.authRoutes.frontChannelLogoutUri)) {
-        if (req.session.isAuthenticated) {
-          return req.authContext.signOut({
-            postLogoutRedirectUri: "/",
-            idpLogout: false
-          })(req, res, next);
-        }
-
-        return res.status(401).send("Unauthorized");
+        return redirectHandler.call(_this)(req, res, next);
       }
     }
 
-    if (options && options.protectAllRoutes) {
+    if (_this.webAppSettings.authRoutes.frontChannelLogoutUri) {
+      if (req.method === HttpMethods.GET) {
+        if (UrlUtils.ensureAbsoluteUrlFromRequest(req) === UrlUtils.ensureAbsoluteUrlFromRequest(req, _this.webAppSettings.authRoutes.frontChannelLogoutUri)) {
+          _this.getLogger().trace("frontChannelLogoutUri called");
+
+          if (req.session.isAuthenticated) {
+            return req.authContext.logout({
+              postLogoutRedirectUri: "/",
+              idpLogout: false
+            })(req, res, next);
+          }
+
+          return res.status(401).send("Unauthorized");
+        }
+      }
+    }
+
+    if (options.protectAllRoutes) {
       if (!req.authContext.isAuthenticated()) {
-        return req.authContext.signIn({
+        return req.authContext.login({
           scopes: [],
           postLoginRedirectUri: req.originalUrl
         })(req, res, next);
       }
+    }
+
+    if (options.acquireTokenForResources) {
+      // acquire token for routes calling protected resources
+      Object.entries(options.acquireTokenForResources).forEach(function (params) {
+        var resourceName = params[0],
+            resourceParams = params[1];
+
+        if (req.authContext.getCachedTokenForResource(resourceName)) {
+          _this.getLogger().trace("Cached token found for resource endpoint");
+
+          return;
+        }
+
+        if (resourceParams.routes.includes(req.originalUrl)) {
+          var _resourceParams$metho;
+
+          if ((_resourceParams$metho = resourceParams.methods) != null && _resourceParams$metho.length && resourceParams.methods.includes(req.method) || req.method === HttpMethods.GET) {
+            _this.getLogger().trace("Acquiring token for resource endpoint");
+
+            return acquireTokenHandler.call(_this, {
+              scopes: resourceParams.scopes
+            }, true)(req, res, next);
+          }
+        }
+      });
     }
 
     next();
@@ -1834,9 +1979,8 @@ function authenticateMiddleware(options) {
 function guardMiddleware(options) {
   return function (req, res, next) {
     if (!req.authContext.isAuthenticated()) {
-      if (options && options.forceLogin) {
-        // TODO: should you check for appSettings protectedResources?
-        return req.authContext.signIn({
+      if (options.forceLogin) {
+        return req.authContext.login({
           scopes: [],
           postLoginRedirectUri: req.originalUrl
         })(req, res, next);
@@ -1845,16 +1989,34 @@ function guardMiddleware(options) {
       return res.status(401).send("Unauthorized");
     }
 
-    if (options && options.idTokenClaims) {
-      var _req$session$account;
+    if (options.idTokenClaims) {
+      var _req$authContext$getA;
 
-      // TODO: no need to rely on session for account
-      var tokenClaims = Object.values(((_req$session$account = req.session.account) == null ? void 0 : _req$session$account.idTokenClaims) || {});
-      var requiredClaims = Object.values(options.idTokenClaims);
+      var tokenClaims = ((_req$authContext$getA = req.authContext.getAccount()) == null ? void 0 : _req$authContext$getA.idTokenClaims) || {};
+      var requiredClaims = options.idTokenClaims;
+      var hasClaims = Object.keys(requiredClaims).every(function (claim) {
+        if (requiredClaims[claim] && tokenClaims[claim]) {
+          switch (typeof requiredClaims[claim]) {
+            case "string" :
+              return requiredClaims[claim] === tokenClaims[claim];
 
-      if (!requiredClaims.every(function (claim) {
-        return tokenClaims.includes(claim);
-      })) {
+            case "object":
+              if (Array.isArray(requiredClaims[claim])) {
+                var requiredClaimsArray = requiredClaims[claim];
+                var tokenClaimsArray = tokenClaims[claim];
+                return requiredClaimsArray.some(function (requiredClaim) {
+                  return tokenClaimsArray.indexOf(requiredClaim) >= 0;
+                });
+              }
+
+              break;
+          }
+        }
+
+        return false;
+      });
+
+      if (!hasClaims) {
         return res.status(403).send("Forbidden");
       }
     }
@@ -1868,10 +2030,10 @@ function guardMiddleware(options) {
  * Licensed under the MIT License.
  */
 
-function unauthorizedMiddleware() {
+function errorMiddleware() {
   return function (err, req, res, next) {
     if (err instanceof InteractionRequiredError) {
-      return req.authContext.signIn({
+      return req.authContext.login({
         scopes: err.scopes || [],
         claims: err.claims || undefined,
         postLoginRedirectUri: req.originalUrl
@@ -1881,12 +2043,6 @@ function unauthorizedMiddleware() {
     next(err);
   };
 }
-
-/**
- * A simple wrapper around MSAL Node ConfidentialClientApplication object.
- * It offers a collection of middleware and utility methods that automate
- * basic authentication and authorization tasks in Express web apps
- */
 
 var WebAppAuthProvider = /*#__PURE__*/function (_BaseAuthProvider) {
   _inheritsLoose(WebAppAuthProvider, _BaseAuthProvider);
@@ -1923,7 +2079,7 @@ var WebAppAuthProvider = /*#__PURE__*/function (_BaseAuthProvider) {
               AppSettingsHelper.validateAppSettings(appSettings, AppType.WebApp);
               msalConfig = AppSettingsHelper.getMsalConfiguration(appSettings);
               _context.next = 4;
-              return Promise.all([FetchManager.fetchCloudDiscoveryMetadata(appSettings.appCredentials.tenantId), FetchManager.fetchAuthorityMetadata(appSettings.appCredentials.tenantId)]);
+              return Promise.all([FetchManager.fetchCloudDiscoveryMetadata(appSettings.authOptions.tenantId), FetchManager.fetchAuthorityMetadata(appSettings.authOptions.tenantId)]);
 
             case 4:
               _yield$Promise$all = _context.sent;
@@ -1949,8 +2105,8 @@ var WebAppAuthProvider = /*#__PURE__*/function (_BaseAuthProvider) {
   }()
   /**
    * Sets request context, default routes and handlers
-   * @param {AuthenticateMiddlewareOptions} options: options to modify login request
-   * @returns {Router}
+   * @param {AuthenticateMiddlewareOptions} options: options to modify middleware behavior
+   * @returns {RequestHandler}
    */
   ;
 
@@ -1965,14 +2121,31 @@ var WebAppAuthProvider = /*#__PURE__*/function (_BaseAuthProvider) {
     }
 
     return authenticateMiddleware.call(this, options);
-  };
+  }
+  /**
+   * Guards a specified route with given options
+   * @param {RouteGuardOptions} options: options to modify middleware behavior
+   * @returns {RequestHandler}
+   */
+  ;
 
   _proto.guard = function guard(options) {
-    return guardMiddleware.call(this, options);
-  };
+    if (options === void 0) {
+      options = {
+        forceLogin: true
+      };
+    }
 
-  _proto.unauthorized = function unauthorized() {
-    return unauthorizedMiddleware.call(this);
+    return guardMiddleware.call(this, options);
+  }
+  /**
+   * Middleware to handle interaction required errors
+   * @returns {ErrorRequestHandler}
+   */
+  ;
+
+  _proto.interactionErrorHandler = function interactionErrorHandler() {
+    return errorMiddleware.call(this);
   };
 
   return WebAppAuthProvider;

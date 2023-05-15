@@ -8,10 +8,11 @@ const session = require('express-session');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
 
+const router = require('./routes/router');
+const mainController = require('./controllers/mainController');
+
 const { WebAppAuthProvider } = require('../../dist/index');
 const appSettings = require('./appSettings');
-const router = require('./routes/router');
-const mainController = require('./controllers/mainController'); 
 
 const app = express();
 
@@ -53,15 +54,20 @@ async function main(msid) {
 
     app.set('trust proxy', 1) // trust first proxy
 
-    // building the identity-express-wrapper
-
-    if(!msid) {
+    if (!msid) {
+        // building the identity-express-wrapper
         msid = await WebAppAuthProvider.initialize(appSettings);
     }
 
     app.use(msid.authenticate({
         protectAllRoutes: false,
         useSession: true,
+        acquireTokenForResources: {
+            "graph.microsoft.com": {
+                scopes: ["User.Read"],
+                routes: ["/profile"]
+            },
+        }
     }));
 
     app.get(
@@ -87,11 +93,16 @@ async function main(msid) {
     );
 
     app.use(router);
-    
     app.use(msid.interactionErrorHandler());
+
+    app.listen(4000, () => {
+        console.log(`Msal Node Auth Code Sample app listening at http://localhost:4000`);
+    });
 }
+
+main();
 
 module.exports = {
     app,
     main
-}
+};

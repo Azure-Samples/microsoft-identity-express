@@ -1,35 +1,43 @@
 import { AccountInfo } from "@azure/msal-node";
 import { WebAppAuthProvider } from "../../provider/WebAppAuthProvider";
-import { Request, Response, NextFunction, RequestHandler } from "../MiddlewareTypes";
-import { SignInOptions, SignOutOptions, TokenRequestOptions } from "../MiddlewareOptions";
-declare type RequestContext = {
-    req: Request;
-    res: Response;
-    next: NextFunction;
-};
+import { RequestContext, RequestHandler } from "../MiddlewareTypes";
+import { LoginOptions, LogoutOptions, TokenRequestOptions } from "../MiddlewareOptions";
 export declare class AuthContext {
-    provider: WebAppAuthProvider;
-    context: RequestContext;
+    private provider;
+    private context;
     constructor(provider: WebAppAuthProvider, context: RequestContext);
     /**
-     * Initiates sign in flow
-     * @param {SignInOptions} options: options to modify login request
+     * Initiates login flow
+     * @param {LoginOptions} options: options to modify login request
      * @returns {RequestHandler}
      */
-    signIn(options?: SignInOptions): RequestHandler;
+    login(options?: LoginOptions): RequestHandler;
     /**
-     * Initiate sign out and destroy the session
-     * @param {SignOutOptions} options: options to modify logout request
+     * Initiates logout flow and destroys the current session
+     * @param {LogoutOptions} options: options to modify logout request
      * @returns {RequestHandler}
      */
-    signOut(options?: SignOutOptions): RequestHandler;
+    logout(options?: LogoutOptions): RequestHandler;
     /**
-     * Middleware that gets tokens via acquireToken*
-     * @param {TokenRequestOptions} options: options to modify this middleware
+     * Acquires an access token for given scopes
+     * @param {TokenRequestOptions} options: options to modify token request
      * @returns {RequestHandler}
      */
-    getToken(options?: TokenRequestOptions): RequestHandler;
+    acquireToken(options?: TokenRequestOptions): RequestHandler;
+    /**
+     * Returns the account object from the session
+     * @returns {AccountInfo} account object
+     */
     getAccount(): AccountInfo;
+    /**
+     * Returns true if the account object is not null
+     * @returns {boolean} authentication status
+     */
     isAuthenticated(): boolean;
+    /**
+     * Returns the cached token for a given resource
+     * @param {string} resourceName: name of resource to retrieve token for
+     * @returns {string | null} cached access token
+     */
+    getCachedTokenForResource(resourceName: string): string | null;
 }
-export {};

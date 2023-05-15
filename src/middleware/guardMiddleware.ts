@@ -4,15 +4,14 @@
  */
 
 import { WebAppAuthProvider } from "../provider/WebAppAuthProvider";
-import { RouteGuardOptions } from "./MiddlewareOptions";
 import { Request, Response, NextFunction, RequestHandler } from "./MiddlewareTypes";
+import { RouteGuardOptions } from "./MiddlewareOptions";
 
 function guardMiddleware(this: WebAppAuthProvider, options: RouteGuardOptions): RequestHandler {
     return (req: Request, res: Response, next: NextFunction): void | Response => {
         if (!req.authContext.isAuthenticated()) {
-            if (options && options.forceLogin) {
-                // TODO: should you check for appSettings protectedResources?
-                return req.authContext.signIn({
+            if (options.forceLogin) {
+                return req.authContext.login({
                     scopes: [],
                     postLoginRedirectUri: req.originalUrl,
                 })(req, res, next);
@@ -21,12 +20,14 @@ function guardMiddleware(this: WebAppAuthProvider, options: RouteGuardOptions): 
             return res.status(401).send("Unauthorized");
         }
 
-        if (options && options.idTokenClaims) {
-            // TODO: no need to rely on session for account
-            const tokenClaims = req.session.account?.idTokenClaims || {};
+        if (options.idTokenClaims) {
+            const tokenClaims = req.authContext.getAccount()?.idTokenClaims || {};
             const requiredClaims = options.idTokenClaims;
+
             const hasClaims = Object.keys(requiredClaims).every((claim: string) => {
+
                 if (requiredClaims[claim] && tokenClaims[claim]) {
+
                     switch (typeof requiredClaims[claim]) {
                         case "string" || "number":
                             return requiredClaims[claim] === tokenClaims[claim];
@@ -34,6 +35,7 @@ function guardMiddleware(this: WebAppAuthProvider, options: RouteGuardOptions): 
                             if (Array.isArray(requiredClaims[claim])) {
                                 const requiredClaimsArray = requiredClaims[claim] as [];
                                 const tokenClaimsArray = tokenClaims[claim] as [];
+
                                 return requiredClaimsArray.some(
                                     (requiredClaim) => tokenClaimsArray.indexOf(requiredClaim) >= 0
                                 );
@@ -45,6 +47,7 @@ function guardMiddleware(this: WebAppAuthProvider, options: RouteGuardOptions): 
                 }
                 return false;
             });
+
             if (!hasClaims) {
                 return res.status(403).send("Forbidden");
             }

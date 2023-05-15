@@ -15,7 +15,7 @@ router.get('/home', mainController.getHomePage);
 router.get(
     '/signin',
     (req, res, next) => {
-        return req.authContext.signIn({
+        return req.authContext.login({
             postLoginRedirectUri: "/",
             postFailureRedirectUri: "/signin"
         })(req, res, next);
@@ -25,7 +25,7 @@ router.get(
 router.get(
     '/signout',
     (req, res, next) => {
-        return req.authContext.signOut({
+        return req.authContext.logout({
             postLogoutRedirectUri: "/",
         })(req, res, next);
     }

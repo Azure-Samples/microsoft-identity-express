@@ -3,20 +3,33 @@
  * Licensed under the MIT License.
  */
 
+export { 
+    InteractionRequiredAuthError, 
+    NodeSystemOptions, 
+    AuthError, 
+    Logger, 
+    AccountInfo 
+} from "@azure/msal-node";
+
 export { WebAppAuthProvider } from "./provider/WebAppAuthProvider";
 
 export {
     WebAppSettings,
-    AppCredentials,
-    ClientCertificate,
     AuthRoutes,
+    AuthOptions,
+    AppSettings,
+    ProtectedResourceParams,
+    ProtectedResourcesMap
 } from "./config/AppSettingsTypes";
 
 export {
     RouteGuardOptions,
-    SignInOptions,
-    SignOutOptions,
-    TokenRequestOptions
+    AuthenticateMiddlewareOptions,
+    LoginOptions,
+    LogoutOptions,
+    TokenRequestOptions,
+    AppState,
+    IdTokenClaims
 } from "./middleware/MiddlewareOptions";
 
 export { packageVersion } from "./packageMetadata";

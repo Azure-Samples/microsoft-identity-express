@@ -5,7 +5,6 @@
 
 import { StringUtils, Constants } from "@azure/msal-common";
 import { Configuration } from "@azure/msal-node";
-
 import { AADAuthorityConstants, ConfigurationErrorMessages, OIDC_SCOPES, DEFAULT_LOGGER_OPTIONS } from "../utils/Constants";
 import { AppSettings, AppType, ProtectedResourceParams, ProtectedResourcesMap, WebAppSettings } from "./AppSettingsTypes";
 
@@ -19,19 +18,19 @@ export class AppSettingsHelper {
     static getMsalConfiguration(appSettings: AppSettings): Configuration {
         return {
             auth: {
-                clientId: appSettings.appCredentials.clientId,
-                authority: appSettings.appCredentials.instance
-                    ? `https://${appSettings.appCredentials.instance}/${appSettings.appCredentials.tenantId}`
-                    : `https://${Constants.DEFAULT_AUTHORITY_HOST}/${appSettings.appCredentials.tenantId}`,
-                ...(appSettings.appCredentials.hasOwnProperty("clientSecret") && {
-                    clientSecret: appSettings.appCredentials.clientSecret,
+                clientId: appSettings.authOptions.clientId,
+                authority: appSettings.authOptions.instance
+                    ? `https://${appSettings.authOptions.instance}/${appSettings.authOptions.tenantId}`
+                    : `https://${Constants.DEFAULT_AUTHORITY_HOST}/${appSettings.authOptions.tenantId}`,
+                ...(appSettings.authOptions.hasOwnProperty("clientSecret") && {
+                    clientSecret: appSettings.authOptions.clientSecret,
                 }),
-                ...(appSettings.appCredentials.hasOwnProperty("clientCertificate") && {
-                    clientCertificate: appSettings.appCredentials.clientCertificate,
+                ...(appSettings.authOptions.hasOwnProperty("clientCertificate") && {
+                    clientCertificate: appSettings.authOptions.clientCertificate,
                 }),
             },
             system: {
-                loggerOptions: appSettings.loggerOptions ? appSettings.loggerOptions : DEFAULT_LOGGER_OPTIONS,
+                loggerOptions: appSettings.systemOptions?.loggerOptions ? appSettings.systemOptions.loggerOptions : DEFAULT_LOGGER_OPTIONS,
                 proxyUrl: appSettings.systemOptions?.proxyUrl
             },
         };
@@ -40,20 +39,19 @@ export class AppSettingsHelper {
     /**
      * Validates the fields in the configuration file
      * @param {AppSettings} appSettings: configuration object
-     * @returns {void}
      */
     static validateAppSettings(appSettings: AppSettings, appType: AppType): void {
-        if (StringUtils.isEmpty(appSettings.appCredentials.clientId)) {
+        if (StringUtils.isEmpty(appSettings.authOptions.clientId)) {
             throw new Error(ConfigurationErrorMessages.NO_CLIENT_ID);
-        } else if (!AppSettingsHelper.isGuid(appSettings.appCredentials.clientId)) {
+        } else if (!AppSettingsHelper.isGuid(appSettings.authOptions.clientId)) {
             throw new Error(ConfigurationErrorMessages.INVALID_CLIENT_ID);
         }
 
-        if (StringUtils.isEmpty(appSettings.appCredentials.tenantId)) {
+        if (StringUtils.isEmpty(appSettings.authOptions.tenantId)) {
             throw new Error(ConfigurationErrorMessages.NO_TENANT_INFO);
         } else if (
-            !AppSettingsHelper.isGuid(appSettings.appCredentials.tenantId) &&
-            !Object.values(AADAuthorityConstants).includes(appSettings.appCredentials.tenantId)
+            !AppSettingsHelper.isGuid(appSettings.authOptions.tenantId) &&
+            !Object.values(AADAuthorityConstants).includes(appSettings.authOptions.tenantId)
         ) {
             throw new Error(ConfigurationErrorMessages.INVALID_TENANT_INFO);
         }
@@ -63,7 +61,6 @@ export class AppSettingsHelper {
                 if (StringUtils.isEmpty((<WebAppSettings>appSettings).authRoutes.redirectUri)) {
                     throw new Error(ConfigurationErrorMessages.NO_REDIRECT_URI);
                 }
-
                 break;
             default:
                 break;
@@ -90,8 +87,8 @@ export class AppSettingsHelper {
 
     /**
      * Util method to strip the default OIDC scopes from the scopes array
-     * @param {Array} scopesList full list of scopes for this resource
-     * @returns
+     * @param {Array} scopesList: full list of scopes for this resource
+     * @returns {Array}
      */
     static getEffectiveScopes(scopesList: string[]): string[] {
         const effectiveScopesList = scopesList.filter(scope => !OIDC_SCOPES.includes(scope));
@@ -99,7 +96,7 @@ export class AppSettingsHelper {
     }
 
     /**
-     * Verifies if a string is GUID
+     * Verifies if a given string is GUID
      * @param {string} guid
      * @returns {boolean}
      */

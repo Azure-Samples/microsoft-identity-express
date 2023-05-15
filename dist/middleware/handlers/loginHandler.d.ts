@@ -1,5 +1,5 @@
 import { WebAppAuthProvider } from "../../provider/WebAppAuthProvider";
-import { SignInOptions } from "../MiddlewareOptions";
+import { LoginOptions } from "../MiddlewareOptions";
 import { RequestHandler } from "../MiddlewareTypes";
-declare function loginHandler(this: WebAppAuthProvider, options: SignInOptions): RequestHandler;
+declare function loginHandler(this: WebAppAuthProvider, options: LoginOptions): RequestHandler;
 export default loginHandler;

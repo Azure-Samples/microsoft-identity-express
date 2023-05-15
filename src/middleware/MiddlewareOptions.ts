@@ -13,12 +13,12 @@ export type AuthenticateMiddlewareOptions = {
     acquireTokenForResources?: ProtectedResourcesMap
 };
 
-export type SignInOptions = Pick<AuthorizationCodeRequest, "scopes" | "claims" | "tokenBodyParameters" | "tokenQueryParameters"> & Pick<AuthorizationUrlRequest, "scopes" | "account" | "loginHint" | "domainHint" | "state" | "extraQueryParameters" | "extraScopesToConsent" | "prompt" | "sid"> & {
+export type LoginOptions = Pick<AuthorizationCodeRequest, "scopes" | "claims" | "tokenBodyParameters" | "tokenQueryParameters"> & Pick<AuthorizationUrlRequest, "scopes" | "account" | "loginHint" | "domainHint" | "state" | "extraQueryParameters" | "extraScopesToConsent" | "prompt" | "sid"> & {
     postLoginRedirectUri?: string;
     postFailureRedirectUri?: string;
 };
 
-export type SignOutOptions = Pick<CommonEndSessionRequest, "account" | "state" | "postLogoutRedirectUri" | "logoutHint" | "extraQueryParameters"> & {
+export type LogoutOptions = Pick<CommonEndSessionRequest, "account" | "state" | "postLogoutRedirectUri" | "logoutHint" | "extraQueryParameters"> & {
     postLogoutRedirectUri?: string;
     idpLogout?: boolean;
     clearCache?: boolean;

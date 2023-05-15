@@ -3,12 +3,11 @@
  * Licensed under the MIT License.
  */
 
-import { LoggerOptions, SystemOptions } from "@azure/msal-common";
+import { NodeAuthOptions, NodeSystemOptions } from "@azure/msal-node";
 
 export type AppSettings = {
-    appCredentials: AppCredentials;
-    loggerOptions?: LoggerOptions;
-    systemOptions?: SystemOptions;
+    authOptions: AuthOptions;
+    systemOptions?: NodeSystemOptions;
 };
 
 export type WebAppSettings = AppSettings & {
@@ -16,30 +15,22 @@ export type WebAppSettings = AppSettings & {
     protectedResources?: ProtectedResourcesMap
 };
 
-export type AppCredentials = {
+export type AuthOptions = NodeAuthOptions & {
     instance?: string;
-    clientId: string;
     tenantId: string;
-    clientSecret?: string;
-    clientCertificate?: ClientCertificate;
-};
-
-export type ClientCertificate = {
-    thumbprint: string;
-    privateKey: string;
-    x5c?: string;
 };
 
 export type AuthRoutes = {
     redirectUri: string;
     frontChannelLogoutUri?: string;
+    postLogoutRedirectUri?: string;
 };
 
 export type ProtectedResourcesMap = Record<string, ProtectedResourceParams>;
 
 export type ProtectedResourceParams = {
     scopes: Array<string>,
-    routes?: Array<string>,
+    routes: Array<string>,
     methods?: Array<string>,
 };
 

@@ -96,5 +96,16 @@ export declare const ErrorCodes: {
     700020: string;
     90118: string;
 };
+/**
+ * Default logger options
+ */
 export declare const DEFAULT_LOGGER_OPTIONS: LoggerOptions;
+export declare const HttpMethods: {
+    GET: string;
+    POST: string;
+    PUT: string;
+    PATCH: string;
+    DELETE: string;
+    OPTIONS: string;
+};
 export declare const EMPTY_STRING = "";

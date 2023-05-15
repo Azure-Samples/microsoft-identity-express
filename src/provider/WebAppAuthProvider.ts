@@ -4,7 +4,6 @@
  */
 
 import { Configuration } from "@azure/msal-node";
-
 import { BaseAuthProvider } from "./BaseAuthProvider";
 import { AppSettingsHelper } from "../config/AppSettingsHelper";
 import { FetchManager } from "../network/FetchManager";
@@ -15,11 +14,6 @@ import authenticateMiddleware from "../middleware/authenticateMiddleware";
 import guardMiddleware from "../middleware/guardMiddleware";
 import errorMiddleware from "../middleware/errorMiddlewarer";
 
-/**
- * A simple wrapper around MSAL Node ConfidentialClientApplication object.
- * It offers a collection of middleware and utility methods that automate
- * basic authentication and authorization tasks in Express web apps
- */
 export class WebAppAuthProvider extends BaseAuthProvider {
     webAppSettings: WebAppSettings;
 
@@ -44,8 +38,8 @@ export class WebAppAuthProvider extends BaseAuthProvider {
         const msalConfig = AppSettingsHelper.getMsalConfiguration(appSettings);
 
         const [discoveryMetadata, authorityMetadata] = await Promise.all([
-            FetchManager.fetchCloudDiscoveryMetadata(appSettings.appCredentials.tenantId),
-            FetchManager.fetchAuthorityMetadata(appSettings.appCredentials.tenantId)
+            FetchManager.fetchCloudDiscoveryMetadata(appSettings.authOptions.tenantId),
+            FetchManager.fetchAuthorityMetadata(appSettings.authOptions.tenantId)
         ]);
 
         msalConfig.auth.cloudDiscoveryMetadata = discoveryMetadata;
@@ -56,8 +50,8 @@ export class WebAppAuthProvider extends BaseAuthProvider {
 
     /**
      * Sets request context, default routes and handlers
-     * @param {AuthenticateMiddlewareOptions} options: options to modify login request
-     * @returns {Router}
+     * @param {AuthenticateMiddlewareOptions} options: options to modify middleware behavior
+     * @returns {RequestHandler}
      */
     authenticate(options: AuthenticateMiddlewareOptions = {
         protectAllRoutes: false,
@@ -66,10 +60,21 @@ export class WebAppAuthProvider extends BaseAuthProvider {
         return authenticateMiddleware.call(this, options);
     }
 
-    guard(options: RouteGuardOptions): RequestHandler {
+    /**
+     * Guards a specified route with given options
+     * @param {RouteGuardOptions} options: options to modify middleware behavior
+     * @returns {RequestHandler}
+     */
+    guard(options: RouteGuardOptions = {
+        forceLogin: true,
+    }): RequestHandler {
         return guardMiddleware.call(this, options);
     }
 
+    /**
+     * Middleware to handle interaction required errors
+     * @returns {ErrorRequestHandler}
+     */
     interactionErrorHandler(): ErrorRequestHandler {
         return errorMiddleware.call(this);
     }

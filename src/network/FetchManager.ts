@@ -10,8 +10,8 @@ import { AccessControlConstants, ErrorMessages } from "../utils/Constants";
 export class FetchManager {
     /**
      * Calls a resource endpoint
-     * @param {string} endpoint
-     * @returns {Promise}
+     * @param {string} endpoint: URL of the endpoint to be called
+     * @returns {Promise<any>}
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
     static callApiEndpoint = async (endpoint: string, options?: AxiosRequestConfig): Promise<any> => {
@@ -26,9 +26,9 @@ export class FetchManager {
     /**
      * Calls a resource endpoint with a raw access token
      * using the authorization bearer token scheme
-     * @param {string} endpoint
-     * @param {string} accessToken
-     * @returns {Promise}
+     * @param {string} endpoint: URL of the endpoint to be called
+     * @param {string} accessToken: Raw access token
+     * @returns {Promise<any>}
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
     static callApiEndpointWithToken = async (endpoint: string, accessToken: string): Promise<any> => {
@@ -84,7 +84,7 @@ export class FetchManager {
      * @param {string} accessToken: access token required by endpoint
      * @param {string} nextPage: next page link
      * @param {Array} data: stores data from each page
-     * @returns {Promise}
+     * @returns {Promise<string[]>}
      */
     static handlePagination = async (accessToken: string, nextPage: string, data: string[] = []): Promise<string[]> => {
         try {

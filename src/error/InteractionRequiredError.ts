@@ -16,6 +16,7 @@ export class InteractionRequiredError extends InteractionRequiredAuthError {
         this.name = "InteractionRequiredError";
         this.scopes = scopes || [];
         this.claims = claims || "";
+        
         Object.setPrototypeOf(this, InteractionRequiredError.prototype);
     }
 }

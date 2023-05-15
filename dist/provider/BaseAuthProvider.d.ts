@@ -4,6 +4,7 @@ import { AppSettings } from "../config/AppSettingsTypes";
 export declare abstract class BaseAuthProvider {
     protected appSettings: AppSettings;
     protected msalConfig: Configuration;
+    protected cryptoProvider: CryptoProvider;
     protected logger: Logger;
     protected constructor(appSettings: AppSettings, msalConfig: Configuration);
     getAppSettings(): AppSettings;

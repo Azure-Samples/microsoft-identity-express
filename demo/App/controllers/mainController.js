@@ -2,28 +2,23 @@ const fetchManager = require('../utils/fetchManager');
 const appSettings = require('../appSettings');
 
 exports.getHomePage = (req, res, next) => {
-    res.render('home', { isAuthenticated: req.session.isAuthenticated, username: req.session.account?.idTokenClaims?.preferred_username });
+    res.render('home', { isAuthenticated: req.authContext.isAuthenticated(), username: req.authContext.getAccount()?.idTokenClaims?.preferred_username });
 }
 
 exports.getIdPage = (req, res, next) => {
-    const claims = req.session.account ? {
-        name: req.session.account.idTokenClaims.name,
-        preferred_username: req.session.account.idTokenClaims.preferred_username,
-        oid: req.session.account.idTokenClaims.oid,
-        sub: req.session.account.idTokenClaims.sub
+    const claims = req.authContext.getAccount() ? {
+        name: req.authContext.getAccount().idTokenClaims.name,
+        preferred_username: req.authContext.getAccount().idTokenClaims.preferred_username,
+        oid: req.authContext.getAccount().idTokenClaims.oid,
+        sub: req.authContext.getAccount().idTokenClaims.sub
     } : {};
 
-    res.render('id', { isAuthenticated: req.session.isAuthenticated, claims: claims });
+    res.render('id', { isAuthenticated: req.authContext.isAuthenticated(), claims: claims });
 }
 
 exports.getProfilePage = async (req, res, next) => {
     try {
-        const tokenResponse = await req.authContext.getToken({
-            scopes: ["user.Read"],
-            account: req.authContext.getAccount(),
-        })(req, res, next);
-
-        const profile = await fetchManager.callAPI("https://graph.microsoft.com/v1.0/me", tokenResponse.accessToken);
+        const profile = await fetchManager.callAPI("https://graph.microsoft.com/v1.0/me", req.authContext.getCachedTokenForResource("graph.microsoft.com"));
         return res.render('profile', { isAuthenticated: req.authContext.isAuthenticated(), profile: profile });
     } catch (error) {
         return next(error);
@@ -32,7 +27,7 @@ exports.getProfilePage = async (req, res, next) => {
 
 exports.getTenantPage = async (req, res, next) => {
     try {
-        const tokenResponse = await req.authContext.getToken({
+        const tokenResponse = await req.authContext.acquireToken({
             scopes: ["https://management.azure.com/user_impersonation"],
             account: req.authContext.getAccount(),
         })(req, res, next);
@@ -46,9 +41,9 @@ exports.getTenantPage = async (req, res, next) => {
 }
 
 exports.getRoles = async (req, res, next) => {
-    res.render('roles', { isAuthenticated: req.session.isAuthenticated });   
+    res.render('roles', { isAuthenticated: req.authContext.isAuthenticated() });   
 }
 
 exports.getGroups = async (req, res, next) => {
-    res.render('groups', { isAuthenticated: req.session.isAuthenticated });
+    res.render('groups', { isAuthenticated: req.authContext.isAuthenticated() });
 };

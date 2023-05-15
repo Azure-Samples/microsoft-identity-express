@@ -1,7 +1,7 @@
 require('dotenv').config();
 
 const appSettings = {
-    appCredentials: {
+    authOptions: {
         clientId: process.env.AAD_CLIENT_ID,
         tenantId: process.env.AAD_TENANT_ID,
         clientSecret: process.env.AAD_CLIENT_SECRET
@@ -11,7 +11,7 @@ const appSettings = {
     },
     protectedResources: {
         "graph.microsoft.com": {
-            scopes: ["User.Read", "mail.Read", "Calendars.Read"],
+            scopes: ["User.Read"],
         },
     },
     loggerOptions: {

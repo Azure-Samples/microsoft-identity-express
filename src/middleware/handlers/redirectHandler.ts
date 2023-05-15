@@ -9,15 +9,13 @@ import { Request, Response, NextFunction, RequestHandler } from "../MiddlewareTy
 import { AppState } from "../MiddlewareOptions";
 import { AppSettingsHelper } from "../../config/AppSettingsHelper";
 
-function redirectHandler(
-    this: WebAppAuthProvider
-): RequestHandler {
+function redirectHandler(this: WebAppAuthProvider): RequestHandler {
     return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         this.getLogger().verbose("redirectHandler called");
 
         if (!req.body || !req.body.code) {
-            this.logger.error("AUTH_CODE_NOT_FOUND");
-            return next(new Error("AUTH_CODE_NOT_FOUND"));
+            this.logger.error("Authorization code not found in the response");
+            return next(new Error("AUTH_CODE_NOT_FOUND")); // TODO: need to create a custom error for this
         }
 
         const tokenRequest: AuthorizationCodeRequest = {
@@ -45,9 +43,7 @@ function redirectHandler(
             req.session.isAuthenticated = true;
             
             if (this.webAppSettings.protectedResources) {
-
-                // TODO: what if they are just acquiring a token without configuring protected resources?
-
+                // TODO: what if just acquiring a token without configuring protectedResources?
                 const resource = AppSettingsHelper.getResourceNameFromScopes(
                     tokenResponse.scopes,
                     this.webAppSettings.protectedResources
@@ -55,10 +51,10 @@ function redirectHandler(
 
                 if (!req.session.protectedResources) {
                     req.session.protectedResources = {
-                        [resource]: tokenResponse.accessToken
+                        [resource]: tokenResponse
                     };
                 } else {
-                    req.session.protectedResources[resource] = tokenResponse.accessToken;
+                    req.session.protectedResources[resource] = tokenResponse;
                 }
             }
 

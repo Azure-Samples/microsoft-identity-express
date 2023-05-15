@@ -3,21 +3,17 @@
  * Licensed under the MIT License.
  */
 
+import { TimeUtils } from "@azure/msal-common";
 import { AccountInfo } from "@azure/msal-node";
 import { WebAppAuthProvider } from "../../provider/WebAppAuthProvider";
-import { Request, Response, NextFunction, RequestHandler } from "../MiddlewareTypes";
-import { SignInOptions, SignOutOptions, TokenRequestOptions } from "../MiddlewareOptions";
-import acquireTokenHandler from "../handlers/acquireTokenHandler";
+import { RequestContext, RequestHandler } from "../MiddlewareTypes";
+import { LoginOptions, LogoutOptions, TokenRequestOptions } from "../MiddlewareOptions";
 import loginHandler from "../handlers/loginHandler";
 import logoutHandler from "../handlers/logoutHandler";
-
-type RequestContext = {
-    req: Request, res: Response, next: NextFunction
-};
-
+import acquireTokenHandler from "../handlers/acquireTokenHandler";
 export class AuthContext {
-    provider: WebAppAuthProvider;
-    context: RequestContext;
+    private provider: WebAppAuthProvider;
+    private context: RequestContext;
 
     constructor(provider: WebAppAuthProvider, context: RequestContext) {
         this.provider = provider;
@@ -25,28 +21,27 @@ export class AuthContext {
     }
 
     /**
-     * Initiates sign in flow
-     * @param {SignInOptions} options: options to modify login request
+     * Initiates login flow
+     * @param {LoginOptions} options: options to modify login request
      * @returns {RequestHandler}
      */
-    signIn(
-        options: SignInOptions = {
+    login(
+        options: LoginOptions = {
             postLoginRedirectUri: "/",
             postFailureRedirectUri: "/",
             scopes: [],
         }
     ): RequestHandler {
-        // TODO: consider passing context IIFE
         return loginHandler.call(this.provider, options);
     }
 
     /**
-     * Initiate sign out and destroy the session
-     * @param {SignOutOptions} options: options to modify logout request
+     * Initiates logout flow and destroys the current session
+     * @param {LogoutOptions} options: options to modify logout request
      * @returns {RequestHandler}
      */
-    signOut(
-        options: SignOutOptions = {
+    logout(
+        options: LogoutOptions = {
             postLogoutRedirectUri: "/",
             idpLogout: true
         }
@@ -55,27 +50,58 @@ export class AuthContext {
     }
 
     /**
-     * Middleware that gets tokens via acquireToken*
-     * @param {TokenRequestOptions} options: options to modify this middleware
+     * Acquires an access token for given scopes
+     * @param {TokenRequestOptions} options: options to modify token request
      * @returns {RequestHandler}
      */
-    getToken(options: TokenRequestOptions = {
+    acquireToken(options: TokenRequestOptions = {
         scopes: [],
     }): RequestHandler {
         return acquireTokenHandler.call(this.provider, options);
     }
 
+    /**
+     * Returns the account object from the session
+     * @returns {AccountInfo} account object
+     */
     getAccount(): AccountInfo {
-        return { ...this.context.req.session.account };
+        return this.context.req.session.account;
     }
 
+    /**
+     * Returns true if the account object is not null
+     * @returns {boolean} authentication status
+     */
     isAuthenticated(): boolean {
-        // TODO: check if account or session
-        return this.context.req.session.isAuthenticated;
+        return !!this.getAccount();
     }
 
-    getCachedTokenForResource(resource: string): string | null {
-        // TODO: should keep an internal map of tokens and check that
-        return resource;
+    /**
+     * Returns the cached token for a given resource
+     * @param {string} resourceName: name of resource to retrieve token for 
+     * @returns {string | null} cached access token
+     */
+    getCachedTokenForResource(resourceName: string): string | null {
+        if (this.context.req.session.protectedResources && this.context.req.session.protectedResources[resourceName]) {
+            
+            const expiresOn = new Date(
+                this.context.req.session.protectedResources[resourceName].expiresOn as unknown as string
+            );
+            
+            if (!expiresOn) {
+                return null; // would this ever happen?
+            }
+
+            const isTokenExpired = TimeUtils.isTokenExpired(
+                Math.floor(expiresOn.getTime() / 1000).toString(),
+                300 // offset in seconds TODO: should get from config
+            );
+
+            if (!isTokenExpired) {
+                return this.context.req.session.protectedResources[resourceName].accessToken;
+            }
+        }
+
+        return null;
     }
 }

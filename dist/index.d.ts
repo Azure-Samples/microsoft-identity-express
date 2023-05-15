@@ -1,4 +1,5 @@
+export { InteractionRequiredAuthError, NodeSystemOptions, AuthError, Logger, AccountInfo } from "@azure/msal-node";
 export { WebAppAuthProvider } from "./provider/WebAppAuthProvider";
-export { WebAppSettings, AppCredentials, ClientCertificate, AuthRoutes, } from "./config/AppSettingsTypes";
-export { RouteGuardOptions, SignInOptions, SignOutOptions, TokenRequestOptions } from "./middleware/MiddlewareOptions";
+export { WebAppSettings, AuthRoutes, AuthOptions, AppSettings, ProtectedResourceParams, ProtectedResourcesMap } from "./config/AppSettingsTypes";
+export { RouteGuardOptions, AuthenticateMiddlewareOptions, LoginOptions, LogoutOptions, TokenRequestOptions, AppState, IdTokenClaims } from "./middleware/MiddlewareOptions";
 export { packageVersion } from "./packageMetadata";

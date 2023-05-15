@@ -9,10 +9,9 @@ export declare class AppSettingsHelper {
      */
     static getMsalConfiguration(appSettings: AppSettings): Configuration;
     /**
- * Validates the fields in the configuration file
- * @param {AppSettings} appSettings: configuration object
- * @returns {void}
- */
+     * Validates the fields in the configuration file
+     * @param {AppSettings} appSettings: configuration object
+     */
     static validateAppSettings(appSettings: AppSettings, appType: AppType): void;
     /**
      * Util method to get the resource name for a given scope(s)
@@ -23,12 +22,12 @@ export declare class AppSettingsHelper {
     static getResourceNameFromScopes(scopes: string[], protectedResources: ProtectedResourcesMap): string;
     /**
      * Util method to strip the default OIDC scopes from the scopes array
-     * @param {Array} scopesList full list of scopes for this resource
-     * @returns
+     * @param {Array} scopesList: full list of scopes for this resource
+     * @returns {Array}
      */
     static getEffectiveScopes(scopesList: string[]): string[];
     /**
-     * Verifies if a string is GUID
+     * Verifies if a given string is GUID
      * @param {string} guid
      * @returns {boolean}
      */

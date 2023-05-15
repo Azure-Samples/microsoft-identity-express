@@ -110,6 +110,9 @@ export const ErrorCodes = {
     90118: "AADB2C90118", // password forgotten (B2C)
 };
 
+/**
+ * Default logger options
+ */
 export const DEFAULT_LOGGER_OPTIONS: LoggerOptions = {
     loggerCallback: (logLevel, message, containsPii) => {
         if (containsPii) {
@@ -120,6 +123,15 @@ export const DEFAULT_LOGGER_OPTIONS: LoggerOptions = {
     },
     piiLoggingEnabled: false,
     logLevel: LogLevel.Info,
+};
+
+export const HttpMethods = {
+    GET: "GET",
+    POST: "POST",
+    PUT: "PUT",
+    PATCH: "PATCH",
+    DELETE: "DELETE",
+    OPTIONS: "OPTIONS",
 };
 
 export const EMPTY_STRING = "";

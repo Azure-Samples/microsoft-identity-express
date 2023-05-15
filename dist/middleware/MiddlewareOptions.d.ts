@@ -1,14 +1,16 @@
 import { CommonEndSessionRequest, TokenClaims } from "@azure/msal-common";
 import { AuthorizationUrlRequest, AuthorizationCodeRequest, AccountInfo } from "@azure/msal-node";
+import { ProtectedResourcesMap } from "../config/AppSettingsTypes";
 export declare type AuthenticateMiddlewareOptions = {
-    protectAllRoutes?: boolean;
     useSession?: boolean;
+    protectAllRoutes?: boolean;
+    acquireTokenForResources?: ProtectedResourcesMap;
 };
-export declare type SignInOptions = Pick<AuthorizationCodeRequest, "scopes" | "claims" | "tokenBodyParameters" | "tokenQueryParameters"> & Pick<AuthorizationUrlRequest, "scopes" | "account" | "loginHint" | "domainHint" | "state" | "extraQueryParameters" | "extraScopesToConsent" | "prompt" | "sid"> & {
+export declare type LoginOptions = Pick<AuthorizationCodeRequest, "scopes" | "claims" | "tokenBodyParameters" | "tokenQueryParameters"> & Pick<AuthorizationUrlRequest, "scopes" | "account" | "loginHint" | "domainHint" | "state" | "extraQueryParameters" | "extraScopesToConsent" | "prompt" | "sid"> & {
     postLoginRedirectUri?: string;
     postFailureRedirectUri?: string;
 };
-export declare type SignOutOptions = Pick<CommonEndSessionRequest, "account" | "state" | "postLogoutRedirectUri" | "logoutHint" | "extraQueryParameters"> & {
+export declare type LogoutOptions = Pick<CommonEndSessionRequest, "account" | "state" | "postLogoutRedirectUri" | "logoutHint" | "extraQueryParameters"> & {
     postLogoutRedirectUri?: string;
     idpLogout?: boolean;
     clearCache?: boolean;

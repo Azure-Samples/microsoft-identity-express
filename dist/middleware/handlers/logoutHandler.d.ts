@@ -1,5 +1,5 @@
 import { WebAppAuthProvider } from "../../provider/WebAppAuthProvider";
-import { SignOutOptions } from "../MiddlewareOptions";
+import { LogoutOptions } from "../MiddlewareOptions";
 import { RequestHandler } from "../MiddlewareTypes";
-declare function logoutHandler(this: WebAppAuthProvider, options: SignOutOptions): RequestHandler;
+declare function logoutHandler(this: WebAppAuthProvider, options: LogoutOptions): RequestHandler;
 export default logoutHandler;

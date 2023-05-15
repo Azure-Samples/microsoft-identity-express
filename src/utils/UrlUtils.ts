@@ -4,6 +4,7 @@
  */
 
 import { IUri, UrlString } from "@azure/msal-common";
+import { Request } from "../middleware/MiddlewareTypes";
 
 export class UrlUtils {
     /**
@@ -30,6 +31,30 @@ export class UrlUtils {
     };
 
     /**
+     * 
+     * @param req 
+     * @param url 
+     * @returns 
+     */
+    static ensureAbsoluteUrlFromRequest = (req: Request, url?: string): string => {
+        if (url) {
+            return UrlUtils.ensureAbsoluteUrl(url, req.protocol, req.get("host") || req.hostname);
+        } else {
+            return UrlUtils.ensureAbsoluteUrl(req.originalUrl, req.protocol, req.get("host") || req.hostname);
+        }
+    };
+
+    /**
+     * 
+     * @param req 
+     * @param url 
+     * @returns 
+     */
+    static checkIfRequestsMatch = (req: Request, url: string): boolean => {
+        return UrlUtils.ensureAbsoluteUrlFromRequest(req) === UrlUtils.ensureAbsoluteUrlFromRequest(req, url);
+    };
+
+    /**
      * Returns the path segment from a given URL
      * @param {string} url: a given URL
      * @returns {string}
@@ -39,6 +64,11 @@ export class UrlUtils {
         return `/${urlComponents.PathSegments.join("/")}`;
     };
 
+    /**
+     * Ensures that the URL contains a trailing slash at the end
+     * @param {string} path: a given path
+     * @returns {string}
+     */
     static enforceLeadingSlash = (path: string): string => {
         return path.split("")[0] === "/" ? path : "/" + path;
     };
