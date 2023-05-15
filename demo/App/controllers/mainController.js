@@ -1,5 +1,4 @@
 const fetchManager = require('../utils/fetchManager');
-const appSettings = require('../appSettings');
 
 exports.getHomePage = (req, res, next) => {
     res.render('home', { isAuthenticated: req.authContext.isAuthenticated(), username: req.authContext.getAccount()?.idTokenClaims?.preferred_username });
@@ -18,10 +17,22 @@ exports.getIdPage = (req, res, next) => {
 
 exports.getProfilePage = async (req, res, next) => {
     try {
-        const profile = await fetchManager.callAPI("https://graph.microsoft.com/v1.0/me", req.authContext.getCachedTokenForResource("graph.microsoft.com"));
-        return res.render('profile', { isAuthenticated: req.authContext.isAuthenticated(), profile: profile });
+        let accessToken = req.authContext.getCachedTokenForResource("graph.microsoft.com");
+
+        if (!accessToken) {
+            const tokenResponse = await req.authContext.acquireToken({
+                scopes: ["User.Read"],
+                account: req.authContext.getAccount(),
+            })(req, res, next);
+
+            accessToken = tokenResponse.accessToken;
+        }
+
+        const profile = await fetchManager.callAPI("https://graph.microsoft.com/v1.0/me", accessToken);
+        res.render('profile', { isAuthenticated: req.authContext.isAuthenticated(), profile: profile });
     } catch (error) {
-        return next(error);
+        console.log(error);
+        next(error);
     }
 }
 

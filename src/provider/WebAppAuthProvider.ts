@@ -8,6 +8,8 @@ import { BaseAuthProvider } from "./BaseAuthProvider";
 import { AppSettingsHelper } from "../config/AppSettingsHelper";
 import { FetchManager } from "../network/FetchManager";
 import { AppSettings, WebAppSettings, AppType } from "../config/AppSettingsTypes";
+import { AuthenticateMiddlewareOptions, RouteGuardOptions } from "../middleware/MiddlewareOptions";
+import { ErrorRequestHandler, RequestHandler } from "../middleware/MiddlewareTypes";
 import authenticateMiddleware from "../middleware/authenticateMiddleware";
 import guardMiddleware from "../middleware/guardMiddleware";
 import errorMiddleware from "../middleware/errorMiddlewarer";
@@ -36,8 +38,8 @@ export class WebAppAuthProvider extends BaseAuthProvider {
         const msalConfig = AppSettingsHelper.getMsalConfiguration(appSettings);
         if (!msalConfig.auth.cloudDiscoveryMetadata && !msalConfig.auth.authorityMetadata) {
             const [discoveryMetadata, authorityMetadata] = await Promise.all([
-                FetchManager.fetchCloudDiscoveryMetadata(appSettings.appCredentials.tenantId),
-                FetchManager.fetchAuthorityMetadata(appSettings.appCredentials.tenantId),
+                FetchManager.fetchCloudDiscoveryMetadata(appSettings.authOptions.tenantId),
+                FetchManager.fetchAuthorityMetadata(appSettings.authOptions.tenantId),
             ]);
 
             msalConfig.auth.cloudDiscoveryMetadata = discoveryMetadata;
@@ -54,7 +56,6 @@ export class WebAppAuthProvider extends BaseAuthProvider {
      */
     authenticate(options: AuthenticateMiddlewareOptions = {
         protectAllRoutes: false,
-        useSession: true,
     }): RequestHandler {
         return authenticateMiddleware.call(this, options);
     }

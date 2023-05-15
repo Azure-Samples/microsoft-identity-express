@@ -9,11 +9,6 @@ const appSettings = {
     authRoutes: {
         redirectUri: "/redirect"
     },
-    protectedResources: {
-        "graph.microsoft.com": {
-            scopes: ["User.Read"],
-        },
-    },
     loggerOptions: {
         loggerCallback: (logLevel, message, containsPii) => {
             if (containsPii) {

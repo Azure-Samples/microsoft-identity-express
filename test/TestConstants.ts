@@ -78,7 +78,7 @@ export const TEST_CONSTANTS = {
 };
 
 export const TEST_APP_SETTINGS = {
-    appCredentials: {
+    authOptions: {
         clientId: TEST_CONSTANTS.CLIENT_ID,
         tenantId: TEST_CONSTANTS.TENANT_ID,
         clientSecret: TEST_CONSTANTS.CLIENT_SECRET,
@@ -89,28 +89,14 @@ export const TEST_APP_SETTINGS = {
         redirectUri: "/redirect",
         unauthorized: "/unauthorized",
     },
-    protectedResources: {
-        "https://graph.microsoft.com/v1.0/me": {
-            scopes: ["user.read"],
-        },
-        "https://management.azure.com/tenants?api-version=2020-01-01": {
-            scopes: ["https://management.azure.com/user_impersonation"],
-        },
-        "https://graph.microsoft.com/v1.0/me/joinedTeams": {
-            scopes: ["teamsettings.readwrite.all", "user.read"],
-        },
-        "https://graph.microsoft.com/v1.0/me/events": {
-            scopes: ["user.read", "calendars.readwrite"]
-        },
-    },
 };
 
 export const TEST_MSAL_CONFIG = {
     auth: {
-        clientId: TEST_APP_SETTINGS.appCredentials.clientId,
-        authority: `https://${TEST_CONSTANTS.DEFAULT_AUTHORITY_HOST}/${TEST_APP_SETTINGS.appCredentials.tenantId}`,
-        clientSecret: TEST_APP_SETTINGS.appCredentials.clientSecret,
-        authorityMetadata: TEST_APP_SETTINGS.appCredentials.authorityMetadata,
-        cloudDiscoveryMetadata: TEST_APP_SETTINGS.appCredentials.cloudDiscoveryMetadata,
+        clientId: TEST_APP_SETTINGS.authOptions.clientId,
+        authority: `https://${TEST_CONSTANTS.DEFAULT_AUTHORITY_HOST}/${TEST_APP_SETTINGS.authOptions.tenantId}`,
+        clientSecret: TEST_APP_SETTINGS.authOptions.clientSecret,
+        authorityMetadata: TEST_APP_SETTINGS.authOptions.authorityMetadata,
+        cloudDiscoveryMetadata: TEST_APP_SETTINGS.authOptions.cloudDiscoveryMetadata,
     },
 };

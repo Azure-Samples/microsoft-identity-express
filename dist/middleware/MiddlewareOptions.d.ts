@@ -2,7 +2,6 @@ import { CommonEndSessionRequest, TokenClaims } from "@azure/msal-common";
 import { AuthorizationUrlRequest, AuthorizationCodeRequest, AccountInfo } from "@azure/msal-node";
 import { ProtectedResourcesMap } from "../config/AppSettingsTypes";
 export declare type AuthenticateMiddlewareOptions = {
-    useSession?: boolean;
     protectAllRoutes?: boolean;
     acquireTokenForResources?: ProtectedResourcesMap;
 };
@@ -19,6 +18,9 @@ export declare type TokenRequestOptions = Pick<AuthorizationCodeRequest, "scopes
     account?: AccountInfo;
     postLoginRedirectUri?: string;
     postFailureRedirectUri?: string;
+};
+export declare type TokenRequestMiddlewareOptions = {
+    resourceName: string;
 };
 export declare type RouteGuardOptions = {
     forceLogin?: boolean;

@@ -8,7 +8,6 @@ import { AuthorizationUrlRequest, AuthorizationCodeRequest, AccountInfo } from "
 import { ProtectedResourcesMap } from "../config/AppSettingsTypes";
 
 export type AuthenticateMiddlewareOptions = {
-    useSession?: boolean;
     protectAllRoutes?: boolean;
     acquireTokenForResources?: ProtectedResourcesMap
 };
@@ -28,6 +27,10 @@ export type TokenRequestOptions = Pick<AuthorizationCodeRequest, "scopes" | "cla
     account?: AccountInfo;
     postLoginRedirectUri?: string;
     postFailureRedirectUri?: string;
+};
+
+export type TokenRequestMiddlewareOptions = {
+    resourceName: string;
 };
 
 export type RouteGuardOptions = {

@@ -11,6 +11,7 @@ import { LoginOptions, LogoutOptions, TokenRequestOptions } from "../MiddlewareO
 import loginHandler from "../handlers/loginHandler";
 import logoutHandler from "../handlers/logoutHandler";
 import acquireTokenHandler from "../handlers/acquireTokenHandler";
+
 export class AuthContext {
     private provider: WebAppAuthProvider;
     private context: RequestContext;

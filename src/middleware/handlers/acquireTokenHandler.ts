@@ -6,11 +6,10 @@
 import { AuthenticationResult, InteractionRequiredAuthError, SilentFlowRequest } from "@azure/msal-node";
 import { WebAppAuthProvider } from "../../provider/WebAppAuthProvider";
 import { Request, Response, NextFunction, RequestHandler } from "../MiddlewareTypes";
-import { TokenRequestOptions } from "../MiddlewareOptions";
+import { TokenRequestOptions, TokenRequestMiddlewareOptions } from "../MiddlewareOptions";
 import { InteractionRequiredError } from "../../error/InteractionRequiredError";
-import { AppSettingsHelper } from "../../config/AppSettingsHelper";
 
-function acquireTokenHandler(this: WebAppAuthProvider, options: TokenRequestOptions, useAsMiddleware?: boolean): RequestHandler {
+function acquireTokenHandler(this: WebAppAuthProvider, options: TokenRequestOptions, useAsMiddlewareOptions?: TokenRequestMiddlewareOptions ): RequestHandler {
     return async (req: Request, res: Response, next: NextFunction): Promise<AuthenticationResult | void> => {
         this.getLogger().trace("acquireTokenHandler called");
 
@@ -35,20 +34,13 @@ function acquireTokenHandler(this: WebAppAuthProvider, options: TokenRequestOpti
                 throw new InteractionRequiredError("null_response", "AcquireTokenSilent return null response", undefined, options.scopes);
             }
 
-            if (useAsMiddleware) {
-                if (this.webAppSettings.protectedResources) {
-                    const resource = AppSettingsHelper.getResourceNameFromScopes(
-                        tokenResponse.scopes,
-                        this.webAppSettings.protectedResources
-                    );
-
-                    if (!req.session.protectedResources) {
-                        req.session.protectedResources = {
-                            [resource]: tokenResponse
-                        };
-                    } else {
-                        req.session.protectedResources[resource] = tokenResponse;
-                    }
+            if (useAsMiddlewareOptions) {
+                if (!req.session.protectedResources) {
+                    req.session.protectedResources = {
+                        [useAsMiddlewareOptions.resourceName]: tokenResponse
+                    };
+                } else {
+                    req.session.protectedResources[useAsMiddlewareOptions.resourceName] = tokenResponse;
                 }
 
                 return next();
@@ -63,7 +55,7 @@ function acquireTokenHandler(this: WebAppAuthProvider, options: TokenRequestOpti
                     error.subError,
                     options.scopes,
                     error.claims)
-                ); // TODO: consider useAsMiddleware enabled
+                );
             }
 
             next(error);

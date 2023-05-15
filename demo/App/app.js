@@ -19,7 +19,6 @@ const app = express();
 require('dotenv').config();
 
 async function main(msid) {
-
     /**
      * Using express-session middleware. Be sure to familiarize yourself with available options
      * and set the desired options. Visit: https://www.npmjs.com/package/express-session
@@ -61,7 +60,6 @@ async function main(msid) {
 
     app.use(msid.authenticate({
         protectAllRoutes: false,
-        useSession: true,
         acquireTokenForResources: {
             "graph.microsoft.com": {
                 scopes: ["User.Read"],
@@ -94,10 +92,6 @@ async function main(msid) {
 
     app.use(router);
     app.use(msid.interactionErrorHandler());
-
-    app.listen(4000, () => {
-        console.log(`Msal Node Auth Code Sample app listening at http://localhost:4000`);
-    });
 }
 
 main();

@@ -1,5 +1,5 @@
 import { WebAppAuthProvider } from "../../provider/WebAppAuthProvider";
 import { RequestHandler } from "../MiddlewareTypes";
-import { TokenRequestOptions } from "../MiddlewareOptions";
-declare function acquireTokenHandler(this: WebAppAuthProvider, options: TokenRequestOptions, useAsMiddleware?: boolean): RequestHandler;
+import { TokenRequestOptions, TokenRequestMiddlewareOptions } from "../MiddlewareOptions";
+declare function acquireTokenHandler(this: WebAppAuthProvider, options: TokenRequestOptions, useAsMiddlewareOptions?: TokenRequestMiddlewareOptions): RequestHandler;
 export default acquireTokenHandler;

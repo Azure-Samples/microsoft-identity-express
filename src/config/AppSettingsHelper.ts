@@ -28,11 +28,11 @@ export class AppSettingsHelper {
                 ...(appSettings.authOptions.hasOwnProperty("clientCertificate") && {
                     clientCertificate: appSettings.authOptions.clientCertificate,
                 }),
-                ...(appSettings.appCredentials.hasOwnProperty("authorityMetadata") && {
-                    authorityMetadata: appSettings.appCredentials.authorityMetadata,
+                ...(appSettings.authOptions.hasOwnProperty("authorityMetadata") && {
+                    authorityMetadata: appSettings.authOptions.authorityMetadata,
                 }),
-                ...(appSettings.appCredentials.hasOwnProperty("cloudDiscoveryMetadata") && {
-                    cloudDiscoveryMetadata: appSettings.appCredentials.cloudDiscoveryMetadata
+                ...(appSettings.authOptions.hasOwnProperty("cloudDiscoveryMetadata") && {
+                    cloudDiscoveryMetadata: appSettings.authOptions.cloudDiscoveryMetadata
                 })
             },
             system: {

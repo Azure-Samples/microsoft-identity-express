@@ -7,7 +7,6 @@ import { AuthorizationCodePayload, AuthorizationCodeRequest } from "@azure/msal-
 import { WebAppAuthProvider } from "../../provider/WebAppAuthProvider";
 import { Request, Response, NextFunction, RequestHandler } from "../MiddlewareTypes";
 import { AppState } from "../MiddlewareOptions";
-import { AppSettingsHelper } from "../../config/AppSettingsHelper";
 
 function redirectHandler(this: WebAppAuthProvider): RequestHandler {
     return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -15,7 +14,7 @@ function redirectHandler(this: WebAppAuthProvider): RequestHandler {
 
         if (!req.body || !req.body.code) {
             this.logger.error("Authorization code not found in the response");
-            return next(new Error("AUTH_CODE_NOT_FOUND")); // TODO: need to create a custom error for this
+            return next(new Error("AUTH_CODE_NOT_FOUND")); // TODO: create custom error for this
         }
 
         const tokenRequest: AuthorizationCodeRequest = {
@@ -41,22 +40,6 @@ function redirectHandler(this: WebAppAuthProvider): RequestHandler {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             req.session.account = tokenResponse.account!; // account will never be null in this grant type
             req.session.isAuthenticated = true;
-            
-            if (this.webAppSettings.protectedResources) {
-                // TODO: what if just acquiring a token without configuring protectedResources?
-                const resource = AppSettingsHelper.getResourceNameFromScopes(
-                    tokenResponse.scopes,
-                    this.webAppSettings.protectedResources
-                );
-
-                if (!req.session.protectedResources) {
-                    req.session.protectedResources = {
-                        [resource]: tokenResponse
-                    };
-                } else {
-                    req.session.protectedResources[resource] = tokenResponse;
-                }
-            }
 
             const { redirectTo } = req.body.state ?
                 JSON.parse(this.getCryptoProvider().base64Decode(req.body.state as string)) as AppState

@@ -12,7 +12,6 @@ export type AppSettings = {
 
 export type WebAppSettings = AppSettings & {
     authRoutes: AuthRoutes;
-    protectedResources?: ProtectedResourcesMap
 };
 
 export type AuthOptions = NodeAuthOptions & {

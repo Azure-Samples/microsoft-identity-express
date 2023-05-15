@@ -32,21 +32,6 @@ describe("Configuration helper tests", () => {
         expect(AppSettingsHelper.isGuid(guid5)).toBe(false);
     });
 
-    it("should get resource name from a given list of scopes", () => {
-        
-        const myTenantScopes = Object.values(TEST_APP_SETTINGS.protectedResources)[1].scopes;
-        const resourceName1 = AppSettingsHelper.getResourceNameFromScopes(myTenantScopes, TEST_APP_SETTINGS.protectedResources);
-        expect(resourceName1).toEqual(Object.keys(TEST_APP_SETTINGS.protectedResources)[1]);
-
-        const myTeamsScopes = Object.values(TEST_APP_SETTINGS.protectedResources)[2].scopes;
-        const resourceName2 = AppSettingsHelper.getResourceNameFromScopes(myTeamsScopes, TEST_APP_SETTINGS.protectedResources);
-        expect(resourceName2).toEqual(Object.keys(TEST_APP_SETTINGS.protectedResources)[2]);
-
-        const myEventscopes = Object.values(TEST_APP_SETTINGS.protectedResources)[3].scopes;
-        const resourceName3 = AppSettingsHelper.getResourceNameFromScopes(myEventscopes, TEST_APP_SETTINGS.protectedResources);
-        expect(resourceName3).toEqual(Object.keys(TEST_APP_SETTINGS.protectedResources)[3]);
-    });
-
     it("should get effective scopes from a given list of scopes", () => {
         const scopes = "email openid profile offline_access User.Read calendars.read".split(" ");
         const effectiveScopes = AppSettingsHelper.getEffectiveScopes(scopes);

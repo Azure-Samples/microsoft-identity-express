@@ -10,7 +10,6 @@ import { UrlUtils } from "../utils/UrlUtils";
 import { ErrorMessages, HttpMethods } from "../utils/Constants";
 import { AuthContext } from "./context/AuthContext";
 import redirectHandler from "./handlers/redirectHandler";
-import { ProtectedResourceParams } from "../config/AppSettingsTypes";
 import acquireTokenHandler from "./handlers/acquireTokenHandler";
 
 /**
@@ -23,7 +22,7 @@ function authenticateMiddleware(this: WebAppAuthProvider, options: AuthenticateM
     return (req: Request, res: Response, next: NextFunction): void | RequestHandler => {
         this.getLogger().trace("Authenticating request");
 
-        if (options.useSession && !req.session) {
+        if (!req.session) {
             throw new Error(ErrorMessages.SESSION_NOT_FOUND);
         }
 
@@ -63,22 +62,22 @@ function authenticateMiddleware(this: WebAppAuthProvider, options: AuthenticateM
         }
 
         if (options.acquireTokenForResources) {
-            // acquire token for routes calling protected resources
-            Object.entries(options.acquireTokenForResources).forEach((params: [string, ProtectedResourceParams]) => {
-                const [resourceName, resourceParams] = params;
+            const resources = Object.entries(options.acquireTokenForResources);
+
+            for (const resource of resources) {
+                const [resourceName, resourceParams] = resource;
 
                 if (req.authContext.getCachedTokenForResource(resourceName)) {
                     this.getLogger().trace("Cached token found for resource endpoint");
-                    return;
+                    return next();
                 }
-
                 if (resourceParams.routes.includes(req.originalUrl)) {
                     if ((resourceParams.methods?.length && resourceParams.methods.includes(req.method)) || req.method === HttpMethods.GET) {
                         this.getLogger().trace("Acquiring token for resource endpoint");
-                        return acquireTokenHandler.call(this, { scopes: resourceParams.scopes }, true)(req, res, next);
+                        return acquireTokenHandler.call(this, { scopes: resourceParams.scopes }, { resourceName })(req, res, next);
                     }
                 }
-            });
+            }
         }
 
         next();
