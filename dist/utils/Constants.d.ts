@@ -66,6 +66,7 @@ export declare const ErrorMessages: {
     SESSION_KEY_NOT_FOUND: string;
     AUTH_CODE_REQUEST_OBJECT_NOT_FOUND: string;
     ID_TOKEN_CLAIMS_NOT_FOUND: string;
+    AUTH_CODE_RESPONSE_NOT_FOUND: string;
 };
 /**
  * Various configuration error constants

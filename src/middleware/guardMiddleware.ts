@@ -7,13 +7,16 @@ import { WebAppAuthProvider } from "../provider/WebAppAuthProvider";
 import { Request, Response, NextFunction, RequestHandler } from "./MiddlewareTypes";
 import { RouteGuardOptions } from "./MiddlewareOptions";
 
-function guardMiddleware(this: WebAppAuthProvider, options: RouteGuardOptions): RequestHandler {
+function guardMiddleware(
+    this: WebAppAuthProvider,
+    options: RouteGuardOptions
+): RequestHandler {
     return (req: Request, res: Response, next: NextFunction): void | Response => {
         if (!req.authContext.isAuthenticated()) {
             if (options.forceLogin) {
                 return req.authContext.login({
-                    scopes: [],
                     postLoginRedirectUri: req.originalUrl,
+                    scopes: [],
                 })(req, res, next);
             }
 
@@ -27,10 +30,10 @@ function guardMiddleware(this: WebAppAuthProvider, options: RouteGuardOptions): 
             const hasClaims = Object.keys(requiredClaims).every((claim: string) => {
 
                 if (requiredClaims[claim] && tokenClaims[claim]) {
-
                     switch (typeof requiredClaims[claim]) {
                         case "string" || "number":
                             return requiredClaims[claim] === tokenClaims[claim];
+
                         case "object":
                             if (Array.isArray(requiredClaims[claim])) {
                                 const requiredClaimsArray = requiredClaims[claim] as [];
@@ -41,10 +44,12 @@ function guardMiddleware(this: WebAppAuthProvider, options: RouteGuardOptions): 
                                 );
                             }
                             break;
+
                         default:
                             break;
                     }
                 }
+
                 return false;
             });
 

@@ -6,6 +6,7 @@
 import { AccountInfo, AuthenticationResult, AuthorizationCodeRequest } from "@azure/msal-node";
 import { AuthContext } from "./context/AuthContext";
 
+// TODO: should use declaration merging?
 export type Request = {
     authContext: AuthContext
     session: Session,

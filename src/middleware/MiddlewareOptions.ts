@@ -23,10 +23,8 @@ export type LogoutOptions = Pick<CommonEndSessionRequest, "account" | "state" | 
     clearCache?: boolean;
 };
 
-export type TokenRequestOptions = Pick<AuthorizationCodeRequest, "scopes" | "claims" | "tokenBodyParameters" | "tokenQueryParameters"> & Pick<AuthorizationUrlRequest, "scopes" | "account" | "loginHint" | "domainHint" | "state" | "extraQueryParameters" | "extraScopesToConsent" | "prompt" | "sid"> & {
+export type TokenRequestOptions = LoginOptions & {
     account?: AccountInfo;
-    postLoginRedirectUri?: string;
-    postFailureRedirectUri?: string;
 };
 
 export type TokenRequestMiddlewareOptions = {

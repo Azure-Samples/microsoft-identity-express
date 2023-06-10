@@ -34,15 +34,15 @@ export abstract class BaseAuthProvider {
         return this.msalConfig;
     }
 
-    getMsalClient(): ConfidentialClientApplication {
-        return new ConfidentialClientApplication(this.msalConfig);
-    }
-
     getCryptoProvider(): CryptoProvider {
         return this.cryptoProvider;
     }
 
     getLogger(): Logger {
         return this.logger;
+    }
+
+    getMsalClient(): ConfidentialClientApplication {
+        return new ConfidentialClientApplication(this.msalConfig);
     }
 }

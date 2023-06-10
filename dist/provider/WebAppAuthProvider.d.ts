@@ -4,11 +4,6 @@ import { AuthenticateMiddlewareOptions, RouteGuardOptions } from "../middleware/
 import { ErrorRequestHandler, RequestHandler } from "../middleware/MiddlewareTypes";
 export declare class WebAppAuthProvider extends BaseAuthProvider {
     webAppSettings: WebAppSettings;
-    /**
-     * @param {AppSettings} appSettings
-     * @param {Configuration} msalConfig
-     * @constructor
-     */
     private constructor();
     /**
      * Static method to async initialize WebAppAuthProvider

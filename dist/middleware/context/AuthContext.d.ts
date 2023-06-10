@@ -2,9 +2,17 @@ import { AccountInfo } from "@azure/msal-node";
 import { WebAppAuthProvider } from "../../provider/WebAppAuthProvider";
 import { RequestContext, RequestHandler } from "../MiddlewareTypes";
 import { LoginOptions, LogoutOptions, TokenRequestOptions } from "../MiddlewareOptions";
+/**
+ *
+ */
 export declare class AuthContext {
     private provider;
     private context;
+    /**
+     *
+     * @param provider
+     * @param context
+     */
     constructor(provider: WebAppAuthProvider, context: RequestContext);
     /**
      * Initiates login flow

@@ -9,7 +9,11 @@ import { Request, Response, NextFunction, RequestHandler } from "../MiddlewareTy
 import { TokenRequestOptions, TokenRequestMiddlewareOptions } from "../MiddlewareOptions";
 import { InteractionRequiredError } from "../../error/InteractionRequiredError";
 
-function acquireTokenHandler(this: WebAppAuthProvider, options: TokenRequestOptions, useAsMiddlewareOptions?: TokenRequestMiddlewareOptions ): RequestHandler {
+function acquireTokenHandler(
+    this: WebAppAuthProvider, 
+    options: TokenRequestOptions, 
+    useAsMiddlewareOptions?: TokenRequestMiddlewareOptions
+): RequestHandler {
     return async (req: Request, res: Response, next: NextFunction): Promise<AuthenticationResult | void> => {
         this.getLogger().trace("acquireTokenHandler called");
 
@@ -17,21 +21,36 @@ function acquireTokenHandler(this: WebAppAuthProvider, options: TokenRequestOpti
             const account = options.account || req.session.account;
 
             if (!account) {
-                throw new InteractionRequiredError("no_account_found", "No account found either in options or in session", undefined, options.scopes);
+                throw new InteractionRequiredError(
+                    "no_account_found", 
+                    "No account found either in options or in session", 
+                    undefined, 
+                    options
+                );
             }
     
             const silentRequest: SilentFlowRequest = {
                 account: account,
                 scopes: options.scopes,
+                claims: options.claims,
+                tokenQueryParameters: options.tokenQueryParameters,
             };
 
             const msalInstance = this.getMsalClient();
-            msalInstance.getTokenCache().deserialize(req.session.tokenCache || "");
+
+            msalInstance.getTokenCache().deserialize(req.session.tokenCache);
+
             const tokenResponse = await msalInstance.acquireTokenSilent(silentRequest);
+
             req.session.tokenCache = msalInstance.getTokenCache().serialize();
 
             if (!tokenResponse) {
-                throw new InteractionRequiredError("null_response", "AcquireTokenSilent return null response", undefined, options.scopes);
+                throw new InteractionRequiredError(
+                    "null_response", 
+                    "AcquireTokenSilent return null response", 
+                    undefined, 
+                    options
+                );
             }
 
             if (useAsMiddlewareOptions) {
@@ -53,9 +72,8 @@ function acquireTokenHandler(this: WebAppAuthProvider, options: TokenRequestOpti
                     error.errorCode,
                     error.errorMessage,
                     error.subError,
-                    options.scopes,
-                    error.claims)
-                );
+                    options
+                ));
             }
 
             next(error);

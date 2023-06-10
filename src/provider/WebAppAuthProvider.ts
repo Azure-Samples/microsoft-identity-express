@@ -12,16 +12,11 @@ import { AuthenticateMiddlewareOptions, RouteGuardOptions } from "../middleware/
 import { ErrorRequestHandler, RequestHandler } from "../middleware/MiddlewareTypes";
 import authenticateMiddleware from "../middleware/authenticateMiddleware";
 import guardMiddleware from "../middleware/guardMiddleware";
-import errorMiddleware from "../middleware/errorMiddlewarer";
+import errorMiddleware from "../middleware/errorMiddleware";
 
 export class WebAppAuthProvider extends BaseAuthProvider {
     webAppSettings: WebAppSettings;
 
-    /**
-     * @param {AppSettings} appSettings
-     * @param {Configuration} msalConfig
-     * @constructor
-     */
     private constructor(appSettings: AppSettings, msalConfig: Configuration) {
         super(appSettings, msalConfig);
         this.webAppSettings = appSettings as WebAppSettings;
@@ -36,6 +31,7 @@ export class WebAppAuthProvider extends BaseAuthProvider {
         AppSettingsHelper.validateAppSettings(appSettings, AppType.WebApp);
 
         const msalConfig = AppSettingsHelper.getMsalConfiguration(appSettings);
+
         if (!msalConfig.auth.cloudDiscoveryMetadata && !msalConfig.auth.authorityMetadata) {
             const [discoveryMetadata, authorityMetadata] = await Promise.all([
                 FetchManager.fetchCloudDiscoveryMetadata(appSettings.authOptions.tenantId),

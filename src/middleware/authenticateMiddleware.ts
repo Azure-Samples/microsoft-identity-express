@@ -12,25 +12,24 @@ import { AuthContext } from "./context/AuthContext";
 import redirectHandler from "./handlers/redirectHandler";
 import acquireTokenHandler from "./handlers/acquireTokenHandler";
 
-/**
- * Authenticates incoming requests using the WebAppAuthProvider
- * @param {WebAppAuthProvider} this 
- * @param {AuthenticateMiddlewareOptions} options 
- * @returns {RequestHandler}
- */
-function authenticateMiddleware(this: WebAppAuthProvider, options: AuthenticateMiddlewareOptions): RequestHandler {
+function authenticateMiddleware(
+    this: WebAppAuthProvider,
+    options: AuthenticateMiddlewareOptions
+): RequestHandler {
     return (req: Request, res: Response, next: NextFunction): void | RequestHandler => {
-        this.getLogger().trace("Authenticating request");
+        this.getLogger().trace("authenticateMiddleware called");
 
         if (!req.session) {
             throw new Error(ErrorMessages.SESSION_NOT_FOUND);
         }
 
-        req.authContext = new AuthContext(this, { req, res, next });
+        if (!req.authContext) {
+            req.authContext = new AuthContext(this, { req, res, next });
+        }
 
         if (req.method === HttpMethods.POST) {
             if (UrlUtils.ensureAbsoluteUrlFromRequest(req) === UrlUtils.ensureAbsoluteUrlFromRequest(req, this.webAppSettings.authRoutes.redirectUri)) {
-                this.getLogger().trace("Handling redirect");
+                this.getLogger().verbose("Handling redirect response");
                 return redirectHandler.call(this)(req, res, next);
             }
         }
@@ -40,7 +39,7 @@ function authenticateMiddleware(this: WebAppAuthProvider, options: AuthenticateM
                 if (UrlUtils.ensureAbsoluteUrlFromRequest(req) === UrlUtils.ensureAbsoluteUrlFromRequest(req, this.webAppSettings.authRoutes.frontChannelLogoutUri)) {
                     this.getLogger().trace("frontChannelLogoutUri called");
 
-                    if (req.session.isAuthenticated) {
+                    if (req.authContext.isAuthenticated()) {
                         return req.authContext.logout({
                             postLogoutRedirectUri: "/",
                             idpLogout: false
@@ -55,8 +54,8 @@ function authenticateMiddleware(this: WebAppAuthProvider, options: AuthenticateM
         if (options.protectAllRoutes) {
             if (!req.authContext.isAuthenticated()) {
                 return req.authContext.login({
+                    postLoginRedirectUri: req.originalUrl,
                     scopes: [],
-                    postLoginRedirectUri: req.originalUrl
                 })(req, res, next);
             }
         }
@@ -68,12 +67,13 @@ function authenticateMiddleware(this: WebAppAuthProvider, options: AuthenticateM
                 const [resourceName, resourceParams] = resource;
 
                 if (req.authContext.getCachedTokenForResource(resourceName)) {
-                    this.getLogger().trace("Cached token found for resource endpoint");
+                    this.getLogger().verbose("Cached token found for resource endpoint");
                     return next();
                 }
+
                 if (resourceParams.routes.includes(req.originalUrl)) {
                     if ((resourceParams.methods?.length && resourceParams.methods.includes(req.method)) || req.method === HttpMethods.GET) {
-                        this.getLogger().trace("Acquiring token for resource endpoint");
+                        this.getLogger().verbose("Acquiring token for resource: ", resourceName);
                         return acquireTokenHandler.call(this, { scopes: resourceParams.scopes }, { resourceName })(req, res, next);
                     }
                 }

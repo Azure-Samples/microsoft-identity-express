@@ -4,18 +4,29 @@
  */
 
 import { InteractionRequiredAuthError } from "@azure/msal-node";
+import { LoginOptions, TokenRequestOptions } from "../middleware/MiddlewareOptions";
 
 /**
  * Token Validation library error class thrown for configuration errors
  */
 export class InteractionRequiredError extends InteractionRequiredAuthError {
-    scopes: Array<string> = [];
+    requestOptions: LoginOptions;
 
-    constructor(errorCode: string, errorMessage?: string, subError?: string, scopes?: Array<string>, claims?: string) {
+    constructor(errorCode: string, errorMessage?: string, subError?: string, originalRequest?: TokenRequestOptions) {
         super(errorCode, errorMessage, subError);
         this.name = "InteractionRequiredError";
-        this.scopes = scopes || [];
-        this.claims = claims || "";
+        this.requestOptions = {
+            scopes: originalRequest?.scopes || [],
+            claims: originalRequest?.claims,
+            state: originalRequest?.state,
+            sid: originalRequest?.sid,
+            loginHint: originalRequest?.loginHint,
+            domainHint: originalRequest?.domainHint,
+            extraQueryParameters: originalRequest?.extraQueryParameters,
+            extraScopesToConsent: originalRequest?.extraScopesToConsent,
+            tokenBodyParameters: originalRequest?.tokenBodyParameters,
+            tokenQueryParameters: originalRequest?.tokenQueryParameters,
+        };
         
         Object.setPrototypeOf(this, InteractionRequiredError.prototype);
     }

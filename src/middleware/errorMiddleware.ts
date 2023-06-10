@@ -11,9 +11,8 @@ function errorMiddleware(this: WebAppAuthProvider): ErrorRequestHandler {
     return (err: unknown, req: Request, res: Response, next: NextFunction): Response | void => {
         if (err instanceof InteractionRequiredError) {
             return req.authContext.login({
-                scopes: err.scopes || [],
-                claims: err.claims || undefined,
-                postLoginRedirectUri: req.originalUrl
+                postLoginRedirectUri: err.requestOptions.postLoginRedirectUri || req.originalUrl,
+                ...err.requestOptions
             })(req, res, next);
         }
 

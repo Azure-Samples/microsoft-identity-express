@@ -77,6 +77,7 @@ export const ErrorMessages = {
     SESSION_KEY_NOT_FOUND: "No session key found in session. Cannot encrypt state data",
     AUTH_CODE_REQUEST_OBJECT_NOT_FOUND: "No auth code request object found in session",
     ID_TOKEN_CLAIMS_NOT_FOUND: "No id token claims found in session",
+    AUTH_CODE_RESPONSE_NOT_FOUND: "No authorization code found in the response from service",
 };
 
 /**

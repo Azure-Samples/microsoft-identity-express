@@ -11,9 +11,12 @@ import { Request, Response, NextFunction, RequestHandler } from "../MiddlewareTy
 import { UrlUtils } from "../../utils/UrlUtils";
 import { EMPTY_STRING } from "../../utils/Constants";
 
-function loginHandler(this: WebAppAuthProvider, options: LoginOptions): RequestHandler {
+function loginHandler(
+    this: WebAppAuthProvider, 
+    options: LoginOptions
+): RequestHandler {
     return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        this.getLogger().trace("LoginHandler called");
+        this.getLogger().trace("loginHandler called");
 
         const state: AppState = {
             redirectTo: options.postLoginRedirectUri || "/",
@@ -21,7 +24,6 @@ function loginHandler(this: WebAppAuthProvider, options: LoginOptions): RequestH
         };
 
         const authUrlParams: AuthorizationUrlRequest = {
-            scopes: options.scopes,
             state: this.getCryptoProvider().base64Encode(JSON.stringify(state)),
             redirectUri: UrlUtils.ensureAbsoluteUrl(
                 this.webAppSettings.authRoutes.redirectUri,
@@ -29,22 +31,28 @@ function loginHandler(this: WebAppAuthProvider, options: LoginOptions): RequestH
                 req.get("host") || req.hostname
             ),
             responseMode: ResponseMode.FORM_POST,
+            scopes: options.scopes || [],
             prompt: options.prompt || undefined,
-        };
-
-        const authCodeParams: AuthorizationCodeRequest = {
-            scopes: authUrlParams.scopes,
-            state: authUrlParams.state,
-            redirectUri: authUrlParams.redirectUri,
-            code: EMPTY_STRING,
+            claims: options.claims || undefined,
+            account: options.account || undefined,
+            sid: options.sid || undefined,
+            loginHint: options.loginHint || undefined,
+            domainHint: options.domainHint || undefined,
+            extraQueryParameters: options.extraQueryParameters || undefined,
+            extraScopesToConsent: options.extraScopesToConsent || undefined,
         };
 
         req.session.tokenRequestParams = {
-            ...authCodeParams,
-        };
+            scopes: authUrlParams.scopes,
+            state: authUrlParams.state,
+            redirectUri: authUrlParams.redirectUri,
+            claims: authUrlParams.claims,
+            tokenBodyParameters: options.tokenBodyParameters,
+            tokenQueryParameters: options.tokenQueryParameters,
+            code: EMPTY_STRING,
+        } as AuthorizationCodeRequest;
 
         try {
-            // request an authorization code to exchange for tokens
             const response = await this.getMsalClient().getAuthCodeUrl(authUrlParams);
             res.redirect(response);
         } catch (error) {

@@ -14,10 +14,8 @@ export declare type LogoutOptions = Pick<CommonEndSessionRequest, "account" | "s
     idpLogout?: boolean;
     clearCache?: boolean;
 };
-export declare type TokenRequestOptions = Pick<AuthorizationCodeRequest, "scopes" | "claims" | "tokenBodyParameters" | "tokenQueryParameters"> & Pick<AuthorizationUrlRequest, "scopes" | "account" | "loginHint" | "domainHint" | "state" | "extraQueryParameters" | "extraScopesToConsent" | "prompt" | "sid"> & {
+export declare type TokenRequestOptions = LoginOptions & {
     account?: AccountInfo;
-    postLoginRedirectUri?: string;
-    postFailureRedirectUri?: string;
 };
 export declare type TokenRequestMiddlewareOptions = {
     resourceName: string;

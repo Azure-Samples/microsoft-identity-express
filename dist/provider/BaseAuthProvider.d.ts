@@ -9,7 +9,7 @@ export declare abstract class BaseAuthProvider {
     protected constructor(appSettings: AppSettings, msalConfig: Configuration);
     getAppSettings(): AppSettings;
     getMsalConfig(): Configuration;
-    getMsalClient(): ConfidentialClientApplication;
     getCryptoProvider(): CryptoProvider;
     getLogger(): Logger;
+    getMsalClient(): ConfidentialClientApplication;
 }
