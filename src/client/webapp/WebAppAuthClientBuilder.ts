@@ -3,16 +3,16 @@
  * Licensed under the MIT License.
  */
 
-import { Configuration } from '@azure/msal-node';
+import { Configuration } from "@azure/msal-node";
 
-import { BaseAuthClientBuilder } from '../BaseAuthClientBuilder';
-import { MsalWebAppAuthClient } from './MsalWebAppAuthClient';
-import { AppServiceWebAppAuthClient } from './AppServiceWebAppAuthClient';
-import { KeyVaultManager } from '../../network/KeyVaultManager';
-import { MsalConfiguration } from '../../config/MsalConfiguration';
-import { AppSettings, AppType } from '../../config/AppSettings';
-import { EnvironmentUtils } from '../../utils/EnvironmentUtils';
-import { ErrorMessages } from '../../utils/Constants';
+import { BaseAuthClientBuilder } from "../BaseAuthClientBuilder";
+import { MsalWebAppAuthClient } from "./MsalWebAppAuthClient";
+import { AppServiceWebAppAuthClient } from "./AppServiceWebAppAuthClient";
+import { KeyVaultManager } from "../../network/KeyVaultManager";
+import { MsalConfiguration } from "../../config/MsalConfiguration";
+import { AppSettings, AppType } from "../../config/AppSettings";
+import { EnvironmentUtils } from "../../utils/EnvironmentUtils";
+import { ErrorMessages } from "../../utils/Constants";
 
 export class WebAppAuthClientBuilder extends BaseAuthClientBuilder {
     appSettings!: AppSettings;

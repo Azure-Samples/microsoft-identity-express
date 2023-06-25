@@ -1,4 +1,4 @@
-import { LoggerOptions } from '@azure/msal-common';
+import { LoggerOptions } from "@azure/msal-common";
 export declare type AppSettings = {
     appCredentials: AppCredentials;
     loggerOptions?: LoggerOptions;

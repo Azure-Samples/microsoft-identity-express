@@ -4,17 +4,17 @@
  */
 
 module.exports = {
-  verbose: true,
-  moduleFileExtensions: [
-      "ts",
-      "tsx",
-      "js",
-      "json",
-      "jsx",
-      "node"
-  ],
-  testMatch: [
-      "<rootDir>/test/**/*.spec.ts"
-  ],
-  coverageReporters: [["lcov", {"projectRoot": "../../"}]]
+    verbose: true,
+    moduleFileExtensions: [
+        "ts",
+        "tsx",
+        "js",
+        "json",
+        "jsx",
+        "node"
+    ],
+    testMatch: [
+        "<rootDir>/test/**/*.spec.ts"
+    ],
+    coverageReporters: [["lcov", {"projectRoot": "../../"}]]
 };

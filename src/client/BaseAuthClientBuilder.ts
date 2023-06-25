@@ -3,10 +3,12 @@
  * Licensed under the MIT License.
  */
 
-import { ICachePlugin } from '@azure/msal-node';
+import { ICachePlugin } from "@azure/msal-node";
 
-import { ConfigHelper } from '../config/ConfigHelper';
-import { AppSettings, AppType, KeyVaultCredential } from '../config/AppSettings';
+import { ConfigHelper } from "../config/ConfigHelper";
+import { AppSettings, AppType, KeyVaultCredential } from "../config/AppSettings";
+import { MsalWebAppAuthClient } from "./webapp/MsalWebAppAuthClient";
+import { AppServiceWebAppAuthClient } from "./webapp/AppServiceWebAppAuthClient";
 
 export abstract class BaseAuthClientBuilder {
     appSettings: AppSettings;
@@ -28,7 +30,7 @@ export abstract class BaseAuthClientBuilder {
         return this;
     }
 
-    abstract build(): any;
+    abstract build(): MsalWebAppAuthClient | AppServiceWebAppAuthClient;
 
-    abstract buildAsync(): Promise<any>;
+    abstract buildAsync(): Promise<MsalWebAppAuthClient | AppServiceWebAppAuthClient>;
 }

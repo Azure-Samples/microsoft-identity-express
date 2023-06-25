@@ -3,15 +3,15 @@
  * Licensed under the MIT License.
  */
 
-import { AccountInfo, AuthorizationUrlRequest, AuthorizationCodeRequest, SilentFlowRequest } from '@azure/msal-node';
+import { AccountInfo, AuthorizationUrlRequest, AuthorizationCodeRequest, SilentFlowRequest } from "@azure/msal-node";
 
-import { TokenClaims } from '@azure/msal-common';
+import { TokenClaims } from "@azure/msal-common";
 
-import { Resource } from '../config/AppSettings';
-import { AppStages } from './Constants';
+import { Resource } from "../config/AppSettings";
+import { AppStages } from "./Constants";
 
 // extending express session
-declare module 'express-session' {
+declare module "express-session" {
     interface SessionData {
         id: string;
         key: string;
@@ -27,7 +27,7 @@ declare module 'express-session' {
 }
 
 // extending express request
-declare module 'express' {
+declare module "express" {
     export interface Request {
         authInfo?: object;
         oboToken?: string;

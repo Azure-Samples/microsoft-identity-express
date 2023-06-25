@@ -3,15 +3,15 @@
  * Licensed under the MIT License.
  */
 
-import { WebAppSettings } from '../../src/config/AppSettings';
-import { ConfigHelper } from '../../src/config/ConfigHelper';
-import { TEST_APP_SETTINGS } from '../TestConstants';
+import { WebAppSettings } from "../../src/config/AppSettings";
+import { ConfigHelper } from "../../src/config/ConfigHelper";
+import { TEST_APP_SETTINGS } from "../TestConstants";
 
-describe('Configuration helper tests', () => {
+describe("Configuration helper tests", () => {
 
-    it('should detect a GUID', () => {
+    it("should detect a GUID", () => {
         const guid1 = "0D4C9F3E-A8C5-4D4C-B8B0-C8E8E8E8E8E8";
-        const guid2 = "81b8a568-2442-4d53-8d6c-ededab4b7c62"
+        const guid2 = "81b8a568-2442-4d53-8d6c-ededab4b7c62";
         const guid3 = "81b8a56824424d538d6cededab4b7c62";
         const guid4 = "Very pleasant pineapple";
         const guid5 = "";
@@ -23,7 +23,7 @@ describe('Configuration helper tests', () => {
         expect(ConfigHelper.isGuid(guid5)).toBe(false);
     });
 
-    it('should get resource name from a given list of scopes', () => {
+    it("should get resource name from a given list of scopes", () => {
         const appSettings: WebAppSettings = TEST_APP_SETTINGS;
 
         const myTenantScopes = TEST_APP_SETTINGS.protectedResources.myTenat.scopes;
@@ -39,18 +39,18 @@ describe('Configuration helper tests', () => {
         expect(resourceName3).toEqual(Object.keys(TEST_APP_SETTINGS.protectedResources)[3]);
     });
 
-    it('should get scopes from a given endpoint in the settings file', () => {
+    it("should get scopes from a given endpoint in the settings file", () => {
         const appSettings: WebAppSettings = TEST_APP_SETTINGS;
         const endpoint = TEST_APP_SETTINGS.protectedResources.myTenat.endpoint;
         const scopes = ConfigHelper.getScopesFromResourceEndpoint(endpoint, appSettings);
         expect(scopes).toEqual(TEST_APP_SETTINGS.protectedResources.myTenat.scopes);
     });
 
-    it('should get effective scopes from a given list of scopes', () => {
+    it("should get effective scopes from a given list of scopes", () => {
         const scopes = "email openid profile offline_access User.Read calendars.read".split(" ");
         const effectiveScopes = ConfigHelper.getEffectiveScopes(scopes);
         expect(effectiveScopes).toEqual(["User.Read", "calendars.read"]);
         expect(["User.Read", "calendars.read"].every(elem => effectiveScopes.includes(elem))).toBe(true);
     });
 
-})
+});

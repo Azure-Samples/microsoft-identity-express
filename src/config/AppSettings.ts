@@ -3,7 +3,7 @@
  * Licensed under the MIT License.
  */
 
-import { LoggerOptions } from '@azure/msal-common';
+import { LoggerOptions } from "@azure/msal-common";
 
 export type AppSettings = {
     appCredentials: AppCredentials;

@@ -3,16 +3,16 @@
  * Licensed under the MIT License.
  */
 
-import express, { Router, RequestHandler, Request, Response, NextFunction } from 'express';
-import { AccountInfo, AuthToken } from '@azure/msal-common';
-import { Configuration } from '@azure/msal-node';
+import express, { Router, RequestHandler, Request, Response, NextFunction } from "express";
+import { AccountInfo, AuthToken } from "@azure/msal-common";
+import { Configuration } from "@azure/msal-node";
 
-import { BaseAuthClient } from '../BaseAuthClient';
-import { AccessTokenClaims, IdTokenClaims } from '../../utils/Types';
-import { AppSettings, Resource, WebAppSettings } from '../../config/AppSettings';
-import { ConfigHelper } from '../../config/ConfigHelper';
-import { UrlUtils } from '../../utils/UrlUtils';
-import { SignInOptions, SignOutOptions, TokenRequestOptions } from '../MiddlewareOptions';
+import { BaseAuthClient } from "../BaseAuthClient";
+import { AccessTokenClaims, IdTokenClaims } from "../../utils/Types";
+import { AppSettings, Resource, WebAppSettings } from "../../config/AppSettings";
+import { ConfigHelper } from "../../config/ConfigHelper";
+import { UrlUtils } from "../../utils/UrlUtils";
+import { SignInOptions, SignOutOptions, TokenRequestOptions } from "../MiddlewareOptions";
 import {
     AppServiceAuthenticationHeaders,
     AppServiceEnvironmentVariables,
@@ -20,7 +20,7 @@ import {
     AppServiceAuthenticationQueryParameters,
     ErrorMessages,
     ConfigurationErrorMessages,
-} from '../../utils/Constants';
+} from "../../utils/Constants";
 
 export class AppServiceWebAppAuthClient extends BaseAuthClient {
 
@@ -68,9 +68,9 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
 
                     req.session.account = {
                         tenantId: idTokenClaims.tid,
-                        homeAccountId: idTokenClaims.oid + '.' + idTokenClaims.tid,
+                        homeAccountId: idTokenClaims.oid + "." + idTokenClaims.tid,
                         localAccountId: idTokenClaims.oid,
-                        environment: idTokenClaims.iss?.split('://')[1].split('/')[0],
+                        environment: idTokenClaims.iss?.split("://")[1].split("/")[0],
                         username: idTokenClaims.preferred_username,
                         name: idTokenClaims.name,
                         idTokenClaims: idTokenClaims,
@@ -91,15 +91,14 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
      */
     signIn(
         options: SignInOptions = {
-            postLoginRedirect: '/',
-            failureRedirect: '/',
+            postLoginRedirect: "/",
+            failureRedirect: "/",
         }
     ): RequestHandler {
-        return (req: Request, res: Response, next: NextFunction): void => {
-            let loginUri;
+        return (req: Request, res: Response): void => {
             const postLoginRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.postLoginRedirect);
-            loginUri =
-                'https://' +
+            const loginUri =
+                "https://" +
                 process.env[AppServiceEnvironmentVariables.WEBSITE_HOSTNAME] +
                 AppServiceAuthenticationEndpoints.AAD_SIGN_IN_ENDPOINT +
                 AppServiceAuthenticationQueryParameters.POST_LOGIN_REDIRECT_QUERY_PARAM +
@@ -115,13 +114,13 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
      */
     signOut(
         options: SignOutOptions = {
-            postLogoutRedirect: '/',
+            postLogoutRedirect: "/",
         }
     ): RequestHandler {
-        return (req: Request, res: Response, next: NextFunction): void => {
+        return (req: Request, res: Response): void => {
             const postLogoutRedirectUri = UrlUtils.ensureAbsoluteUrl(req, options.postLogoutRedirect);
             const logoutUri =
-                'https://' +
+                "https://" +
                 process.env[AppServiceEnvironmentVariables.WEBSITE_HOSTNAME] +
                 AppServiceAuthenticationEndpoints.AAD_SIGN_OUT_ENDPOINT +
                 AppServiceAuthenticationQueryParameters.POST_LOGOUT_REDIRECT_QUERY_PARAM +
@@ -178,14 +177,14 @@ export class AppServiceWebAppAuthClient extends BaseAuthClient {
                 ) as AccessTokenClaims;
 
                 // get the name of the resource associated with scope
-                const scopes = accessTokenClaims?.scp.split(' ');
+                const scopes = accessTokenClaims?.scp.split(" ");
                 const effectiveScopes = ConfigHelper.getEffectiveScopes(scopes);
 
                 if (options.resource.scopes.every(elem => effectiveScopes.includes(elem))) {
                     req.session.protectedResources[resourceName].accessToken = rawAccessToken;
                     return next();
                 } else {
-                    return next(new Error('No tokens found for given scopes'));
+                    return next(new Error("No tokens found for given scopes"));
                 }
             }
         };
